@@ -6,6 +6,7 @@ categories: [Machine learning]
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 description: "An Interactive and Visual guide to mastering linear regression math. It is one of the most popular machine learning algorithm. It's simplicity makes it a great stepping stone to learn more complex algorithms."
 featured: True
+archived: True
 ---
 
 <!-- #### A little intro to types of Machine Learning Algorithms
