@@ -55,20 +55,43 @@ layout: default
     </script>
   </div>
 
-  {% if page.previous or page.next %}
+  {% assign prev_post = nil %}
+  {% assign next_post = nil %}
+  {% assign found_current = false %}
+  {% for post in site.posts %}
+    {% if post.url == page.url %}
+      {% assign found_current = true %}
+    {% elsif found_current and prev_post == nil %}
+      {% unless post.archived %}
+        {% assign prev_post = post %}
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+  {% assign found_current = false %}
+  {% assign reversed_posts = site.posts | reverse %}
+  {% for post in reversed_posts %}
+    {% if post.url == page.url %}
+      {% assign found_current = true %}
+    {% elsif found_current and next_post == nil %}
+      {% unless post.archived %}
+        {% assign next_post = post %}
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+  {% if prev_post or next_post %}
   <nav class="post-nav">
-    {% if page.previous %}
-    <a class="post-nav-item prev" href="{{ site.baseurl }}{{ page.previous.url }}">
+    {% if prev_post %}
+    <a class="post-nav-item prev" href="{{ site.baseurl }}{{ prev_post.url }}">
       <div class="post-nav-label">&larr; Previous</div>
-      <div class="post-nav-title">{{ page.previous.title }}</div>
+      <div class="post-nav-title">{{ prev_post.title }}</div>
     </a>
     {% else %}
     <div></div>
     {% endif %}
-    {% if page.next %}
-    <a class="post-nav-item next" href="{{ site.baseurl }}{{ page.next.url }}">
+    {% if next_post %}
+    <a class="post-nav-item next" href="{{ site.baseurl }}{{ next_post.url }}">
       <div class="post-nav-label">Next &rarr;</div>
-      <div class="post-nav-title">{{ page.next.title }}</div>
+      <div class="post-nav-title">{{ next_post.title }}</div>
     </a>
     {% else %}
     <div></div>

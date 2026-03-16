@@ -593,6 +593,7 @@ hr {
 /* Post Sidebar TOC */
 .post-sidebar {
   position: relative;
+  align-self: stretch;
 }
 
 .toc-sidebar {
@@ -706,6 +707,9 @@ hr {
   border-collapse: collapse;
   margin: 1.5em 0;
   font-size: 0.9rem;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .post-content th,

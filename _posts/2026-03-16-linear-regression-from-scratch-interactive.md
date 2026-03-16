@@ -1,9 +1,9 @@
----
+﻿---
 layout: post
 title: "Linear Regression from Scratch: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
-description: "Build linear regression from the ground up with interactive visualizations. Drag points, adjust parameters, watch gradient descent converge — all in your browser."
+description: "Build linear regression from the ground up with interactive visualizations. Drag points, adjust parameters, watch gradient descent converge - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 ---
 
@@ -153,7 +153,7 @@ image: assets/images/linear-regression-math/linear-regression-banner.jpg
 <script>
 // Shared utilities and state for all interactive demos
 window.LR = (function() {
-  // Default dataset: area (sq ft) vs price ($1000s) — 10 points
+  // Default dataset: area (sq ft) vs price ($1000s) - 10 points
   var defaultData = [
     {x: 800, y: 160}, {x: 1100, y: 210}, {x: 1400, y: 240},
     {x: 1700, y: 310}, {x: 2000, y: 350}, {x: 2300, y: 390},
@@ -162,7 +162,7 @@ window.LR = (function() {
   ];
   var data = defaultData.map(function(p) { return {x: p.x, y: p.y}; });
 
-  // Shared trained state — persists across all demos
+  // Shared trained state - persists across all demos
   var trained = { w: 0, b: 0, done: false, cost: 0 };
 
   function resetData() {
@@ -342,6 +342,13 @@ window.LR = (function() {
   });
   observer.observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
 
+  var dataCallbacks = [];
+  function onDataChange(cb) { dataCallbacks.push(cb); }
+  function notifyDataChange() {
+    trained.done = false;
+    dataCallbacks.forEach(function(cb) { try { cb(); } catch(e) {} });
+  }
+
   return {
     data: data, defaultData: defaultData, resetData: resetData,
     trained: trained, train: train,
@@ -349,43 +356,44 @@ window.LR = (function() {
     mapX: mapX, mapY: mapY, unmapX: unmapX, unmapY: unmapY,
     drawGrid: drawGrid, drawPoints: drawPoints, drawLine: drawLine,
     computeCost: computeCost, computeGradients: computeGradients,
-    onThemeChange: onThemeChange
+    onThemeChange: onThemeChange,
+    onDataChange: onDataChange, notifyDataChange: notifyDataChange
   };
 })();
 </script>
 
-Linear regression is one of the simplest and most powerful machine learning algorithms. It is the foundation for understanding everything from logistic regression to deep neural networks. In this interactive guide, we will build linear regression **completely from scratch** — and you will get to play with every concept right in your browser.
+Linear regression is one of the simplest and most powerful machine learning algorithms. It is the foundation for understanding everything from logistic regression to deep neural networks. In this interactive guide, we will build linear regression **completely from scratch** - and you will get to play with every concept right in your browser.
 
 We will use a concrete, intuitive example throughout: **predicting house prices based on their area (in square feet)**. Given a set of houses where we know both the area and the price, can we learn a formula that predicts the price of a *new* house given just its area?
 
 By the end of this post you will understand:
-- **Hypothesis function** — the model's prediction formula
-- **Cost function** — how to measure prediction errors
-- **Gradient descent** — the optimization algorithm that finds the best parameters
-- **Learning rate** — the hyperparameter that controls how fast the model learns
-- **Making predictions** — using the trained model on new data
+- **Hypothesis function** - the model's prediction formula
+- **Cost function** - how to measure prediction errors
+- **Gradient descent** - the optimization algorithm that finds the best parameters
+- **Learning rate** - the hyperparameter that controls how fast the model learns
+- **Making predictions** - using the trained model on new data
 
 <div class="demo-hint">
-<strong>How to use the interactive demos:</strong> Each section has a hands-on visualization. You can click, drag, and adjust sliders to experiment. The dataset you create in the first demo is shared across all sections — change it once and everything updates. Trained model parameters also carry forward, so you do not need to retrain for predictions.
+<strong>How to use the interactive demos:</strong> Each section has a hands-on visualization. You can click, drag, and adjust sliders to experiment. The dataset you create in the first demo is shared across all sections - change it once and everything updates. Trained model parameters also carry forward, so you do not need to retrain for predictions.
 </div>
 
 ---
 
 ## What is Linear Regression?
 
-Linear regression is a **supervised learning** algorithm. In supervised learning, we have a dataset of input-output pairs — we know both the input (features) and the correct output (labels). The algorithm learns a mapping from inputs to outputs so it can predict outputs for new, unseen inputs.
+Linear regression is a **supervised learning** algorithm. In supervised learning, we have a dataset of input-output pairs - we know both the input (features) and the correct output (labels). The algorithm learns a mapping from inputs to outputs so it can predict outputs for new, unseen inputs.
 
 In our example:
 - **Input (feature):** House area in square feet (we call this $$x$$)
 - **Output (label):** House price in thousands of dollars (we call this $$y$$)
 
-The "linear" part means our model assumes a **straight-line relationship** between input and output. This is the simplest possible model — and often surprisingly effective.
+The "linear" part means our model assumes a **straight-line relationship** between input and output. This is the simplest possible model - and often surprisingly effective.
 
 A simple linear equation looks like:
 
 $$y = m \cdot x + c$$
 
-If you remember this from high school math, $$m$$ is the **slope** of the line and $$c$$ is the **y-intercept** (where the line crosses the y-axis). In machine learning, we use different notation:
+$$m$$ is the **slope** of the line and $$c$$ is the **y-intercept** (where the line crosses the y-axis). In machine learning, we use different notation:
 
 $$\hat{y} = w \cdot x + b$$
 
@@ -400,7 +408,7 @@ The goal of linear regression is: **given a dataset of $$(x, y)$$ pairs, find th
 
 ## The Training Dataset
 
-Every machine learning model starts with data. Below we have 10 houses with their area (in square feet) and corresponding price (in $1000s). This is our **training dataset** — the set of labeled examples from which the model will learn patterns.
+Every machine learning model starts with data. Below we have 10 houses with their area (in square feet) and corresponding price (in $1000s). This is our **training dataset** - the set of labeled examples from which the model will learn patterns.
 
 The word "training" is important: just like a student learns from textbook examples, our algorithm learns from these data points. The more representative the data, the better the model will generalize to new houses.
 
@@ -411,7 +419,7 @@ The word "training" is important: just like a student learns from textbook examp
 <div class="interactive-demo">
 <canvas id="demo1-canvas"></canvas>
 <div class="demo-controls">
-  <button onclick="LR.resetData(); demo1Draw();">Reset Data</button>
+  <button onclick="LR.resetData(); demo1Draw(); LR.notifyDataChange();">Reset Data</button>
   <span class="demo-info" id="demo1-info">10 points</span>
 </div>
 </div>
@@ -456,7 +464,7 @@ The word "training" is important: just like a student learns from textbook examp
     var pos = getMousePos(e);
     var idx = findPoint(pos.x, pos.y);
     var now = Date.now();
-    if (idx >= 0 && now - lastClick < 400) { LR.data.splice(idx, 1); LR.trained.done = false; draw(); lastClick = 0; return; }
+    if (idx >= 0 && now - lastClick < 400) { LR.data.splice(idx, 1); draw(); LR.notifyDataChange(); lastClick = 0; return; }
     lastClick = now;
     if (idx >= 0) { dragging = idx; }
     else {
@@ -465,8 +473,8 @@ The word "training" is important: just like a student learns from textbook examp
       var dy = LR.unmapY(pos.y, yMin, yMax, padT, plotH);
       if (dx >= xMin && dx <= xMax && dy >= yMin && dy <= yMax) {
         LR.data.push({x: Math.round(dx), y: Math.round(dy)});
-        LR.trained.done = false;
         draw();
+        LR.notifyDataChange();
       }
     }
   });
@@ -479,8 +487,8 @@ The word "training" is important: just like a student learns from textbook examp
     LR.trained.done = false;
     draw();
   });
-  canvas.addEventListener('mouseup', function() { dragging = null; });
-  canvas.addEventListener('mouseleave', function() { dragging = null; });
+  canvas.addEventListener('mouseup', function() { if (dragging !== null) { dragging = null; LR.notifyDataChange(); } });
+  canvas.addEventListener('mouseleave', function() { if (dragging !== null) { dragging = null; LR.notifyDataChange(); } });
   // Touch
   canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
@@ -490,7 +498,7 @@ The word "training" is important: just like a student learns from textbook examp
       var plotW = W - padL - padR, plotH = H - padT - padB;
       var dx = LR.unmapX(pos.x, xMin, xMax, padL, plotW);
       var dy = LR.unmapY(pos.y, yMin, yMax, padT, plotH);
-      if (dx >= xMin && dx <= xMax && dy >= yMin && dy <= yMax) { LR.data.push({x: Math.round(dx), y: Math.round(dy)}); LR.trained.done = false; draw(); }
+      if (dx >= xMin && dx <= xMax && dy >= yMin && dy <= yMax) { LR.data.push({x: Math.round(dx), y: Math.round(dy)}); draw(); LR.notifyDataChange(); }
     }
   }, {passive: false});
   canvas.addEventListener('touchmove', function(e) {
@@ -502,7 +510,7 @@ The word "training" is important: just like a student learns from textbook examp
     LR.data[dragging].y = Math.max(yMin, Math.min(yMax, Math.round(LR.unmapY(pos.y, yMin, yMax, padT, plotH))));
     LR.trained.done = false; draw();
   }, {passive: false});
-  canvas.addEventListener('touchend', function() { dragging = null; });
+  canvas.addEventListener('touchend', function() { if (dragging !== null) { dragging = null; LR.notifyDataChange(); } });
 
   window.demo1Draw = draw;
   LR.onThemeChange(draw);
@@ -512,7 +520,7 @@ The word "training" is important: just like a student learns from textbook examp
 
 Looking at the plot, you can see a clear trend: as the area increases, so does the price. The data points roughly follow a straight line going upward from left to right. This is exactly the kind of pattern that linear regression is designed to capture.
 
-Our goal is to find the **best-fit line** through these points — the line that comes as close as possible to all the data points simultaneously.
+Our goal is to find the **best-fit line** through these points - the line that comes as close as possible to all the data points simultaneously.
 
 ---
 
@@ -524,9 +532,9 @@ $$h(x) = w \cdot x + b$$
 
 This is the equation of a straight line. The two parameters $$w$$ and $$b$$ completely define which line we are drawing:
 
-- **Weight ($$w$$)** controls the **slope** of the line — how steeply the line rises or falls. A larger weight means the price increases faster with area. A weight of zero would be a flat horizontal line (price does not depend on area at all). A negative weight would mean price *decreases* as area increases.
+- **Weight ($$w$$)** controls the **slope** of the line - how steeply the line rises or falls. A larger weight means the price increases faster with area. A weight of zero would be a flat horizontal line (price does not depend on area at all). A negative weight would mean price *decreases* as area increases.
 
-- **Bias ($$b$$)** controls the **y-intercept** — where the line crosses the vertical axis (when $$x = 0$$). You can think of it as the "base price" before considering the area. The bias shifts the entire line up or down without changing its slope.
+- **Bias ($$b$$)** controls the **y-intercept** - where the line crosses the vertical axis (when $$x = 0$$). You can think of it as the "base price" before considering the area. The bias shifts the entire line up or down without changing its slope.
 
 Together, $$w$$ and $$b$$ are the **parameters** (also called **model weights**) of our linear regression model. Training means finding the values of $$w$$ and $$b$$ that produce the best-fit line.
 
@@ -540,7 +548,7 @@ Together, $$w$$ and $$b$$ are the **parameters** (also called **model weights**)
   <label>Weight (w): <input type="range" id="demo2-w" min="-0.1" max="0.4" step="0.002" value="0.15"> <span class="demo-value" id="demo2-w-val">0.150</span></label>
   <label>Bias (b): <input type="range" id="demo2-b" min="-100" max="300" step="2" value="30"> <span class="demo-value" id="demo2-b-val">30</span></label>
 </div>
-<div class="demo-info" id="demo2-eq">h(x) = 0.150 · x + 30</div>
+<div class="demo-info" id="demo2-eq">h(x) = 0.150 * x + 30</div>
 </div>
 
 <script>
@@ -573,11 +581,12 @@ Together, $$w$$ and $$b$$ are the **parameters** (also called **model weights**)
   wSlider.addEventListener('input', draw);
   bSlider.addEventListener('input', draw);
   LR.onThemeChange(draw);
+  LR.onDataChange(draw);
   draw();
 })();
 </script>
 
-Notice how the **weight** controls the rotation of the line (its steepness), while the **bias** slides it up or down. To find the best-fit line, we need to find the precise $$w$$ and $$b$$ values where the line passes closest to all data points. But what does "closest" mean exactly? We need a precise mathematical definition of how "wrong" our line is — that is the **cost function**.
+Notice how the **weight** controls the rotation of the line (its steepness), while the **bias** slides it up or down. To find the best-fit line, we need to find the precise $$w$$ and $$b$$ values where the line passes closest to all data points. But what does "closest" mean exactly? We need a precise mathematical definition of how "wrong" our line is - that is the **cost function**.
 
 ---
 
@@ -591,16 +600,16 @@ $$J(w,b) = \frac{1}{2m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^{(i)}\right)^2$$
 
 Let us break this down piece by piece:
 
-1. **$$h(x^{(i)}) - y^{(i)}$$** — This is the **error** (or **residual**) for a single data point. It is the difference between what our model predicts ($$h(x^{(i)}) = w \cdot x^{(i)} + b$$) and the actual value ($$y^{(i)}$$). If the prediction is too high, this is positive. If too low, it is negative.
+1. **$$h(x^{(i)}) - y^{(i)}$$** - This is the **error** (or **residual**) for a single data point. It is the difference between what our model predicts ($$h(x^{(i)}) = w \cdot x^{(i)} + b$$) and the actual value ($$y^{(i)}$$). If the prediction is too high, this is positive. If too low, it is negative.
 
-2. **$$(\ldots)^2$$** — We **square** each error. This does two things: it makes all errors positive (so errors above and below the line do not cancel out), and it penalizes large errors much more than small ones (an error of 10 is penalized 100x, not 10x).
+2. **$$(\ldots)^2$$** - We **square** each error. This does two things: it makes all errors positive (so errors above and below the line do not cancel out), and it penalizes large errors much more than small ones (an error of 10 is penalized 100x, not 10x).
 
-3. **$$\sum_{i=1}^{m}$$** — We **sum** the squared errors across all $$m$$ data points.
+3. **$$\sum_{i=1}^{m}$$** - We **sum** the squared errors across all $$m$$ data points.
 
-4. **$$\frac{1}{2m}$$** — We **average** by dividing by $$m$$ (so the cost does not depend on how many data points we have). The $$\frac{1}{2}$$ is a mathematical convenience — it makes the derivative cleaner later.
+4. **$$\frac{1}{2m}$$** - We **average** by dividing by $$m$$ (so the cost does not depend on how many data points we have). The $$\frac{1}{2}$$ is a mathematical convenience - it makes the derivative cleaner later.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Adjust the weight and bias sliders. The <strong>red dashed lines</strong> show the error (residual) for each point. The <strong>semi-transparent red squares</strong> visualize the squared error — bigger squares mean bigger errors. Watch the MSE value and try to minimize it!
+<strong>Interactive:</strong> Adjust the weight and bias sliders. The <strong>red dashed lines</strong> show the error (residual) for each point. The <strong>semi-transparent red squares</strong> visualize the squared error - bigger squares mean bigger errors. Watch the MSE value and try to minimize it!
 </div>
 
 <div class="interactive-demo">
@@ -665,33 +674,34 @@ Let us break this down piece by piece:
   wSlider.addEventListener('input', draw);
   bSlider.addEventListener('input', draw);
   LR.onThemeChange(draw);
+  LR.onDataChange(draw);
   draw();
 })();
 </script>
 
-Try to manually find the lowest cost by adjusting the sliders. You will notice it is quite hard to get both $$w$$ and $$b$$ exactly right at the same time — changing one affects how good the other value is. This is why we need an **automated optimization algorithm**. But first, let us visualize what the cost function looks like as a landscape.
+Try to manually find the lowest cost by adjusting the sliders. You will notice it is quite hard to get both $$w$$ and $$b$$ exactly right at the same time - changing one affects how good the other value is. This is why we need an **automated optimization algorithm**. But first, let us visualize what the cost function looks like as a landscape.
 
 ---
 
 ## The Cost Landscape
 
-Every possible combination of $$w$$ and $$b$$ produces a different cost value $$J(w,b)$$. If we plot the cost for all combinations, we get a **cost surface** — a 3D landscape where the horizontal axes are $$w$$ and $$b$$, and the vertical axis is the cost.
+Every possible combination of $$w$$ and $$b$$ produces a different cost value $$J(w,b)$$. If we plot the cost for all combinations, we get a **cost surface** - a 3D landscape where the horizontal axes are $$w$$ and $$b$$, and the vertical axis is the cost.
 
-For linear regression with MSE, this surface is always **bowl-shaped** (mathematically, it is a **convex function**). This is great news because it means there is a single global minimum — one unique "bottom of the bowl" that represents the best possible parameters.
+For linear regression with MSE, this surface is always **bowl-shaped** (mathematically, it is a **convex function**). This is great news because it means there is a single global minimum - one unique "bottom of the bowl" that represents the best possible parameters.
 
 ### Contour Plot View
 
-A **contour plot** is a top-down view of the 3D surface, like a topographic map. Each color band represents a cost level — the darkest regions have the highest cost, and the lightest region at the center is where the minimum is. Think of it as looking down at a valley from above.
+A **contour plot** is a top-down view of the 3D surface, like a topographic map. Each color band represents a cost level - the darkest regions have the highest cost, and the lightest region at the center is where the minimum is. Think of it as looking down at a valley from above.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Drag the green dot around the contour plot. The right panel shows the line corresponding to the current (w, b) position. Try dragging the dot toward the lightest region — that is the minimum cost!
+<strong>Interactive:</strong> Drag the green dot around the contour plot. The right panel shows the line corresponding to the current (w, b) position. Try dragging the dot toward the lightest region - that is the minimum cost!
 </div>
 
 <div class="interactive-demo">
 <div class="demo-split">
   <div>
     <canvas id="demo4-contour"></canvas>
-    <div class="demo-caption">Cost contour — drag the green dot</div>
+    <div class="demo-caption">Cost contour - drag the green dot</div>
   </div>
   <div>
     <canvas id="demo4-line"></canvas>
@@ -790,21 +800,22 @@ A **contour plot** is a top-down view of the 3D surface, like a topographic map.
   contourCanvas.addEventListener('touchend', function() { dragging = false; });
 
   LR.onThemeChange(draw);
+  LR.onDataChange(draw);
   draw();
 })();
 </script>
 
 ### 3D Surface View
 
-Here is the same cost function visualized as a 3D surface. You can see the bowl shape clearly — there is one lowest point (the global minimum) that represents the optimal parameters.
+Here is the same cost function visualized as a 3D surface. You can see the bowl shape clearly - there is one lowest point (the global minimum) that represents the optimal parameters.
 
 <div class="interactive-demo">
 <canvas id="demo4b-3d"></canvas>
 <div class="demo-controls">
-  <label>Rotate: <input type="range" id="demo4b-angle" min="0" max="360" step="1" value="35"> <span class="demo-value" id="demo4b-angle-val">35°</span></label>
-  <label>Tilt: <input type="range" id="demo4b-tilt" min="15" max="75" step="1" value="30"> <span class="demo-value" id="demo4b-tilt-val">30°</span></label>
+  <label>Rotate: <input type="range" id="demo4b-angle" min="0" max="360" step="1" value="35"> <span class="demo-value" id="demo4b-angle-val">35 deg</span></label>
+  <label>Tilt: <input type="range" id="demo4b-tilt" min="15" max="75" step="1" value="30"> <span class="demo-value" id="demo4b-tilt-val">30 deg</span></label>
 </div>
-<div class="demo-caption">3D cost surface J(w, b) — rotate and tilt to explore</div>
+<div class="demo-caption">3D cost surface J(w, b) - rotate and tilt to explore</div>
 </div>
 
 <script>
@@ -911,7 +922,7 @@ Here is the same cost function visualized as a 3D surface. You can see the bowl 
     ctx.fillStyle = c.text; ctx.font = '13px Inter, sans-serif'; ctx.textAlign = 'center';
     var pW = project(1.15, 0, 0); ctx.fillText('w', pW.x, pW.y + 5);
     var pB = project(0, 1.15, 0); ctx.fillText('b', pB.x, pB.y + 5);
-    var pC = project(0, 0, 1.1); ctx.fillText('Cost ↑', pC.x, pC.y - 5);
+    var pC = project(0, 0, 1.1); ctx.fillText('Cost ?', pC.x, pC.y - 5);
     ctx.fillStyle = c.textMuted; ctx.font = '11px Inter, sans-serif';
     ctx.fillText('Low cost (minimum)', cx, H - 10);
   }
@@ -919,6 +930,7 @@ Here is the same cost function visualized as a 3D surface. You can see the bowl 
   angleSlider.addEventListener('input', draw);
   tiltSlider.addEventListener('input', draw);
   LR.onThemeChange(draw);
+  LR.onDataChange(draw);
   draw();
 })();
 </script>
@@ -929,7 +941,7 @@ The bowl shape is a key property. No matter where we start on this surface, if w
 
 ## Gradient Descent
 
-Gradient descent is the **optimization algorithm** that finds the minimum of the cost function. It is one of the most important algorithms in all of machine learning — the same basic idea powers training of neural networks with millions of parameters.
+Gradient descent is the **optimization algorithm** that finds the minimum of the cost function. It is one of the most important algorithms in all of machine learning - the same basic idea powers training of neural networks with millions of parameters.
 
 ### The Intuition: Lost on a Foggy Mountain
 
@@ -941,8 +953,8 @@ Imagine you are standing on a mountain in thick fog. You cannot see more than a 
 
 This is exactly how gradient descent works:
 
-1. **Compute the gradient** (the slope of the cost function at your current position) — this tells you which direction is "uphill"
-2. **Move in the opposite direction** (downhill) — this decreases the cost
+1. **Compute the gradient** (the slope of the cost function at your current position) - this tells you which direction is "uphill"
+2. **Move in the opposite direction** (downhill) - this decreases the cost
 3. **Repeat** for many iterations until the cost stops decreasing significantly
 
 ### The Math
@@ -987,12 +999,12 @@ If the gradient (slope) is **positive** at our current $$w$$, it means cost incr
 <canvas id="demo5-loss" style="width:100%; max-width:680px;"></canvas>
 <div class="demo-caption">Cost J(w,b) vs. iteration number</div>
 <div class="demo-controls">
-  <label>α: <input type="range" id="demo5-lr" min="-10" max="-5" step="0.1" value="-7"> <span class="demo-value" id="demo5-lr-val">1.0e-7</span></label>
+  <label>a: <input type="range" id="demo5-lr" min="-10" max="-5" step="0.1" value="-7"> <span class="demo-value" id="demo5-lr-val">1.0e-7</span></label>
   <button id="demo5-step">Step</button>
   <button id="demo5-run">Run</button>
   <button id="demo5-reset">Reset</button>
 </div>
-<div class="demo-info" id="demo5-info">Iteration: 0 | w = 0.0000, b = 0.0, Cost = —</div>
+<div class="demo-info" id="demo5-info">Iteration: 0 | w = 0.0000, b = 0.0, Cost =  - </div>
 </div>
 
 <script>
@@ -1156,6 +1168,7 @@ If the gradient (slope) is **positive** at our current $$w$$, it means cost incr
   resetBtn.addEventListener('click', function() { init(); buildGrid(); lrVal.textContent = getLR().toExponential(1); drawAll(); });
 
   LR.onThemeChange(function() { buildGrid(); drawAll(); });
+  LR.onDataChange(function() { running = false; if (animId) cancelAnimationFrame(animId); runBtn.textContent = 'Run'; init(); buildGrid(); drawAll(); });
   init(); buildGrid(); lrVal.textContent = getLR().toExponential(1); drawAll();
 })();
 </script>
@@ -1166,7 +1179,7 @@ After running gradient descent for enough iterations, the green dot settles at t
 
 ## The Learning Rate
 
-The **learning rate** $$\alpha$$ is a crucial **hyperparameter** — a setting that you choose before training, not something the algorithm learns from data. It controls the **step size** at each iteration of gradient descent.
+The **learning rate** $$\alpha$$ is a crucial **hyperparameter** - a setting that you choose before training, not something the algorithm learns from data. It controls the **step size** at each iteration of gradient descent.
 
 Choosing the right learning rate is important:
 
@@ -1174,9 +1187,9 @@ Choosing the right learning rate is important:
 
 - **Just right** (e.g., $$\alpha = 0.00000005$$): Steady, smooth convergence to the minimum in a reasonable number of iterations. The cost decreases quickly at first, then gradually levels off.
 
-- **Too large** (e.g., $$\alpha = 0.000001$$): Each step is so big that the algorithm **overshoots** the minimum — it jumps past the bottom of the bowl to the other side. If too large, the cost can actually *increase* with each iteration (divergence), and the model never converges.
+- **Too large** (e.g., $$\alpha = 0.000001$$): Each step is so big that the algorithm **overshoots** the minimum - it jumps past the bottom of the bowl to the other side. If too large, the cost can actually *increase* with each iteration (divergence), and the model never converges.
 
-There is no formula for the "best" learning rate — it depends on the data and the problem. In practice, you try several values and pick the one that converges smoothly and efficiently.
+There is no formula for the "best" learning rate - it depends on the data and the problem. In practice, you try several values and pick the one that converges smoothly and efficiently.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Click <strong>Run All</strong> to see three learning rates competing simultaneously. Each chart shows cost vs. iteration. You can edit the learning rate values to experiment.
@@ -1185,19 +1198,19 @@ There is no formula for the "best" learning rate — it depends on the data and 
 <div class="interactive-demo">
 <div class="lr-trio">
   <div class="lr-trio-item">
-    <div class="lr-label">α = <input type="number" id="demo6-lr1" value="0.00000000001" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--color-border); border-radius:4px; padding:2px 4px; background:var(--color-bg); color:var(--color-text);"></div>
+    <div class="lr-label">a = <input type="number" id="demo6-lr1" value="0.00000000001" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--color-border); border-radius:4px; padding:2px 4px; background:var(--color-bg); color:var(--color-text);"></div>
     <canvas id="demo6-c1"></canvas>
-    <div class="demo-info" id="demo6-i1">Too slow — Cost: —</div>
+    <div class="demo-info" id="demo6-i1">Too slow - Cost:  - </div>
   </div>
   <div class="lr-trio-item">
-    <div class="lr-label">α = <input type="number" id="demo6-lr2" value="0.0000001" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--color-border); border-radius:4px; padding:2px 4px; background:var(--color-bg); color:var(--color-text);"></div>
+    <div class="lr-label">a = <input type="number" id="demo6-lr2" value="0.0000001" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--color-border); border-radius:4px; padding:2px 4px; background:var(--color-bg); color:var(--color-text);"></div>
     <canvas id="demo6-c2"></canvas>
-    <div class="demo-info" id="demo6-i2">Just right — Cost: —</div>
+    <div class="demo-info" id="demo6-i2">Just right - Cost:  - </div>
   </div>
   <div class="lr-trio-item">
-    <div class="lr-label">α = <input type="number" id="demo6-lr3" value="0.0000005" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--color-border); border-radius:4px; padding:2px 4px; background:var(--color-bg); color:var(--color-text);"></div>
+    <div class="lr-label">a = <input type="number" id="demo6-lr3" value="0.0000005" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--color-border); border-radius:4px; padding:2px 4px; background:var(--color-bg); color:var(--color-text);"></div>
     <canvas id="demo6-c3"></canvas>
-    <div class="demo-info" id="demo6-i3">Too fast — Cost: —</div>
+    <div class="demo-info" id="demo6-i3">Too fast - Cost:  - </div>
   </div>
 </div>
 <div class="demo-controls" style="justify-content:center;">
@@ -1284,6 +1297,7 @@ There is no formula for the "best" learning rate — it depends on the data and 
   resetBtn.addEventListener('click', function() { running = false; if (animId) cancelAnimationFrame(animId); runBtn.textContent = 'Run All'; initStates(); drawAll(); });
 
   LR.onThemeChange(drawAll);
+  LR.onDataChange(function() { running = false; if (animId) cancelAnimationFrame(animId); runBtn.textContent = 'Run All'; initStates(); drawAll(); });
   initStates(); drawAll();
 })();
 </script>
@@ -1331,7 +1345,7 @@ def linear_regression(X, y, lr=0.0000001, iterations=5000):
 ```
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Edit the parameters below and click <strong>Run</strong>. The output shows training progress and the final best-fit line. The trained parameters are saved — the Prediction section below will automatically use them.
+<strong>Interactive:</strong> Edit the parameters below and click <strong>Run</strong>. The output shows training progress and the final best-fit line. The trained parameters are saved - the Prediction section below will automatically use them.
 </div>
 
 <div class="interactive-demo">
@@ -1410,6 +1424,7 @@ var w = 0, b = 0;
 
   runBtn.addEventListener('click', run);
   LR.onThemeChange(function() { if (LR.trained.done) drawResult(LR.trained.w, LR.trained.b); });
+  LR.onDataChange(function() { output.textContent = 'Dataset changed - click "Run" to retrain.'; var ctx = LR.setupCanvas(canvas, W, H); ctx.fillStyle = LR.getColors().bg; ctx.fillRect(0, 0, W, H); });
 })();
 </script>
 
@@ -1427,7 +1442,7 @@ $$\hat{y} = 0.151 \times 2800 + 42.2 = 465.0$$
 
 So we predict the price would be approximately **$465,000**.
 
-This is the power of machine learning — we did not hard-code any rules about house prices. The model **learned** the relationship from the data automatically, and now can generalize to houses it has never seen before.
+This is the power of machine learning - we did not hard-code any rules about house prices. The model **learned** the relationship from the data automatically, and now can generalize to houses it has never seen before.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> This demo uses the trained parameters from the gradient descent above. If you have not trained yet, click <strong>Auto-Train</strong>. Then enter any house area and click <strong>Predict</strong> to see the result on the plot.
@@ -1513,6 +1528,7 @@ This is the power of machine learning — we did not hard-code any rules about h
   });
 
   LR.onThemeChange(draw);
+  LR.onDataChange(function() { predX = null; predY = null; infoEl.textContent = 'Dataset changed - click Auto-Train then Predict.'; draw(); });
   draw();
 })();
 </script>
@@ -1532,11 +1548,10 @@ Here is everything we covered, building linear regression completely from the gr
 | **Learning rate** ($$\alpha$$) | Controls step size | Hyperparameter (you choose) |
 | **Prediction** | Uses trained model on new data | $$\hat{y} = w_{trained} \cdot x + b_{trained}$$ |
 
-These same fundamental concepts — cost functions, gradients, and iterative optimization — are the building blocks of virtually all modern machine learning, from logistic regression and SVMs to convolutional neural networks and transformers.
+These same fundamental concepts - cost functions, gradients, and iterative optimization - are the building blocks of virtually all modern machine learning, from logistic regression and SVMs to convolutional neural networks and transformers.
 
 #### What's Next
 
-- **Multiple linear regression**: Extend to multiple input features (area, bedrooms, age, location...)
 - **Feature scaling**: Normalize inputs so gradient descent converges faster
 - **Regularization**: L1 (Lasso) and L2 (Ridge) penalties to prevent overfitting
 - **Polynomial regression**: Fit curves instead of lines by adding polynomial features
@@ -1546,5 +1561,8 @@ These same fundamental concepts — cost functions, gradients, and iterative opt
 #### References
 
 - [Machine Learning](https://www.coursera.org/learn/machine-learning) course by Andrew Ng on Coursera
-- [Linear Regression](https://en.wikipedia.org/wiki/Linear_regression) — Wikipedia
-- [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent) — Wikipedia
+- [Linear Regression](https://en.wikipedia.org/wiki/Linear_regression) - Wikipedia
+- [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent) - Wikipedia
+
+
+
