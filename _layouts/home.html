@@ -1,0 +1,32 @@
+---
+layout: default
+---
+
+<div class="container">
+
+  <!-- Posts -->
+  <section class="posts-section posts-section-top">
+    <div class="section-label">Articles</div>
+    <ul class="post-list">
+      {% for post in paginator.posts %}
+        {% unless post.archived %}
+          {% include post-card.html %}
+        {% endunless %}
+      {% endfor %}
+    </ul>
+
+    <!-- Pagination -->
+    {% if paginator.total_pages > 1 %}
+    <div class="pagination">
+      {% if paginator.previous_page %}
+        <a href="{% if paginator.previous_page == 1 %}{{ site.baseurl }}/{% else %}{{ site.baseurl }}/page{{ paginator.previous_page }}/{% endif %}">&larr; Newer</a>
+      {% endif %}
+      <span class="current">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
+      {% if paginator.next_page %}
+        <a href="{{ site.baseurl }}/page{{ paginator.next_page }}/">Older &rarr;</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+</div>

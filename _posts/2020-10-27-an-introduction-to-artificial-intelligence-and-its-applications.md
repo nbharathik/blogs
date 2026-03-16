@@ -6,6 +6,7 @@ categories: [Artificial Intelligence, Machine learning]
 image: assets/images/introduction-to-ai-images/robot-img.jpg
 description: "This is an introduction blog to AI, Machine learning, Deep learning, Data science and AI applications. Discover how AI is transforming our lives in our day-to-day life."
 featured: false
+archived: true
 ---
 
 **Artificial Intelligence** is all around us, say from Netflix movie suggestions, facial recognition in our mobile phone, speech recognition, chatbots and much more. It has made a significant progress in the recent years.

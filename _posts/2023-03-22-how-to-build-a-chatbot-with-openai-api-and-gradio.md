@@ -6,6 +6,7 @@ categories: [Natural Language Processing, Machine learning]
 image: assets/images/how-to-build-a-chatbot-with-openai-api-and-gradio-images/chatbot-logo.jfif
 description: "This blog will show you how to build a chatbot with OpenAI API and Gradio."
 featured: True
+archived: true
 ---
 
 Artificial intelligence is transforming the way we interact with technology. With the help of natural language processing (NLP), chatbots and conversational agents are becoming increasingly popular. OpenAI API is a powerful tool that allows developers to create intelligent chatbots that can hold a conversation with users. In this tutorial, we will show you how to use OpenAI API with integration in Gradio as a chat application.

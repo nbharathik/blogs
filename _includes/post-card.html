@@ -1,0 +1,24 @@
+<li class="post-item">
+  <h3 class="post-item-title">
+    <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+  </h3>
+  {% if post.description %}
+  <p class="post-item-desc">{{ post.description }}</p>
+  {% endif %}
+  <div class="post-item-meta">
+    <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%b %-d, %Y" }}</time>
+    <span class="dot"></span>
+    {% assign words = post.content | number_of_words %}
+    {% assign minutes = words | divided_by: 200 %}
+    {% if minutes < 1 %}{% assign minutes = 1 %}{% endif %}
+    <span>{{ minutes }} min read</span>
+    {% if post.categories.size > 0 %}
+    <span class="dot"></span>
+    <span class="post-item-tags">
+      {% for cat in post.categories limit:3 %}
+      <a href="{{ site.baseurl }}/categories#{{ cat | slugify }}">{{ cat }}</a>
+      {% endfor %}
+    </span>
+    {% endif %}
+  </div>
+</li>
