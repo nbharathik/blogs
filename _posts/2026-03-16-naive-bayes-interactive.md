@@ -277,7 +277,7 @@ window.NB = (function() {
 
 Naive Bayes is one of the simplest yet most effective classification algorithms in machine learning. Despite its "naive" assumption that features are independent, it performs remarkably well for text classification, spam filtering, and medical diagnosis. Its secret weapon is **Bayes' theorem**, which gives us a principled way to update beliefs in the face of new evidence.
 
-In this chapter, we will build Naive Bayes from scratch with interactive visualizations that let you manipulate every parameter and see the results in real time.
+In this chapter, we will build Naive Bayes from scratch with interactive visualizations that let you manipulate every parameter and see the results in real-time.
 
 ---
 

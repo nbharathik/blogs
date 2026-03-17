@@ -722,7 +722,7 @@ The **decision threshold** determines where we draw the line. For a model that o
 </script>
 
 <div class="demo-hint">
-Drag the <strong>threshold slider</strong> and watch the confusion matrix update in real time. Notice how lowering the threshold catches more true positives but also increases false positives. Points are color-coded: <span style="color:#16a34a;font-weight:600;">TP</span>, <span style="color:#d97706;font-weight:600;">FP</span>, <span style="color:#2563eb;font-weight:600;">TN</span>, <span style="color:#e63946;font-weight:600;">FN</span>.
+Drag the <strong>threshold slider</strong> and watch the confusion matrix update in real-time. Notice how lowering the threshold catches more true positives but also increases false positives. Points are color-coded: <span style="color:#16a34a;font-weight:600;">TP</span>, <span style="color:#d97706;font-weight:600;">FP</span>, <span style="color:#2563eb;font-weight:600;">TN</span>, <span style="color:#e63946;font-weight:600;">FN</span>.
 </div>
 
 ---

@@ -1,22 +1,55 @@
 <li class="post-item">
   <h3 class="post-item-title">
-    <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+    <a href="{{ post.url | prepend: site.baseurl }}">
+      <span class="post-item-title-text">{{ post.title }}</span>
+      <span class="post-item-open">Read series &rarr;</span>
+    </a>
   </h3>
   {% if post.description %}
   <p class="post-item-desc">{{ post.description }}</p>
   {% endif %}
+
+  {% if include.show_series_preview %}
+    {% assign parent_category = post.categories | first %}
+    {% if parent_category %}
+      {% assign series_posts = site.posts | where_exp: "p", "p.hidden == true and p.archived != true and p.categories contains parent_category" | sort: "date" %}
+    {% else %}
+      {% assign series_posts = '' %}
+    {% endif %}
+    {% if series_posts.size > 0 %}
+    <div class="post-series-preview" aria-label="{{ parent_category }} chapters preview">
+      <div class="post-series-head">
+        <span class="post-series-title">Inside This Series</span>
+        <span class="post-series-count">{{ series_posts.size }} chapters</span>
+      </div>
+      <ul class="post-series-list">
+        {% for series_post in series_posts %}
+        <li>
+          <a href="{{ series_post.url | prepend: site.baseurl }}">
+            <span>{{ series_post.title }}</span>
+            <time datetime="{{ series_post.date | date: '%Y-%m-%d' }}">{{ series_post.date | date: "%b %-d, %Y" }}</time>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  {% endif %}
+
   <div class="post-item-meta">
     <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%b %-d, %Y" }}</time>
-    <span class="dot"></span>
-    {% assign words = post.content | number_of_words %}
-    {% assign minutes = words | divided_by: 200 %}
-    {% if minutes < 1 %}{% assign minutes = 1 %}{% endif %}
-    <span>{{ minutes }} min read</span>
+    {% unless include.show_series_preview %}
+      <span class="dot"></span>
+      {% assign words = post.content | number_of_words %}
+      {% assign minutes = words | divided_by: 200 %}
+      {% if minutes < 1 %}{% assign minutes = 1 %}{% endif %}
+      <span>{{ minutes }} min read</span>
+    {% endunless %}
     {% if post.categories.size > 0 %}
     <span class="dot"></span>
     <span class="post-item-tags">
       {% for cat in post.categories limit:3 %}
-      <a href="{{ site.baseurl }}/categories#{{ cat | slugify }}">{{ cat }}</a>
+      <a href="{{ site.baseurl }}/categories?category={{ cat | slugify | uri_escape }}">{{ cat }}</a>
       {% endfor %}
     </span>
     {% endif %}

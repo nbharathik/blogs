@@ -816,7 +816,7 @@ The curve typically drops steeply as K increases from 1, then flattens out. The 
 
 Each point in K-Means is assigned to its nearest centroid. If we color every pixel in the space by which centroid is closest, we get **Voronoi regions** -- the territory each centroid "owns."
 
-**Drag the centroids** around to see how the Voronoi regions reshape in real time.
+**Drag the centroids** around to see how the Voronoi regions reshape in real-time.
 
 <div class="interactive-demo" id="demo-voronoi">
   <canvas id="canvas-voronoi"></canvas>

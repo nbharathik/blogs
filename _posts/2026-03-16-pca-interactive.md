@@ -656,7 +656,7 @@ PCA computes eigenvectors of the **covariance matrix**. In 2D, there are exactly
 
 ### Try It: Click to Add Points
 
-Click anywhere on the canvas to add points. Watch the eigenvectors (arrows) update in real time. PC1 (red) always points in the direction of maximum spread. PC2 (green) is perpendicular. Arrow lengths are proportional to eigenvalues.
+Click anywhere on the canvas to add points. Watch the eigenvectors (arrows) update in real-time. PC1 (red) always points in the direction of maximum spread. PC2 (green) is perpendicular. Arrow lengths are proportional to eigenvalues.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Click to add points. The eigenvectors update instantly. Try creating elongated clusters, circular clouds, or L-shapes to see how the principal components change.
@@ -2030,7 +2030,7 @@ One of PCA's most powerful applications is visualizing high-dimensional data. He
 
 ---
 
-## 9. Full PCA Pipeline: Step by Step
+## 9. Full PCA Pipeline: step-by-step
 
 Let us trace through the complete PCA algorithm on a concrete example. Consider a 2D dataset with $$n$$ points:
 

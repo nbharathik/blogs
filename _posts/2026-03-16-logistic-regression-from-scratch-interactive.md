@@ -1340,7 +1340,7 @@ The decision boundary is a powerful concept. In our one-dimensional example, it 
 
 ## Implementing from Scratch
 
-Let us put together the complete algorithm step by step:
+Let us put together the complete algorithm step-by-step:
 
 **Algorithm: Single-Feature (Univariate) Logistic Regression**
 
@@ -1658,7 +1658,3 @@ The logistic regression model shares the same fundamental framework as linear re
 #### References
 
 - [Machine Learning](https://www.coursera.org/learn/machine-learning) course by Andrew Ng on Coursera
-
-
-
-

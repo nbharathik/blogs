@@ -9,7 +9,7 @@ layout: default
     {% if page.categories.size > 0 %}
     <div class="post-categories">
       {% for cat in page.categories %}
-      <a href="{{ site.baseurl }}/categories#{{ cat | slugify }}">{{ cat }}</a>
+      <a href="{{ site.baseurl }}/categories?category={{ cat | slugify | uri_escape }}">{{ cat }}</a>
       {% endfor %}
     </div>
     {% endif %}

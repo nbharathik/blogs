@@ -45,27 +45,6 @@ permalink: /dsa/
   margin: 0 0 0.6rem 0;
   line-height: 1.5;
 }
-.dsa-tag {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-.dsa-tag.beginner {
-  background: rgba(22, 163, 74, 0.12);
-  color: #16a34a;
-}
-.dsa-tag.intermediate {
-  background: rgba(234, 179, 8, 0.12);
-  color: #ca8a04;
-}
-.dsa-tag.advanced {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
-}
 .dsa-category {
   margin-bottom: 2rem;
 }
@@ -124,13 +103,11 @@ Every data structure and algorithm is implemented in Python from scratch, with i
       <div class="dsa-card-icon">&#9646;&#9646;&#9646;</div>
       <h3>Sorting Algorithms</h3>
       <p>Bubble, selection, insertion, merge, and quick sort  - visualized step by step. Race them against each other.</p>
-      <span class="dsa-tag beginner">Beginner</span>
     </a>
     <a class="dsa-card" href="{{ site.baseurl }}/searching-algorithms-interactive/">
       <div class="dsa-card-icon">&#128269;</div>
       <h3>Searching Algorithms</h3>
       <p>Linear search vs binary search. See why O(log n) crushes O(n) with visual proof.</p>
-      <span class="dsa-tag beginner">Beginner</span>
     </a>
   </div>
 </div>
@@ -142,13 +119,11 @@ Every data structure and algorithm is implemented in Python from scratch, with i
       <div class="dsa-card-icon">&#9654;&#9654;&#9654;</div>
       <h3>Linked Lists</h3>
       <p>Singly and doubly linked lists. Insert, delete, reverse, merge  - all animated with pointer re-routing.</p>
-      <span class="dsa-tag beginner">Beginner</span>
     </a>
     <a class="dsa-card" href="{{ site.baseurl }}/stacks-and-queues-interactive/">
       <div class="dsa-card-icon">&#9776;</div>
       <h3>Stacks and Queues</h3>
       <p>LIFO vs FIFO visualized. Push, pop, enqueue, dequeue with real-time animations.</p>
-      <span class="dsa-tag beginner">Beginner</span>
     </a>
   </div>
 </div>
@@ -160,25 +135,21 @@ Every data structure and algorithm is implemented in Python from scratch, with i
       <div class="dsa-card-icon">&#9651;</div>
       <h3>Binary Trees and BST</h3>
       <p>Traversals, insertion, deletion, search. Build and explore binary search trees interactively.</p>
-      <span class="dsa-tag intermediate">Intermediate</span>
     </a>
     <a class="dsa-card" href="{{ site.baseurl }}/balanced-trees-interactive/">
       <div class="dsa-card-icon">&#9878;</div>
       <h3>Balanced Trees</h3>
       <p>AVL and Red-Black trees. Watch rotations and recoloring happen in real time.</p>
-      <span class="dsa-tag advanced">Advanced</span>
     </a>
     <a class="dsa-card" href="{{ site.baseurl }}/heaps-interactive/">
       <div class="dsa-card-icon">&#9650;</div>
       <h3>Heaps</h3>
       <p>Min-heap with dual tree + array view. Sift up, sift down, and heapify visualized.</p>
-      <span class="dsa-tag intermediate">Intermediate</span>
     </a>
     <a class="dsa-card" href="{{ site.baseurl }}/tries-interactive/">
       <div class="dsa-card-icon">&#9733;</div>
       <h3>Tries</h3>
       <p>Prefix trees for string operations. Build a trie letter by letter and search with autocomplete.</p>
-      <span class="dsa-tag intermediate">Intermediate</span>
     </a>
   </div>
 </div>
@@ -190,7 +161,6 @@ Every data structure and algorithm is implemented in Python from scratch, with i
       <div class="dsa-card-icon">#</div>
       <h3>Hash Tables</h3>
       <p>Hash functions, bucket arrays, and collision handling with separate chaining  - all visual.</p>
-      <span class="dsa-tag intermediate">Intermediate</span>
     </a>
   </div>
 </div>
@@ -202,7 +172,6 @@ Every data structure and algorithm is implemented in Python from scratch, with i
       <div class="dsa-card-icon">&#9638;</div>
       <h3>Dynamic Programming</h3>
       <p>Fibonacci, knapsack, LCS, edit distance. Interactive DP tables and recursion tree visualizations.</p>
-      <span class="dsa-tag advanced">Advanced</span>
     </a>
   </div>
 </div>

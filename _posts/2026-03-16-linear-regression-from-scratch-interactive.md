@@ -1331,7 +1331,7 @@ There is no formula for the "best" learning rate - it depends on the data and th
 
 ## Implementing from Scratch
 
-Let us put together the complete algorithm step by step:
+Let us put together the complete algorithm step-by-step:
 
 **Algorithm A: Single-Feature (Univariate) Linear Regression**
 
@@ -1362,7 +1362,7 @@ def linear_regression_univariate(X, y, lr=1e-7, iterations=5000):
     return w, b, cost
 ```
 
-**Walk through this code step by step** - see exactly what each line computes, with live values and a plot that updates as the algorithm learns:
+**Walk through this code step-by-step** - see exactly what each line computes, with live values and a plot that updates as the algorithm learns:
 
 <style>
 .cw-wrap{display:grid;grid-template-columns:1fr;gap:0.75rem}
@@ -1880,7 +1880,3 @@ The same fundamental concepts - cost functions, gradients, and iterative optimiz
 #### References
 
 - [Machine Learning](https://www.coursera.org/learn/machine-learning) course by Andrew Ng on Coursera
-
-
-
-
