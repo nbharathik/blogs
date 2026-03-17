@@ -1,19 +1,21 @@
-﻿---
+---
 layout: post
 title: "Linear Regression from Scratch: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+hidden: true
 description: "Build linear regression from the ground up with interactive visualizations. Drag points, adjust parameters, watch gradient descent converge - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+date: 2026-03-16
 ---
 
 <style>
 .interactive-demo {
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.2rem;
   margin: 1.5rem 0;
-  background: var(--color-bg);
+  background: var(--bg-secondary);
   overflow: hidden;
 }
 .interactive-demo canvas {
@@ -39,22 +41,22 @@ image: assets/images/linear-regression-math/linear-regression-banner.jpg
 }
 .demo-controls input[type="range"] {
   width: 160px;
-  accent-color: var(--color-primary);
+  accent-color: var(--accent);
 }
 .demo-controls button {
   padding: 0.4rem 1rem;
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--accent);
   border-radius: 6px;
   background: transparent;
-  color: var(--color-primary);
+  color: var(--accent);
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
   transition: background 0.15s, color 0.15s;
 }
 .demo-controls button:hover {
-  background: var(--color-primary);
-  color: var(--color-bg);
+  background: var(--accent);
+  color: var(--bg-primary);
 }
 .demo-controls .demo-value {
   font-family: 'JetBrains Mono', monospace;
@@ -64,7 +66,7 @@ image: assets/images/linear-regression-math/linear-regression-banner.jpg
 .demo-info {
   margin-top: 0.5rem;
   font-size: 0.85rem;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   font-family: 'JetBrains Mono', monospace;
 }
 .demo-split {
@@ -79,7 +81,7 @@ image: assets/images/linear-regression-math/linear-regression-banner.jpg
 .demo-caption {
   text-align: center;
   font-size: 0.8rem;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   margin-top: 0.4rem;
 }
 .lr-trio {
@@ -107,10 +109,10 @@ image: assets/images/linear-regression-math/linear-regression-banner.jpg
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.82rem;
   padding: 0.75rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   resize: vertical;
   line-height: 1.5;
   tab-size: 2;
@@ -119,7 +121,9 @@ image: assets/images/linear-regression-math/linear-regression-banner.jpg
   margin-top: 0.5rem;
   padding: 0.75rem;
   border-radius: 8px;
-  background: var(--color-bg-alt, var(--color-bg));
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.82rem;
   white-space: pre-wrap;
@@ -128,25 +132,34 @@ image: assets/images/linear-regression-math/linear-regression-banner.jpg
 }
 .predict-input {
   padding: 0.4rem 0.75rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border);
   border-radius: 6px;
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-size: 0.9rem;
   width: 160px;
   font-family: 'JetBrains Mono', monospace;
 }
 .demo-hint {
-  background: var(--color-bg-alt, var(--color-bg));
-  border-left: 3px solid var(--color-primary);
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--accent);
   padding: 0.6rem 0.9rem;
   margin: 1rem 0;
   border-radius: 0 6px 6px 0;
   font-size: 0.85rem;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
 }
 .demo-3d-container {
   position: relative;
+}
+.demo-try {
+  margin-top: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
 }
 </style>
 
@@ -679,6 +692,10 @@ Let us break this down piece by piece:
 })();
 </script>
 
+<div class="demo-try">
+<strong>Try this:</strong> Set <code>w = 0</code>, then tune only <code>b</code> to reduce cost. Next freeze <code>b</code> and tune <code>w</code>. Compare the best cost from each step vs tuning both together.
+</div>
+
 Try to manually find the lowest cost by adjusting the sliders. You will notice it is quite hard to get both $$w$$ and $$b$$ exactly right at the same time - changing one affects how good the other value is. This is why we need an **automated optimization algorithm**. But first, let us visualize what the cost function looks like as a landscape.
 
 ---
@@ -774,7 +791,7 @@ A **contour plot** is a top-down view of the 3D surface, like a topographic map.
     var ctx = LR.setupCanvas(lineCanvas, LW, LH);
     var c = LR.getColors();
     ctx.fillStyle = c.bg; ctx.fillRect(0, 0, LW, LH);
-    LR.drawGrid(ctx, LW, LH, padL, padR, padT, padB, xMin, xMax, yMin, yMax, 'Area', 'Price');
+    LR.drawGrid(ctx, LW, LH, padL, padR, padT, padB, xMin, xMax, yMin, yMax, 'Area (sq ft)', 'Price ($1000s)');
     LR.drawLine(ctx, curW, curB, xMin, xMax, yMin, yMax, padL, padR, padT, padB, LW, LH);
     LR.drawPoints(ctx, LR.data, xMin, xMax, yMin, yMax, padL, padR, padT, padB, LW, LH, 5);
   }
@@ -922,7 +939,7 @@ Here is the same cost function visualized as a 3D surface. You can see the bowl 
     ctx.fillStyle = c.text; ctx.font = '13px Inter, sans-serif'; ctx.textAlign = 'center';
     var pW = project(1.15, 0, 0); ctx.fillText('w', pW.x, pW.y + 5);
     var pB = project(0, 1.15, 0); ctx.fillText('b', pB.x, pB.y + 5);
-    var pC = project(0, 0, 1.1); ctx.fillText('Cost ?', pC.x, pC.y - 5);
+    var pC = project(0, 0, 1.1); ctx.fillText('Cost J', pC.x, pC.y - 5);
     ctx.fillStyle = c.textMuted; ctx.font = '11px Inter, sans-serif';
     ctx.fillText('Low cost (minimum)', cx, H - 10);
   }
@@ -999,12 +1016,12 @@ If the gradient (slope) is **positive** at our current $$w$$, it means cost incr
 <canvas id="demo5-loss" style="width:100%; max-width:680px;"></canvas>
 <div class="demo-caption">Cost J(w,b) vs. iteration number</div>
 <div class="demo-controls">
-  <label>a: <input type="range" id="demo5-lr" min="-10" max="-5" step="0.1" value="-7"> <span class="demo-value" id="demo5-lr-val">1.0e-7</span></label>
+  <label>alpha (10^x): <input type="range" id="demo5-lr" min="-10" max="-5" step="0.1" value="-7"> <span class="demo-value" id="demo5-lr-val">1.0e-7</span></label>
   <button id="demo5-step">Step</button>
   <button id="demo5-run">Run</button>
   <button id="demo5-reset">Reset</button>
 </div>
-<div class="demo-info" id="demo5-info">Iteration: 0 | w = 0.0000, b = 0.0, Cost =  - </div>
+<div class="demo-info" id="demo5-info">Iteration: 0 | w = 0.0000, b = 0.0, Cost = -</div>
 </div>
 
 <script>
@@ -1106,7 +1123,7 @@ If the gradient (slope) is **positive** at our current $$w$$, it means cost incr
     var ctx = LR.setupCanvas(lineCanvas, LW, LH);
     var c = LR.getColors();
     ctx.fillStyle = c.bg; ctx.fillRect(0, 0, LW, LH);
-    LR.drawGrid(ctx, LW, LH, padL, padR, padT, padB, xMin, xMax, yMin2, yMax2, 'Area', 'Price');
+    LR.drawGrid(ctx, LW, LH, padL, padR, padT, padB, xMin, xMax, yMin2, yMax2, 'Area (sq ft)', 'Price ($1000s)');
     LR.drawLine(ctx, curW, curB, xMin, xMax, yMin2, yMax2, padL, padR, padT, padB, LW, LH);
     LR.drawPoints(ctx, LR.data, xMin, xMax, yMin2, yMax2, padL, padR, padT, padB, LW, LH, 5);
   }
@@ -1173,6 +1190,10 @@ If the gradient (slope) is **positive** at our current $$w$$, it means cost incr
 })();
 </script>
 
+<div class="demo-try">
+<strong>Try this:</strong> Start with <code>w=0, b=0</code>, click <strong>Step</strong> 10 times, then switch to <strong>Run</strong>. Observe how the path moves quickly first and then takes smaller effective improvements near the minimum.
+</div>
+
 After running gradient descent for enough iterations, the green dot settles at the bottom of the bowl (minimum cost), and the orange line fits the data well. The convergence curve shows the cost rapidly decreasing at first and then flattening as it approaches the minimum.
 
 ---
@@ -1198,17 +1219,17 @@ There is no formula for the "best" learning rate - it depends on the data and th
 <div class="interactive-demo">
 <div class="lr-trio">
   <div class="lr-trio-item">
-    <div class="lr-label">a = <input type="number" id="demo6-lr1" value="0.00000000001" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--color-border); border-radius:4px; padding:2px 4px; background:var(--color-bg); color:var(--color-text);"></div>
+    <div class="lr-label">alpha = <input type="number" id="demo6-lr1" value="0.00000000001" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--border); border-radius:4px; padding:2px 4px; background:var(--bg-primary); color:var(--text-primary);"></div>
     <canvas id="demo6-c1"></canvas>
     <div class="demo-info" id="demo6-i1">Too slow - Cost:  - </div>
   </div>
   <div class="lr-trio-item">
-    <div class="lr-label">a = <input type="number" id="demo6-lr2" value="0.0000001" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--color-border); border-radius:4px; padding:2px 4px; background:var(--color-bg); color:var(--color-text);"></div>
+    <div class="lr-label">alpha = <input type="number" id="demo6-lr2" value="0.0000001" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--border); border-radius:4px; padding:2px 4px; background:var(--bg-primary); color:var(--text-primary);"></div>
     <canvas id="demo6-c2"></canvas>
     <div class="demo-info" id="demo6-i2">Just right - Cost:  - </div>
   </div>
   <div class="lr-trio-item">
-    <div class="lr-label">a = <input type="number" id="demo6-lr3" value="0.0000005" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--color-border); border-radius:4px; padding:2px 4px; background:var(--color-bg); color:var(--color-text);"></div>
+    <div class="lr-label">alpha = <input type="number" id="demo6-lr3" value="0.0000005" step="any" style="width:120px; font-size:0.75rem; font-family:'JetBrains Mono',monospace; border:1px solid var(--border); border-radius:4px; padding:2px 4px; background:var(--bg-primary); color:var(--text-primary);"></div>
     <canvas id="demo6-c3"></canvas>
     <div class="demo-info" id="demo6-i3">Too fast - Cost:  - </div>
   </div>
@@ -1246,7 +1267,7 @@ There is no formula for the "best" learning rate - it depends on the data and th
     if (st.losses.length < 2) {
       ctx.fillStyle = c.textMuted; ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('Waiting...', W / 2, H / 2);
-      infos[idx].textContent = labels[idx] + ' \u2014 Cost: \u2014';
+      infos[idx].textContent = labels[idx] + ' - Cost: -';
       return;
     }
     var maxL = st.losses[0] || 1;
@@ -1264,7 +1285,7 @@ There is no formula for the "best" learning rate - it depends on the data and th
     ctx.fillStyle = c.textMuted; ctx.font = '9px Inter, sans-serif'; ctx.textAlign = 'left';
     ctx.fillText('iter: ' + st.iter, padL + 2, padT + 10);
     var lastCost = st.losses[st.losses.length - 1];
-    infos[idx].textContent = labels[idx] + ' \u2014 Cost: ' + (lastCost > 1e8 || isNaN(lastCost) ? 'DIVERGED!' : lastCost.toFixed(1));
+    infos[idx].textContent = labels[idx] + ' - Cost: ' + (lastCost > 1e8 || isNaN(lastCost) ? 'DIVERGED!' : lastCost.toFixed(1));
   }
 
   function drawAll() { for (var k = 0; k < 3; k++) drawOne(k); }
@@ -1302,13 +1323,17 @@ There is no formula for the "best" learning rate - it depends on the data and th
 })();
 </script>
 
+<div class="demo-try">
+<strong>Try this:</strong> Keep the same dataset and compare final cost after 1000+ iterations for the three alpha values. Then increase noise in the dataset (top demo) and repeat to see sensitivity.
+</div>
+
 ---
 
 ## Implementing from Scratch
 
 Let us put together the complete algorithm step by step:
 
-**Algorithm: Gradient Descent for Linear Regression**
+**Algorithm A: Single-Feature (Univariate) Linear Regression**
 
 1. **Initialize** $$w = 0$$ and $$b = 0$$ (starting point)
 2. **Choose** a learning rate $$\alpha$$ and number of iterations
@@ -1321,28 +1346,321 @@ Let us put together the complete algorithm step by step:
      - $$w := w - \alpha \cdot \frac{\partial J}{\partial w}$$
      - $$b := b - \alpha \cdot \frac{\partial J}{\partial b}$$
 
-Here is the Python implementation:
-
 ```python
-def linear_regression(X, y, lr=0.0000001, iterations=5000):
+def linear_regression_univariate(X, y, lr=1e-7, iterations=5000):
     w, b = 0.0, 0.0
     m = len(X)
 
-    for i in range(iterations):
-        # Predictions
+    for _ in range(iterations):
         y_pred = [w * x + b for x in X]
-
-        # Gradients
-        dw = sum((y_pred[j] - y[j]) * X[j] for j in range(m)) / m
-        db = sum((y_pred[j] - y[j]) for j in range(m)) / m
-
-        # Update parameters
+        dw = sum((y_pred[i] - y[i]) * X[i] for i in range(m)) / m
+        db = sum((y_pred[i] - y[i]) for i in range(m)) / m
         w -= lr * dw
         b -= lr * db
 
-    cost = sum((w * X[j] + b - y[j])**2 for j in range(m)) / (2 * m)
+    cost = sum((w * X[i] + b - y[i])**2 for i in range(m)) / (2 * m)
     return w, b, cost
 ```
+
+**Walk through this code step by step** - see exactly what each line computes, with live values and a plot that updates as the algorithm learns:
+
+<style>
+.cw-wrap{display:grid;grid-template-columns:1fr;gap:0.75rem}
+.cw-top{display:grid;grid-template-columns:210px 1fr;gap:0.75rem;align-items:start}
+@media(max-width:640px){.cw-top{grid-template-columns:1fr}}
+.cw-code{font-family:'JetBrains Mono',monospace;font-size:0.7rem;line-height:1.6;padding:0.5rem 0;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border);overflow-x:auto;min-height:280px}
+.cw-line{white-space:pre;padding:1px 0.5rem}
+.cw-line.cw-hl{background:rgba(37,99,235,0.15);border-left:3px solid #2563eb;padding-left:calc(0.5rem - 3px)}
+.cw-ln{display:inline-block;width:1.6em;color:var(--text-secondary);text-align:right;margin-right:0.5em;user-select:none;opacity:0.5}
+.cw-bottom{display:grid;grid-template-columns:1fr 210px;gap:0.75rem;height:160px}
+@media(max-width:640px){.cw-bottom{grid-template-columns:1fr}}
+.cw-exp{padding:0.6rem 0.75rem;border-radius:8px;background:var(--bg-primary);border-left:3px solid var(--accent);font-size:0.82rem;line-height:1.55;overflow-y:auto}
+.cw-exp b{color:var(--accent)}
+.cw-exp code{font-size:0.78rem;background:var(--bg-secondary);padding:1px 4px;border-radius:3px}
+.cw-vars{font-family:'JetBrains Mono',monospace;font-size:0.72rem;padding:0.5rem 0.6rem;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border);white-space:pre-wrap;line-height:1.5;overflow-y:auto}
+.cw-title{font-weight:600;font-size:0.95rem;margin-bottom:0.5rem}
+.cw-step-bar{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem}
+.cw-step-bar .cw-title{margin-bottom:0;flex:1}
+.cw-step-dots{display:flex;gap:4px}
+.cw-step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);cursor:pointer;transition:background 0.2s}
+.cw-step-dot.active{background:var(--accent)}
+.cw-step-dot:hover{background:var(--accent-hover,var(--accent))}
+</style>
+
+<div class="interactive-demo">
+<div class="cw-step-bar">
+  <div class="cw-title" id="cw-title"></div>
+  <div class="cw-step-dots" id="cw-dots"></div>
+</div>
+<div class="cw-wrap">
+  <div class="cw-top">
+    <canvas id="cw-canvas"></canvas>
+    <div class="cw-code" id="cw-code"></div>
+  </div>
+  <div class="cw-bottom">
+    <div class="cw-exp" id="cw-exp"></div>
+    <div class="cw-vars" id="cw-vars"></div>
+  </div>
+</div>
+<div class="demo-controls">
+  <button id="cw-first">&#8634; Reset</button>
+  <button id="cw-prev">&#8592; Prev</button>
+  <button id="cw-next">Next &#8594;</button>
+  <button id="cw-play">&#9654; Auto-Play</button>
+</div>
+</div>
+
+<script>
+(function() {
+  var canvas = document.getElementById('cw-canvas');
+  var codeEl = document.getElementById('cw-code');
+  var expEl = document.getElementById('cw-exp');
+  var varsEl = document.getElementById('cw-vars');
+  var titleEl = document.getElementById('cw-title');
+  var dotsEl = document.getElementById('cw-dots');
+  var prevBtn = document.getElementById('cw-prev');
+  var nextBtn = document.getElementById('cw-next');
+  var playBtn = document.getElementById('cw-play');
+  var firstBtn = document.getElementById('cw-first');
+
+  var CW = 240, CH = 170;
+  var padL = 40, padR = 10, padT = 14, padB = 28;
+  var xMin = 0, xMax = 4000, yMin = 0, yMax = 700;
+
+  // Sample data (5 points from the default dataset)
+  var X = [800, 1400, 2000, 2600, 3300];
+  var Y = [160, 240, 350, 430, 540];
+  var m = 5, lr = 1e-7, iters = 5000;
+
+  var LINES = [
+    'def linear_regression_univariate(X, y, lr=1e-7, iterations=5000):',
+    '    w, b = 0.0, 0.0',
+    '    m = len(X)',
+    '',
+    '    for _ in range(iterations):',
+    '        y_pred = [w * x + b for x in X]',
+    '        dw = sum((y_pred[i] - y[i]) * X[i] for i in range(m)) / m',
+    '        db = sum((y_pred[i] - y[i]) for i in range(m)) / m',
+    '        w -= lr * dw',
+    '        b -= lr * db',
+    '',
+    '    cost = sum((w * X[i] + b - y[i])**2 for i in range(m)) / (2 * m)',
+    '    return w, b, cost'
+  ];
+
+  // Run gradient descent, capture snapshots at key iterations
+  function runGD() {
+    var w = 0, b = 0, snaps = [{w:0, b:0, i:0}];
+    for (var t = 0; t < iters; t++) {
+      var dw = 0, db = 0, yp = [];
+      for (var j = 0; j < m; j++) yp.push(w * X[j] + b);
+      for (var j = 0; j < m; j++) { dw += (yp[j] - Y[j]) * X[j]; db += (yp[j] - Y[j]); }
+      dw /= m; db /= m;
+      w -= lr * dw; b -= lr * db;
+      if (t === 0) snaps.push({w:w, b:b, dw:dw, db:db, yp:yp.slice(), i:1});
+      if (t === 1) snaps.push({w:w, b:b, yp:yp.slice(), i:2});
+      if (t === 9) snaps.push({w:w, b:b, i:10});
+      if (t === iters - 1) snaps.push({w:w, b:b, i:iters});
+    }
+    return snaps;
+  }
+  var S = runGD();
+
+  function J(w, b) {
+    var s = 0;
+    for (var i = 0; i < m; i++) { var e = w * X[i] + b - Y[i]; s += e * e; }
+    return s / (2 * m);
+  }
+  function f(v, d) { return v.toFixed(d !== undefined ? d : 6); }
+
+  // Define walkthrough steps
+  var steps = [
+    { hl:[0], title:'Function Inputs',
+      exp:'<b>Input:</b> X = [800, 1400, 2000, 2600, 3300] - house areas (sq ft)<br><b>Input:</b> y = [160, 240, 350, 430, 540] - prices ($1000s)<br>lr = 0.0000001, iterations = 5000<br><br>The function receives training data and hyperparameters. It will learn the best-fit line.',
+      vars:'X = [800, 1400, 2000, 2600, 3300]\ny = [160, 240, 350, 430, 540]\nlr = 1e-7\niterations = 5000',
+      st:S[0] },
+
+    { hl:[1], title:'Initialize Parameters',
+      exp:'<b>w = 0.0, b = 0.0</b> - Start with a flat line at y = 0.<br><br>All predictions will be zero. This is intentionally wrong - gradient descent will iteratively adjust w and b to fit the data.',
+      vars:'w = 0.0  (weight / slope)\nb = 0.0  (bias / intercept)\n\nLine: y = 0\u00b7x + 0',
+      st:S[0] },
+
+    { hl:[2], title:'Count Training Examples',
+      exp:'<b>m = len(X) = 5</b><br><br>We have 5 data points. Dividing gradients by m gives us the <i>average</i> gradient, so step size does not depend on dataset size.',
+      vars:'m = len(X) = 5',
+      st:S[0] },
+
+    { hl:[4], title:'Start Loop - Iteration 1 of 5000',
+      exp:'The gradient descent loop begins. Each iteration:<br>\u2460 Predict \u2192 \u2461 Compute gradients \u2192 \u2462 Update parameters<br><br>We repeat this 5000 times. Let\u2019s trace iteration 1 in detail.',
+      vars:'iteration = 1 of 5000\nw = 0.000000\nb = 0.000000',
+      st:S[0] },
+
+    { hl:[5], title:'Compute Predictions (Iter 1)',
+      exp:'<b>y_pred = [w\u00b7x + b for x in X]</b><br><br>With w=0, b=0: every prediction is <b>0</b>.<br><code>y_pred = [0, 0, 0, 0, 0]</code><br>actual y = [160, 240, 350, 430, 540]<br><br>Every prediction is completely wrong - the errors are huge.',
+      vars:'y_pred = [0, 0, 0, 0, 0]\ny      = [160, 240, 350, 430, 540]\nerrors = [-160, -240, -350, -430, -540]',
+      st:S[0] },
+
+    { hl:[6], title:'Compute Weight Gradient dw (Iter 1)',
+      exp:'<b>dw = \u03a3(pred - actual) \u00d7 x / m</b><br><br>Each term: (pred - actual) \u00d7 area<br><code>(-160)\u00d7800 + (-240)\u00d71400 + (-350)\u00d72000 + (-430)\u00d72600 + (-540)\u00d73300</code><br><code>= -4,064,000</code><br><code>dw = -4,064,000 / 5 = <b>-812,800</b></code><br><br>Negative dw means: "increase w to reduce cost."',
+      vars:'dw = ' + f(S[1].dw, 1) + '\n\nNegative \u2192 w should increase',
+      st:S[0] },
+
+    { hl:[7], title:'Compute Bias Gradient db (Iter 1)',
+      exp:'<b>db = \u03a3(pred - actual) / m</b><br><br><code>(-160 + -240 + -350 + -430 + -540) / 5</code><br><code>= -1720 / 5 = <b>-344.0</b></code><br><br>Negative db means: "increase b (shift line up)."',
+      vars:'dw = ' + f(S[1].dw, 1) + '\ndb = ' + f(S[1].db, 1) + '\n\nBoth negative \u2192 increase w and b',
+      st:S[0] },
+
+    { hl:[8], title:'Update Weight w (Iter 1)',
+      exp:'<b>w -= lr \u00d7 dw</b><br><br><code>w = 0 \u2212 (1e-7) \u00d7 (\u2212812,800)</code><br><code>w = 0 + 0.08128 = <b>' + f(S[1].w) + '</b></code><br><br>The tiny learning rate (1e-7) scales the large gradient to a small step. The line now has a positive slope!',
+      vars:'w = 0 - 1e-7 \u00d7 ' + f(S[1].dw, 1) + '\nw = ' + f(S[1].w) + '\nb = 0.000000 (not yet updated)',
+      st:{w:S[1].w, b:0} },
+
+    { hl:[9], title:'Update Bias b (Iter 1)',
+      exp:'<b>b -= lr \u00d7 db</b><br><br><code>b = 0 \u2212 (1e-7) \u00d7 (\u2212344.0)</code><br><code>b = <b>' + f(S[1].b) + '</b></code><br><br>Iteration 1 done! Line moved from y=0 to y=' + f(S[1].w) + 'x + ' + f(S[1].b, 4) + '. Still far from ideal, but learning!',
+      vars:'w = ' + f(S[1].w) + '\nb = ' + f(S[1].b) + '\ncost = ' + f(J(S[1].w, S[1].b), 2),
+      st:S[1] },
+
+    { hl:[5,6,7,8,9], title:'Iteration 2 Complete',
+      exp:'The loop repeats with updated w, b. Predictions are now closer:<br><code>y_pred \u2248 [' + S[2].yp.map(function(v){ return v.toFixed(0); }).join(', ') + ']</code><br>actual = [160, 240, 350, 430, 540]<br><br>Errors are smaller \u2192 gradients smaller \u2192 smaller updates. The model is converging.',
+      vars:'Iter 2:\nw = ' + f(S[2].w) + '\nb = ' + f(S[2].b) + '\ncost = ' + f(J(S[2].w, S[2].b), 2),
+      st:S[2] },
+
+    { hl:[5,6,7,8,9], title:'Iteration 10 - Progress',
+      exp:'After 10 iterations, the line is visibly bending toward the data. Cost has dropped significantly from its initial value.<br><br>Each iteration makes the gradients smaller - the model is finding the sweet spot.',
+      vars:'Iter 10:\nw = ' + f(S[3].w) + '\nb = ' + f(S[3].b) + '\ncost = ' + f(J(S[3].w, S[3].b), 2),
+      st:S[3] },
+
+    { hl:[4], title:'Loop Complete - After 5000 Iterations',
+      exp:'Gradient descent has converged. The weight and bias have stabilized - further iterations would barely change them.<br><br>The line now fits the data well!',
+      vars:'Iter 5000 \u2713\nw = ' + f(S[4].w) + '\nb = ' + f(S[4].b, 2) + '\ncost = ' + f(J(S[4].w, S[4].b), 2),
+      st:S[4] },
+
+    { hl:[11], title:'Compute Final Cost',
+      exp:'<b>cost = \u03a3(w\u00b7X[i] + b \u2212 y[i])\u00b2 / (2m)</b><br><br>The Mean Squared Error tells us how well the line fits. Lower cost = better fit.<br><b>cost = ' + f(J(S[4].w, S[4].b), 2) + '</b>',
+      vars:'cost = ' + f(J(S[4].w, S[4].b), 2) + '\n\n(sum of squared errors / 2m)',
+      st:S[4] },
+
+    { hl:[12], title:'Return Results',
+      exp:'<b>return w, b, cost</b><br><br>The trained model:<br>\u2022 <b>w = ' + f(S[4].w) + '</b> (\u2248$' + f(S[4].w * 1000, 0) + ' per sq ft)<br>\u2022 <b>b = ' + f(S[4].b, 2) + '</b> (base price)<br>\u2022 <b>cost = ' + f(J(S[4].w, S[4].b), 2) + '</b><br><br><b>Prediction formula:</b> price = ' + f(S[4].w, 4) + ' \u00d7 area + ' + f(S[4].b, 1),
+      vars:'OUTPUT:\nw = ' + f(S[4].w) + '\nb = ' + f(S[4].b, 2) + '\ncost = ' + f(J(S[4].w, S[4].b), 2) + '\n\ny = ' + f(S[4].w, 4) + '\u00b7x + ' + f(S[4].b, 1),
+      st:S[4] }
+  ];
+
+  var cur = 0, autoTimer = null;
+
+  // Build step dots
+  function buildDots(total) {
+    dotsEl.innerHTML = '';
+    for (var i = 0; i < total; i++) {
+      var dot = document.createElement('span');
+      dot.className = 'cw-step-dot';
+      dot.dataset.idx = i;
+      dot.title = 'Step ' + (i + 1);
+      dot.addEventListener('click', function() {
+        cur = parseInt(this.dataset.idx);
+        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; playBtn.innerHTML = '&#9654; Auto-Play'; }
+        render();
+      });
+      dotsEl.appendChild(dot);
+    }
+  }
+
+  function updateDots() {
+    var dots = dotsEl.querySelectorAll('.cw-step-dot');
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].className = 'cw-step-dot' + (i === cur ? ' active' : '');
+    }
+  }
+
+  function drawPlot(st) {
+    var ctx = LR.setupCanvas(canvas, CW, CH);
+    var c = LR.getColors();
+    var plotW = CW - padL - padR, plotH = CH - padT - padB;
+    ctx.fillStyle = c.bg; ctx.fillRect(0, 0, CW, CH);
+    // Grid
+    ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+    for (var i = 0; i <= 4; i++) {
+      var gx = padL + plotW / 4 * i;
+      ctx.beginPath(); ctx.moveTo(gx, padT); ctx.lineTo(gx, padT + plotH); ctx.stroke();
+      var gy = padT + plotH / 4 * i;
+      ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(padL + plotW, gy); ctx.stroke();
+    }
+    ctx.strokeStyle = c.textMuted; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.stroke();
+    // Axis labels
+    ctx.fillStyle = c.textMuted; ctx.font = '9px Inter, sans-serif'; ctx.textAlign = 'center';
+    for (var i = 0; i <= 4; i++) ctx.fillText(Math.round(xMin + (xMax - xMin) / 4 * i), padL + plotW / 4 * i, padT + plotH + 12);
+    ctx.textAlign = 'right';
+    for (var i = 0; i <= 4; i++) ctx.fillText(Math.round(yMax - (yMax - yMin) / 4 * i), padL - 4, padT + plotH / 4 * i + 3);
+    // Regression line
+    if (st.w !== 0 || st.b !== 0) {
+      var lx1 = xMin, ly1 = st.w * lx1 + st.b;
+      var lx2 = xMax, ly2 = st.w * lx2 + st.b;
+      ctx.strokeStyle = c.line; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(LR.mapX(lx1, xMin, xMax, padL, plotW), LR.mapY(ly1, yMin, yMax, padT, plotH));
+      ctx.lineTo(LR.mapX(lx2, xMin, xMax, padL, plotW), LR.mapY(ly2, yMin, yMax, padT, plotH));
+      ctx.stroke();
+      ctx.fillStyle = c.line; ctx.font = '10px JetBrains Mono, monospace'; ctx.textAlign = 'left';
+      ctx.fillText('y=' + st.w.toFixed(3) + 'x+' + st.b.toFixed(1), padL + 3, padT + 11);
+    } else {
+      ctx.fillStyle = c.textMuted; ctx.font = '10px JetBrains Mono, monospace'; ctx.textAlign = 'left';
+      ctx.fillText('y = 0 (flat)', padL + 3, padT + 11);
+    }
+    // Data points
+    for (var i = 0; i < m; i++) {
+      var cx = LR.mapX(X[i], xMin, xMax, padL, plotW);
+      var cy = LR.mapY(Y[i], yMin, yMax, padT, plotH);
+      ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+      ctx.fillStyle = c.point; ctx.fill();
+      ctx.strokeStyle = c.pointStroke; ctx.lineWidth = 1; ctx.stroke();
+    }
+  }
+
+  function renderCode(hlLines) {
+    var html = '';
+    for (var i = 0; i < LINES.length; i++) {
+      var isHl = hlLines.indexOf(i) >= 0;
+      var cls = isHl ? ' cw-hl' : '';
+      var ln = '<span class="cw-ln">' + (i + 1) + '</span>';
+      var txt = LINES[i].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      html += '<div class="cw-line' + cls + '">' + ln + txt + '</div>';
+    }
+    codeEl.innerHTML = html;
+  }
+
+  function render() {
+    var s = steps[cur];
+    titleEl.textContent = 'Step ' + (cur + 1) + ' / ' + steps.length + ': ' + s.title;
+    renderCode(s.hl);
+    expEl.innerHTML = s.exp;
+    varsEl.textContent = s.vars;
+    drawPlot(s.st);
+    prevBtn.disabled = cur === 0;
+    firstBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === steps.length - 1;
+    updateDots();
+  }
+
+  firstBtn.addEventListener('click', function() { cur = 0; if (autoTimer) { clearInterval(autoTimer); autoTimer = null; playBtn.innerHTML = '&#9654; Auto-Play'; } render(); });
+  prevBtn.addEventListener('click', function() { if (cur > 0) { cur--; render(); } });
+  nextBtn.addEventListener('click', function() { if (cur < steps.length - 1) { cur++; render(); } });
+  playBtn.addEventListener('click', function() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; playBtn.innerHTML = '&#9654; Auto-Play'; return; }
+    if (cur >= steps.length - 1) cur = 0;
+    playBtn.innerHTML = '&#9646;&#9646; Pause';
+    autoTimer = setInterval(function() {
+      if (cur < steps.length - 1) { cur++; render(); }
+      else { clearInterval(autoTimer); autoTimer = null; playBtn.innerHTML = '&#9654; Auto-Play'; }
+    }, 3000);
+  });
+
+  buildDots(steps.length);
+  LR.onThemeChange(render);
+  render();
+})();
+</script>
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Edit the parameters below and click <strong>Run</strong>. The output shows training progress and the final best-fit line. The trained parameters are saved - the Prediction section below will automatically use them.
@@ -1428,7 +1746,7 @@ var w = 0, b = 0;
 })();
 </script>
 
----
+--
 
 ## Making Predictions
 
@@ -1513,7 +1831,7 @@ This is the power of machine learning - we did not hard-code any rules about hou
   trainBtn.addEventListener('click', function() {
     LR.train();
     predX = null; predY = null;
-    infoEl.textContent = 'Trained! w = ' + LR.trained.w.toFixed(5) + ', b = ' + LR.trained.b.toFixed(2) + ', Cost = ' + LR.trained.cost.toFixed(2) + ' \u2014 Now enter an area and click Predict';
+    infoEl.textContent = 'Trained! w = ' + LR.trained.w.toFixed(5) + ', b = ' + LR.trained.b.toFixed(2) + ', Cost = ' + LR.trained.cost.toFixed(2) + ' - Now enter an area and click Predict';
     draw();
   });
 
@@ -1548,21 +1866,21 @@ Here is everything we covered, building linear regression completely from the gr
 | **Learning rate** ($$\alpha$$) | Controls step size | Hyperparameter (you choose) |
 | **Prediction** | Uses trained model on new data | $$\hat{y} = w_{trained} \cdot x + b_{trained}$$ |
 
-These same fundamental concepts - cost functions, gradients, and iterative optimization - are the building blocks of virtually all modern machine learning, from logistic regression and SVMs to convolutional neural networks and transformers.
+The same fundamental concepts - cost functions, gradients, and iterative optimization - are the building blocks of much larger models, from logistic regression and SVMs to deep neural networks.
 
 #### What's Next
 
 - **Feature scaling**: Normalize inputs so gradient descent converges faster
 - **Regularization**: L1 (Lasso) and L2 (Ridge) penalties to prevent overfitting
 - **Polynomial regression**: Fit curves instead of lines by adding polynomial features
+- **Multiple columns extension**: [Linear Regression from Scratch II]({{ site.baseurl }}/linear-regression-multivariate-extension/)
 - **Logistic regression**: Adapt the same framework for classification problems
 - **Neural networks**: Stack many linear + non-linear layers for deep learning
 
 #### References
 
 - [Machine Learning](https://www.coursera.org/learn/machine-learning) course by Andrew Ng on Coursera
-- [Linear Regression](https://en.wikipedia.org/wiki/Linear_regression) - Wikipedia
-- [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent) - Wikipedia
+
 
 
 

@@ -8,18 +8,26 @@ layout: default
 
     {% for category in site.categories %}
     <div class="category-group">
+      {% assign visible_count = 0 %}
+      {% for post in category[1] %}
+        {% unless post.archived %}{% assign visible_count = visible_count | plus: 1 %}{% endunless %}
+      {% endfor %}
+      {% if visible_count > 0 %}
       <h2 class="category-name" id="{{ category[0] | slugify }}">
         {{ category[0] }}
-        <span class="category-count">{{ category[1].size }}</span>
+        <span class="category-count">{{ visible_count }}</span>
       </h2>
       <ul class="category-posts">
         {% for post in category[1] %}
+        {% unless post.archived %}
         <li class="category-post-item">
           <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
           <span class="category-post-date">{{ post.date | date: "%b %Y" }}</span>
         </li>
+        {% endunless %}
         {% endfor %}
       </ul>
+      {% endif %}
     </div>
     {% endfor %}
   </section>

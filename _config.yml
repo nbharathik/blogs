@@ -1,11 +1,11 @@
 # Site settings
-name: "Bharathi Kannan"
-title: "Bharathi Kannan"
-description: "PhD Student at University of Rostock — writing about AI, Machine Learning, LLMs, and Computer Vision."
+name: "B2logs"
+title: "B2logs"
+description: "PhD Student at University of Rostock - writing about AI, Machine Learning, LLMs, and Computer Vision."
 logo: 'assets/images/logo.png'
 favicon: 'assets/images/logo.png'
 baseurl: /blogs
-url: "https://bharathikannann.github.io"
+url: "https://nbharathik.github.io"
 permalink: /:title/
 
 # Author

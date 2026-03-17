@@ -362,7 +362,126 @@ hr {
   height: 20px;
 }
 
+/* --- Home Welcome Intro --- */
+.welcome-intro {
+  max-width: var(--content-width);
+  margin: 4.5rem auto 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.25rem 2.25rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-intro::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 260px;
+  height: 260px;
+  background: var(--accent);
+  opacity: 0.04;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.welcome-avatar {
+  width: 100px !important;
+  height: 100px !important;
+  max-width: 100px !important;
+  max-height: 100px !important;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+  border: 2px solid var(--border);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.welcome-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.welcome-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+
+.welcome-tagline {
+  margin: 0 0 0.85rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.welcome-links {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.welcome-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.welcome-link:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.welcome-link svg {
+  opacity: 0.7;
+  transition: opacity var(--transition);
+}
+
+.welcome-link:hover svg {
+  opacity: 1;
+}
+
+.welcome-email {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.welcome-email:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 640px) {
+  .welcome-intro {
+    margin-top: 4.5rem;
+    flex-direction: column;
+    text-align: center;
+    padding: 1.75rem 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .welcome-links {
+    justify-content: center;
+  }
+
   .profile-card {
     flex-direction: column;
     align-items: center;
@@ -384,7 +503,7 @@ hr {
 }
 
 .posts-section-top {
-  padding-top: 5rem;
+  padding-top: 1rem;
 }
 
 .section-label {
@@ -393,7 +512,7 @@ hr {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-tertiary);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.1rem;
   max-width: var(--content-width);
   margin-left: auto;
   margin-right: auto;
