@@ -423,6 +423,8 @@ def postorder(node):
 
 To insert a value into a BST, we compare it with the current node and go left (if smaller) or right (if larger) until we find an empty spot.
 
+This preserves the BST invariant at every node: all left subtree values are smaller, and all right subtree values are larger. Insertion is therefore a guided search followed by one pointer update, which is why balanced trees stay efficient.
+
 ### Python Implementation
 
 ```python
@@ -533,6 +535,8 @@ class BST:
 ## BST Search
 
 Searching a BST follows the same path as insertion: compare the target with the current node and go left or right.
+
+You never need to explore both branches. Each comparison discards half of the remaining possibilities in a balanced tree. That is why BST search can be logarithmic when height stays small.
 
 ### Interactive Visualization
 

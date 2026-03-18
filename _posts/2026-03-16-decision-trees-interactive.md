@@ -890,7 +890,7 @@ Both equal **0 for a pure node** (all one class) and reach their maximum for a p
 })();
 </script>
 
-Notice how both measures agree on the best split location -- they almost always pick the same threshold. The optimal split is where the two classes are separated most cleanly, giving the lowest weighted impurity.
+Notice how both measures agree on the best split location, they almost always pick the same threshold. The optimal split is where the two classes are separated most cleanly, giving the lowest weighted impurity.
 
 ---
 
@@ -1317,13 +1317,13 @@ This is the core demo. Press **Play** to watch a decision tree grow split-by-spl
 })();
 </script>
 
-Watch carefully how each split divides the feature space with an **axis-aligned rectangle**. This is a fundamental property of decision trees -- they can only split parallel to the axes, never diagonally. This means diagonal decision boundaries require many small staircase-like splits to approximate.
+Watch carefully how each split divides the feature space with an **axis-aligned rectangle**. This is a fundamental property of decision trees, they can only split parallel to the axes, never diagonally. This means diagonal decision boundaries require many small staircase-like splits to approximate.
 
 ---
 
 ## Overfitting: The Depth Slider
 
-A decision tree with no depth limit will keep splitting until every leaf is pure. On training data, it reaches 100% accuracy -- but it memorizes noise and performs poorly on new data. This is **overfitting**.
+A decision tree with no depth limit will keep splitting until every leaf is pure. On training data, it reaches 100% accuracy, but it memorizes noise and performs poorly on new data. This is **overfitting**.
 
 Drag the **max depth** slider to see how tree complexity affects the decision boundary. At depth 1, the tree underfits (too simple). At depth 15, it overfits (too complex). The sweet spot is usually somewhere in between.
 
@@ -1490,10 +1490,10 @@ Try the Spiral dataset with depth 1, then slowly increase to 15. Watch how the b
 </div>
 
 This is why **pruning** matters. In practice, you control complexity via:
-- **max_depth** -- limits how deep the tree can grow
-- **min_samples_split** -- minimum samples required to split a node
-- **min_samples_leaf** -- minimum samples in a leaf node
-- **Post-pruning** (cost-complexity pruning) -- grow a full tree, then remove branches that do not improve validation accuracy
+- **max_depth**, limits how deep the tree can grow
+- **min_samples_split**, minimum samples required to split a node
+- **min_samples_leaf**, minimum samples in a leaf node
+- **Post-pruning** (cost-complexity pruning), grow a full tree, then remove branches that do not improve validation accuracy
 
 ---
 
@@ -1611,7 +1611,7 @@ Click on the canvas below to add data points (left click for class 0, right clic
 })();
 </script>
 
-Try creating clusters, then increase the depth to see how the tree captures them. Notice that with enough depth, the tree can perfectly separate **any** configuration of points -- but the boundary becomes increasingly jagged and unlikely to generalize.
+Try creating clusters, then increase the depth to see how the tree captures them. Notice that with enough depth, the tree can perfectly separate **any** configuration of points, but the boundary becomes increasingly jagged and unlikely to generalize.
 
 ---
 
@@ -1761,7 +1761,7 @@ The result is a **piecewise-constant** step function. Drag the depth slider to s
 })();
 </script>
 
-At **depth 1**, the tree makes only one split -- a crude two-step approximation. At **depth 10**, it traces every wiggle in the data including noise. The dashed line shows the true underlying function. Notice how the step function converges toward it as depth increases, but eventually starts fitting noise.
+At **depth 1**, the tree makes only one split, a crude two-step approximation. At **depth 10**, it traces every wiggle in the data including noise. The dashed line shows the true underlying function. Notice how the step function converges toward it as depth increases, but eventually starts fitting noise.
 
 ---
 
@@ -1999,7 +1999,7 @@ The demo below shows the information gain for **every possible split** on a smal
 })();
 </script>
 
-The highlighted bar (golden) is the **best split** -- the one the tree selects at the root. Notice how the information gain is highest where the split most cleanly separates the blue and red points. Thresholds at the extreme ends have very low gain because they put almost all points on one side.
+The highlighted bar (golden) is the **best split**, the one the tree selects at the root. Notice how the information gain is highest where the split most cleanly separates the blue and red points. Thresholds at the extreme ends have very low gain because they put almost all points on one side.
 
 ---
 
@@ -2017,12 +2017,12 @@ The highlighted bar (golden) is the **best split** -- the one the tree selects a
 
 ### Key Takeaways
 
-1. Decision trees are the most **interpretable** ML model -- every prediction has a human-readable explanation.
+1. Decision trees are the most **interpretable** ML model, every prediction has a human-readable explanation.
 2. Gini and Entropy produce nearly identical trees; Gini is faster (no logarithm) and is the default in scikit-learn.
 3. An unpruned tree will **memorize** the training data. Always control complexity via depth limits or pruning.
-4. Regression trees produce **piecewise-constant** predictions -- step functions that approximate the target.
+4. Regression trees produce **piecewise-constant** predictions, step functions that approximate the target.
 5. Decision boundaries are always **axis-aligned rectangles**, which is both a strength (simplicity) and a limitation (poor on diagonal boundaries).
 
 ### What's Next
 
-In the next chapter, we will explore **Random Forests and Ensemble Methods** -- where we combine many decision trees to create a model that is far more powerful and resistant to overfitting than any single tree. The key idea: a committee of weak learners, each trained on random subsets of data and features, can outperform any individual member.
+In the next chapter, we will explore **Random Forests and Ensemble Methods**, where we combine many decision trees to create a model that is far more powerful and resistant to overfitting than any single tree. The key idea: a committee of weak learners, each trained on random subsets of data and features, can outperform any individual member.

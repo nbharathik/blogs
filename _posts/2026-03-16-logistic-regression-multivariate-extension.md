@@ -364,7 +364,7 @@ The decision boundary line is where the model predicts exactly 50% probability, 
 
 ## Seeing the Data in 3D
 
-Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space, where $$y$$ is either 0 (fail) or 1 (pass). The curved surface is the **sigmoid probability surface** $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$, which smoothly transitions from 0 to 1. The **decision boundary** is where the surface crosses the 0.5 probability level — on one side the model predicts pass, on the other fail.
+Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space, where $$y$$ is either 0 (fail) or 1 (pass). The curved surface is the **sigmoid probability surface** $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$, which smoothly transitions from 0 to 1. The **decision boundary** is where the surface crosses the 0.5 probability level, on one side the model predicts pass, on the other fail.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Drag <strong>w₁</strong> and <strong>w₂</strong> sliders to tilt the sigmoid surface. Drag <strong>b</strong> to shift it. <strong>Drag on the 3D plot</strong> to rotate the view. Click <strong>Fit</strong> to animate gradient descent finding the best parameters. The surface color transitions from <span style="color:#e63946;font-weight:600;">red</span> (class 0) to <span style="color:#2563eb;font-weight:600;">blue</span> (class 1).
@@ -744,7 +744,7 @@ Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2
 <strong>Try this:</strong> Set <code>w₁ = 0</code> and <code>w₂ = 0</code>, then drag only <code>b</code>. The surface slides up and down as a flat sheet. Now set <code>b = -5</code> and slowly increase <code>w₁</code>. The sigmoid surface begins to curve and tilt, separating classes along the hours-studied axis. Then increase <code>w₂</code> to tilt it along the sleep axis too. Click <strong>Fit</strong> and watch the surface shape itself to hug the data. Drag on the 3D plot to rotate and see the sigmoid curve from different angles.
 </div>
 
-Notice how the **sigmoid surface** curves between 0 and 1 — red points (fail) sit near the bottom where the surface is low, and blue points (pass) cluster near the top. The dashed line at P = 0.5 shows the decision boundary. Points near this boundary are the hardest to classify since the sigmoid outputs values close to 0.5 there.
+Notice how the **sigmoid surface** curves between 0 and 1, red points (fail) sit near the bottom where the surface is low, and blue points (pass) cluster near the top. The dashed line at P = 0.5 shows the decision boundary. Points near this boundary are the hardest to classify since the sigmoid outputs values close to 0.5 there.
 
 ---
 

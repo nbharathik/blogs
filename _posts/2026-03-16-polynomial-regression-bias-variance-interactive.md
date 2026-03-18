@@ -478,11 +478,11 @@ window.PR = (function() {
 
 ## 1. Introduction: From Lines to Curves
 
-In the [Linear Regression]({{ site.baseurl }}/linear-regression-from-scratch-interactive/) guide, we built linear regression from scratch and saw how a straight line can capture the trend in data. But the real world is rarely so cooperative. Think about how fuel efficiency changes with engine RPM -- it rises, peaks, and then drops. Or how a patient's risk changes with age -- it follows a curve, not a line.
+In the [Linear Regression]({{ site.baseurl }}/linear-regression-from-scratch-interactive/) guide, we built linear regression from scratch and saw how a straight line can capture the trend in data. But the real world is rarely so cooperative. Think about how fuel efficiency changes with engine RPM, it rises, peaks, and then drops. Or how a patient's risk changes with age, it follows a curve, not a line.
 
 When the underlying relationship between input and output is **nonlinear**, forcing a straight line through the data leaves systematic patterns in the residuals. The model is too simple for the data. We call this **underfitting**.
 
-The natural next step: let our model learn curves. That is exactly what **polynomial regression** does. But with greater flexibility comes a new danger -- the model can bend so aggressively that it memorises noise rather than capturing the true pattern. This is **overfitting**, and the tension between underfitting and overfitting is the **bias-variance tradeoff**, one of the most important concepts in all of machine learning.
+The natural next step: let our model learn curves. That is exactly what **polynomial regression** does. But with greater flexibility comes a new danger, the model can bend so aggressively that it memorises noise rather than capturing the true pattern. This is **overfitting**, and the tension between underfitting and overfitting is the **bias-variance tradeoff**, one of the most important concepts in all of machine learning.
 
 In this chapter you will:
 - Extend linear regression to polynomial features
@@ -713,7 +713,7 @@ This is the core intuition builder. Below, 25 noisy points are sampled from a hi
 })();
 </script>
 
-<div class="demo-hint">Drag the slider slowly from 1 to 15. Watch the training MSE keep dropping -- but does a lower training error mean a better model? Not necessarily. The curve starts memorising noise.</div>
+<div class="demo-hint">Drag the slider slowly from 1 to 15. Watch the training MSE keep dropping, but does a lower training error mean a better model? Not necessarily. The curve starts memorising noise.</div>
 
 ### Underfitting vs Overfitting
 
@@ -738,7 +738,7 @@ $$E\left[(y - \hat{f}(x))^2\right] = \underbrace{\text{Bias}(\hat{f}(x))^2}_{\te
 
 - **Bias** measures how far the average prediction is from the truth. A line fit to curved data will always be off in the same way, no matter how much data you collect.
 - **Variance** measures how much the prediction changes when you train on a different random sample. A degree-15 polynomial produces wildly different curves for each sample.
-- **Irreducible noise** is the noise floor -- randomness in the data that no model can remove.
+- **Irreducible noise** is the noise floor, randomness in the data that no model can remove.
 
 The tradeoff: increasing model complexity **decreases bias** but **increases variance**. The optimal complexity balances the two.
 
@@ -1157,7 +1157,7 @@ The amount of noise in your data affects which model complexity is optimal. With
 
 ## 7. Polynomial Feature Visualization
 
-When we fit a degree-$$d$$ polynomial, we construct a feature matrix where each column is a power of $$x$$. As the degree grows, the numbers in the higher-order columns explode -- this is why **feature scaling** becomes important for numerical stability.
+When we fit a degree-$$d$$ polynomial, we construct a feature matrix where each column is a power of $$x$$. As the degree grows, the numbers in the higher-order columns explode, this is why **feature scaling** becomes important for numerical stability.
 
 <div class="interactive-demo" id="demo-features">
   <div class="demo-controls">
@@ -1207,7 +1207,7 @@ When we fit a degree-$$d$$ polynomial, we construct a feature matrix where each 
     html += '</tbody>';
     table.innerHTML = html;
 
-    infoEl.textContent = 'Largest value in matrix: ' + maxVal.toFixed(1) + ' — features span ' + Math.ceil(Math.log10(maxVal + 1)) + ' orders of magnitude. Feature scaling helps!';
+    infoEl.textContent = 'Largest value in matrix: ' + maxVal.toFixed(1) + ', features span ' + Math.ceil(Math.log10(maxVal + 1)) + ' orders of magnitude. Feature scaling helps!';
   }
 
   slider.addEventListener('input', draw);
@@ -1221,7 +1221,7 @@ When we fit a degree-$$d$$ polynomial, we construct a feature matrix where each 
 
 ## 8. Code Runner: Polynomial Regression from Scratch
 
-Here is a complete implementation of polynomial regression using the normal equation. The code runs in your browser -- edit it and click **Run**.
+Here is a complete implementation of polynomial regression using the normal equation. The code runs in your browser, edit it and click **Run**.
 
 <div class="interactive-demo" id="demo-code">
   <textarea class="code-runner-area" id="code-area">// Polynomial Regression from Scratch
@@ -1344,7 +1344,7 @@ But manually choosing the right degree is fragile. In the next chapter, we will 
 
 ### What's Next
 
-**Next up: [Regularization -- Ridge, Lasso & Elastic Net]({{ site.baseurl }}/regularization-ridge-lasso-interactive/)** -- Add a penalty term to tame overfitting, explore the L1/L2 landscape interactively, and see how regularisation connects to the bias-variance tradeoff.
+**Next up: [Regularization, Ridge, Lasso & Elastic Net]({{ site.baseurl }}/regularization-ridge-lasso-interactive/)**, Add a penalty term to tame overfitting, explore the L1/L2 landscape interactively, and see how regularisation connects to the bias-variance tradeoff.
 
 ---
 

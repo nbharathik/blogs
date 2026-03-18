@@ -125,9 +125,9 @@ date: 2026-03-17
 
 ## From Logistic Regression to Neural Networks
 
-In the previous chapters, we built logistic regression from scratch -- a single linear boundary that separates two classes. It works beautifully when the data is linearly separable. But what happens when it is not?
+In the previous chapters, we built logistic regression from scratch, a single linear boundary that separates two classes. It works beautifully when the data is linearly separable. But what happens when it is not?
 
-The **perceptron**, invented by Frank Rosenblatt in 1958, is the ancestor of every neural network. It is, at its core, the same computation as logistic regression: a weighted sum of inputs passed through an activation function. The difference is not in the math of a single neuron -- it is in what happens when you stack them.
+The **perceptron**, invented by Frank Rosenblatt in 1958, is the ancestor of every neural network. It is, at its core, the same computation as logistic regression: a weighted sum of inputs passed through an activation function. The difference is not in the math of a single neuron, it is in what happens when you stack them.
 
 This chapter tells the story of the perceptron's triumph, its devastating limitation, and the elegant solution that launched the deep learning revolution.
 
@@ -143,7 +143,7 @@ $$a = \sigma(z)$$
 
 where $$\sigma$$ is an activation function (we will use the sigmoid $$\sigma(z) = \frac{1}{1+e^{-z}}$$ for now). If $$a \geq 0.5$$ we predict class 1, otherwise class 0.
 
-This is identical to logistic regression -- and that is the point. A single neuron **is** logistic regression. The neural network framing simply invites us to ask: what if we connect many of them together?
+This is identical to logistic regression, and that is the point. A single neuron **is** logistic regression. The neural network framing simply invites us to ask: what if we connect many of them together?
 
 <div class="interactive-demo" id="demo-neuron">
   <canvas id="canvas-neuron" width="680" height="340"></canvas>
@@ -167,7 +167,7 @@ Boolean logic gates are the simplest classification problems. Each has four data
 **AND gate:** output is 1 only when both inputs are 1.
 **OR gate:** output is 1 when at least one input is 1.
 
-Both are **linearly separable** -- a single line can separate the 1s from the 0s. A perceptron can learn them easily.
+Both are **linearly separable**, a single line can separate the 1s from the 0s. A perceptron can learn them easily.
 
 <div class="interactive-demo" id="demo-gates">
   <canvas id="canvas-gates" width="680" height="340"></canvas>
@@ -192,7 +192,7 @@ Both are **linearly separable** -- a single line can separate the 1s from the 0s
 
 ---
 
-## 3. The XOR Problem -- Where Single Neurons Fail
+## 3. The XOR Problem, Where Single Neurons Fail
 
 Now try XOR: output is 1 when the inputs are **different**.
 
@@ -203,7 +203,7 @@ Now try XOR: output is 1 when the inputs are **different**.
 | 1 | 0 | 1 |
 | 1 | 1 | 0 |
 
-Look at these four points on a 2D plane. The 1s are at (0,1) and (1,0) -- diagonally opposite corners. The 0s are at (0,0) and (1,1). **No single straight line can separate them.**
+Look at these four points on a 2D plane. The 1s are at (0,1) and (1,0), diagonally opposite corners. The 0s are at (0,0) and (1,1). **No single straight line can separate them.**
 
 This is not a matter of finding the right weights. It is mathematically impossible. A single neuron computes a linear boundary, and XOR requires a nonlinear one.
 
@@ -214,7 +214,7 @@ This is not a matter of finding the right weights. It is mathematically impossib
     <button id="btn-xor-reset">Reset</button>
     <span class="demo-value" id="xor-fail-epoch">Epoch: 0</span>
   </div>
-  <div class="demo-info" id="info-xor-fail">The perceptron will try -- and fail. Watch the line oscillate.</div>
+  <div class="demo-info" id="info-xor-fail">The perceptron will try, and fail. Watch the line oscillate.</div>
   <table class="truth-table" id="xor-fail-table">
     <thead><tr><th>x₁</th><th>x₂</th><th>Target</th><th>Prediction</th></tr></thead>
     <tbody>
@@ -227,7 +227,7 @@ This is not a matter of finding the right weights. It is mathematically impossib
 </div>
 <div class="demo-caption">No matter how long you train, the perceptron cannot solve XOR. The line keeps oscillating without converging.</div>
 
-In 1969, Marvin Minsky and Seymour Papert published *Perceptrons*, proving rigorously that single-layer networks cannot solve XOR or any non-linearly-separable problem. This contributed to the first "AI Winter" -- a decade-long decline in neural network research funding.
+In 1969, Marvin Minsky and Seymour Papert published *Perceptrons*, proving rigorously that single-layer networks cannot solve XOR or any non-linearly-separable problem. This contributed to the first "AI Winter", a decade-long decline in neural network research funding.
 
 The fix, as we will see, was hiding in plain sight.
 
@@ -279,7 +279,7 @@ For XOR, we need just 2 hidden neurons. The first hidden neuron can learn one di
 </div>
 <div class="demo-caption">The MLP solves XOR by learning a nonlinear decision boundary. Watch the loss decrease and the colored regions form.</div>
 
-<div class="demo-hint">If the network gets stuck (it happens -- neural networks have local minima!), click Reset and try again. Different random initializations lead to different learning trajectories.</div>
+<div class="demo-hint">If the network gets stuck (it happens, neural networks have local minima!), click Reset and try again. Different random initializations lead to different learning trajectories.</div>
 
 ---
 
@@ -326,7 +326,7 @@ Now let us explore how network architecture affects what a network can learn. Ch
 </div>
 <div class="demo-caption">Experiment with different architectures. More neurons and layers can fit more complex boundaries.</div>
 
-<div class="demo-hint">Try 1 hidden neuron on XOR -- it cannot solve it. Then increase to 2 and watch it succeed. For the spiral dataset, you may need 2-3 layers with 6-8 neurons each.</div>
+<div class="demo-hint">Try 1 hidden neuron on XOR, it cannot solve it. Then increase to 2 and watch it succeed. For the spiral dataset, you may need 2-3 layers with 6-8 neurons each.</div>
 
 ---
 
@@ -334,11 +334,11 @@ Now let us explore how network architecture affects what a network can learn. Ch
 
 The activation function determines the shape of the nonlinearity each neuron introduces. The three most common choices:
 
-**Sigmoid:** $$\sigma(z) = \frac{1}{1+e^{-z}}$$ -- squashes output to (0, 1). Smooth gradient but can saturate.
+**Sigmoid:** $$\sigma(z) = \frac{1}{1+e^{-z}}$$, squashes output to (0, 1). Smooth gradient but can saturate.
 
-**Tanh:** $$\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$ -- squashes to (-1, 1). Zero-centered, often trains faster than sigmoid.
+**Tanh:** $$\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$, squashes to (-1, 1). Zero-centered, often trains faster than sigmoid.
 
-**ReLU:** $$f(z) = \max(0, z)$$ -- simple and fast. The workhorse of modern deep learning. Can "die" if inputs are always negative.
+**ReLU:** $$f(z) = \max(0, z)$$, simple and fast. The workhorse of modern deep learning. Can "die" if inputs are always negative.
 
 <div class="interactive-demo" id="demo-activations">
   <canvas id="canvas-activations" width="680" height="300"></canvas>
@@ -362,7 +362,7 @@ The answer is the **chain rule**. If the loss depends on the output, which depen
 
 $$\frac{\partial L}{\partial w} = \frac{\partial L}{\partial a} \cdot \frac{\partial a}{\partial z} \cdot \frac{\partial z}{\partial w}$$
 
-We compute gradients layer by layer, starting from the output and propagating backward -- hence "backpropagation." Each layer passes its gradient to the previous layer, scaled by the local derivative.
+We compute gradients layer by layer, starting from the output and propagating backward, hence "backpropagation." Each layer passes its gradient to the previous layer, scaled by the local derivative.
 
 <div class="interactive-demo" id="demo-backprop">
   <canvas id="canvas-backprop" width="680" height="380"></canvas>
@@ -408,10 +408,10 @@ The practical question is: how many neurons do you need?
 | **Linear separability** | A perceptron can only learn linearly separable patterns (AND, OR) but not XOR. |
 | **Multi-Layer Perceptron** | Adding hidden layers enables nonlinear decision boundaries. |
 | **Backpropagation** | Chain rule applied layer-by-layer to compute gradients for all weights. |
-| **Activation functions** | Sigmoid, Tanh, ReLU -- each introduces nonlinearity with different trade-offs. |
+| **Activation functions** | Sigmoid, Tanh, ReLU, each introduces nonlinearity with different trade-offs. |
 | **Universal Approximation** | One hidden layer with enough neurons can approximate any continuous function. |
 
-**What's next:** In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation-interactive/), we will visualize backpropagation in detail -- deriving the math, watching gradients flow, and understanding why deep networks can be hard to train.
+**What's next:** In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation-interactive/), we will visualize backpropagation in detail, deriving the math, watching gradients flow, and understanding why deep networks can be hard to train.
 
 ---
 
@@ -1058,13 +1058,13 @@ The practical question is: how many neurons do you need?
       for(var i=0;i<2;i++) trainStep();
       draw();
       if(epoch<maxEp) animId=requestAnimationFrame(step);
-      else { infoEl.textContent='500 epochs done. The perceptron FAILED -- accuracy is never 4/4. XOR is not linearly separable.'; animId=null; }
+      else { infoEl.textContent='500 epochs done. The perceptron FAILED, accuracy is never 4/4. XOR is not linearly separable.'; animId=null; }
     }
     step();
   });
   btnReset.addEventListener('click',function(){
     if(animId) cancelAnimationFrame(animId); animId=null;
-    resetW(); draw(); infoEl.textContent='The perceptron will try -- and fail. Watch the line oscillate.';
+    resetW(); draw(); infoEl.textContent='The perceptron will try, and fail. Watch the line oscillate.';
   });
   draw();
 })();

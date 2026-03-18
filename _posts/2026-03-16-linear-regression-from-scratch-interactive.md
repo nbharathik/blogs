@@ -375,32 +375,32 @@ window.LR = (function() {
 })();
 </script>
 
-Linear regression is one of the simplest and most powerful machine learning algorithms. It is the foundation for understanding everything from logistic regression to deep neural networks. In this interactive guide, we will build linear regression **completely from scratch** - and you will get to play with every concept right in your browser.
+Linear regression is one of the most important starting points in machine learning. It is simple enough to understand deeply, but powerful enough to teach ideas used in larger models: defining a model, measuring error, and improving parameters with optimization.
 
-We will use a concrete, intuitive example throughout: **predicting house prices based on their area (in square feet)**. Given a set of houses where we know both the area and the price, can we learn a formula that predicts the price of a *new* house given just its area?
+In this interactive guide, we will build linear regression **from scratch** using one concrete problem: **predicting house prices from area (square feet)**. If we know area and price for past houses, can we learn a formula that predicts price for a new house?
 
-By the end of this post you will understand:
-- **Hypothesis function** - the model's prediction formula
-- **Cost function** - how to measure prediction errors
-- **Gradient descent** - the optimization algorithm that finds the best parameters
-- **Learning rate** - the hyperparameter that controls how fast the model learns
-- **Making predictions** - using the trained model on new data
+By the end of this post, you will understand:
+- **Hypothesis function** - the prediction formula
+- **Cost function** - how prediction error is measured
+- **Gradient descent** - how parameters are optimized
+- **Learning rate** - why step size matters during training
+- **Prediction** - how to use trained parameters on new inputs
 
 <div class="demo-hint">
-<strong>How to use the interactive demos:</strong> Each section has a hands-on visualization. You can click, drag, and adjust sliders to experiment. The dataset you create in the first demo is shared across all sections - change it once and everything updates. Trained model parameters also carry forward, so you do not need to retrain for predictions.
+<strong>How to use the interactive demos:</strong> Work from top to bottom. The dataset you create in the first demo is shared across all sections, and trained parameters carry forward to later demos.
 </div>
 
 ---
 
 ## What is Linear Regression?
 
-Linear regression is a **supervised learning** algorithm. In supervised learning, we have a dataset of input-output pairs - we know both the input (features) and the correct output (labels). The algorithm learns a mapping from inputs to outputs so it can predict outputs for new, unseen inputs.
+Linear regression is a **supervised learning** algorithm. "Supervised" means we train on examples where both input and correct output are known. The model learns a mapping from input to output, then uses that mapping on unseen inputs.
 
 In our example:
 - **Input (feature):** House area in square feet (we call this $$x$$)
 - **Output (label):** House price in thousands of dollars (we call this $$y$$)
 
-The "linear" part means our model assumes a **straight-line relationship** between input and output. This is the simplest possible model - and often surprisingly effective.
+The "linear" part means the model assumes a **straight-line relationship** between input and output. It is the simplest possible form, and often a strong baseline.
 
 A simple linear equation looks like:
 
@@ -415,15 +415,15 @@ where:
 - $$b$$ stands for **bias** (same as y-intercept $$c$$)
 - $$\hat{y}$$ ("y-hat") is the **predicted** value (to distinguish it from the actual value $$y$$)
 
-The goal of linear regression is: **given a dataset of $$(x, y)$$ pairs, find the values of $$w$$ and $$b$$ such that the line $$\hat{y} = wx + b$$ fits the data as closely as possible.**
+The goal is simple: **given data points $$(x, y)$$, find $$w$$ and $$b$$ so that $$\hat{y} = wx + b$$ fits the data as closely as possible.**
 
 ---
 
 ## The Training Dataset
 
-Every machine learning model starts with data. Below we have 10 houses with their area (in square feet) and corresponding price (in $1000s). This is our **training dataset** - the set of labeled examples from which the model will learn patterns.
+Every machine learning model starts with data. Below, we have 10 houses with area (sq ft) and price (in $1000s). This is our **training dataset**: labeled examples the model uses to learn a pattern.
 
-The word "training" is important: just like a student learns from textbook examples, our algorithm learns from these data points. The more representative the data, the better the model will generalize to new houses.
+The quality of this dataset matters. If it reflects real-world patterns, predictions on new houses are usually better.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Click anywhere on the plot to <strong>add</strong> a new data point. Drag existing points to <strong>move</strong> them. Double-click a point to <strong>remove</strong> it. All demos below automatically use this dataset.
@@ -531,25 +531,25 @@ The word "training" is important: just like a student learns from textbook examp
 })();
 </script>
 
-Looking at the plot, you can see a clear trend: as the area increases, so does the price. The data points roughly follow a straight line going upward from left to right. This is exactly the kind of pattern that linear regression is designed to capture.
+Looking at the plot, there is a clear trend: larger area usually means higher price. The points are not perfectly on one line, and that is normal.
 
-Our goal is to find the **best-fit line** through these points - the line that comes as close as possible to all the data points simultaneously.
+Our goal is to find a **best-fit line** that keeps overall error as small as possible across all points.
 
 ---
 
 ## The Hypothesis Function
 
-In machine learning, the **hypothesis function** is the model's prediction formula. It is the mathematical function that maps inputs to predicted outputs. For linear regression, the hypothesis is:
+In machine learning, the **hypothesis function** is the model's prediction formula. It maps input to predicted output. For linear regression, the hypothesis is:
 
 $$h(x) = w \cdot x + b$$
 
-This is the equation of a straight line. The two parameters $$w$$ and $$b$$ completely define which line we are drawing:
+This is a straight line. The two parameters $$w$$ and $$b$$ completely determine the line:
 
-- **Weight ($$w$$)** controls the **slope** of the line - how steeply the line rises or falls. A larger weight means the price increases faster with area. A weight of zero would be a flat horizontal line (price does not depend on area at all). A negative weight would mean price *decreases* as area increases.
+- **Weight ($$w$$)** controls the **slope**. Larger $$w$$ means price rises faster with area. If $$w = 0$$, the line is flat. If $$w < 0$$, price decreases as area increases.
 
-- **Bias ($$b$$)** controls the **y-intercept** - where the line crosses the vertical axis (when $$x = 0$$). You can think of it as the "base price" before considering the area. The bias shifts the entire line up or down without changing its slope.
+- **Bias ($$b$$)** controls the **y-intercept**. It shifts the line up or down without changing slope. You can think of it as a base level before area contributes through $$w$$.
 
-Together, $$w$$ and $$b$$ are the **parameters** (also called **model weights**) of our linear regression model. Training means finding the values of $$w$$ and $$b$$ that produce the best-fit line.
+Together, $$w$$ and $$b$$ are the model's **parameters**. Training means finding the values that produce the best fit.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Drag the <strong>weight</strong> and <strong>bias</strong> sliders to see how each parameter affects the line. Try setting the weight to 0, or making it negative. Try large and small bias values.
@@ -599,27 +599,27 @@ Together, $$w$$ and $$b$$ are the **parameters** (also called **model weights**)
 })();
 </script>
 
-Notice how the **weight** controls the rotation of the line (its steepness), while the **bias** slides it up or down. To find the best-fit line, we need to find the precise $$w$$ and $$b$$ values where the line passes closest to all data points. But what does "closest" mean exactly? We need a precise mathematical definition of how "wrong" our line is - that is the **cost function**.
+Notice how **weight** changes steepness while **bias** shifts vertically. To find the best fit, we need a precise way to measure "how wrong" a line is. That is the **cost function**.
 
 ---
 
 ## The Cost Function (Mean Squared Error)
 
-The cost function (also called **loss function** or **objective function**) is a single number that tells us **how bad our current model is**. A high cost means our predictions are far from the actual values. A low cost means our line fits the data well. Our goal is to find the parameters $$w$$ and $$b$$ that minimize this cost.
+The cost function (also called **loss** or **objective**) is a single number that tells us **how wrong the current model is**. High cost means predictions are far from actual values. Low cost means the line fits well. Training is the process of finding $$w$$ and $$b$$ that minimize this value.
 
 The most common cost function for linear regression is the **Mean Squared Error (MSE)**:
 
 $$J(w,b) = \frac{1}{2m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^{(i)}\right)^2$$
 
-Let us break this down piece by piece:
+Let us break this down:
 
-1. **$$h(x^{(i)}) - y^{(i)}$$** - This is the **error** (or **residual**) for a single data point. It is the difference between what our model predicts ($$h(x^{(i)}) = w \cdot x^{(i)} + b$$) and the actual value ($$y^{(i)}$$). If the prediction is too high, this is positive. If too low, it is negative.
+1. **$$h(x^{(i)}) - y^{(i)}$$** is the **error** (residual) for one point: prediction minus actual value.
 
-2. **$$(\ldots)^2$$** - We **square** each error. This does two things: it makes all errors positive (so errors above and below the line do not cancel out), and it penalizes large errors much more than small ones (an error of 10 is penalized 100x, not 10x).
+2. **$$(\ldots)^2$$** squares each error, so positives and negatives do not cancel, and large misses are penalized more strongly.
 
-3. **$$\sum_{i=1}^{m}$$** - We **sum** the squared errors across all $$m$$ data points.
+3. **$$\sum_{i=1}^{m}$$** adds squared errors across all $$m$$ points.
 
-4. **$$\frac{1}{2m}$$** - We **average** by dividing by $$m$$ (so the cost does not depend on how many data points we have). The $$\frac{1}{2}$$ is a mathematical convenience - it makes the derivative cleaner later.
+4. **$$\frac{1}{2m}$$** averages over the dataset. The extra $$\frac{1}{2}$$ is a convenience that simplifies derivatives.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Adjust the weight and bias sliders. The <strong>red dashed lines</strong> show the error (residual) for each point. The <strong>semi-transparent red squares</strong> visualize the squared error - bigger squares mean bigger errors. Watch the MSE value and try to minimize it!
@@ -696,19 +696,19 @@ Let us break this down piece by piece:
 <strong>Try this:</strong> Set <code>w = 0</code>, then tune only <code>b</code> to reduce cost. Next freeze <code>b</code> and tune <code>w</code>. Compare the best cost from each step vs tuning both together.
 </div>
 
-Try to manually find the lowest cost by adjusting the sliders. You will notice it is quite hard to get both $$w$$ and $$b$$ exactly right at the same time - changing one affects how good the other value is. This is why we need an **automated optimization algorithm**. But first, let us visualize what the cost function looks like as a landscape.
+Try finding the minimum manually with sliders. It is harder than it looks, because changing $$w$$ affects the best value of $$b$$, and vice versa. This is why we need an **automated optimizer**. First, let us visualize the full cost landscape.
 
 ---
 
 ## The Cost Landscape
 
-Every possible combination of $$w$$ and $$b$$ produces a different cost value $$J(w,b)$$. If we plot the cost for all combinations, we get a **cost surface** - a 3D landscape where the horizontal axes are $$w$$ and $$b$$, and the vertical axis is the cost.
+Every pair $$(w, b)$$ gives a different cost $$J(w,b)$$. If we evaluate many pairs, we get a **cost surface**: a 3D landscape where horizontal axes are $$w$$ and $$b$$, and height is cost.
 
-For linear regression with MSE, this surface is always **bowl-shaped** (mathematically, it is a **convex function**). This is great news because it means there is a single global minimum - one unique "bottom of the bowl" that represents the best possible parameters.
+For linear regression with MSE, this surface is **bowl-shaped** (convex). That is useful because it has one global minimum: a single best parameter set.
 
 ### Contour Plot View
 
-A **contour plot** is a top-down view of the 3D surface, like a topographic map. Each color band represents a cost level - the darkest regions have the highest cost, and the lightest region at the center is where the minimum is. Think of it as looking down at a valley from above.
+A **contour plot** is a top-down view of this surface, like a topographic map. Each band represents a cost level. Moving toward lighter center regions means lower cost.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Drag the green dot around the contour plot. The right panel shows the line corresponding to the current (w, b) position. Try dragging the dot toward the lightest region - that is the minimum cost!
@@ -952,27 +952,27 @@ Here is the same cost function visualized as a 3D surface. You can see the bowl 
 })();
 </script>
 
-The bowl shape is a key property. No matter where we start on this surface, if we always move downhill, we are guaranteed to reach the single lowest point. This is exactly what **gradient descent** does.
+The bowl shape is important. If we keep moving downhill from any start point, we will reach the same minimum. That is exactly what **gradient descent** does.
 
 ---
 
 ## Gradient Descent
 
-Gradient descent is the **optimization algorithm** that finds the minimum of the cost function. It is one of the most important algorithms in all of machine learning - the same basic idea powers training of neural networks with millions of parameters.
+Gradient descent is the **optimization algorithm** that moves parameters toward minimum cost. The same core idea is used in much larger models, including neural networks.
 
 ### The Intuition: Lost on a Foggy Mountain
 
-Imagine you are standing on a mountain in thick fog. You cannot see more than a few feet in any direction, but you need to reach the valley floor (the lowest point). What would you do?
+Imagine standing on a mountain in thick fog. You cannot see the whole landscape, but you need to reach the valley floor.
 
-1. **Feel the ground around you** to determine which direction slopes downhill most steeply
+1. **Feel the slope around you** to find the steepest downhill direction
 2. **Take a step** in that downhill direction
 3. **Repeat** until the ground is flat (you have reached the bottom)
 
 This is exactly how gradient descent works:
 
-1. **Compute the gradient** (the slope of the cost function at your current position) - this tells you which direction is "uphill"
-2. **Move in the opposite direction** (downhill) - this decreases the cost
-3. **Repeat** for many iterations until the cost stops decreasing significantly
+1. **Compute gradient** at current $$w, b$$ (direction of steepest increase)
+2. **Move opposite to the gradient** (downhill)
+3. **Repeat** until improvements become very small
 
 ### The Math
 
@@ -982,9 +982,9 @@ $$\frac{\partial J}{\partial w} = \frac{1}{m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^
 
 $$\frac{\partial J}{\partial b} = \frac{1}{m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^{(i)}\right)$$
 
-These derivatives tell us:
-- **$$\frac{\partial J}{\partial w}$$**: How much the cost changes when we slightly increase $$w$$. If positive, increasing $$w$$ increases cost (so we should decrease $$w$$). If negative, increasing $$w$$ decreases cost (so we should increase $$w$$).
-- **$$\frac{\partial J}{\partial b}$$**: Same idea for the bias $$b$$.
+These derivatives tell us local sensitivity:
+- **$$\frac{\partial J}{\partial w}$$**: how cost changes if we increase $$w$$ slightly
+- **$$\frac{\partial J}{\partial b}$$**: same idea for $$b$$
 
 The **update rules** are:
 
@@ -992,11 +992,11 @@ $$w := w - \alpha \cdot \frac{\partial J}{\partial w}$$
 
 $$b := b - \alpha \cdot \frac{\partial J}{\partial b}$$
 
-The minus sign ensures we move in the **opposite** direction of the gradient (downhill, not uphill). The **learning rate** $$\alpha$$ controls how big each step is.
+The minus sign makes the update move **against** the gradient, which reduces cost. The learning rate $$\alpha$$ sets step size.
 
 ### Why the Minus Sign?
 
-If the gradient (slope) is **positive** at our current $$w$$, it means cost increases when $$w$$ increases. So we should **decrease** $$w$$: subtracting a positive number makes $$w$$ smaller. If the gradient is **negative**, cost increases when $$w$$ decreases, so we should **increase** $$w$$: subtracting a negative number makes $$w$$ larger. The minus sign handles both cases automatically.
+If a gradient component is **positive**, subtracting it decreases that parameter. If it is **negative**, subtracting it increases that parameter. One rule handles both directions automatically.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Click <strong>Step</strong> for one gradient descent iteration, or <strong>Run</strong> to animate. The green path on the contour plot shows the optimization trajectory. The line on the right converges to the best fit. The chart below shows cost decreasing over iterations.
@@ -1194,23 +1194,28 @@ If the gradient (slope) is **positive** at our current $$w$$, it means cost incr
 <strong>Try this:</strong> Start with <code>w=0, b=0</code>, click <strong>Step</strong> 10 times, then switch to <strong>Run</strong>. Observe how the path moves quickly first and then takes smaller effective improvements near the minimum.
 </div>
 
-After running gradient descent for enough iterations, the green dot settles at the bottom of the bowl (minimum cost), and the orange line fits the data well. The convergence curve shows the cost rapidly decreasing at first and then flattening as it approaches the minimum.
+After enough iterations, the green dot settles near the bottom of the bowl and the fitted line stabilizes. Cost usually drops quickly early on, then flattens near convergence.
 
 ---
 
 ## The Learning Rate
 
-The **learning rate** $$\alpha$$ is a crucial **hyperparameter** - a setting that you choose before training, not something the algorithm learns from data. It controls the **step size** at each iteration of gradient descent.
+The **learning rate** $$\alpha$$ is a crucial **hyperparameter**. You choose it before training. It controls step size in each gradient descent update.
 
-Choosing the right learning rate is important:
+Choosing it well is important:
 
-- **Too small** (e.g., $$\alpha = 0.000000001$$): Each step is tiny. The algorithm takes thousands of iterations to converge, wasting computation time. The cost barely decreases.
+- **Too small** (for example $$\alpha = 0.000000001$$): steps are tiny, convergence is very slow.
 
-- **Just right** (e.g., $$\alpha = 0.00000005$$): Steady, smooth convergence to the minimum in a reasonable number of iterations. The cost decreases quickly at first, then gradually levels off.
+- **Reasonable** (for example $$\alpha = 0.00000005$$): smooth, stable convergence.
 
-- **Too large** (e.g., $$\alpha = 0.000001$$): Each step is so big that the algorithm **overshoots** the minimum - it jumps past the bottom of the bowl to the other side. If too large, the cost can actually *increase* with each iteration (divergence), and the model never converges.
+- **Too large** (for example $$\alpha = 0.000001$$): updates overshoot, cost oscillates or increases, and training can diverge.
 
-There is no formula for the "best" learning rate - it depends on the data and the problem. In practice, you try several values and pick the one that converges smoothly and efficiently.
+There is no universal best value. In practice, try a few values and watch the cost curve.
+
+A quick rule of thumb:
+- If cost explodes or oscillates, decrease $$\alpha$$.
+- If cost decreases but very slowly, increase $$\alpha$$.
+- Keep the largest value that still gives stable, smooth convergence.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Click <strong>Run All</strong> to see three learning rates competing simultaneously. Each chart shows cost vs. iteration. You can edit the learning rate values to experiment.
@@ -1331,7 +1336,7 @@ There is no formula for the "best" learning rate - it depends on the data and th
 
 ## Implementing from Scratch
 
-Let us put together the complete algorithm step-by-step:
+Let us put the complete algorithm together step by step:
 
 **Algorithm A: Single-Feature (Univariate) Linear Regression**
 
@@ -1362,7 +1367,9 @@ def linear_regression_univariate(X, y, lr=1e-7, iterations=5000):
     return w, b, cost
 ```
 
-**Walk through this code step-by-step** - see exactly what each line computes, with live values and a plot that updates as the algorithm learns:
+In this simplified code, we train directly on raw area values, so a very small learning rate is used. In practice, feature scaling usually lets you train with larger and more stable learning rates.
+
+**Walk through this code step by step** and watch each line update live values and the fitted line:
 
 <style>
 .cw-wrap{display:grid;grid-template-columns:1fr;gap:0.75rem}
@@ -1746,21 +1753,21 @@ var w = 0, b = 0;
 })();
 </script>
 
---
-
 ## Making Predictions
 
-Once we have trained our model and found the optimal values of $$w$$ and $$b$$, making predictions for new data is simply plugging into our hypothesis function:
+Once we have trained the model and found $$w$$ and $$b$$, prediction is direct substitution into the hypothesis:
 
 $$\hat{y}_{new} = w_{trained} \cdot x_{new} + b_{trained}$$
 
-For example, if we trained and found $$w = 0.151$$ and $$b = 42.2$$, then to predict the price of a 2800 sq ft house:
+For example, if training gives $$w = 0.151$$ and $$b = 42.2$$, then for a 2800 sq ft house:
 
 $$\hat{y} = 0.151 \times 2800 + 42.2 = 465.0$$
 
-So we predict the price would be approximately **$465,000**.
+So the predicted price is approximately **$465,000**.
 
-This is the power of machine learning - we did not hard-code any rules about house prices. The model **learned** the relationship from the data automatically, and now can generalize to houses it has never seen before.
+This value is in thousands of dollars, so `465.0` means about **$465,000**. The model did not use hand-written pricing rules. It learned a pattern from data.
+
+One important caveat: predictions are usually more reliable **within** the training range than far outside it. Predicting a 12,000 sq ft house from data mostly between 800 and 3,800 sq ft is extrapolation, and can be inaccurate.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> This demo uses the trained parameters from the gradient descent above. If you have not trained yet, click <strong>Auto-Train</strong>. Then enter any house area and click <strong>Predict</strong> to see the result on the plot.
@@ -1866,16 +1873,16 @@ Here is everything we covered, building linear regression completely from the gr
 | **Learning rate** ($$\alpha$$) | Controls step size | Hyperparameter (you choose) |
 | **Prediction** | Uses trained model on new data | $$\hat{y} = w_{trained} \cdot x + b_{trained}$$ |
 
-The same fundamental concepts - cost functions, gradients, and iterative optimization - are the building blocks of much larger models, from logistic regression and SVMs to deep neural networks.
+These same ideas appear again in larger models: define a differentiable objective, compute gradients, and iteratively optimize parameters.
 
-#### What's Next
+#### Continue the ML Series
 
-- **Feature scaling**: Normalize inputs so gradient descent converges faster
-- **Regularization**: L1 (Lasso) and L2 (Ridge) penalties to prevent overfitting
-- **Polynomial regression**: Fit curves instead of lines by adding polynomial features
-- **Multiple columns extension**: [Linear Regression from Scratch II]({{ site.baseurl }}/linear-regression-multivariate-extension/)
-- **Logistic regression**: Adapt the same framework for classification problems
-- **Neural networks**: Stack many linear + non-linear layers for deep learning
+This post is part of my **Machine Learning from Scratch** series. If you want to continue in order:
+
+- **Series overview**: [Machine Learning from Scratch: Interactive Guide]({{ site.baseurl }}/machine-learning-from-scratch-interactive-guide/)
+- **Linear Regression Part 2 (multiple features)**: [Linear Regression from Scratch II: Multivariate Extension]({{ site.baseurl }}/linear-regression-multivariate-extension/)
+- **Then next**: [Polynomial Regression: Bias Variance Interactive]({{ site.baseurl }}/polynomial-regression-bias-variance-interactive/)
+- **After that**: [Logistic Regression from Scratch: Interactive]({{ site.baseurl }}/logistic-regression-from-scratch-interactive/)
 
 #### References
 

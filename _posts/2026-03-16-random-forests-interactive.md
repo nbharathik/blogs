@@ -574,7 +574,7 @@ In this chapter, we will build Random Forests from scratch, starting with the **
 
 ## 1. Why Ensembles? The Problem with a Single Tree
 
-A single deep decision tree creates very complex, jagged decision boundaries. It perfectly fits the training data -- but small changes in the data can produce completely different trees. This is **high variance**.
+A single deep decision tree creates very complex, jagged decision boundaries. It perfectly fits the training data, but small changes in the data can produce completely different trees. This is **high variance**.
 
 The ensemble idea is simple: if individual trees are noisy but on average correct, combining many of them cancels out the noise. This is the **wisdom of crowds** applied to machine learning.
 
@@ -682,7 +682,7 @@ Notice how the single tree's boundary is jagged and changes dramatically each ti
 
 The foundation of bagging is **bootstrap sampling**: creating new training sets by sampling **with replacement** from the original data. Each bootstrap sample has the same size as the original, but some points appear multiple times and others are left out entirely.
 
-On average, each bootstrap sample includes about **63.2%** of the unique original data points. The remaining **36.8%** are called **out-of-bag (OOB)** samples -- these serve as a free validation set.
+On average, each bootstrap sample includes about **63.2%** of the unique original data points. The remaining **36.8%** are called **out-of-bag (OOB)** samples, these serve as a free validation set.
 
 Why 63.2%? The probability that a specific point is **not** chosen in any of $$n$$ draws is:
 
@@ -846,7 +846,7 @@ $$P(\text{not chosen}) = \left(1 - \frac{1}{n}\right)^n \xrightarrow{n \to \inft
 })();
 </script>
 
-After many bootstrap samples, the average inclusion rate converges to approximately 63.2%, matching our theoretical prediction. This means each tree gets a slightly different view of the data -- which is exactly what we want for diversity.
+After many bootstrap samples, the average inclusion rate converges to approximately 63.2%, matching our theoretical prediction. This means each tree gets a slightly different view of the data, which is exactly what we want for diversity.
 
 ---
 
@@ -985,7 +985,7 @@ Each individual tree has a different jagged boundary because each one trained on
 
 ## 4. Forest Growth: Adding Trees One by One
 
-This is the key insight of Random Forests: as you add more trees, the decision boundary progressively smooths out and accuracy stabilizes. There is no overfitting from adding more trees -- only diminishing returns.
+This is the key insight of Random Forests: as you add more trees, the decision boundary progressively smooths out and accuracy stabilizes. There is no overfitting from adding more trees, only diminishing returns.
 
 ### Try It: Grow the Forest
 
@@ -1151,7 +1151,7 @@ This is the key insight of Random Forests: as you add more trees, the decision b
 })();
 </script>
 
-With just one tree, the boundary is jagged and noisy. By 5-10 trees, major improvements appear. By 20-30 trees, the boundary has largely converged. Adding more trees beyond that provides diminishing returns but **never hurts** -- a key advantage of Random Forests.
+With just one tree, the boundary is jagged and noisy. By 5-10 trees, major improvements appear. By 20-30 trees, the boundary has largely converged. Adding more trees beyond that provides diminishing returns but **never hurts**, a key advantage of Random Forests.
 
 ---
 
@@ -1279,13 +1279,13 @@ One of the most illuminating views is to see all individual tree boundaries over
 })();
 </script>
 
-In the **Individual** view, you can see the colored contour lines of each tree's decision boundary. They are all different -- that is diversity, and it is essential. When you switch to **Ensemble** view, those diverse opinions merge into a smooth, confident boundary.
+In the **Individual** view, you can see the colored contour lines of each tree's decision boundary. They are all different, that is diversity, and it is essential. When you switch to **Ensemble** view, those diverse opinions merge into a smooth, confident boundary.
 
 ---
 
 ## 6. Random Feature Selection
 
-Bagging alone helps, but the trees can still be **correlated** -- if one feature is very strong, all trees will split on it first, making them similar. Random Forests add a second source of randomness: at each split, only a random subset of features is considered.
+Bagging alone helps, but the trees can still be **correlated**, if one feature is very strong, all trees will split on it first, making them similar. Random Forests add a second source of randomness: at each split, only a random subset of features is considered.
 
 For classification, the default is $$\sqrt{p}$$ features per split (where $$p$$ is the total number of features). This forces trees to explore different features and produces more **decorrelated** trees, which further reduces ensemble variance.
 
@@ -1399,7 +1399,7 @@ Reducing $$\rho$$ (correlation between trees) reduces the first term, which does
 })();
 </script>
 
-When all features are considered at every split (bagging), both trees tend to use the same best feature first, making them correlated. With random feature selection, trees are forced to find different splitting strategies, producing more diverse -- and ultimately more effective -- ensembles.
+When all features are considered at every split (bagging), both trees tend to use the same best feature first, making them correlated. With random feature selection, trees are forced to find different splitting strategies, producing more diverse, and ultimately more effective, ensembles.
 
 ---
 
@@ -1409,7 +1409,7 @@ Random Forests provide a natural measure of **feature importance**: the total re
 
 $$\text{Importance}(f) = \frac{1}{B}\sum_{b=1}^{B}\sum_{\text{splits on } f \text{ in tree } b} n_{\text{node}} \cdot \Delta\text{Gini}$$
 
-This is one of the most practical benefits of Random Forests -- you get feature ranking for free.
+This is one of the most practical benefits of Random Forests, you get feature ranking for free.
 
 ### Try It: Feature Importance by Forest Size
 
@@ -1549,7 +1549,7 @@ This is one of the most practical benefits of Random Forests -- you get feature 
 })();
 </script>
 
-With a single tree, importance estimates are unreliable -- they depend heavily on which bootstrap sample was drawn. As more trees are added, the estimates converge to stable values that reflect the true relevance of each feature.
+With a single tree, importance estimates are unreliable, they depend heavily on which bootstrap sample was drawn. As more trees are added, the estimates converge to stable values that reflect the true relevance of each feature.
 
 ---
 
@@ -1844,7 +1844,7 @@ Try different datasets and click **Regenerate** multiple times. The single tree 
 
 ## 10. Summary
 
-Random Forests combine two powerful ideas -- **bootstrap sampling** and **random feature selection** -- to build ensembles of decorrelated decision trees. The result is one of the most reliable and widely used machine learning algorithms.
+Random Forests combine two powerful ideas, **bootstrap sampling** and **random feature selection**, to build ensembles of decorrelated decision trees. The result is one of the most reliable and widely used machine learning algorithms.
 
 ### The Random Forest Algorithm
 

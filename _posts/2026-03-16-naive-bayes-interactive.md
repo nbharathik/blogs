@@ -288,10 +288,10 @@ At the heart of Naive Bayes lies **Bayes' theorem**. It tells us how to reverse 
 $$P(A \mid B) = \frac{P(B \mid A) \, P(A)}{P(B)}$$
 
 where:
-- $$P(A \mid B)$$ is the **posterior** -- the probability of $$A$$ given we observed $$B$$
-- $$P(B \mid A)$$ is the **likelihood** -- how likely is $$B$$ if $$A$$ is true
-- $$P(A)$$ is the **prior** -- our initial belief about $$A$$
-- $$P(B)$$ is the **evidence** -- total probability of observing $$B$$
+- $$P(A \mid B)$$ is the **posterior**, the probability of $$A$$ given we observed $$B$$
+- $$P(B \mid A)$$ is the **likelihood**, how likely is $$B$$ if $$A$$ is true
+- $$P(A)$$ is the **prior**, our initial belief about $$A$$
+- $$P(B)$$ is the **evidence**, total probability of observing $$B$$
 
 The evidence is computed using the law of total probability:
 
@@ -300,7 +300,7 @@ $$P(B) = P(B \mid A) \, P(A) + P(B \mid \neg A) \, P(\neg A)$$
 ### Try It: Bayes' Theorem Calculator
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Adjust the three sliders to see how P(A|B) changes. The area diagram on the right shows the proportional areas -- the highlighted region is the posterior probability.
+<strong>Interactive:</strong> Adjust the three sliders to see how P(A|B) changes. The area diagram on the right shows the proportional areas, the highlighted region is the posterior probability.
 </div>
 
 <div class="interactive-demo">
@@ -409,7 +409,7 @@ $$P(B) = P(B \mid A) \, P(A) + P(B \mid \neg A) \, P(\neg A)$$
     ctx.fillStyle = c.isDark ? 'rgba(247,118,142,0.35)' : 'rgba(230,57,70,0.2)';
     ctx.fillRect(rx + aWidth, ry, rw - aWidth, bnaHeight);
 
-    // Highlight the P(A and B) area with strong color -- this is the numerator
+    // Highlight the P(A and B) area with strong color, this is the numerator
     ctx.fillStyle = c.isDark ? 'rgba(122,162,247,0.7)' : 'rgba(37,99,235,0.45)';
     ctx.fillRect(rx, ry, aWidth, baHeight);
     ctx.strokeStyle = c.accent;
@@ -812,7 +812,7 @@ When we increase $$P(C_k)$$, the decision boundary shifts **away** from class $$
 })();
 </script>
 
-**Key insight:** Notice that at $$P(C_0) = 0.50$$ the boundary sits at $$x = 0$$, exactly between the two means. As you increase $$P(C_0)$$, the boundary shifts right -- Class 0 needs less likelihood evidence because its prior is already high. This is precisely why accounting for class imbalance matters.
+**Key insight:** Notice that at $$P(C_0) = 0.50$$ the boundary sits at $$x = 0$$, exactly between the two means. As you increase $$P(C_0)$$, the boundary shifts right, Class 0 needs less likelihood evidence because its prior is already high. This is precisely why accounting for class imbalance matters.
 
 ---
 
@@ -1106,7 +1106,7 @@ This creates **axis-aligned** elliptical contours because the independence assum
 
 ## 5. Posterior Probability Heatmap
 
-To get a complete picture of how Naive Bayes classifies the entire feature space, we can render a **posterior probability heatmap**. Each pixel is colored by $$P(C_0 \mid \mathbf{x})$$ -- from deep blue (high confidence for Class 0) through white (uncertain) to deep red (high confidence for Class 1).
+To get a complete picture of how Naive Bayes classifies the entire feature space, we can render a **posterior probability heatmap**. Each pixel is colored by $$P(C_0 \mid \mathbf{x})$$, from deep blue (high confidence for Class 0) through white (uncertain) to deep red (high confidence for Class 1).
 
 ### Try It: Full Posterior Landscape
 
@@ -1312,7 +1312,7 @@ Consider the true joint distribution $$P(x_1, x_2 \mid C_k)$$ for correlated fea
 
 $$P_{NB}(x_1, x_2 \mid C_k) = P(x_1 \mid C_k) \cdot P(x_2 \mid C_k)$$
 
-The **key insight** is that for classification, we do not need the densities to be correct -- we only need the **argmax** to be correct. Even if the estimated probabilities are poorly calibrated, the ranking of classes may still be right.
+The **key insight** is that for classification, we do not need the densities to be correct, we only need the **argmax** to be correct. Even if the estimated probabilities are poorly calibrated, the ranking of classes may still be right.
 
 ### Try It: Correlated vs. Independent Features
 
@@ -1493,7 +1493,7 @@ The **key insight** is that for classification, we do not need the densities to 
 })();
 </script>
 
-**Observation:** Even at $$\rho = 0.9$$ (extreme correlation), the decision boundary from the true distribution and the Naive Bayes approximation are often quite close. The contour shapes differ dramatically -- tilted ellipses vs axis-aligned ones -- but the dividing line between classes is similar. This explains Naive Bayes' surprising effectiveness in practice.
+**Observation:** Even at $$\rho = 0.9$$ (extreme correlation), the decision boundary from the true distribution and the Naive Bayes approximation are often quite close. The contour shapes differ dramatically, tilted ellipses vs axis-aligned ones, but the dividing line between classes is similar. This explains Naive Bayes' surprising effectiveness in practice.
 
 ---
 
@@ -1660,7 +1660,7 @@ $$\log P(\text{spam} \mid d) \propto \log P(\text{spam}) + \sum_{i=1}^{n} \log P
 
 ## 8. Laplace Smoothing
 
-There is a critical problem with Naive Bayes: if a word has **never** appeared in spam training data, then $$P(w \mid \text{spam}) = 0$$, and the entire product becomes zero -- no matter how many other spammy words are present. A single unseen word kills the entire prediction.
+There is a critical problem with Naive Bayes: if a word has **never** appeared in spam training data, then $$P(w \mid \text{spam}) = 0$$, and the entire product becomes zero, no matter how many other spammy words are present. A single unseen word kills the entire prediction.
 
 **Laplace smoothing** (also called additive smoothing) fixes this by adding a pseudo-count $$\alpha$$ to every word's count:
 
@@ -1835,7 +1835,7 @@ where $$|V|$$ is the vocabulary size. When $$\alpha = 1$$, this is classic **add
 })();
 </script>
 
-**The takeaway:** Without smoothing, the three zero-count words ("report", "pizza", "quantum") have $$P = 0$$, which means any document containing them will never be classified as spam -- even if it also contains "free", "win", and "money". Smoothing eliminates this catastrophic failure by assigning small but nonzero probabilities to unseen words.
+**The takeaway:** Without smoothing, the three zero-count words ("report", "pizza", "quantum") have $$P = 0$$, which means any document containing them will never be classified as spam, even if it also contains "free", "win", and "money". Smoothing eliminates this catastrophic failure by assigning small but nonzero probabilities to unseen words.
 
 ---
 
@@ -1880,7 +1880,7 @@ Naive Bayes classifiers are a family of algorithms that apply Bayes' theorem wit
   <th>Disadvantages</th>
 </tr>
 <tr>
-  <td>Extremely fast training and prediction -- $$O(n \cdot d)$$</td>
+  <td>Extremely fast training and prediction, $$O(n \cdot d)$$</td>
   <td>Independence assumption is rarely true</td>
 </tr>
 <tr>
@@ -1907,11 +1907,11 @@ Naive Bayes classifiers are a family of algorithms that apply Bayes' theorem wit
 
 ### When to Use Naive Bayes
 
-- **Text classification** -- spam filtering, sentiment analysis, topic labeling. This is where Naive Bayes shines brightest.
-- **As a baseline** -- before trying complex models, Naive Bayes gives you a quick lower bound on performance.
-- **Real-time classification** -- when prediction speed matters more than marginal accuracy gains.
-- **Small datasets** -- when you do not have enough data to estimate complex model parameters.
-- **Multi-class problems** -- Naive Bayes scales naturally to many classes without modification.
+- **Text classification**, spam filtering, sentiment analysis, topic labeling. This is where Naive Bayes shines brightest.
+- **As a baseline**, before trying complex models, Naive Bayes gives you a quick lower bound on performance.
+- **Real-time classification**, when prediction speed matters more than marginal accuracy gains.
+- **Small datasets**, when you do not have enough data to estimate complex model parameters.
+- **Multi-class problems**, Naive Bayes scales naturally to many classes without modification.
 
 ### The Big Picture
 
@@ -1922,4 +1922,4 @@ Naive Bayes teaches us a profound lesson: **simplicity can be powerful**. By mak
 
 The classifier's success illustrates a recurring theme in machine learning: the **bias-variance tradeoff**. Naive Bayes has high bias (the independence assumption) but very low variance (few parameters to estimate). When data is scarce or dimensions are high, this tradeoff works in its favor.
 
-In the next chapter, we will explore **decision trees**, which take the opposite approach -- making no assumptions about feature distributions but building complex, hierarchical decision rules from the data itself.
+In the next chapter, we will explore **decision trees**, which take the opposite approach, making no assumptions about feature distributions but building complex, hierarchical decision rules from the data itself.

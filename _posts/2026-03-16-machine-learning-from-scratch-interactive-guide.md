@@ -157,7 +157,7 @@ permalink: /ml/
 }
 </style>
 
-This is a complete interactive guide to **Machine Learning from Scratch**. Every algorithm below comes with real-time visualizations - you can drag data points, tune parameters, and watch models learn step-by-step, right in your browser.
+This is a complete interactive guide to **Machine Learning from Scratch**. Every algorithm below has real-time visualizations, with focused math and code so you can build strong intuition quickly.
 
 <div class="ml-preview" id="ml-series-preview">
   <div class="ml-preview-header">

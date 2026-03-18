@@ -217,6 +217,8 @@ By the end of this guide you will understand:
 
 A stack follows the **LIFO** principle: the last element added is the first one removed. Think of it like a stack of plates  - you can only add or remove from the top.
 
+In practice, stacks are used when you need to reverse recent actions quickly. Undo systems, browser history, function call management, and depth first search all rely on this pattern. The key intuition is that the most recent context is usually the most relevant next context.
+
 ### Python Implementation
 
 ```python
@@ -314,6 +316,8 @@ All operations are **O(1)**  - push, pop, and peek all happen at the top of the 
 ## Queue
 
 A queue follows the **FIFO** principle: the first element added is the first one removed. Think of it like waiting in line  - the person who arrives first gets served first.
+
+Queues are useful when fairness and order matter. Task schedulers, request pipelines, message brokers, and breadth first search all benefit from FIFO behavior. If your system must process work in arrival order, a queue is usually the default choice.
 
 ### Python Implementation
 

@@ -433,7 +433,7 @@ In the [previous chapter on SVMs]({% post_url 2026-03-16-svm-interactive %}), we
 
 This is the core insight behind **boosting**: a family of ensemble methods that turn weak learners into a strong learner by training them **sequentially**, where each new learner focuses on correcting the mistakes of its predecessors.
 
-Boosting has produced some of the most successful machine learning algorithms in practice. XGBoost, LightGBM, and CatBoost -- all based on gradient boosting -- dominate Kaggle competitions and power production systems at scale. Let us build this family of algorithms from scratch.
+Boosting has produced some of the most successful machine learning algorithms in practice. XGBoost, LightGBM, and CatBoost, all based on gradient boosting, dominate Kaggle competitions and power production systems at scale. Let us build this family of algorithms from scratch.
 
 ---
 
@@ -446,7 +446,7 @@ A stump says: "if feature $$x_j \leq \theta$$, predict +1; otherwise predict -1"
 ### Try It: A Single Decision Stump
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>New Stump</strong> to train a single decision stump on the data. Notice how it gets many points wrong -- it can only draw one horizontal or vertical line. The accuracy is barely above 50%. But each stump captures <em>some</em> signal.
+<strong>Interactive:</strong> Click <strong>New Stump</strong> to train a single decision stump on the data. Notice how it gets many points wrong, it can only draw one horizontal or vertical line. The accuracy is barely above 50%. But each stump captures <em>some</em> signal.
 </div>
 
 <div class="interactive-demo">
@@ -578,7 +578,7 @@ Points that are **misclassified** get larger weights (they grow bigger in the vi
 ### Try It: Watch AdaBoost Build an Ensemble
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> to add one stump at a time, or <strong>Play</strong> to animate. Point sizes are proportional to their sample weights -- notice how misclassified points grow larger each round, forcing the next stump to focus on them. The decision boundary on the right shows the combined ensemble.
+<strong>Interactive:</strong> Click <strong>Step</strong> to add one stump at a time, or <strong>Play</strong> to animate. Point sizes are proportional to their sample weights, notice how misclassified points grow larger each round, forcing the next stump to focus on them. The decision boundary on the right shows the combined ensemble.
 </div>
 
 <div class="interactive-demo" id="demo-adaboost">
@@ -938,7 +938,7 @@ The residuals are actually the **negative gradient** of the loss function:
 
 $$r_i = -\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)} = y_i - F(x_i)$$
 
-This is why it is called **gradient** boosting -- we are doing gradient descent in function space.
+This is why it is called **gradient** boosting, we are doing gradient descent in function space.
 
 ### Try It: Watch Residuals Shrink
 
@@ -1161,7 +1161,7 @@ Watch how after the first tree (which fits a rough version of the residuals), su
 
 ## 5. Learning Rate and Iterations Tradeoff
 
-The **learning rate** $$\eta$$ (also called shrinkage) controls how much each tree contributes. A smaller learning rate means each tree makes a smaller correction, requiring more trees to achieve the same fit -- but generalizing better.
+The **learning rate** $$\eta$$ (also called shrinkage) controls how much each tree contributes. A smaller learning rate means each tree makes a smaller correction, requiring more trees to achieve the same fit, but generalizing better.
 
 $$F_t(x) = F_{t-1}(x) + \eta \cdot h_t(x)$$
 
@@ -1295,7 +1295,7 @@ Try setting the learning rate to 1.0 with 5 iterations, then compare to 0.1 with
 
 ## 6. Stagewise Additive Model
 
-The gradient boosting prediction is a **stagewise additive model** -- a sum of individual weak learner contributions:
+The gradient boosting prediction is a **stagewise additive model**, a sum of individual weak learner contributions:
 
 $$F(x) = F_0 + \eta \cdot h_1(x) + \eta \cdot h_2(x) + \cdots + \eta \cdot h_T(x)$$
 
@@ -1451,7 +1451,7 @@ Both boosting and bagging (bootstrap aggregating, used in Random Forests) are en
 
 | Property | **Bagging** (Random Forest) | **Boosting** (AdaBoost/GB) |
 |----------|---------------------------|--------------------------|
-| Training | Parallel -- each tree trained independently | Sequential -- each tree depends on previous |
+| Training | Parallel, each tree trained independently | Sequential, each tree depends on previous |
 | Sampling | Bootstrap samples (random subsets with replacement) | Full dataset, reweighted |
 | Focus | Equal attention to all samples | Extra attention to hard/misclassified samples |
 | Bias-Variance | Reduces **variance** | Reduces **bias** (and variance) |
@@ -1626,7 +1626,7 @@ Boosting typically reaches higher accuracy faster because each new tree specific
 
 Boosting can overfit if we use too many rounds or too high a learning rate. Unlike bagging, where adding more trees almost never hurts, boosting can start memorizing noise.
 
-The training error will always decrease toward zero. But at some point the test error starts increasing -- the classic overfitting signature. **Early stopping** (monitoring validation error and stopping when it starts to rise) is one of the most important regularization techniques for boosting.
+The training error will always decrease toward zero. But at some point the test error starts increasing, the classic overfitting signature. **Early stopping** (monitoring validation error and stopping when it starts to rise) is one of the most important regularization techniques for boosting.
 
 ### Try It: Overfitting Demo
 
@@ -1813,7 +1813,7 @@ The training error will always decrease toward zero. But at some point the test 
 })();
 </script>
 
-With a high learning rate (try 0.8+) and many rounds (40+), you will often see the test error curve rise after an initial drop -- classic overfitting. The green dashed line marks the optimal early stopping point. In practice, you would use a validation set and stop training when validation error stops improving.
+With a high learning rate (try 0.8+) and many rounds (40+), you will often see the test error curve rise after an initial drop, classic overfitting. The green dashed line marks the optimal early stopping point. In practice, you would use a validation set and stop training when validation error stops improving.
 
 ---
 
@@ -1854,4 +1854,4 @@ We have built three key concepts from scratch:
 
 4. **Gradient boosting is more flexible.** AdaBoost is elegant but limited to exponential loss. Gradient boosting works with any differentiable loss function, making it the foundation for modern boosting libraries.
 
-In the next chapter, we will explore **neural networks and the perceptron** -- moving from ensemble methods to the building blocks of deep learning.
+In the next chapter, we will explore **neural networks and the perceptron**, moving from ensemble methods to the building blocks of deep learning.

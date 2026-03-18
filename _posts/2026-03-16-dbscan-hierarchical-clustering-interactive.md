@@ -556,7 +556,7 @@ In the [previous chapter](/k-means-clustering-interactive), we built K-Means fro
 - It is **sensitive to outliers**
 - It **cannot discover arbitrarily-shaped clusters**
 
-What happens when your data looks like two interlocking crescents? Or concentric rings? K-Means will fail badly -- it will draw straight-line boundaries through structures that clearly belong together.
+What happens when your data looks like two interlocking crescents? Or concentric rings? K-Means will fail badly, it will draw straight-line boundaries through structures that clearly belong together.
 
 This chapter introduces two powerful alternatives:
 - **DBSCAN**: a density-based method that discovers clusters of arbitrary shape and automatically identifies noise
@@ -959,7 +959,7 @@ A common heuristic: set MinPts $$\geq d + 1$$ where $$d$$ is the dimensionality 
 
 ## Non-Convex Cluster Comparison
 
-Side-by-side comparison on four preset datasets. DBSCAN succeeds where K-Means fails because it does not assume convexity -- it follows density.
+Side-by-side comparison on four preset datasets. DBSCAN succeeds where K-Means fails because it does not assume convexity, it follows density.
 
 <div class="interactive-demo" id="demo-nonconvex">
   <div class="demo-split">
@@ -1191,7 +1191,7 @@ Notice the recursive expansion: when DBSCAN encounters a new core point within t
 
 ## Hierarchical Clustering: Agglomerative
 
-Hierarchical clustering takes yet another approach. Instead of requiring K or density parameters upfront, it builds a **complete hierarchy** of clusters -- from N individual points down to one big cluster. You decide how many clusters to keep afterward.
+Hierarchical clustering takes yet another approach. Instead of requiring K or density parameters upfront, it builds a **complete hierarchy** of clusters, from N individual points down to one big cluster. You decide how many clusters to keep afterward.
 
 **Agglomerative** (bottom-up) hierarchical clustering works like this:
 
@@ -1360,7 +1360,7 @@ Watch the bottom-up merging process. Each step finds and merges the two closest 
 
 ## Dendrogram Builder
 
-A **dendrogram** is the tree diagram that records the entire merge history. The y-axis shows the merge distance -- the height at which two clusters were joined. Watch it grow from the bottom up as clusters merge.
+A **dendrogram** is the tree diagram that records the entire merge history. The y-axis shows the merge distance, the height at which two clusters were joined. Watch it grow from the bottom up as clusters merge.
 
 <div class="interactive-demo" id="demo-dendro">
   <div class="demo-split">
@@ -1557,7 +1557,7 @@ A **dendrogram** is the tree diagram that records the entire merge history. The 
 })();
 </script>
 
-The dendrogram encodes the **entire clustering hierarchy**. Tall vertical bars indicate large jumps in merge distance -- these are natural cluster boundaries. The next demo makes this actionable.
+The dendrogram encodes the **entire clustering hierarchy**. Tall vertical bars indicate large jumps in merge distance, these are natural cluster boundaries. The next demo makes this actionable.
 
 ---
 
@@ -1591,7 +1591,7 @@ Drag the cut line up and down on the dendrogram. Every horizontal cut defines a 
   <div class="demo-info" id="info-cut">Drag the slider to change the cut height</div>
 </div>
 
-<div class="demo-hint">Move the cut line low to get many small clusters. Move it high to get fewer, larger clusters. The "right" cut is where there is a big gap in the dendrogram -- a natural separation between merge distances.</div>
+<div class="demo-hint">Move the cut line low to get many small clusters. Move it high to get fewer, larger clusters. The "right" cut is where there is a big gap in the dendrogram, a natural separation between merge distances.</div>
 
 <script>
 (function() {
@@ -1840,7 +1840,7 @@ The choice of linkage dramatically affects the result. Here are four linkage met
 })();
 </script>
 
-<div class="demo-hint">Try 2 clusters. Single linkage will often "chain" disparate groups together, while Ward gives balanced, round clusters. Try 4 clusters on data with 4 natural groups -- Ward and complete usually agree, but single linkage may isolate individual outliers as their own cluster.</div>
+<div class="demo-hint">Try 2 clusters. Single linkage will often "chain" disparate groups together, while Ward gives balanced, round clusters. Try 4 clusters on data with 4 natural groups, Ward and complete usually agree, but single linkage may isolate individual outliers as their own cluster.</div>
 
 ---
 
@@ -1925,4 +1925,4 @@ Each clustering method has its strengths. Here is a practical guide:
 
 5. **There is no universally best method.** The right choice depends on your data shape, size, noise level, and whether you need to specify K in advance.
 
-In the next chapter, we will shift from unsupervised learning to **dimensionality reduction** -- techniques like PCA that let us visualize and compress high-dimensional data.
+In the next chapter, we will shift from unsupervised learning to **dimensionality reduction**, techniques like PCA that let us visualize and compress high-dimensional data.

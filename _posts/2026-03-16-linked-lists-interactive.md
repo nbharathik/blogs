@@ -294,6 +294,8 @@ The list is accessed through a **head** pointer that points to the first node.
 
 ### Python Node Class
 
+A node is the atomic unit of a linked list. It stores payload data and one pointer to the next node. This tiny structure is enough to build chains of any length, and it explains why insertion near a known node is cheap: you only rewire pointers instead of shifting a full array.
+
 ```python
 class Node:
     def __init__(self, data):
@@ -776,6 +778,8 @@ class DoublyLinkedList:
 ## Merge Two Sorted Lists
 
 Given two sorted linked lists, we can merge them into one sorted list in O(n + m) time. This is the same merge step used in merge sort.
+
+The important idea is local choice with global correctness. At each step, pick the smaller head node and advance only that list. Because both inputs are already sorted, this greedy rule always preserves sorted order in the final merged list.
 
 ### Python Implementation
 

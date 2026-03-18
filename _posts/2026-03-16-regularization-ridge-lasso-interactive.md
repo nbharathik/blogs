@@ -584,12 +584,12 @@ window.REG = (function() {
 })();
 </script>
 
-In the [previous chapter on polynomial regression]({% post_url 2026-03-16-polynomial-regression-bias-variance-interactive %}), we saw how increasing polynomial degree lets a model fit training data more and more closely -- until it starts memorising noise. We identified the bias-variance tradeoff, and the classic U-shaped validation curve showed there is an optimal complexity.
+In the [previous chapter on polynomial regression]({% post_url 2026-03-16-polynomial-regression-bias-variance-interactive %}), we saw how increasing polynomial degree lets a model fit training data more and more closely, until it starts memorising noise. We identified the bias-variance tradeoff, and the classic U-shaped validation curve showed there is an optimal complexity.
 
 But choosing the "right" degree is only one way to control complexity. What if we could keep a high-degree polynomial (giving it the *capacity* to model complex patterns) but **penalise it for using that capacity excessively**? That is exactly what **regularization** does.
 
 In this chapter you will:
-- See why overfitting happens at a coefficient level -- wild, large weights
+- See why overfitting happens at a coefficient level, wild, large weights
 - **Drag a slider** to watch Ridge (L2) smoothly shrink coefficients toward zero
 - Visualise the geometry that explains why Lasso (L1) produces **exact zeros** (sparsity)
 - Watch Lasso perform automatic feature selection on noisy features
@@ -604,7 +604,7 @@ Let us begin.
 
 We know from the last chapter that a degree-10 polynomial can overfit badly. But *why* does overfitting happen, mechanically? The answer: the model assigns **enormous coefficient values** to fit noise. A coefficient of +500 on $$x^7$$ and -480 on $$x^8$$ can create tiny wiggles that pass through noisy points, but these large opposing weights produce violent oscillations everywhere else.
 
-Below, 20 noisy points are generated from a smooth true function. The unregularized degree-10 fit passes near every point but oscillates wildly. Look at the coefficient magnitudes on the right -- some are huge.
+Below, 20 noisy points are generated from a smooth true function. The unregularized degree-10 fit passes near every point but oscillates wildly. Look at the coefficient magnitudes on the right, some are huge.
 
 <div class="interactive-demo" id="demo-overfit">
   <div class="demo-split">
@@ -732,7 +732,7 @@ Below, 20 noisy points are generated from a smooth true function. The unregulari
 })();
 </script>
 
-<div class="demo-hint">Click "New Data" several times. Each time the coefficients are wildly different -- that is high variance. The idea behind regularization: add a penalty term that punishes large weights, forcing the model to find simpler solutions.</div>
+<div class="demo-hint">Click "New Data" several times. Each time the coefficients are wildly different, that is high variance. The idea behind regularization: add a penalty term that punishes large weights, forcing the model to find simpler solutions.</div>
 
 The regularization approach adds a **penalty** to the loss function:
 
@@ -758,7 +758,7 @@ $$\mathbf{w}_{\text{Ridge}} = (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I})^{-1}
 
 Compare this to ordinary least squares: $$\mathbf{w}_{\text{OLS}} = (\mathbf{X}^T\mathbf{X})^{-1} \mathbf{X}^T\mathbf{y}$$. The only difference is the $$\lambda \mathbf{I}$$ term added to $$\mathbf{X}^T\mathbf{X}$$. This has two effects:
 1. It **shrinks** all coefficients toward zero (more shrinkage for larger $$\lambda$$)
-2. It **guarantees invertibility** -- even if $$\mathbf{X}^T\mathbf{X}$$ is singular, adding $$\lambda \mathbf{I}$$ makes it positive definite
+2. It **guarantees invertibility**, even if $$\mathbf{X}^T\mathbf{X}$$ is singular, adding $$\lambda \mathbf{I}$$ makes it positive definite
 
 ### Try it: Ridge on a degree-10 polynomial
 
@@ -914,7 +914,7 @@ Drag the $$\lambda$$ slider to see how Ridge regularization smooths out the over
 
 A **coefficient path** plot shows how each coefficient changes as $$\lambda$$ varies. This is one of the most informative plots in regularization.
 
-For Ridge, all coefficients shrink **smoothly toward zero** as $$\lambda$$ increases, but they **never reach exactly zero**. This means Ridge keeps all features in the model -- it just reduces their influence.
+For Ridge, all coefficients shrink **smoothly toward zero** as $$\lambda$$ increases, but they **never reach exactly zero**. This means Ridge keeps all features in the model, it just reduces their influence.
 
 <div class="interactive-demo" id="demo-ridge-path">
   <canvas id="canvas-ridge-path"></canvas>
@@ -1053,7 +1053,7 @@ For Ridge, all coefficients shrink **smoothly toward zero** as $$\lambda$$ incre
 })();
 </script>
 
-<div class="demo-hint">Drag the slider and watch every coefficient line approach zero as &lambda; grows -- but none of them ever touch zero. This is the key limitation of Ridge: it cannot perform feature selection.</div>
+<div class="demo-hint">Drag the slider and watch every coefficient line approach zero as &lambda; grows, but none of them ever touch zero. This is the key limitation of Ridge: it cannot perform feature selection.</div>
 
 ---
 
@@ -1063,10 +1063,10 @@ This is **the** key visualization for understanding why Lasso produces sparsity 
 
 Regularization can be viewed as a constrained optimisation problem. Instead of minimising $$J(\mathbf{w}) + \lambda R(\mathbf{w})$$, we can equivalently minimise $$J(\mathbf{w})$$ subject to $$R(\mathbf{w}) \leq t$$ for some budget $$t$$.
 
-- **L2 (Ridge)**: $$\sum w_j^2 \leq t$$ -- the constraint region is a **circle** (sphere in higher dimensions)
-- **L1 (Lasso)**: $$\sum |w_j| \leq t$$ -- the constraint region is a **diamond** (cross-polytope)
+- **L2 (Ridge)**: $$\sum w_j^2 \leq t$$, the constraint region is a **circle** (sphere in higher dimensions)
+- **L1 (Lasso)**: $$\sum |w_j| \leq t$$, the constraint region is a **diamond** (cross-polytope)
 
-The optimal solution is where the elliptical contours of the loss function first touch the constraint region. Because the diamond has **corners on the axes**, the contours are much more likely to touch at a corner -- which means one or more weights are exactly zero. The circle has no corners, so the touching point is almost never on an axis.
+The optimal solution is where the elliptical contours of the loss function first touch the constraint region. Because the diamond has **corners on the axes**, the contours are much more likely to touch at a corner, which means one or more weights are exactly zero. The circle has no corners, so the touching point is almost never on an axis.
 
 Drag the contour center to see how this works for different loss function orientations.
 
@@ -1529,7 +1529,7 @@ Compare this to the Ridge path above. As $$\lambda$$ increases, coefficients **h
 })();
 </script>
 
-<div class="demo-hint">Compare this to the Ridge path in Section 3. Here, as &lambda; increases, coefficient lines hit the zero axis and flatline. At high &lambda;, most coefficients are exactly zero -- Lasso has selected just a few features. Ridge never does this.</div>
+<div class="demo-hint">Compare this to the Ridge path in Section 3. Here, as &lambda; increases, coefficient lines hit the zero axis and flatline. At high &lambda;, most coefficients are exactly zero, Lasso has selected just a few features. Ridge never does this.</div>
 
 ---
 
@@ -1765,7 +1765,7 @@ Why combine them? Pure Lasso has a limitation: when features are highly correlat
 
 ### Constraint Region Morphing
 
-Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lasso) as $$\alpha$$ changes. The Elastic Net region has **rounded corners** at intermediate values -- it can still produce sparsity but is smoother than pure Lasso.
+Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lasso) as $$\alpha$$ changes. The Elastic Net region has **rounded corners** at intermediate values, it can still produce sparsity but is smoother than pure Lasso.
 
 <div class="interactive-demo" id="demo-elastic-shape">
   <canvas id="canvas-elastic-shape"></canvas>
@@ -1924,7 +1924,7 @@ Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lass
 })();
 </script>
 
-<div class="demo-hint">Drag the &alpha; slider slowly from 0 to 1. At &alpha;=0 you see a circle (Ridge). At &alpha;=1, a sharp diamond (Lasso). In between, the shape has rounded corners but still has pointed tips on the axes -- this means Elastic Net can still produce sparsity, just less aggressively than pure Lasso.</div>
+<div class="demo-hint">Drag the &alpha; slider slowly from 0 to 1. At &alpha;=0 you see a circle (Ridge). At &alpha;=1, a sharp diamond (Lasso). In between, the shape has rounded corners but still has pointed tips on the axes, this means Elastic Net can still produce sparsity, just less aggressively than pure Lasso.</div>
 
 ### Elastic Net Coefficient Paths
 
@@ -2210,7 +2210,7 @@ Now let us combine everything. Below is a high-degree polynomial (degree 12) fit
 })();
 </script>
 
-<div class="demo-hint">Try each method at &lambda;=1. Ridge smooths the curve but keeps all 12 polynomial terms. Lasso aggressively kills coefficients -- the curve may look simpler. Elastic Net is in between. For polynomial regression, Ridge often works best because all terms carry some information. Lasso shines when many features are irrelevant.</div>
+<div class="demo-hint">Try each method at &lambda;=1. Ridge smooths the curve but keeps all 12 polynomial terms. Lasso aggressively kills coefficients, the curve may look simpler. Elastic Net is in between. For polynomial regression, Ridge often works best because all terms carry some information. Lasso shines when many features are irrelevant.</div>
 
 ---
 
@@ -2240,14 +2240,14 @@ Now let us combine everything. Below is a high-degree polynomial (degree 12) fit
     </tr>
     <tr>
       <td><strong>Sparsity</strong></td>
-      <td>No -- coefficients shrink but never reach zero</td>
-      <td>Yes -- drives coefficients to exactly zero</td>
-      <td>Yes -- but less aggressively than Lasso</td>
+      <td>No, coefficients shrink but never reach zero</td>
+      <td>Yes, drives coefficients to exactly zero</td>
+      <td>Yes, but less aggressively than Lasso</td>
     </tr>
     <tr>
       <td><strong>Feature selection</strong></td>
       <td>No</td>
-      <td>Yes -- automatic</td>
+      <td>Yes, automatic</td>
       <td>Yes</td>
     </tr>
     <tr>
@@ -2259,8 +2259,8 @@ Now let us combine everything. Below is a high-degree polynomial (degree 12) fit
     <tr>
       <td><strong>Closed-form solution</strong></td>
       <td>Yes: $$(\mathbf{X}^T\mathbf{X}+\lambda\mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}$$</td>
-      <td>No -- requires iterative methods</td>
-      <td>No -- requires iterative methods</td>
+      <td>No, requires iterative methods</td>
+      <td>No, requires iterative methods</td>
     </tr>
     <tr>
       <td><strong>When to use</strong></td>
@@ -2287,7 +2287,7 @@ Now let us combine everything. Below is a high-degree polynomial (degree 12) fit
 
 ### What's Next
 
-In the next chapter, we will move beyond linear models entirely and explore **logistic regression** for classification tasks. The regularization concepts we learned here will carry over directly -- you can (and should!) regularize logistic regression too.
+In the next chapter, we will move beyond linear models entirely and explore **logistic regression** for classification tasks. The regularization concepts we learned here will carry over directly, you can (and should!) regularize logistic regression too.
 
 <script>
 // Force redraw on page load (handles late theme detection)

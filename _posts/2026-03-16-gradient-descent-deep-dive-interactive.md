@@ -483,7 +483,7 @@ window.GD = (function() {
 
 In our [previous chapter on linear regression]({% post_url 2026-03-16-linear-regression-from-scratch-interactive %}), we used gradient descent to find the optimal parameters for our model. We treated it as a black box: compute gradients, multiply by learning rate, update weights. But in practice, the choice of **optimizer** can make or break your model's training. A poorly tuned optimizer might never converge, oscillate wildly, or get stuck in saddle points.
 
-In this chapter, we will peel back the layers of gradient descent and explore the family of optimizers that power modern deep learning -- from vanilla SGD all the way to Adam. Every concept comes with an interactive demo so you can build real intuition.
+In this chapter, we will peel back the layers of gradient descent and explore the family of optimizers that power modern deep learning, from vanilla SGD all the way to Adam. Every concept comes with an interactive demo so you can build real intuition.
 
 ## 1. The Core Idea: Follow the Slope Downhill
 
@@ -505,7 +505,7 @@ The simplest optimizer computes the gradient over the **entire dataset** and tak
 
 $$\theta := \theta - \alpha \nabla_\theta J(\theta)$$
 
-This is called **Batch Gradient Descent** because it uses the full batch of training data for every update. The path it traces is smooth and deterministic -- the same starting point with the same learning rate will always produce the same path.
+This is called **Batch Gradient Descent** because it uses the full batch of training data for every update. The path it traces is smooth and deterministic, the same starting point with the same learning rate will always produce the same path.
 
 **Click anywhere on the contour plot below to set a starting point**, then watch batch gradient descent trace its way toward the minimum. Adjust the learning rate to see how it affects convergence.
 
@@ -601,7 +601,7 @@ This is called **Batch Gradient Descent** because it uses the full batch of trai
     startX = w.x; startY = w.y;
     path = [{ x: startX, y: startY }];
     step = 0;
-    document.getElementById('info-vanilla').textContent = 'Start: (' + startX.toFixed(2) + ', ' + startY.toFixed(2) + ') | Loss: ' + GD.rosenbrock(startX, startY).toFixed(4) + ' -- Press Start.';
+    document.getElementById('info-vanilla').textContent = 'Start: (' + startX.toFixed(2) + ', ' + startY.toFixed(2) + ') | Loss: ' + GD.rosenbrock(startX, startY).toFixed(4) + ', Press Start.';
     draw();
   });
 
@@ -638,7 +638,7 @@ The learning rate $$\alpha$$ is arguably the single most important hyperparamete
 
 - **Too small** ($$\alpha = 0.0001$$): Steps are tiny. Training takes forever. You might run out of patience (or compute budget) before reaching the minimum.
 - **Just right** ($$\alpha = 0.003$$): Smooth, steady convergence to the minimum in a reasonable number of steps.
-- **Too large** ($$\alpha = 0.02$$): Steps overshoot the minimum. The optimizer bounces back and forth, and may even **diverge** -- moving farther and farther from the solution.
+- **Too large** ($$\alpha = 0.02$$): Steps overshoot the minimum. The optimizer bounces back and forth, and may even **diverge**, moving farther and farther from the solution.
 
 The three canvases below show the **same surface, same starting point**, but with different learning rates. Watch how dramatically the behavior changes.
 
@@ -892,7 +892,7 @@ In the demo below, watch how Batch GD traces a smooth path while SGD takes a noi
 
 ## 5. Momentum
 
-Vanilla GD can oscillate when the loss surface is shaped like a narrow valley -- steep in one direction, shallow in another. It bounces back and forth across the steep walls while making slow progress along the valley floor.
+Vanilla GD can oscillate when the loss surface is shaped like a narrow valley, steep in one direction, shallow in another. It bounces back and forth across the steep walls while making slow progress along the valley floor.
 
 **Momentum** fixes this by maintaining a **velocity** that accumulates past gradients. Think of a ball rolling downhill: it picks up speed along consistent directions and dampens oscillations across inconsistent ones.
 
@@ -900,9 +900,9 @@ $$v_t = \beta \, v_{t-1} + \alpha \, \nabla_\theta J(\theta)$$
 
 $$\theta := \theta - v_t$$
 
-The hyperparameter $$\beta$$ (typically 0.9) controls how much history to retain. Higher $$\beta$$ means more momentum -- the optimizer "remembers" more of its previous direction.
+The hyperparameter $$\beta$$ (typically 0.9) controls how much history to retain. Higher $$\beta$$ means more momentum, the optimizer "remembers" more of its previous direction.
 
-In this demo, compare vanilla GD (which oscillates) vs Momentum (which accelerates smoothly) on an **elongated elliptical surface** -- the worst case for vanilla GD.
+In this demo, compare vanilla GD (which oscillates) vs Momentum (which accelerates smoothly) on an **elongated elliptical surface**, the worst case for vanilla GD.
 
 <div class="interactive-demo" id="demo-momentum">
   <div class="demo-split">
@@ -926,7 +926,7 @@ In this demo, compare vanilla GD (which oscillates) vs Momentum (which accelerat
   <div class="demo-info" id="info-mom">Press "Run" to compare vanilla GD vs Momentum.</div>
 </div>
 <div class="demo-hint">
-  <strong>Try this:</strong> Set β to 0 (no momentum -- behaves like vanilla GD) and then gradually increase to 0.95. Watch the oscillations disappear and the path smooth out.
+  <strong>Try this:</strong> Set β to 0 (no momentum, behaves like vanilla GD) and then gradually increase to 0.95. Watch the oscillations disappear and the path smooth out.
 </div>
 
 <script>
@@ -1315,7 +1315,7 @@ Now for the main event: the **Optimizer Race**. All four algorithms start from t
     if (w.x < xMin || w.x > xMax || w.y < yMin || w.y > yMax) return;
     startX = w.x; startY = w.y;
     resetState();
-    document.getElementById('info-race').textContent = 'Start: (' + startX.toFixed(2) + ', ' + startY.toFixed(2) + ') -- Press "Start Race".';
+    document.getElementById('info-race').textContent = 'Start: (' + startX.toFixed(2) + ', ' + startY.toFixed(2) + '), Press "Start Race".';
     draw();
   });
 
@@ -1350,7 +1350,7 @@ Now for the main event: the **Optimizer Race**. All four algorithms start from t
 
 ## 8. Escaping Saddle Points
 
-In high-dimensional optimization (like deep learning), **saddle points** are far more common than local minima. A saddle point is where the gradient is zero, but it is a minimum in some directions and a maximum in others -- like the middle of a horse saddle.
+In high-dimensional optimization (like deep learning), **saddle points** are far more common than local minima. A saddle point is where the gradient is zero, but it is a minimum in some directions and a maximum in others, like the middle of a horse saddle.
 
 Vanilla GD with a small learning rate can **get stuck** at saddle points because the gradient vanishes. But optimizers with momentum or adaptive learning rates can **escape** because:
 
@@ -1805,8 +1805,8 @@ Here is a reference table of all the optimizers we covered:
 
 ### What is Next?
 
-In the next chapter, we will put these optimizers to work training **neural networks from scratch**. We will build a multi-layer perceptron, implement backpropagation, and use Adam to train it on real data -- all interactively in the browser.
+In the next chapter, we will put these optimizers to work training **neural networks from scratch**. We will build a multi-layer perceptron, implement backpropagation, and use Adam to train it on real data, all interactively in the browser.
 
 <div class="demo-hint">
-  <strong>Key takeaway:</strong> The optimizer is not just a knob to turn -- it fundamentally shapes how your model navigates the loss landscape. Understanding the tradeoffs between speed, stability, and generalization will make you a better practitioner. When in doubt, start with Adam and tune from there.
+  <strong>Key takeaway:</strong> The optimizer is not just a knob to turn, it fundamentally shapes how your model navigates the loss landscape. Understanding the tradeoffs between speed, stability, and generalization will make you a better practitioner. When in doubt, start with Adam and tune from there.
 </div>

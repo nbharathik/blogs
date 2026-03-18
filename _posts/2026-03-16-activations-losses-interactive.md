@@ -390,9 +390,9 @@ window.AL = (function() {
 })();
 </script>
 
-In the [previous chapter on the perceptron and MLP]({% post_url 2026-03-16-perceptron-mlp-interactive %}), we saw that activation functions are what give neural networks their power -- without them, stacking layers would be pointless. And we trained networks using loss functions without examining what makes one loss better than another.
+In the [previous chapter on the perceptron and MLP]({% post_url 2026-03-16-perceptron-mlp-interactive %}), we saw that activation functions are what give neural networks their power, without them, stacking layers would be pointless. And we trained networks using loss functions without examining what makes one loss better than another.
 
-This chapter is dedicated entirely to these two critical ingredients. We will explore every major activation function, understand why some cause vanishing gradients, see dead neurons in action, and then turn to loss functions -- understanding why cross-entropy dominates classification and when to use alternatives. Every concept comes with an interactive visualization.
+This chapter is dedicated entirely to these two critical ingredients. We will explore every major activation function, understand why some cause vanishing gradients, see dead neurons in action, and then turn to loss functions, understanding why cross-entropy dominates classification and when to use alternatives. Every concept comes with an interactive visualization.
 
 ---
 
@@ -415,7 +415,7 @@ No matter how many layers you stack, the entire network collapses to a single li
 </div>
 <div class="demo-caption">Stack up to 6 layers. Without activation, the result is always a straight line. With ReLU, each layer adds a "bend."</div>
 
-<div class="demo-hint">Try increasing the layers from 1 to 6 in linear mode -- the line changes slope but stays straight. Then switch to ReLU and watch each layer add a new hinge point.</div>
+<div class="demo-hint">Try increasing the layers from 1 to 6 in linear mode, the line changes slope but stays straight. Then switch to ReLU and watch each layer add a new hinge point.</div>
 
 ---
 
@@ -481,13 +481,13 @@ This is the **vanishing gradient problem**. During backpropagation, gradients ar
 </div>
 <div class="demo-caption">Slide the input value and watch the gradient shrink as you move away from zero. The red zones mark saturation regions where the gradient is below 0.01.</div>
 
-<div class="demo-hint">Slide x beyond +/-4 for Sigmoid or +/-2 for Tanh. The gradient drops to nearly zero -- this is why deep networks with these activations are hard to train.</div>
+<div class="demo-hint">Slide x beyond +/-4 for Sigmoid or +/-2 for Tanh. The gradient drops to nearly zero, this is why deep networks with these activations are hard to train.</div>
 
 ---
 
 ## 4. ReLU Family
 
-ReLU (Rectified Linear Unit) solved the vanishing gradient problem with a brutally simple idea: output zero for negative inputs, pass positive inputs through unchanged. The gradient is either 0 or 1 -- no saturation.
+ReLU (Rectified Linear Unit) solved the vanishing gradient problem with a brutally simple idea: output zero for negative inputs, pass positive inputs through unchanged. The gradient is either 0 or 1, no saturation.
 
 But ReLU has its own problem: **dead neurons**. If a neuron's input is always negative (due to unlucky initialization or a large gradient update), its output is always 0, its gradient is always 0, and it can never recover. It is permanently "dead."
 
@@ -539,7 +539,7 @@ Let us see the dead neuron problem in action. We simulate a hidden layer of 64 R
 
 ## 6. Modern Activations: Swish & GELU
 
-Modern architectures (EfficientNet, BERT, GPT) use smoother activation functions that are not monotonic -- they allow small negative values through:
+Modern architectures (EfficientNet, BERT, GPT) use smoother activation functions that are not monotonic, they allow small negative values through:
 
 **Swish** $$f(x) = x \cdot \sigma(x)$$ was discovered by neural architecture search at Google. It is smooth, non-monotonic, and self-gated.
 
@@ -557,7 +557,7 @@ Both functions look similar to ReLU for large positive inputs but curve smoothly
   </div>
   <div class="demo-info" id="info-modern">Swish and GELU are smooth and non-monotonic near zero, unlike ReLU's hard corner.</div>
 </div>
-<div class="demo-caption">Notice how Swish and GELU dip slightly below zero before rising -- this small negative bump helps gradient flow.</div>
+<div class="demo-caption">Notice how Swish and GELU dip slightly below zero before rising, this small negative bump helps gradient flow.</div>
 
 ---
 
@@ -596,7 +596,7 @@ Best of both: quadratic near zero (smooth gradients), linear for large errors (o
 
 ## 8. Loss Functions for Classification
 
-For classification, the loss must penalize wrong predictions more than it rewards correct ones -- especially when the model is confident and wrong.
+For classification, the loss must penalize wrong predictions more than it rewards correct ones, especially when the model is confident and wrong.
 
 **Binary Cross-Entropy:** $$L = -[y\log(p) + (1-y)\log(1-p)]$$
 
@@ -681,7 +681,7 @@ Low temperature makes the distribution peaked (more confident). High temperature
 </div>
 <div class="demo-caption">Adjust logit sliders to change the raw scores. The temperature slider controls distribution sharpness. Low temp = peaked, high temp = uniform.</div>
 
-<div class="demo-hint">Try setting one logit much higher than the others, then lower the temperature to 0.1 -- the distribution becomes nearly one-hot. Then raise temperature to 5 -- it becomes nearly uniform regardless of the logits.</div>
+<div class="demo-hint">Try setting one logit much higher than the others, then lower the temperature to 0.1, the distribution becomes nearly one-hot. Then raise temperature to 5, it becomes nearly uniform regardless of the logits.</div>
 
 ---
 
@@ -721,7 +721,7 @@ Low temperature makes the distribution peaked (more confident). High temperature
 </tbody>
 </table>
 
-**What's next:** In the next chapter, we will explore **regularization** -- dropout, weight decay, batch normalization, and the techniques that prevent neural networks from memorizing training data.
+**What's next:** In the next chapter, we will explore **regularization**, dropout, weight decay, batch normalization, and the techniques that prevent neural networks from memorizing training data.
 
 ---
 
@@ -831,7 +831,7 @@ Low temperature makes the distribution peaked (more confident). High temperature
 
     info.textContent = useRelu
       ? 'Orange = linear stack (always a line). Green = with ReLU (' + nLayers + ' hinge points possible).'
-      : nLayers + ' linear layers compose to: y = ' + (params.reduce(function(a,p){return a*p.w;},1)).toFixed(3) + 'x + ' + computeOutput(0, params, false).toFixed(3) + ' -- still linear!';
+      : nLayers + ' linear layers compose to: y = ' + (params.reduce(function(a,p){return a*p.w;},1)).toFixed(3) + 'x + ' + computeOutput(0, params, false).toFixed(3) + ', still linear!';
   }
 
   btnLinear.addEventListener('click', function() {

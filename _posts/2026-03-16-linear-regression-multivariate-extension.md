@@ -1041,7 +1041,7 @@ Each derivative tells us: "if I slightly increase this weight, how does the cost
     <button id="lr2-gd-run">Run</button>
     <button id="lr2-gd-reset">Reset</button>
   </div>
-  <div class="demo-info" id="lr2-gd-info">Iteration: 0 | w₁ = 0.00, w₂ = 0.00, Cost = —</div>
+  <div class="demo-info" id="lr2-gd-info">Iteration: 0 | w₁ = 0.00, w₂ = 0.00, Cost = -</div>
 </div>
 
 <script>

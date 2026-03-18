@@ -450,9 +450,9 @@ window.EV = (function() {
 
 You just built an amazing classifier. It predicts with **95% accuracy** on your test set. Time to ship it to production, right?
 
-Not so fast. What if your dataset has 95% negative samples and 5% positive? A model that **always predicts negative** would also score 95% accuracy -- while being completely useless at finding the positive cases you actually care about.
+Not so fast. What if your dataset has 95% negative samples and 5% positive? A model that **always predicts negative** would also score 95% accuracy, while being completely useless at finding the positive cases you actually care about.
 
-This chapter builds the toolkit you need to properly evaluate classification models. We will construct confusion matrices, trace ROC and Precision-Recall curves, animate cross-validation, and diagnose whether your model suffers from bias or variance -- all interactively.
+This chapter builds the toolkit you need to properly evaluate classification models. We will construct confusion matrices, trace ROC and Precision-Recall curves, animate cross-validation, and diagnose whether your model suffers from bias or variance, all interactively.
 
 ---
 
@@ -1316,7 +1316,7 @@ On imbalanced datasets, the ROC curve can be **overly optimistic**. Because ther
 </script>
 
 <div class="demo-hint">
-Set imbalance to <strong>5%</strong> and notice the ROC still looks great (high AUC), but the PR curve reveals the model struggles -- precision drops sharply as recall increases. The PR curve is more honest about performance on the minority class.
+Set imbalance to <strong>5%</strong> and notice the ROC still looks great (high AUC), but the PR curve reveals the model struggles, precision drops sharply as recall increases. The PR curve is more honest about performance on the minority class.
 </div>
 
 ---
@@ -1527,7 +1527,7 @@ Select a <strong>use case</strong> preset or manually adjust the FN/FP cost slid
 
 ## 7. K-Fold Cross-Validation
 
-Evaluating on a single train/test split is risky -- you might get lucky (or unlucky) with the split. **K-Fold Cross-Validation** provides a more robust estimate by using every data point for both training and validation.
+Evaluating on a single train/test split is risky, you might get lucky (or unlucky) with the split. **K-Fold Cross-Validation** provides a more robust estimate by using every data point for both training and validation.
 
 The algorithm:
 1. Split data into \\(K\\) equal folds
@@ -2249,7 +2249,7 @@ Choosing the right evaluation metric depends on your problem:
 
 5. **Plot learning curves** to diagnose whether you need more data, a simpler model, or a more complex one.
 
-6. **Report confidence intervals.** The mean CV score alone is incomplete -- always report the standard deviation across folds.
+6. **Report confidence intervals.** The mean CV score alone is incomplete, always report the standard deviation across folds.
 
 ### Key Formulas Reference
 
@@ -2263,4 +2263,4 @@ $$\text{Specificity} = \frac{TN}{TN + FP} \qquad \text{FPR} = 1 - \text{Specific
 
 ---
 
-In the next chapter, we will explore **Feature Engineering and Selection** -- how to create, transform, and choose the right features to feed your models.
+In the next chapter, we will explore **Feature Engineering and Selection**, how to create, transform, and choose the right features to feed your models.

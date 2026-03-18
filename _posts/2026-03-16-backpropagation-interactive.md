@@ -121,9 +121,9 @@ date: 2026-03-17
 
 In the [Perceptron & MLP]({{ site.baseurl }}/perceptron-mlp-interactive/) guide, we built multi-layer perceptrons and watched them learn. We saw decision boundaries form, loss decrease, and weights update. But we treated the weight update as a black box. How does the network know which weight to adjust and by how much?
 
-The answer is **backpropagation** -- an elegant algorithm that computes the gradient of the loss with respect to every weight in the network, using nothing more than the chain rule from calculus. It is the engine behind all of deep learning.
+The answer is **backpropagation**, an elegant algorithm that computes the gradient of the loss with respect to every weight in the network, using nothing more than the chain rule from calculus. It is the engine behind all of deep learning.
 
-This chapter makes the invisible visible. We will watch data flow forward, gradients flow backward, and weights update -- step by step, node by node.
+This chapter makes the invisible visible. We will watch data flow forward, gradients flow backward, and weights update, step by step, node by node.
 
 ---
 
@@ -255,7 +255,7 @@ Watch the edges of the network change thickness and color as weights evolve over
 
 ## 6. Gradient Magnitude Heatmap
 
-Not all neurons receive equal gradients. In deep networks, gradients can vary enormously across layers. This heatmap colors each neuron by the magnitude of its gradient -- bright means a large gradient (fast learning), dark means a small gradient (slow learning).
+Not all neurons receive equal gradients. In deep networks, gradients can vary enormously across layers. This heatmap colors each neuron by the magnitude of its gradient, bright means a large gradient (fast learning), dark means a small gradient (slow learning).
 
 <div class="interactive-demo" id="demo-heatmap">
   <canvas id="canvas-heatmap" width="680" height="380"></canvas>
@@ -276,7 +276,7 @@ Not all neurons receive equal gradients. In deep networks, gradients can vary en
 
 ## 7. The Vanishing Gradient Problem
 
-The **vanishing gradient problem** is one of the most important challenges in deep learning. With sigmoid or tanh activations, each layer multiplies the gradient by a value between 0 and 0.25 (the maximum of sigmoid's derivative). Stack 5+ layers, and the gradients at early layers become astronomically small -- the network effectively stops learning there.
+The **vanishing gradient problem** is one of the most important challenges in deep learning. With sigmoid or tanh activations, each layer multiplies the gradient by a value between 0 and 0.25 (the maximum of sigmoid's derivative). Stack 5+ layers, and the gradients at early layers become astronomically small, the network effectively stops learning there.
 
 $$\frac{\partial L}{\partial w_1} = \underbrace{\sigma'(z_5) \cdot \sigma'(z_4) \cdot \sigma'(z_3) \cdot \sigma'(z_2) \cdot \sigma'(z_1)}_{\text{each} \leq 0.25 \implies \text{product} \leq 0.001} \cdot \ldots$$
 
@@ -286,11 +286,11 @@ $$\frac{\partial L}{\partial w_1} = \underbrace{\sigma'(z_5) \cdot \sigma'(z_4) 
   <div class="demo-split">
     <div>
       <canvas id="canvas-vanish-sig" width="320" height="340"></canvas>
-      <div class="demo-caption">Sigmoid (5 layers) -- gradients vanish</div>
+      <div class="demo-caption">Sigmoid (5 layers), gradients vanish</div>
     </div>
     <div>
       <canvas id="canvas-vanish-relu" width="320" height="340"></canvas>
-      <div class="demo-caption">ReLU (5 layers) -- gradients stay strong</div>
+      <div class="demo-caption">ReLU (5 layers), gradients stay strong</div>
     </div>
   </div>
   <div class="demo-controls">
@@ -362,7 +362,7 @@ Finally, let us put it all together. Watch a neural network train on a 2D classi
 </div>
 <div class="demo-caption">A 2-4-4-1 network trained with backpropagation. Watch the decision boundary evolve as gradients update weights.</div>
 
-<div class="demo-hint">Try the spiral dataset -- it requires the network to learn a complex, winding boundary. If it gets stuck, reset and try a higher learning rate.</div>
+<div class="demo-hint">Try the spiral dataset, it requires the network to learn a complex, winding boundary. If it gets stuck, reset and try a higher learning rate.</div>
 
 ---
 
@@ -377,11 +377,11 @@ Finally, let us put it all together. Watch a neural network train on a 2D classi
 | **Vanishing Gradients** | Sigmoid/tanh squash gradients exponentially with depth. ReLU preserves them. |
 | **Computational Graph** | Any expression can be decomposed into a graph for automatic differentiation. |
 
-Backpropagation is not just an algorithm -- it is a way of thinking about computation. Every modern deep learning framework (PyTorch, TensorFlow, JAX) is built around the idea of recording a computational graph during the forward pass and then traversing it backward to compute gradients automatically. This is called **automatic differentiation**, and backpropagation is its most important special case.
+Backpropagation is not just an algorithm, it is a way of thinking about computation. Every modern deep learning framework (PyTorch, TensorFlow, JAX) is built around the idea of recording a computational graph during the forward pass and then traversing it backward to compute gradients automatically. This is called **automatic differentiation**, and backpropagation is its most important special case.
 
-The time complexity of backpropagation is **O(n)** where n is the number of operations in the forward pass -- we traverse each edge exactly once going forward and once going backward. This efficiency is what makes training networks with millions of parameters practical.
+The time complexity of backpropagation is **O(n)** where n is the number of operations in the forward pass, we traverse each edge exactly once going forward and once going backward. This efficiency is what makes training networks with millions of parameters practical.
 
-**What's next:** In the [Activation & Loss Functions]({{ site.baseurl }}/activations-losses-interactive/) guide, we will explore -- dropout, weight decay, batch normalization -- and understand how they prevent overfitting and stabilize training.
+**What's next:** In the [Activation & Loss Functions]({{ site.baseurl }}/activations-losses-interactive/) guide, we will explore, dropout, weight decay, batch normalization, and understand how they prevent overfitting and stabilize training.
 
 ---
 

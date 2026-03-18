@@ -685,7 +685,7 @@ Let us see the convergence speed difference more precisely. The animation below 
     <button id="btnGdAuto">Auto Run</button>
     <button id="btnGdRestart">Restart</button>
   </div>
-  <div class="demo-info" id="gdCompInfo">Step 0 | Unscaled loss: -- | Scaled loss: --</div>
+  <div class="demo-info" id="gdCompInfo">Step 0 | Unscaled loss:, | Scaled loss: --</div>
 </div>
 
 <script>
