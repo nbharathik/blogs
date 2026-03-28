@@ -470,7 +470,7 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
   function renderSimpleNn() {
     var points = sharedData.points;
     var model = getModel('nn', function () {
-      return trainSimpleNn(points, 4, 420, 0.2);
+      return trainSimpleNn(points, 6, 640, 0.16);
     });
 
     drawProbabilityBackground(function (x, y) {
@@ -488,8 +488,9 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
   }
 
   function drawProbabilityBackground(probFn) {
-    var cellsX = 34;
-    var cellsY = 20;
+    var compact = window.innerWidth <= 640;
+    var cellsX = compact ? 42 : 60;
+    var cellsY = compact ? 26 : 36;
     var cellW = 1 / cellsX;
     var cellH = 1 / cellsY;
     var xi;
@@ -501,8 +502,8 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
         var y = (yi + 0.5) * cellH;
         var prob = probFn(x, y);
         var confidence = Math.abs(prob - 0.5) * 2;
-        var fill = prob >= 0.5 ? '#f7e6d7' : '#dcecf8';
-        drawRect(xi * cellW, yi * cellH, cellW, cellH, fill, 0.08 + (confidence * 0.22));
+        var fill = prob >= 0.5 ? '#ffb36b' : '#68b7ff';
+        drawRect(xi * cellW, yi * cellH, cellW, cellH, fill, 0.13 + (confidence * 0.34));
       }
     }
   }

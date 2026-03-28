@@ -275,17 +275,13 @@ window.LR2 = (function() {
 This is the follow-up to the first post:
 [Linear Regression from Scratch: An Interactive Guide]({{ site.baseurl }}/linear-regression-from-scratch-interactive/)
 
-In that post, we built linear regression for a **single feature**: one input $$x$$, one weight $$w$$, and a bias $$b$$. The model was a **line** through 2D space.
-
-Now we take the natural next step: **two input features**. This is the simplest multivariate case, and it unlocks something you cannot see in 2D - the model becomes a **plane** floating through 3D space.
+Now we move to the next step: multiple input features. We start with the simplest multivariate case, two features because it can still be visualized. With two inputs, linear regression is no longer just a line, it becomes a plane in 3D space. More generally, with additional features the same idea extends to a hyperplane in higher dimensions.
 
 The full model with two features is:
 
 $$\hat{y} = w_1 x_1 + w_2 x_2 + b$$
 
-where $$w_1$$ and $$w_2$$ control the **tilt** of the prediction plane, and $$b$$ (the **bias**) shifts the entire plane **up or down**. In the first interactive demo below, you can adjust all three to build intuition for how the plane moves.
-
-For the **cost surface** and **gradient descent** sections further down, we fix $$b = 0$$ so we have only two free parameters. This lets us directly visualize:
+where $$w_1$$ and $$w_2$$ control the **tilt** of the prediction plane, and $$b$$ (the **bias**) shifts the entire plane **up or down**. In the first interactive demo below, you can adjust all three to build intuition for how the plane moves. For the **cost surface** and **gradient descent** sections further down, we fix $$b = 0$$ so we have only two free parameters. This lets us directly visualize:
 1. The **cost surface** $$J(w_1, w_2)$$ as a 3D bowl
 2. **Gradient descent** walking down that bowl to find the best weights
 
@@ -315,10 +311,10 @@ Together, $$w_1$$, $$w_2$$, and $$b$$ fully determine the prediction plane. Trai
 
 ## Seeing the Data in 3D
 
-Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space. The semi-transparent blue surface is the **prediction plane** $$\hat{y} = w_1 x_1 + w_2 x_2 + b$$. The red dashed lines are the **errors** (residuals) - the vertical distance from each point to the plane.
+Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space. The semi-transparent blue surface is the **prediction plane** $$\hat{y} = w_1 x_1 + w_2 x_2 + b$$. The red dashed lines are the **errors** (residuals), the vertical distance from each point to the plane.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Drag <strong>w₁</strong> and <strong>w₂</strong> sliders to tilt the prediction plane. Drag <strong>b</strong> to shift it up or down. <strong>Drag on the 3D plot</strong> to rotate the view. Click <strong>Fit</strong> to animate gradient descent finding the best parameters. The red lines show prediction errors - try to make them as short as possible!
+<strong>Interactive:</strong> Drag <strong>w₁</strong> and <strong>w₂</strong> sliders to tilt the prediction plane. Drag <strong>b</strong> to shift it up or down. <strong>Drag on the 3D plot</strong> to rotate the view. Click <strong>Fit</strong> to animate gradient descent finding the best parameters. The red lines show prediction errors and try to make them as short as possible!
 </div>
 
 <div class="interactive-demo">
@@ -708,11 +704,11 @@ Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2
 })();
 </script>
 
-<div class="demo-try">
+<!-- <div class="demo-try">
 <strong>Try this:</strong> Set <code>w₁ = 0</code> and <code>w₂ = 0</code>, then drag only <code>b</code>. The plane slides straight up and down. Now set <code>b = 0</code> and drag <code>w₁</code> - the plane tilts along the x₁ axis. Each parameter controls one degree of freedom independently. Then click <strong>Fit</strong> and watch all three converge together.
-</div>
+</div> -->
 
-Notice how the **red error lines** shrink when you find good weights and grow when the plane is tilted wrong. The cost $$J$$ is the average of those squared red line lengths - exactly the same MSE from the first post, just extended to two features.
+Notice how the **red error lines** shrink when you find good weights and grow when the plane is tilted wrong. The cost $$J$$ is the average of those squared red line lengths exactly the same MSE from the first post, just extended to two features.
 
 ---
 

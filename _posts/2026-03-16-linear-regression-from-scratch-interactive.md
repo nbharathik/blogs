@@ -421,12 +421,10 @@ The goal is simple: **given data points $$(x, y)$$, find $$w$$ and $$b$$ so that
 
 ## The Training Dataset
 
-Every machine learning model starts with data. Below, we have 10 houses with area (sq ft) and price (in $1000s). This is our **training dataset**: labeled examples the model uses to learn a pattern.
-
-The quality of this dataset matters. If it reflects real-world patterns, predictions on new houses are usually better.
+Every machine learning model starts with data. Below, we have 10 houses with area (sq ft) and price (in $1000s). This is our **training dataset**: labeled examples the model uses to learn a pattern. It is only a simplified example and does not represent real market prices, but it is sufficient for understanding linear regression.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click anywhere on the plot to <strong>add</strong> a new data point. Drag existing points to <strong>move</strong> them. Double-click a point to <strong>remove</strong> it. All demos below automatically use this dataset.
+<strong>Interactive:</strong> Click anywhere on the plot to <strong>add</strong> a new data point. Drag existing points to <strong>move</strong> them. Double-click a point to <strong>remove</strong> it. All demos below automatically use this dataset. Try adding outliers (e.g. a very expensive small house) and see how it affects the model in later sections!
 </div>
 
 <div class="interactive-demo">
@@ -531,9 +529,7 @@ The quality of this dataset matters. If it reflects real-world patterns, predict
 })();
 </script>
 
-Looking at the plot, there is a clear trend: larger area usually means higher price. The points are not perfectly on one line, and that is normal.
-
-Our goal is to find a **best-fit line** that keeps overall error as small as possible across all points.
+Looking at the plot, there is a clear trend: larger area usually means higher price. The points are not perfectly on one line, and that is normal. Our goal is to find a **best-fit line** that keeps overall error as small as possible across all points.
 
 ---
 
@@ -546,7 +542,6 @@ $$h(x) = w \cdot x + b$$
 This is a straight line. The two parameters $$w$$ and $$b$$ completely determine the line:
 
 - **Weight ($$w$$)** controls the **slope**. Larger $$w$$ means price rises faster with area. If $$w = 0$$, the line is flat. If $$w < 0$$, price decreases as area increases.
-
 - **Bias ($$b$$)** controls the **y-intercept**. It shifts the line up or down without changing slope. You can think of it as a base level before area contributes through $$w$$.
 
 Together, $$w$$ and $$b$$ are the model's **parameters**. Training means finding the values that produce the best fit.
@@ -603,7 +598,7 @@ Notice how **weight** changes steepness while **bias** shifts vertically. To fin
 
 ---
 
-## The Cost Function (Mean Squared Error)
+## The Cost Function
 
 The cost function (also called **loss** or **objective**) is a single number that tells us **how wrong the current model is**. High cost means predictions are far from actual values. Low cost means the line fits well. Training is the process of finding $$w$$ and $$b$$ that minimize this value.
 
@@ -692,9 +687,9 @@ Let us break this down:
 })();
 </script>
 
-<div class="demo-try">
+<!-- <div class="demo-try">
 <strong>Try this:</strong> Set <code>w = 0</code>, then tune only <code>b</code> to reduce cost. Next freeze <code>b</code> and tune <code>w</code>. Compare the best cost from each step vs tuning both together.
-</div>
+</div> -->
 
 Try finding the minimum manually with sliders. It is harder than it looks, because changing $$w$$ affects the best value of $$b$$, and vice versa. This is why we need an **automated optimizer**. First, let us visualize the full cost landscape.
 
@@ -702,9 +697,7 @@ Try finding the minimum manually with sliders. It is harder than it looks, becau
 
 ## The Cost Landscape
 
-Every pair $$(w, b)$$ gives a different cost $$J(w,b)$$. If we evaluate many pairs, we get a **cost surface**: a 3D landscape where horizontal axes are $$w$$ and $$b$$, and height is cost.
-
-For linear regression with MSE, this surface is **bowl-shaped** (convex). That is useful because it has one global minimum: a single best parameter set.
+Every pair $$(w, b)$$ gives a different cost $$J(w,b)$$. If we evaluate many pairs, we get a **cost surface**: a 3D landscape where horizontal axes are $$w$$ and $$b$$, and height is cost. For linear regression with MSE, this surface is **bowl-shaped** (convex). That is useful because it has one global minimum: a single best parameter set.
 
 ### Contour Plot View
 
@@ -952,27 +945,21 @@ Here is the same cost function visualized as a 3D surface. You can see the bowl 
 })();
 </script>
 
-The bowl shape is important. If we keep moving downhill from any start point, we will reach the same minimum. That is exactly what **gradient descent** does.
+The bowl shape is important. In convex problems like linear regression (and logistic regression with a convex loss), moving downhill can lead to the same global minimum from different start points. Gradient descent follows this idea, but this guarantee holds only under certain conditions (such as convexity and a suitable learning rate).
 
 ---
 
 ## Gradient Descent
 
-Gradient descent is the **optimization algorithm** that moves parameters toward minimum cost. The same core idea is used in much larger models, including neural networks.
+Gradient descent is the **optimization algorithm** that helps parameters move toward the minimum cost. The same idea scales to much larger models, including neural networks.
 
 ### The Intuition: Lost on a Foggy Mountain
 
-Imagine standing on a mountain in thick fog. You cannot see the whole landscape, but you need to reach the valley floor.
+Imagine you are standing on a mountain in thick fog. You cannot see the whole landscape, but you still need to find your way to the valley floor. What do you do? You cannot jump to the bottom, and you cannot see the best path. However, you can feel the slope of the ground under your feet. You can figure out which direction goes downhill the steepest, take a step in that direction, and repeat. Eventually, you will reach the bottom. This is essentially how gradient descent works.
 
-1. **Feel the slope around you** to find the steepest downhill direction
-2. **Take a step** in that downhill direction
-3. **Repeat** until the ground is flat (you have reached the bottom)
-
-This is exactly how gradient descent works:
-
-1. **Compute gradient** at current $$w, b$$ (direction of steepest increase)
+1. **Compute the gradient** at the current $$w, b$$ (the direction of steepest increase)
 2. **Move opposite to the gradient** (downhill)
-3. **Repeat** until improvements become very small
+3. **Repeat** until the improvement becomes very small
 
 ### The Math
 
@@ -992,11 +979,7 @@ $$w := w - \alpha \cdot \frac{\partial J}{\partial w}$$
 
 $$b := b - \alpha \cdot \frac{\partial J}{\partial b}$$
 
-The minus sign makes the update move **against** the gradient, which reduces cost. The learning rate $$\alpha$$ sets step size.
-
-### Why the Minus Sign?
-
-If a gradient component is **positive**, subtracting it decreases that parameter. If it is **negative**, subtracting it increases that parameter. One rule handles both directions automatically.
+The minus sign makes the update move **against** the gradient, which reduces cost, and the learning rate $$\alpha$$ sets step size. If a gradient component is **positive**, subtracting it decreases that parameter; if it is **negative**, subtracting it increases that parameter, so one rule handles both directions automatically.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> Click <strong>Step</strong> for one gradient descent iteration, or <strong>Run</strong> to animate. The green path on the contour plot shows the optimization trajectory. The line on the right converges to the best fit. The chart below shows cost decreasing over iterations.
@@ -1190,9 +1173,9 @@ If a gradient component is **positive**, subtracting it decreases that parameter
 })();
 </script>
 
-<div class="demo-try">
+<!-- <div class="demo-try">
 <strong>Try this:</strong> Start with <code>w=0, b=0</code>, click <strong>Step</strong> 10 times, then switch to <strong>Run</strong>. Observe how the path moves quickly first and then takes smaller effective improvements near the minimum.
-</div>
+</div> -->
 
 After enough iterations, the green dot settles near the bottom of the bowl and the fitted line stabilizes. Cost usually drops quickly early on, then flattens near convergence.
 
@@ -1205,9 +1188,7 @@ The **learning rate** $$\alpha$$ is a crucial **hyperparameter**. You choose it 
 Choosing it well is important:
 
 - **Too small** (for example $$\alpha = 0.000000001$$): steps are tiny, convergence is very slow.
-
 - **Reasonable** (for example $$\alpha = 0.00000005$$): smooth, stable convergence.
-
 - **Too large** (for example $$\alpha = 0.000001$$): updates overshoot, cost oscillates or increases, and training can diverge.
 
 There is no universal best value. In practice, try a few values and watch the cost curve.
@@ -1328,9 +1309,9 @@ A quick rule of thumb:
 })();
 </script>
 
-<div class="demo-try">
+<!-- <div class="demo-try">
 <strong>Try this:</strong> Keep the same dataset and compare final cost after 1000+ iterations for the three alpha values. Then increase noise in the dataset (top demo) and repeat to see sensitivity.
-</div>
+</div> -->
 
 ---
 
@@ -1338,7 +1319,7 @@ A quick rule of thumb:
 
 Let us put the complete algorithm together step by step:
 
-**Algorithm A: Single-Feature (Univariate) Linear Regression**
+**Algorithm A: Single-Feature Linear Regression**
 
 1. **Initialize** $$w = 0$$ and $$b = 0$$ (starting point)
 2. **Choose** a learning rate $$\alpha$$ and number of iterations
@@ -1352,7 +1333,7 @@ Let us put the complete algorithm together step by step:
      - $$b := b - \alpha \cdot \frac{\partial J}{\partial b}$$
 
 ```python
-def linear_regression_univariate(X, y, lr=1e-7, iterations=5000):
+def linear_regression(X, y, lr=1e-7, iterations=5000):
     w, b = 0.0, 0.0
     m = len(X)
 
@@ -1763,11 +1744,7 @@ For example, if training gives $$w = 0.151$$ and $$b = 42.2$$, then for a 2800 s
 
 $$\hat{y} = 0.151 \times 2800 + 42.2 = 465.0$$
 
-So the predicted price is approximately **$465,000**.
-
-This value is in thousands of dollars, so `465.0` means about **$465,000**. The model did not use hand-written pricing rules. It learned a pattern from data.
-
-One important caveat: predictions are usually more reliable **within** the training range than far outside it. Predicting a 12,000 sq ft house from data mostly between 800 and 3,800 sq ft is extrapolation, and can be inaccurate.
+So the predicted price is approximately **$465,000**. This value is in thousands of dollars, so `465.0` means about **$465,000**. The model did not use hand-written pricing rules. It learned a pattern from data. One important caveat: predictions are usually more reliable **within** the training range than far outside it. Predicting a 12,000 sq ft house from data mostly between 800 and 3,800 sq ft is extrapolation, and can be inaccurate.
 
 <div class="demo-hint">
 <strong>Interactive:</strong> This demo uses the trained parameters from the gradient descent above. If you have not trained yet, click <strong>Auto-Train</strong>. Then enter any house area and click <strong>Predict</strong> to see the result on the plot.
@@ -1877,7 +1854,7 @@ These same ideas appear again in larger models: define a differentiable objectiv
 
 #### Continue the ML Series
 
-This post is part of my **Machine Learning from Scratch** series. If you want to continue in order:
+This post is part of my **Interactive Machine Learning from Scratch** series. If you would like to learn more, check out the other posts:
 
 - **Series overview**: [Machine Learning from Scratch: Interactive Guide]({{ site.baseurl }}/machine-learning-from-scratch-interactive-guide/)
 - **Linear Regression Part 2 (multiple features)**: [Linear Regression from Scratch II: Multivariate Extension]({{ site.baseurl }}/linear-regression-multivariate-extension/)
