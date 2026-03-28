@@ -960,7 +960,7 @@ The learning rate $$\alpha$$ is arguably the single most important hyperparamete
 - Just right ($$\alpha = 0.003$$): Smooth, steady convergence to the minimum in a reasonable number of steps.
 - Too large ($$\alpha = 0.02$$): Steps overshoot the minimum. The optimizer bounces back and forth, and may even diverge, moving farther and farther from the solution.
 
-The three canvases below show the same surface, same starting point, but with different learning rates. Watch how dramatically the behavior changes.
+The canvases below show the same surface, same starting point, but with different learning rates. Watch how dramatically the behavior changes.
 
 <div class="interactive-demo" id="demo-lr">
   <div class="lr-trio">
@@ -1086,7 +1086,11 @@ $$\theta := \theta - \alpha \nabla_\theta J(\theta;\; x^{(i)}, y^{(i)})$$
 
 The gradient from a single sample is a noisy estimate of the true gradient. This noise makes the path zigzag, but it has a surprising benefit: the noise can help the optimizer escape shallow local minima and explore more of the loss surface.
 
-In the demo below, watch how Batch GD traces a smooth path while SGD takes a noisy, drunken walk toward the same destination. Despite the noise, SGD often reaches a good solution faster because it makes many more updates per epoch.
+In the demo below, we compare optimizers under a simple compute-budget view. One animation tick represents one unit of time: Batch GD performs one full-gradient update, while SGD can perform multiple cheaper noisy updates (controlled by the slider). This setup helps explain why SGD often shows faster early progress in wall-clock time, even though its path is less smooth.
+
+<div class="demo-hint">
+  <strong>How to read this demo:</strong> This is a synthetic optimization task on the Rosenbrock surface, not a real dataset. Batch GD uses the exact gradient of that surface. SGD is simulated by adding Gaussian noise to each gradient step to mimic single-sample variability. The "SGD updates/tick" control approximates how SGD can take more parameter updates in the same time budget.
+</div>
 
 <div class="interactive-demo" id="demo-sgd">
   <div class="demo-split">
@@ -1102,8 +1106,10 @@ In the demo below, watch how Batch GD traces a smooth path while SGD takes a noi
   <div class="demo-controls">
     <label>Learning Rate: <input type="range" id="lr-sgd" min="0.0005" max="0.008" step="0.0005" value="0.003"></label>
     <span class="demo-value" id="lr-sgd-val">0.0030</span>
-    <label>Noise (SGD): <input type="range" id="noise-sgd" min="0.1" max="3" step="0.1" value="1.0"></label>
+    <label>Noise (SGD): <input type="range" id="noise-sgd" min="0" max="3" step="0.1" value="1.0"></label>
     <span class="demo-value" id="noise-sgd-val">1.0</span>
+    <label>SGD updates/tick: <input type="range" id="sgd-updates" min="1" max="30" step="1" value="10"></label>
+    <span class="demo-value" id="sgd-updates-val">10</span>
     <button id="btn-sgd-run">Run</button>
     <button id="btn-sgd-reset">Reset</button>
   </div>
@@ -1125,6 +1131,7 @@ In the demo below, watch how Batch GD traces a smooth path while SGD takes a noi
 
   function getLr() { return parseFloat(document.getElementById('lr-sgd').value); }
   function getNoise() { return parseFloat(document.getElementById('noise-sgd').value); }
+  function getSgdUpdates() { return parseInt(document.getElementById('sgd-updates').value, 10); }
 
   function drawAll() {
     var colors = GD.getColors();
@@ -1154,28 +1161,55 @@ In the demo below, watch how Batch GD traces a smooth path while SGD takes a noi
     if (!running || step >= maxSteps) { running = false; return; }
     var lr = getLr();
     var noise = getNoise();
+    var sgdUpdates = getSgdUpdates();
 
     // Batch GD step
     var curB = pathB[pathB.length - 1];
     var gB = GD.rosenbrockGrad(curB.x, curB.y);
     var gnB = Math.sqrt(gB.dx * gB.dx + gB.dy * gB.dy);
     if (gnB > 50) { gB.dx = gB.dx / gnB * 50; gB.dy = gB.dy / gnB * 50; }
-    pathB.push({ x: curB.x - lr * gB.dx, y: curB.y - lr * gB.dy });
+    var nxB = curB.x - lr * gB.dx;
+    var nyB = curB.y - lr * gB.dy;
+    if (Math.abs(nxB) > 10 || Math.abs(nyB) > 10) {
+      running = false;
+      document.getElementById('info-sgd').textContent = 'Batch diverged. Lower the learning rate.';
+      drawAll();
+      return;
+    }
+    pathB.push({ x: nxB, y: nyB });
 
-    // SGD step (gradient + noise)
-    var curS = pathS[pathS.length - 1];
-    var gS = GD.rosenbrockGrad(curS.x, curS.y);
-    var gnS = Math.sqrt(gS.dx * gS.dx + gS.dy * gS.dy);
-    if (gnS > 50) { gS.dx = gS.dx / gnS * 50; gS.dy = gS.dy / gnS * 50; }
-    // Add Gaussian noise to simulate stochastic gradient
-    var ndx = gS.dx + noise * gnS * gaussRand() * 0.3;
-    var ndy = gS.dy + noise * gnS * gaussRand() * 0.3;
-    pathS.push({ x: curS.x - lr * ndx, y: curS.y - lr * ndy });
+    // SGD takes multiple cheap, noisy updates per tick
+    for (var k = 0; k < sgdUpdates; k++) {
+      var curS = pathS[pathS.length - 1];
+      var gS = GD.rosenbrockGrad(curS.x, curS.y);
+      var gnS = Math.sqrt(gS.dx * gS.dx + gS.dy * gS.dy);
+      if (gnS > 50) { gS.dx = gS.dx / gnS * 50; gS.dy = gS.dy / gnS * 50; }
+
+      // Scale noise using clipped norm so the stochastic path stays informative
+      var clippedNorm = Math.sqrt(gS.dx * gS.dx + gS.dy * gS.dy);
+      var ndx = gS.dx + noise * clippedNorm * gaussRand() * 0.15;
+      var ndy = gS.dy + noise * clippedNorm * gaussRand() * 0.15;
+
+      var nxS = curS.x - lr * ndx;
+      var nyS = curS.y - lr * ndy;
+      if (Math.abs(nxS) > 10 || Math.abs(nyS) > 10) {
+        running = false;
+        document.getElementById('info-sgd').textContent = 'SGD diverged. Lower learning rate or noise.';
+        drawAll();
+        return;
+      }
+      pathS.push({ x: nxS, y: nyS });
+    }
 
     step++;
     var lB = GD.rosenbrock(pathB[pathB.length - 1].x, pathB[pathB.length - 1].y);
     var lS = GD.rosenbrock(pathS[pathS.length - 1].x, pathS[pathS.length - 1].y);
-    document.getElementById('info-sgd').textContent = 'Step ' + step + ' | Batch Loss: ' + lB.toFixed(4) + ' | SGD Loss: ' + lS.toFixed(4);
+    document.getElementById('info-sgd').textContent =
+      'Tick ' + step +
+      ' | Batch updates: ' + step +
+      ' | SGD updates: ' + (step * sgdUpdates) +
+      ' | Batch Loss: ' + lB.toFixed(4) +
+      ' | SGD Loss: ' + lS.toFixed(4);
     drawAll();
 
     if (lB < 0.0001 && lS < 0.01) { running = false; return; }
@@ -1187,6 +1221,9 @@ In the demo below, watch how Batch GD traces a smooth path while SGD takes a noi
   });
   document.getElementById('noise-sgd').addEventListener('input', function() {
     document.getElementById('noise-sgd-val').textContent = parseFloat(this.value).toFixed(1);
+  });
+  document.getElementById('sgd-updates').addEventListener('input', function() {
+    document.getElementById('sgd-updates-val').textContent = parseInt(this.value, 10).toString();
   });
 
   document.getElementById('btn-sgd-run').addEventListener('click', function() {
@@ -1212,15 +1249,11 @@ In the demo below, watch how Batch GD traces a smooth path while SGD takes a noi
 
 ## Building Block: Exponential Moving Averages
 
-Before diving into Momentum, RMSProp, and Adam, let's understand the mathematical primitive they all share: the exponential moving average (EMA).
-
-Given a noisy sequence of values $$g_1, g_2, \ldots$$ (think: gradients at each training step), the EMA produces a smoothed version:
+Before diving into Momentum, RMSProp, and Adam, let's understand the mathematical primitive they all share: the exponential moving average (EMA). Given a noisy sequence of values $$g_1, g_2, \ldots$$ (think: gradients at each training step), the EMA produces a smoothed version:
 
 $$\bar{g}_t = \beta \, \bar{g}_{t-1} + (1 - \beta) \, g_t$$
 
-The hyperparameter $$\beta$$ controls how much history to retain. A higher $$\beta$$ means heavier smoothing (the average "remembers" roughly the last $$\frac{1}{1 - \beta}$$ values). This is exactly the operation inside Momentum (smoothing gradients), RMSProp (smoothing squared gradients), and Adam (both).
-
-Drag the $$\beta$$ slider below to see how EMA transforms a noisy gradient signal into a smooth trend. Notice how high $$\beta$$ gives a stable estimate but responds slowly to changes, while low $$\beta$$ tracks the signal closely but stays noisy.
+The hyperparameter $$\beta$$ controls how much history to retain. A higher $$\beta$$ means heavier smoothing (the average "remembers" roughly the last $$\frac{1}{1 - \beta}$$ values). This is exactly the operation inside Momentum (smoothing gradients), RMSProp (smoothing squared gradients), and Adam (both). Drag the $$\beta$$ slider below to see how EMA transforms a noisy gradient signal into a smooth trend. This is the core idea behind all the optimizers we'll cover next. By adjusting $$\beta$$, you can see how the smoothed signal becomes more or less responsive to recent changes in the raw gradient.
 
 <div class="interactive-demo" id="demo-ema">
   <canvas id="canvas-ema" width="680" height="280"></canvas>
@@ -1415,17 +1448,19 @@ Drag the $$\beta$$ slider below to see how EMA transforms a noisy gradient signa
 
 ## 5. Momentum
 
-Vanilla GD can oscillate when the loss surface is shaped like a narrow valley, steep in one direction, shallow in another. It bounces back and forth across the steep walls while making slow progress along the valley floor.
+Vanilla GD can oscillate when the loss surface is shaped like a narrow valley, steep in one direction and shallow in another. Instead of moving directly toward the minimum, it keeps bouncing back and forth across the steep sides while making only slow progress along the valley floor.
 
-Momentum fixes this by maintaining a velocity that accumulates past gradients. Think of a ball rolling downhill: it picks up speed along consistent directions and dampens oscillations across inconsistent ones.
+Momentum helps fix this by maintaining a velocity that accumulates past gradients. Think of a ball rolling downhill: it builds up speed in directions that stay consistent and reduces oscillations in directions that keep changing. This helps the optimizer move more smoothly and usually faster toward the minimum.
 
 $$v_t = \beta \, v_{t-1} + \alpha \, \nabla_\theta J(\theta)$$
 
 $$\theta := \theta - v_t$$
 
-The hyperparameter $$\beta$$ (typically 0.9) controls how much history to retain. Higher $$\beta$$ means more momentum, the optimizer "remembers" more of its previous direction.
+The hyperparameter $$\beta$$ (typically 0.9) controls how much of the previous velocity is retained. A higher $$\beta$$ means more momentum, so the optimizer remembers more of its earlier direction.
 
-In this demo, compare vanilla GD (which oscillates) vs Momentum (which accelerates smoothly) on an elongated elliptical surface, the worst case for vanilla GD.
+<div class="demo-hint">
+  <strong>Setup + how to read:</strong> Both panels use the same synthetic elongated bowl $f(x,y) = x^2 + 50y^2$, start point, and learning rate $\alpha$; only the update rule changes. Vanilla GD uses the current gradient, while Momentum uses velocity memory $v_t = \beta v_{t-1} + \alpha \nabla J$ and updates with $\theta := \theta - v_t$. Each frame is one update in both panels: compare oscillation first, then loss. Set $\beta = 0$ to match vanilla GD, then increase $\beta$ to see smoother, faster convergence.
+</div>
 
 <div class="interactive-demo" id="demo-momentum">
   <div class="demo-split">
@@ -1447,9 +1482,6 @@ In this demo, compare vanilla GD (which oscillates) vs Momentum (which accelerat
     <button id="btn-mom-reset">Reset</button>
   </div>
   <div class="demo-info" id="info-mom">Press "Run" to compare vanilla GD vs Momentum.</div>
-</div>
-<div class="demo-hint">
-  <strong>Try this:</strong> Set β to 0 (no momentum, behaves like vanilla GD) and then gradually increase to 0.95. Watch the oscillations disappear and the path smooth out.
 </div>
 
 <script>
