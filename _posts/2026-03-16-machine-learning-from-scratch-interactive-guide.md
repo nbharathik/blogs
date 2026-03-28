@@ -157,17 +157,17 @@ permalink: /ml/
 }
 </style>
 
-This is a complete interactive guide to **Machine Learning from Scratch**. Every algorithm below has real-time visualizations, with focused math and code so you can build strong intuition quickly.
+This is an interactive guide to **Machine Learning from Scratch**. It lets you explore each algorithm with real-time visualizations and build intuition through hands-on experimentation.
 
 <div class="ml-preview" id="ml-series-preview">
   <div class="ml-preview-header">
     <h2 class="ml-preview-title">See It in Action</h2>
-    <p class="ml-preview-subtitle">You can expect similar interactive visualizations in each blog post. Switch between algorithms to see how each one tackles the same dataset differently.</p>
+    <p class="ml-preview-subtitle">This is a simple example. You can expect similar interactive visualizations in each blog post. Switch between algorithms to see how each one tackles the same dataset differently.  </p>
   </div>
   <div class="ml-preview-controls" role="tablist" aria-label="Algorithm preview tabs">
     <button class="ml-preview-tab is-active" type="button" data-algo="linear" aria-pressed="true">Linear Regression</button>
     <button class="ml-preview-tab" type="button" data-algo="logistic" aria-pressed="false">Logistic Regression</button>
-    <button class="ml-preview-tab" type="button" data-algo="knn" aria-pressed="false">KNN</button>
+    <!-- <button class="ml-preview-tab" type="button" data-algo="knn" aria-pressed="false">KNN</button> -->
     <button class="ml-preview-tab" type="button" data-algo="kmeans" aria-pressed="false">K-Means</button>
     <button class="ml-preview-tab" type="button" data-algo="nn" aria-pressed="false">Simple NN</button>
   </div>
@@ -389,14 +389,16 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
       renderLinear();
     } else if (activeAlgo === 'logistic') {
       renderLogistic();
-    } else if (activeAlgo === 'knn') {
-      renderKnn();
     } else if (activeAlgo === 'kmeans') {
       renderKmeans();
     } else {
       renderSimpleNn();
     }
   }
+
+  // else if (activeAlgo === 'knn') {
+  //     renderKnn();
+  //   } 
 
   function getModel(key, builder) {
     if (!modelCache[key]) {

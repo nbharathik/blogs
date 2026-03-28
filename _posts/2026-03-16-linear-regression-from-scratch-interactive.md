@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Linear Regression from Scratch: An Interactive Guide"
+title: "Linear Regression: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
 hidden: true

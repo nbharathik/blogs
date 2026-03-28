@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Logistic Regression from Scratch II"
+title: "Logistic Regression II: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
 hidden: true
@@ -322,11 +322,9 @@ window.LogR2 = (function() {
 </script>
 
 This is the follow-up to the first post:
-[Logistic Regression from Scratch: An Interactive Guide]({{ site.baseurl }}/logistic-regression/)
+[Logistic Regression: An Interactive Guide]({{ site.baseurl }}/logistic-regression/)
 
-In that post, we built logistic regression for a **single feature**: one input $$x$$ (hours studied), one weight $$w$$, and a bias $$b$$. The decision boundary was a **single point** on the number line separating pass from fail.
-
-Now we take the natural next step: **two input features**. We predict whether a student passes or fails an exam based on both **hours studied** and **hours slept**. The decision boundary goes from a point on a line to an actual **line** in 2D space.
+In that post, we built logistic regression for a **single feature**: one input $$x$$ (hours studied). The decision boundary was a **single point** on the number line separating pass from fail. Now we take the natural next step: **two input features**. We predict whether a student passes or fails an exam based on both **hours studied** and **attendance score**. The decision boundary goes from a point on a line to an actual **line** in 2D space.
 
 The full model with two features is:
 
@@ -334,9 +332,9 @@ $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$
 
 where $$\sigma(z) = \frac{1}{1 + e^{-z}}$$ is the sigmoid function. The weights $$w_1$$ and $$w_2$$ control the **orientation** of the decision boundary line, and $$b$$ (the **bias**) shifts it. The decision boundary itself is the set of points where $$w_1 x_1 + w_2 x_2 + b = 0$$.
 
-For the **cost surface** and **gradient descent** sections further down, we fix $$b = 0$$ so we have only two free parameters. This lets us directly visualize:
+<!-- For the **cost surface** and **gradient descent** sections further down, we fix $$b = 0$$ so we have only two free parameters. This lets us directly visualize:
 1. The **cost surface** $$J(w_1, w_2)$$ as a 3D landscape
-2. **Gradient descent** walking across that surface to find the best weights
+2. **Gradient descent** walking across that surface to find the best weights -->
 
 ---
 
@@ -354,9 +352,9 @@ What does each parameter do?
 
 - **$$w_1$$** controls how much **hours studied** ($$x_1$$) influences the prediction. A larger $$w_1$$ means more study hours push the prediction toward passing.
 
-- **$$w_2$$** controls how much **hours slept** ($$x_2$$) influences the prediction. It works independently from $$w_1$$.
+- **$$w_2$$** controls how much **attendance score** ($$x_2$$) influences the prediction. It works independently from $$w_1$$.
 
-- **$$b$$** (the **bias**) shifts the decision boundary without changing its orientation. A more negative $$b$$ makes the model harder to satisfy, requiring more study and sleep to predict a pass.
+- **$$b$$** (the **bias**) shifts the decision boundary without changing its orientation. A more negative $$b$$ makes the model harder to satisfy, requiring more study and attendance to predict a pass.
 
 The decision boundary line is where the model predicts exactly 50% probability, that is, where $$w_1 x_1 + w_2 x_2 + b = 0$$. On one side, the model predicts pass; on the other, fail.
 
@@ -601,7 +599,7 @@ Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2
     infoEl.textContent =
       'h(x) = \u03C3(' + w1.toFixed(2) + '\u00b7x\u2081 + ' + w2.toFixed(2) + '\u00b7x\u2082' + bSign + Math.abs(b).toFixed(2) + ')' +
       '  |  Cost J = ' + J.toFixed(4) +
-      '  |  Accuracy = ' + (acc * 100).toFixed(1) + '%';
+      '  |  Training Accuracy = ' + (acc * 100).toFixed(1) + '%';
   }
 
   // Mouse drag rotation
@@ -740,10 +738,6 @@ Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2
 })();
 </script>
 
-<div class="demo-try">
-<strong>Try this:</strong> Set <code>w₁ = 0</code> and <code>w₂ = 0</code>, then drag only <code>b</code>. The surface slides up and down as a flat sheet. Now set <code>b = -5</code> and slowly increase <code>w₁</code>. The sigmoid surface begins to curve and tilt, separating classes along the hours-studied axis. Then increase <code>w₂</code> to tilt it along the sleep axis too. Click <strong>Fit</strong> and watch the surface shape itself to hug the data. Drag on the 3D plot to rotate and see the sigmoid curve from different angles.
-</div>
-
 Notice how the **sigmoid surface** curves between 0 and 1, red points (fail) sit near the bottom where the surface is low, and blue points (pass) cluster near the top. The dashed line at P = 0.5 shows the decision boundary. Points near this boundary are the hardest to classify since the sigmoid outputs values close to 0.5 there.
 
 ---
@@ -754,15 +748,15 @@ The boundary equation $$w_1 x_1 + w_2 x_2 + b = 0$$ is just the equation of a li
 
 $$x_2 = -\frac{w_1}{w_2}\,x_1 - \frac{b}{w_2}$$
 
+(This rearranged form assumes $$w_2 \neq 0$$.)
+
 This makes it clear what each parameter controls:
 
 - The **slope** of the boundary is $$-w_1 / w_2$$. Changing the ratio of $$w_1$$ to $$w_2$$ rotates the line.
 
 - The **intercept** is $$-b / w_2$$. Changing $$b$$ slides the line up or down without rotating it.
 
-- The **normal vector** $$(w_1, w_2)$$ points perpendicular to the boundary, toward the "class 1" side. The weights tell us which direction is "positive."
-
-On one side of the boundary (where $$w_1 x_1 + w_2 x_2 + b > 0$$), the sigmoid outputs values above 0.5, so the model predicts class 1. On the other side, it predicts class 0. The further a point is from the boundary, the more confident the prediction.
+On one side of the boundary (where $$w_1 x_1 + w_2 x_2 + b > 0$$), the sigmoid outputs values above 0.5, so the model predicts class 1. On the other side, it predicts class 0. The further a point is from the boundary, the more confident the prediction. As in the single-feature case, the 0.5 threshold is a policy choice: lowering it increases recall for class 1 while raising it increases precision.
 
 ---
 
@@ -776,10 +770,10 @@ $$J(w_1,w_2) = -\frac{1}{m}\sum_{i=1}^{m}\left[y^{(i)}\log h(x^{(i)}) + (1-y^{(i
 
 where $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$. Every possible combination of $$w_1$$ and $$w_2$$ produces a different cost. Plotting all combinations gives us a **cost surface**.
 
-Unlike linear regression, the surface is **not** a simple bowl shape. Because the sigmoid function introduces nonlinearity, the landscape can be more complex. However, binary cross-entropy with a sigmoid is still **convex**, meaning there is a single global minimum and gradient descent will find it.
+Compared with linear regression, the shape is usually less perfectly quadratic, but with binary cross-entropy the objective is still **convex** in the parameters. In practice this gives one basin for typical non-separable data. (For perfectly separable data without regularization, weights can keep growing while loss approaches 0.)
 
 <div class="demo-hint">
-<strong>Interactive:</strong> The red dot shows your current <code>w₁, w₂</code> position. Drag the green dot on the contour plot to explore. Adjust the w₁/w₂ sliders above and watch both views update. Drag on the 3D surface to rotate it.
+<strong>Interactive:</strong> The red dot shows your current <code>w₁, w₂</code> position. Drag the green dot on the contour plot to explore. Adjust the w₁/w₂ sliders above and watch both views update. Drag on the 3D surface to rotate it. (Cost here is shown for <code>b = 0</code>.)
 </div>
 
 <div class="interactive-demo">
@@ -863,7 +857,7 @@ Unlike linear regression, the surface is **not** a simple bowl shape. Because th
             var ix = x + dx, iy = y + dy;
             var nx2 = (ix / n) * 2 - 1, ny2 = (iy / n) * 2 - 1;
             var t = (costs[ix][iy] - minC) / (maxC - minC);
-            var nz = 1 - Math.sqrt(LogR2.clamp(t, 0, 1));
+            var nz = Math.sqrt(LogR2.clamp(t, 0, 1));
             var p = proj(nx2, ny2, nz);
             corners.push(p);
             depth += ny2 * sinA * sinT + nz * cosT;
@@ -892,7 +886,7 @@ Unlike linear regression, the surface is **not** a simple bowl shape. Because th
 
     // Red dot for current position
     var curT = LogR2.clamp((LogR2.cost(LogR2.state.w1, LogR2.state.w2) - minC) / (maxC - minC), 0, 1);
-    var curNz = 1 - Math.sqrt(curT);
+    var curNz = Math.sqrt(curT);
     var px = (LogR2.state.w1 - wMin) / (wMax - wMin) * 2 - 1;
     var py = (LogR2.state.w2 - wMin) / (wMax - wMin) * 2 - 1;
     var dot = proj(px, py, curNz);
@@ -1024,7 +1018,7 @@ Unlike linear regression, the surface is **not** a simple bowl shape. Because th
     costInfoEl.textContent =
       'w\u2081 = ' + LogR2.state.w1.toFixed(2) +
       ', w\u2082 = ' + LogR2.state.w2.toFixed(2) +
-      ', Cost J = ' + LogR2.cost(LogR2.state.w1, LogR2.state.w2).toFixed(4);
+      ', Cost J(b=0) = ' + LogR2.cost(LogR2.state.w1, LogR2.state.w2).toFixed(4);
   }
 
   // Contour drag
@@ -1093,7 +1087,7 @@ $$\frac{\partial J}{\partial w_1} = \frac{1}{m}\sum_{i=1}^{m}\left(h(x^{(i)}) - 
 Notice how similar this looks to the linear regression gradient. The only difference is that $$\hat{y}^{(i)}$$ is replaced by $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$. The sigmoid introduces nonlinearity, but the gradient formula stays elegant.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> for one gradient descent iteration, or <strong>Run</strong> to animate. The left panel shows the optimization path on the contour. The right panel shows the sigmoid surface converging in 3D. The chart below shows cost decreasing over iterations.
+<strong>Interactive:</strong> Click <strong>Step</strong> for one gradient descent iteration, or <strong>Run</strong> to animate. The left panel shows the optimization path on the contour. The right panel shows the sigmoid surface converging in 3D. The chart below shows cost decreasing over iterations. (This section keeps <code>b = 0</code>.)
 </div>
 
 <div class="interactive-demo">
@@ -1120,7 +1114,7 @@ Notice how similar this looks to the linear regression gradient. The only differ
     <button id="logr2-gd-run">Run</button>
     <button id="logr2-gd-reset">Reset</button>
   </div>
-  <div class="demo-info" id="logr2-gd-info">Iteration: 0 | w₁ = 0.00, w₂ = 0.00, Cost = ―</div>
+  <div class="demo-info" id="logr2-gd-info">Iteration: 0 | w₁ = 0.00, w₂ = 0.00, Cost J(b=0) = ―</div>
 </div>
 
 <script>
@@ -1409,7 +1403,7 @@ Notice how similar this looks to the linear regression gradient. The only differ
     infoEl.textContent = 'Iteration: ' + iteration +
       ' | w\u2081 = ' + gdW1.toFixed(3) +
       ', w\u2082 = ' + gdW2.toFixed(3) +
-      ', Cost = ' + cost.toFixed(4);
+      ', Cost J(b=0) = ' + cost.toFixed(4);
   }
 
   lrSlider.addEventListener('input', function() {
@@ -1459,10 +1453,6 @@ Notice how similar this looks to the linear regression gradient. The only differ
 })();
 </script>
 
-<div class="demo-try">
-<strong>Try this:</strong> Click <strong>Step</strong> 10 times slowly to see individual gradient descent steps. Watch how the green dot moves on the contour plot while the sigmoid surface shapes itself in 3D. Then click <strong>Run</strong> to see rapid convergence. Try different learning rates: too high and the path overshoots; too low and convergence takes a long time.
-</div>
-
 After running gradient descent for enough iterations, the green dot settles near the cost minimum, and the sigmoid surface on the right panel shapes itself to separate the classes as well as possible. The convergence curve shows the cost rapidly decreasing at first and then flattening as it approaches the minimum. Note that the gradient descent demo fixes $$b = 0$$, so it will not find a perfect boundary in general. The Fit button in the first demo optimizes all three parameters ($$w_1$$, $$w_2$$, and $$b$$) for the best result.
 
 ---
@@ -1473,7 +1463,7 @@ After running gradient descent for enough iterations, the green dot settles near
 
 - Each weight $$w_k$$ controls how much feature $$x_k$$ contributes to the classification. Setting $$w_k = 0$$ means "ignore feature $$k$$."
 
-- The **cost surface** for logistic regression (binary cross-entropy) is **convex**, guaranteeing a single global minimum. Gradient descent will always find it.
+- The **cost surface** for logistic regression (binary cross-entropy) is convex in parameters. On typical non-separable data this gives one basin and stable convergence; perfectly separable data may need regularization for a finite optimum.
 
 - The gradient formulas look almost identical to linear regression. The only difference is that the prediction $$\hat{y}$$ is replaced by $$h(x) = \sigma(w \cdot x + b)$$. This elegance comes from the choice of cross-entropy as the cost function.
 
