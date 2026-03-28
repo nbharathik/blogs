@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Watch data flow forward and gradients flow backward through neural networks, visualize the chain rule at every node, and understand vanishing gradients - all interactively."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /backpropagation/
 date: 2026-03-17
 ---
 
@@ -119,7 +120,7 @@ date: 2026-03-17
 
 ## The Engine Behind Neural Network Learning
 
-In the [Perceptron & MLP]({{ site.baseurl }}/perceptron-mlp-interactive/) guide, we built multi-layer perceptrons and watched them learn. We saw decision boundaries form, loss decrease, and weights update. But we treated the weight update as a black box. How does the network know which weight to adjust and by how much?
+In the [Perceptron & MLP]({{ site.baseurl }}/perceptron-mlp/) guide, we built multi-layer perceptrons and watched them learn. We saw decision boundaries form, loss decrease, and weights update. But we treated the weight update as a black box. How does the network know which weight to adjust and by how much?
 
 The answer is **backpropagation**, an elegant algorithm that computes the gradient of the loss with respect to every weight in the network, using nothing more than the chain rule from calculus. It is the engine behind all of deep learning.
 
@@ -381,7 +382,7 @@ Backpropagation is not just an algorithm, it is a way of thinking about computat
 
 The time complexity of backpropagation is **O(n)** where n is the number of operations in the forward pass, we traverse each edge exactly once going forward and once going backward. This efficiency is what makes training networks with millions of parameters practical.
 
-**What's next:** In the [Activation & Loss Functions]({{ site.baseurl }}/activations-losses-interactive/) guide, we will explore, dropout, weight decay, batch normalization, and understand how they prevent overfitting and stabilize training.
+**What's next:** In the [Activation & Loss Functions]({{ site.baseurl }}/activations-losses/) guide, we will explore, dropout, weight decay, batch normalization, and understand how they prevent overfitting and stabilize training.
 
 ---
 

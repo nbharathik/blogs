@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Watch decision trees grow split-by-split, compare Gini vs Entropy, control tree depth to see overfitting, and explore regression trees - all interactively in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /decision-trees/
 date: 2026-03-17
 ---
 

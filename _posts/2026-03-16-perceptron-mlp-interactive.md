@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Build neural networks from scratch with interactive visualizations. Train a single neuron, watch it fail on XOR, then add a hidden layer to solve it. Adjust network architecture and watch decision boundaries evolve in real-time - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /perceptron-mlp/
 date: 2026-03-17
 ---
 
@@ -376,7 +377,7 @@ We compute gradients layer by layer, starting from the output and propagating ba
 </div>
 <div class="demo-caption">Step through forward and backward passes. Neurons light up as activations and gradients flow through the network.</div>
 
-<div class="demo-hint">We will derive backpropagation fully in the [Backpropagation Visualized]({{ site.baseurl }}/backpropagation-interactive/) guide. For now, focus on the intuition: each weight's gradient tells it how much it contributed to the error, via the chain rule.</div>
+<div class="demo-hint">We will derive backpropagation fully in the [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/) guide. For now, focus on the intuition: each weight's gradient tells it how much it contributed to the error, via the chain rule.</div>
 
 ---
 
@@ -411,7 +412,7 @@ The practical question is: how many neurons do you need?
 | **Activation functions** | Sigmoid, Tanh, ReLU, each introduces nonlinearity with different trade-offs. |
 | **Universal Approximation** | One hidden layer with enough neurons can approximate any continuous function. |
 
-**What's next:** In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation-interactive/), we will visualize backpropagation in detail, deriving the math, watching gradients flow, and understanding why deep networks can be hard to train.
+**What's next:** In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/), we will visualize backpropagation in detail, deriving the math, watching gradients flow, and understanding why deep networks can be hard to train.
 
 ---
 

@@ -4,6 +4,7 @@ title: "Hash Tables from Scratch: An Interactive Guide"
 author: bharathikannan
 categories: [Data Structures]
 description: "Understand hash tables visually. Hash functions, collisions, separate chaining, and rehashing  - all animated step by step in your browser."
+permalink: /hash-tables/
 hidden: true
 ---
 

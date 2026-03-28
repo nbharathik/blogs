@@ -4,6 +4,7 @@ title: "Sorting Algorithms from Scratch: An Interactive Guide"
 author: bharathikannan
 categories: [Data Structures]
 description: "Visualize bubble sort, selection sort, insertion sort, merge sort, and quick sort step by step. Race them against each other  - all in your browser."
+permalink: /sorting-algorithms/
 hidden: true
 ---
 
@@ -1368,6 +1369,6 @@ Now for the fun part - let us race all five algorithms against each other on the
 
 ## What's Next?
 
-Now that you understand sorting, the natural next step is **searching** - because sorted data unlocks the power of binary search. Continue to the [Searching Algorithms Interactive Guide]({{ site.baseurl }}/searching-algorithms-interactive/) to see why $$O(\log n)$$ is so much better than $$O(n)$$.
+Now that you understand sorting, the natural next step is **searching** - because sorted data unlocks the power of binary search. Continue to the [Searching Algorithms Interactive Guide]({{ site.baseurl }}/searching-algorithms/) to see why $$O(\log n)$$ is so much better than $$O(n)$$.
 
 You can also explore the full [DSA in Python series]({{ site.baseurl }}/dsa/) for linked lists, trees, heaps, hash tables, and more.

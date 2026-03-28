@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Build logistic regression from the ground up with interactive visualizations. Adjust parameters, watch gradient descent optimize the sigmoid curve, and explore the decision boundary - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /logistic-regression/
 date: 2026-03-17
 ---
 
@@ -1653,7 +1654,7 @@ The logistic regression model shares the same fundamental framework as linear re
 - **Regularization**: L1 and L2 penalties to prevent overfitting
 - **Multi-class classification**: Extend to more than two classes with softmax regression
 - **Neural networks**: Stack logistic regression units into layers for deep learning
-- **Linear regression refresher**: [Linear Regression from Scratch]({{ site.baseurl }}/linear-regression-from-scratch-interactive/)
+- **Linear regression refresher**: [Linear Regression from Scratch]({{ site.baseurl }}/linear-regression/)
 
 #### References
 

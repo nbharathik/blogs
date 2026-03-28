@@ -4,6 +4,7 @@ title: "Stacks and Queues: An Interactive Guide"
 author: bharathikannan
 categories: [Data Structures]
 description: "Visualize LIFO and FIFO in action. Push, pop, enqueue, dequeue  - all animated step by step in your browser."
+permalink: /stacks-and-queues/
 hidden: true
 ---
 
@@ -675,6 +676,6 @@ def is_balanced(s):
 
 ## What's Next?
 
-With arrays, linked lists, stacks, and queues under your belt, it is time to explore **trees**  - hierarchical data structures that power everything from file systems to databases. Continue to the [Binary Trees and BST Interactive Guide]({{ site.baseurl }}/binary-trees-and-bst-interactive/).
+With arrays, linked lists, stacks, and queues under your belt, it is time to explore **trees**  - hierarchical data structures that power everything from file systems to databases. Continue to the [Binary Trees and BST Interactive Guide]({{ site.baseurl }}/binary-trees-and-bst/).
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

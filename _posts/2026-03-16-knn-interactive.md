@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Explore KNN classification interactively - paint decision boundaries, tune K from 1 to 30, compare distance metrics, and visualize the curse of dimensionality, all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /knn/
 date: 2026-03-17
 ---
 

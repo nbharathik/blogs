@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Watch a random forest grow tree-by-tree, see bootstrap sampling in action, compare individual vs ensemble predictions, and explore feature importance - all interactively."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /random-forests/
 date: 2026-03-17
 ---
 
@@ -1901,4 +1902,4 @@ Random Forests reduce variance by averaging many independent models. But what if
 
 ---
 
-*This is part of the [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. You might also enjoy [Decision Trees]({{ site.baseurl }}/decision-trees-interactive/) (which Random Forests build on) or continue to [Boosting]({{ site.baseurl }}/boosting-interactive/).*
+*This is part of the [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. You might also enjoy [Decision Trees]({{ site.baseurl }}/decision-trees/) (which Random Forests build on) or continue to [Boosting]({{ site.baseurl }}/boosting/).*

@@ -182,22 +182,22 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
 <div class="ml-category">
   <h2>Foundations of Supervised Learning</h2>
   <div class="ml-grid">
-    <a class="ml-card" href="{{ site.baseurl }}/linear-regression-from-scratch-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/linear-regression/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Linear Regression</h3>
       <p>Fit a line to data with gradient descent. Drag points, watch the cost surface, and see parameters converge in real-time.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/linear-regression-multivariate-extension/">
+    <a class="ml-card" href="{{ site.baseurl }}/linear-regression-multivariate/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Linear Regression - Multivariate</h3>
       <p>Extend to multiple features with 3D visualizations. Watch a prediction plane tilt through data and explore the cost surface.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/logistic-regression-from-scratch-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/logistic-regression/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Logistic Regression</h3>
       <p>From regression to classification. See the sigmoid curve, drag the decision boundary, and train a binary classifier live.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/logistic-regression-multivariate-extension/">
+    <a class="ml-card" href="{{ site.baseurl }}/logistic-regression-multivariate/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Logistic Regression - Multivariate</h3>
       <p>Classify with two features. Explore 3D sigmoid surfaces, rotating decision boundaries, and multi-feature cost landscapes.</p>
@@ -208,17 +208,17 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
 <div class="ml-category">
   <h2>Optimization & Regularization</h2>
   <div class="ml-grid">
-    <a class="ml-card" href="{{ site.baseurl }}/gradient-descent-deep-dive-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/gradient-descent/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Gradient Descent Deep Dive</h3>
       <p>Race SGD, Momentum, RMSProp, and Adam side-by-side. Tune learning rates, escape saddle points, and compare mini-batch strategies.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/polynomial-regression-bias-variance-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/polynomial-regression/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Polynomial Regression & Bias-Variance</h3>
       <p>Slide polynomial degree from 1->15 and watch underfitting become overfitting. Decompose bias and variance visually.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/regularization-ridge-lasso-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/regularization-ridge-lasso/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Regularization: Ridge, Lasso & Elastic Net</h3>
       <p>Watch coefficients shrink to zero. See why L1 creates sparsity with the diamond-vs-circle geometry. Morph between Ridge and Lasso.</p>
@@ -229,22 +229,22 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
 <div class="ml-category">
   <h2>Classification Algorithms</h2>
   <div class="ml-grid">
-    <a class="ml-card" href="{{ site.baseurl }}/knn-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/knn/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>K-Nearest Neighbors</h3>
       <p>Place points and watch decision boundaries reshape. Slide K from 1->30, toggle distance metrics, and see the curse of dimensionality.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/naive-bayes-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/naive-bayes/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Naive Bayes Classifier</h3>
       <p>Adjust class distributions and watch the decision boundary shift. Build a live spam classifier that scores words in real-time.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/svm-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/svm/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Support Vector Machines</h3>
       <p>Find the maximum margin. Drag support vectors, tune the C parameter, and watch the kernel trick project data into 3D.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/decision-trees-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/decision-trees/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Decision Trees</h3>
       <p>Watch a tree grow split-by-split with dual-panel animation: tree structure on the left, rectangular regions on the right.</p>
@@ -255,12 +255,12 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
 <div class="ml-category">
   <h2>Ensemble Methods</h2>
   <div class="ml-grid">
-    <a class="ml-card" href="{{ site.baseurl }}/random-forests-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/random-forests/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Random Forests & Bagging</h3>
       <p>Add trees one-by-one and watch the boundary smooth out. Compare individual trees vs the ensemble, and see OOB error converge.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/boosting-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/boosting/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Boosting: AdaBoost & Gradient Boosting</h3>
       <p>Watch sample weights grow on mistakes. See residuals shrink as weak learners stack up. Compare boosting vs bagging head-to-head.</p>
@@ -271,17 +271,17 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
 <div class="ml-category">
   <h2>Unsupervised Learning</h2>
   <div class="ml-grid">
-    <a class="ml-card" href="{{ site.baseurl }}/k-means-clustering-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/k-means-clustering/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>K-Means Clustering</h3>
       <p>Step through the assign-update cycle with animated centroids. Explore the elbow method, Voronoi regions, and K-Means++ initialization.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/dbscan-hierarchical-clustering-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/dbscan-hierarchical-clustering/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>DBSCAN & Hierarchical Clustering</h3>
       <p>Cluster non-convex shapes that K-Means can't handle. Build dendrograms step-by-step and drag the cut height to form clusters.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/pca-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/pca/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Principal Component Analysis (PCA)</h3>
       <p>Rotate a projection line to maximize variance. Project 3D data onto 2D, explore scree plots, and see reconstruction error change.</p>
@@ -292,17 +292,17 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
 <div class="ml-category">
   <h2>Neural Networks from Scratch</h2>
   <div class="ml-grid">
-    <a class="ml-card" href="{{ site.baseurl }}/perceptron-mlp-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/perceptron-mlp/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>The Perceptron & MLP</h3>
       <p>Train a single neuron, watch it fail on XOR, then add a hidden layer for the "aha!" moment. Build network architectures live.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/backpropagation-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/backpropagation/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Backpropagation Visualized</h3>
       <p>Watch data flow forward and gradients flow backward with animated particles. See vanishing gradients in deep networks.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/activations-losses-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/activations-losses/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Activation & Loss Functions</h3>
       <p>Explore every activation function with derivative overlays. Watch neurons die with ReLU, and race MSE against cross-entropy.</p>
@@ -313,12 +313,12 @@ This is a complete interactive guide to **Machine Learning from Scratch**. Every
 <div class="ml-category">
   <h2>Evaluation & Practical ML</h2>
   <div class="ml-grid">
-    <a class="ml-card" href="{{ site.baseurl }}/model-evaluation-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/model-evaluation/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Model Evaluation</h3>
       <p>Drag a threshold slider and watch the confusion matrix, ROC curve, and precision-recall curve update together. Animate K-Fold CV.</p>
     </a>
-    <a class="ml-card" href="{{ site.baseurl }}/feature-engineering-interactive/">
+    <a class="ml-card" href="{{ site.baseurl }}/feature-engineering/">
       <div class="ml-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15l4-4 3 2 5-6"/></svg></div>
       <h3>Feature Engineering & Preprocessing</h3>
       <p>Compare scaling methods side-by-side, explore correlation heatmaps, and build an end-to-end pipeline with toggleable steps.</p>

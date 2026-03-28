@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Watch AdaBoost reweight misclassified samples, see gradient boosting fit residuals step-by-step, and compare boosting vs bagging - all interactively in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /boosting/
 date: 2026-03-17
 ---
 

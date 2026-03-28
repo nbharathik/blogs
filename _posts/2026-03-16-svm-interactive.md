@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Build intuition for Support Vector Machines with interactive visualizations. Find the maximum margin, explore soft margins with the C parameter, visualize the kernel trick in 3D, and compare RBF vs polynomial kernels - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /svm/
 date: 2026-03-17
 ---
 

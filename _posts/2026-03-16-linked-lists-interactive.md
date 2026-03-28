@@ -4,6 +4,7 @@ title: "Linked Lists from Scratch: An Interactive Guide"
 author: bharathikannan
 categories: [Data Structures]
 description: "Build and manipulate linked lists visually. Insert, delete, reverse, merge  - all animated with pointer re-routing, step by step."
+permalink: /linked-lists/
 hidden: true
 ---
 
@@ -978,6 +979,6 @@ def merge_sorted_lists(l1, l2):
 
 ## What's Next?
 
-Two of the most important data structures built on linked lists are **stacks** and **queues**. Continue to the [Stacks and Queues Interactive Guide]({{ site.baseurl }}/stacks-and-queues-interactive/) to see LIFO and FIFO in action.
+Two of the most important data structures built on linked lists are **stacks** and **queues**. Continue to the [Stacks and Queues Interactive Guide]({{ site.baseurl }}/stacks-and-queues/) to see LIFO and FIFO in action.
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

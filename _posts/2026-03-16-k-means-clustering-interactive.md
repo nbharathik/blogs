@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Build K-Means clustering from scratch with interactive visualizations. Watch centroids move step-by-step, explore K selection with the elbow method, compare initialization strategies, and see Voronoi regions form - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /k-means-clustering/
 date: 2026-03-17
 ---
 

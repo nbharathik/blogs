@@ -4,6 +4,7 @@ title: "Heaps (Min-Heap): An Interactive Guide"
 author: bharathikannan
 categories: [Data Structures]
 description: "Visualize min-heap operations interactively. Insert with sift-up, remove-min with sift-down, and build-heap  - all animated step by step with dual tree + array views."
+permalink: /heaps/
 hidden: true
 ---
 
@@ -1666,7 +1667,7 @@ largest = -heapq.heappop(max_heap)  # 8
 
 Heaps are a building block for more advanced topics:
 
-- **Heap Sort**  - use a max-heap to sort an array in $$O(n \log n)$$ in place. See the [Sorting Algorithms Interactive Guide]({{ site.baseurl }}/sorting-algorithms-interactive/).
+- **Heap Sort**  - use a max-heap to sort an array in $$O(n \log n)$$ in place. See the [Sorting Algorithms Interactive Guide]({{ site.baseurl }}/sorting-algorithms/).
 - **Priority Queues**  - the primary application of heaps in practice.
 - **Graph Algorithms**  - Dijkstra's shortest path and Prim's minimum spanning tree both rely on priority queues backed by heaps.
 

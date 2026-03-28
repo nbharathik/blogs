@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Build confusion matrices, trace ROC and Precision-Recall curves, animate K-Fold cross-validation, and diagnose bias vs variance with learning curves - all interactively."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /model-evaluation/
 date: 2026-03-17
 ---
 

@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Build linear regression from the ground up with interactive visualizations. Drag points, adjust parameters, watch gradient descent converge - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /linear-regression/
 date: 2026-03-16
 ---
 
@@ -1856,10 +1857,10 @@ These same ideas appear again in larger models: define a differentiable objectiv
 
 This post is part of my **Interactive Machine Learning from Scratch** series. If you would like to learn more, check out the other posts:
 
-- **Series overview**: [Machine Learning from Scratch: Interactive Guide]({{ site.baseurl }}/machine-learning-from-scratch-interactive-guide/)
-- **Linear Regression Part 2 (multiple features)**: [Linear Regression from Scratch II: Multivariate Extension]({{ site.baseurl }}/linear-regression-multivariate-extension/)
-- **Then next**: [Polynomial Regression: Bias Variance Interactive]({{ site.baseurl }}/polynomial-regression-bias-variance-interactive/)
-- **After that**: [Logistic Regression from Scratch: Interactive]({{ site.baseurl }}/logistic-regression-from-scratch-interactive/)
+- **Series overview**: [Machine Learning from Scratch: Interactive Guide]({{ site.baseurl }}/ml/)
+- **Linear Regression Part 2 (multiple features)**: [Linear Regression from Scratch II: Multivariate Extension]({{ site.baseurl }}/linear-regression-multivariate/)
+- **Then next**: [Polynomial Regression: Bias Variance Interactive]({{ site.baseurl }}/polynomial-regression/)
+- **After that**: [Logistic Regression from Scratch: Interactive]({{ site.baseurl }}/logistic-regression/)
 
 #### References
 

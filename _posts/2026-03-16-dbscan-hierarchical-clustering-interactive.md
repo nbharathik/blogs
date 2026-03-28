@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Explore density-based clustering with DBSCAN, build dendrograms interactively, compare linkage methods, and see why K-Means fails on non-convex shapes - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /dbscan-hierarchical-clustering/
 date: 2026-03-17
 ---
 
@@ -549,7 +550,7 @@ window.HC = (function() {
 
 ## Introduction: Beyond K-Means
 
-In the [previous chapter](/k-means-clustering-interactive), we built K-Means from scratch. It is fast, simple, and works well on compact, globular clusters. But K-Means has fundamental limitations:
+In the [previous chapter](/k-means-clustering), we built K-Means from scratch. It is fast, simple, and works well on compact, globular clusters. But K-Means has fundamental limitations:
 
 - It **requires specifying K** in advance
 - It assumes clusters are **convex and roughly equal-sized**

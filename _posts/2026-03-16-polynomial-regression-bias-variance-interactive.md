@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Explore polynomial regression and the bias-variance tradeoff with interactive visualizations. Drag a degree slider from underfitting to overfitting, watch training vs validation curves, and build intuition for model complexity - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /polynomial-regression/
 date: 2026-03-17
 ---
 
@@ -478,7 +479,7 @@ window.PR = (function() {
 
 ## 1. Introduction: From Lines to Curves
 
-In the [Linear Regression]({{ site.baseurl }}/linear-regression-from-scratch-interactive/) guide, we built linear regression from scratch and saw how a straight line can capture the trend in data. But the real world is rarely so cooperative. Think about how fuel efficiency changes with engine RPM, it rises, peaks, and then drops. Or how a patient's risk changes with age, it follows a curve, not a line.
+In the [Linear Regression]({{ site.baseurl }}/linear-regression/) guide, we built linear regression from scratch and saw how a straight line can capture the trend in data. But the real world is rarely so cooperative. Think about how fuel efficiency changes with engine RPM, it rises, peaks, and then drops. Or how a patient's risk changes with age, it follows a curve, not a line.
 
 When the underlying relationship between input and output is **nonlinear**, forcing a straight line through the data leaves systematic patterns in the residuals. The model is too simple for the data. We call this **underfitting**.
 
@@ -1344,7 +1345,7 @@ But manually choosing the right degree is fragile. In the next chapter, we will 
 
 ### What's Next
 
-**Next up: [Regularization, Ridge, Lasso & Elastic Net]({{ site.baseurl }}/regularization-ridge-lasso-interactive/)**, Add a penalty term to tame overfitting, explore the L1/L2 landscape interactively, and see how regularisation connects to the bias-variance tradeoff.
+**Next up: [Regularization, Ridge, Lasso & Elastic Net]({{ site.baseurl }}/regularization-ridge-lasso/)**, Add a penalty term to tame overfitting, explore the L1/L2 landscape interactively, and see how regularisation connects to the bias-variance tradeoff.
 
 ---
 

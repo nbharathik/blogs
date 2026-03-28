@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Visualize feature scaling, one-hot encoding, missing value imputation, correlation heatmaps, and polynomial features - see how preprocessing transforms your data interactively."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /feature-engineering/
 date: 2026-03-17
 ---
 

@@ -4,6 +4,7 @@ title: "Tries (Prefix Trees): An Interactive Guide"
 author: bharathikannan
 categories: [Data Structures]
 description: "Build and explore tries interactively. Insert words, search prefixes, visualize autocomplete  - all animated step by step on a canvas."
+permalink: /tries/
 hidden: true
 ---
 

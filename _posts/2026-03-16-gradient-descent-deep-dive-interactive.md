@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Explore gradient descent optimizers interactively. Race SGD, Momentum, RMSProp, and Adam side-by-side, tune learning rates, escape saddle points, and compare mini-batch vs batch - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /gradient-descent/
 date: 2026-03-17
 ---
 

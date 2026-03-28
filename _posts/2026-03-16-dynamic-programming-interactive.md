@@ -4,6 +4,7 @@ title: "Dynamic Programming: An Interactive Guide"
 author: bharathikannan
 categories: [Data Structures]
 description: "Master dynamic programming visually. Step through Fibonacci, Knapsack, LCS, and Edit Distance  - watch DP tables fill cell by cell, all in your browser."
+permalink: /dynamic-programming/
 hidden: true
 ---
 

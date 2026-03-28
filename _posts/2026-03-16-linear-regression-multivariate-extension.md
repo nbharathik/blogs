@@ -6,7 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Extend linear regression to two features with interactive 3D visualizations. Watch a prediction plane tilt through data, explore the cost surface, and see gradient descent converge."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
-permalink: /linear-regression-multivariate-extension/
+permalink: /linear-regression-multivariate/
 date: 2026-03-16
 ---
 
@@ -273,7 +273,7 @@ window.LR2 = (function() {
 </script>
 
 This is the follow-up to the first post:
-[Linear Regression from Scratch: An Interactive Guide]({{ site.baseurl }}/linear-regression-from-scratch-interactive/)
+[Linear Regression from Scratch: An Interactive Guide]({{ site.baseurl }}/linear-regression/)
 
 Now we move to the next step: multiple input features. We start with the simplest multivariate case, two features because it can still be visualized. With two inputs, linear regression is no longer just a line, it becomes a plane in 3D space. More generally, with additional features the same idea extends to a hyperplane in higher dimensions.
 

@@ -4,6 +4,7 @@ title: "Balanced Trees: An Interactive Guide to AVL and Red-Black Trees"
 author: bharathikannan
 categories: [Data Structures]
 description: "Understand self-balancing BSTs through interactive visualizations. AVL rotations, Red-Black recoloring  - all animated step by step."
+permalink: /balanced-trees/
 hidden: true
 ---
 
@@ -469,7 +470,7 @@ window.DSA_Bal = (function() {
 })();
 </script>
 
-In the [Binary Trees and BST guide]({{ site.baseurl }}/binary-trees-and-bst-interactive/), we saw that BST operations run in $$O(h)$$ time where $$h$$ is the height. In the best case $$h = O(\log n)$$, but if we insert values in sorted order we get a degenerate "linked list" tree with $$h = O(n)$$.
+In the [Binary Trees and BST guide]({{ site.baseurl }}/binary-trees-and-bst/), we saw that BST operations run in $$O(h)$$ time where $$h$$ is the height. In the best case $$h = O(\log n)$$, but if we insert values in sorted order we get a degenerate "linked list" tree with $$h = O(n)$$.
 
 **Self-balancing BSTs** solve this by automatically restructuring after every insertion (and deletion), guaranteeing $$h = O(\log n)$$ regardless of insertion order. The two most important self-balancing BSTs are:
 
@@ -1805,6 +1806,6 @@ The key difference: plain BSTs have $$O(n)$$ worst case, while balanced trees gu
 
 ## What's Next?
 
-Self-balancing trees ensure efficient dictionary operations, but what about priority-based access? **Heaps** give us $$O(1)$$ access to the minimum (or maximum) element and $$O(\log n)$$ insertion. Continue to the [Heaps Interactive Guide]({{ site.baseurl }}/heaps-interactive/).
+Self-balancing trees ensure efficient dictionary operations, but what about priority-based access? **Heaps** give us $$O(1)$$ access to the minimum (or maximum) element and $$O(\log n)$$ insertion. Continue to the [Heaps Interactive Guide]({{ site.baseurl }}/heaps/).
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

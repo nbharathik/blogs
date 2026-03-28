@@ -4,6 +4,7 @@ title: "Binary Trees and BST: An Interactive Guide"
 author: bharathikannan
 categories: [Data Structures]
 description: "Build and explore binary search trees interactively. Traversals, insertion, deletion, search  - all visualized step by step."
+permalink: /binary-trees-and-bst/
 hidden: true
 ---
 
@@ -722,12 +723,12 @@ def delete(self, root, data):
 
 4. **Deletion** is the most complex operation with three cases. The two-children case requires finding the inorder successor.
 
-5. To guarantee O(log n) performance, use **self-balancing trees** like AVL or Red-Black trees  - covered in the [Balanced Trees Interactive Guide]({{ site.baseurl }}/balanced-trees-interactive/).
+5. To guarantee O(log n) performance, use **self-balancing trees** like AVL or Red-Black trees  - covered in the [Balanced Trees Interactive Guide]({{ site.baseurl }}/balanced-trees/).
 
 ---
 
 ## What's Next?
 
-BSTs can become unbalanced (imagine inserting 1, 2, 3, 4, 5 in order). **AVL trees** and **Red-Black trees** solve this with automatic rebalancing. Continue to the [Balanced Trees Interactive Guide]({{ site.baseurl }}/balanced-trees-interactive/).
+BSTs can become unbalanced (imagine inserting 1, 2, 3, 4, 5 in order). **AVL trees** and **Red-Black trees** solve this with automatic rebalancing. Continue to the [Balanced Trees Interactive Guide]({{ site.baseurl }}/balanced-trees/).
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

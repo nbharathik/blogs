@@ -101,12 +101,12 @@ Every data structure and algorithm is implemented from scratch with interactive 
 <div class="dsa-category">
   <h2>Algorithms</h2>
   <div class="dsa-grid">
-    <a class="dsa-card" href="{{ site.baseurl }}/sorting-algorithms-interactive/">
+    <a class="dsa-card" href="{{ site.baseurl }}/sorting-algorithms/">
       <div class="dsa-card-icon">&#9646;&#9646;&#9646;</div>
       <h3>Sorting Algorithms</h3>
       <p>Bubble, selection, insertion, merge, and quick sort  - visualized step by step. Race them against each other.</p>
     </a>
-    <a class="dsa-card" href="{{ site.baseurl }}/searching-algorithms-interactive/">
+    <a class="dsa-card" href="{{ site.baseurl }}/searching-algorithms/">
       <div class="dsa-card-icon">&#128269;</div>
       <h3>Searching Algorithms</h3>
       <p>Linear search vs binary search. See why O(log n) crushes O(n) with visual proof.</p>
@@ -117,12 +117,12 @@ Every data structure and algorithm is implemented from scratch with interactive 
 <div class="dsa-category">
   <h2>Linear Data Structures</h2>
   <div class="dsa-grid">
-    <a class="dsa-card" href="{{ site.baseurl }}/linked-lists-interactive/">
+    <a class="dsa-card" href="{{ site.baseurl }}/linked-lists/">
       <div class="dsa-card-icon">&#9654;&#9654;&#9654;</div>
       <h3>Linked Lists</h3>
       <p>Singly and doubly linked lists. Insert, delete, reverse, merge  - all animated with pointer re-routing.</p>
     </a>
-    <a class="dsa-card" href="{{ site.baseurl }}/stacks-and-queues-interactive/">
+    <a class="dsa-card" href="{{ site.baseurl }}/stacks-and-queues/">
       <div class="dsa-card-icon">&#9776;</div>
       <h3>Stacks and Queues</h3>
       <p>LIFO vs FIFO visualized. Push, pop, enqueue, dequeue with real-time animations.</p>
@@ -133,22 +133,22 @@ Every data structure and algorithm is implemented from scratch with interactive 
 <div class="dsa-category">
   <h2>Tree Data Structures</h2>
   <div class="dsa-grid">
-    <a class="dsa-card" href="{{ site.baseurl }}/binary-trees-and-bst-interactive/">
+    <a class="dsa-card" href="{{ site.baseurl }}/binary-trees-and-bst/">
       <div class="dsa-card-icon">&#9651;</div>
       <h3>Binary Trees and BST</h3>
       <p>Traversals, insertion, deletion, search. Build and explore binary search trees interactively.</p>
     </a>
-    <a class="dsa-card" href="{{ site.baseurl }}/balanced-trees-interactive/">
+    <a class="dsa-card" href="{{ site.baseurl }}/balanced-trees/">
       <div class="dsa-card-icon">&#9878;</div>
       <h3>Balanced Trees</h3>
       <p>AVL and Red-Black trees. Watch rotations and recoloring happen in real time.</p>
     </a>
-    <a class="dsa-card" href="{{ site.baseurl }}/heaps-interactive/">
+    <a class="dsa-card" href="{{ site.baseurl }}/heaps/">
       <div class="dsa-card-icon">&#9650;</div>
       <h3>Heaps</h3>
       <p>Min-heap with dual tree + array view. Sift up, sift down, and heapify visualized.</p>
     </a>
-    <a class="dsa-card" href="{{ site.baseurl }}/tries-interactive/">
+    <a class="dsa-card" href="{{ site.baseurl }}/tries/">
       <div class="dsa-card-icon">&#9733;</div>
       <h3>Tries</h3>
       <p>Prefix trees for string operations. Build a trie letter by letter and search with autocomplete.</p>
@@ -159,7 +159,7 @@ Every data structure and algorithm is implemented from scratch with interactive 
 <div class="dsa-category">
   <h2>Hashing</h2>
   <div class="dsa-grid">
-    <a class="dsa-card" href="{{ site.baseurl }}/hash-tables-interactive/">
+    <a class="dsa-card" href="{{ site.baseurl }}/hash-tables/">
       <div class="dsa-card-icon">#</div>
       <h3>Hash Tables</h3>
       <p>Hash functions, bucket arrays, and collision handling with separate chaining  - all visual.</p>
@@ -170,7 +170,7 @@ Every data structure and algorithm is implemented from scratch with interactive 
 <div class="dsa-category">
   <h2>Dynamic Programming</h2>
   <div class="dsa-grid">
-    <a class="dsa-card" href="{{ site.baseurl }}/dynamic-programming-interactive/">
+    <a class="dsa-card" href="{{ site.baseurl }}/dynamic-programming/">
       <div class="dsa-card-icon">&#9638;</div>
       <h3>Dynamic Programming</h3>
       <p>Fibonacci, knapsack, LCS, edit distance. Interactive DP tables and recursion tree visualizations.</p>

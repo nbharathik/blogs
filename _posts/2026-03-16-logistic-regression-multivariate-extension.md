@@ -6,7 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Extend logistic regression to two features with interactive 3D visualizations. Watch a sigmoid probability surface shape itself to fit data, explore the cost surface, and see gradient descent converge."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
-permalink: /logistic-regression-multivariate-extension/
+permalink: /logistic-regression-multivariate/
 date: 2026-03-17
 ---
 
@@ -322,7 +322,7 @@ window.LogR2 = (function() {
 </script>
 
 This is the follow-up to the first post:
-[Logistic Regression from Scratch: An Interactive Guide]({{ site.baseurl }}/logistic-regression-from-scratch-interactive/)
+[Logistic Regression from Scratch: An Interactive Guide]({{ site.baseurl }}/logistic-regression/)
 
 In that post, we built logistic regression for a **single feature**: one input $$x$$ (hours studied), one weight $$w$$, and a bias $$b$$. The decision boundary was a **single point** on the number line separating pass from fail.
 

@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Understand Naive Bayes through interactive Gaussian distributions, posterior probability heatmaps, prior adjustment, and a live text classification demo - all from scratch in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /naive-bayes/
 date: 2026-03-17
 ---
 

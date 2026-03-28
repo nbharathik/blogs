@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Visualize PCA eigenvectors, project data onto principal components, reduce 3D to 2D interactively, and understand variance explained - all from scratch in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /pca/
 date: 2026-03-17
 ---
 

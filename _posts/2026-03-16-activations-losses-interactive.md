@@ -6,6 +6,7 @@ categories: [Machine learning]
 hidden: true
 description: "Explore every major activation function and loss function interactively - see derivatives, dead neurons, loss landscapes, softmax probabilities, and MSE vs cross-entropy compared."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
+permalink: /activations-losses/
 date: 2026-03-17
 ---
 

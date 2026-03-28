@@ -4,6 +4,7 @@ title: "Searching Algorithms: An Interactive Guide"
 author: bharathikannan
 categories: [Data Structures]
 description: "Visualize linear search and binary search step by step. See why O(log n) crushes O(n)  - all in your browser."
+permalink: /searching-algorithms/
 hidden: true
 ---
 
@@ -661,6 +662,6 @@ Now let us see both algorithms search for the same target simultaneously. This i
 
 ## What's Next?
 
-Now that you understand arrays, searching, and sorting, it is time to explore **linked lists**  - a fundamentally different way to organize data. Continue to the [Linked Lists Interactive Guide]({{ site.baseurl }}/linked-lists-interactive/) to see how pointers change everything.
+Now that you understand arrays, searching, and sorting, it is time to explore **linked lists**  - a fundamentally different way to organize data. Continue to the [Linked Lists Interactive Guide]({{ site.baseurl }}/linked-lists/) to see how pointers change everything.
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).
