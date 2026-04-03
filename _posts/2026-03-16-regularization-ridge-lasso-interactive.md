@@ -981,7 +981,7 @@ $$w_j \leftarrow \begin{cases} (\rho_j - \lambda) / z_j & \text{if } \rho_j > \l
 
 where $$\rho_j$$ is the signal from the data for feature $$j$$, and $$z_j$$ is a normalisation factor (the sum of squared values of that feature column).
 
-### Ridge vs Lasso: why Lasso produces zeros
+<!-- ### Ridge vs Lasso: why Lasso produces zeros
 
 The diagram below compares what Ridge and Lasso do to a weight given the same signal strength $$\rho_j$$. Ridge (blue) always returns a non-zero value, just shrunk toward zero. Lasso (red) has a flat dead zone: any signal weaker than $$\lambda$$ gets killed to exactly zero. This is why Lasso performs feature selection and Ridge does not.
 
@@ -1566,7 +1566,7 @@ The optimal solution is where the elliptical contours of the loss function first
 
 <div class="demo-hint">The L1 (red) dot frequently snaps to an axis (a corner of the diamond), meaning one weight is exactly 0. The L2 (blue) dot almost never lands on an axis. This is the geometric reason Lasso produces sparsity.</div>
 
----
+--- -->
 
 ## 5. Lasso Feature Selection in Action
 
