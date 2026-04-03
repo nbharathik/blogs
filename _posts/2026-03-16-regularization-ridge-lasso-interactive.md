@@ -2239,8 +2239,6 @@ Now let us see all three regularizers side by side on the same data. We fit a de
 })();
 </script>
 
-<div class="demo-hint">Try each method at &lambda;=1. Ridge smooths the curve but keeps all coefficients. Lasso aggressively kills coefficients, so the curve may look simpler. Elastic Net is in between. In general, Ridge works best when most features carry some signal. Lasso shines when many features are irrelevant and you want automatic feature selection.</div>
-
 ---
 
 ## 8. Summary: Ridge vs Lasso vs Elastic Net
