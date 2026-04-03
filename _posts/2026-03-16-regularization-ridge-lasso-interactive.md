@@ -300,6 +300,24 @@ window.REG = (function() {
     return X;
   }
 
+  // Vandermonde with column scaling (each column divided by its RMS)
+  // Returns { X: scaled_matrix, scales: array_of_scale_factors }
+  // Bias column (j=0) is not scaled.
+  function vandermondeScaled(xs, deg) {
+    var X = vandermonde(xs, deg);
+    var n = xs.length;
+    var scales = new Array(deg + 1);
+    scales[0] = 1; // don't scale bias
+    for (var j = 1; j <= deg; j++) {
+      var ss = 0;
+      for (var i = 0; i < n; i++) ss += X[i][j] * X[i][j];
+      scales[j] = Math.sqrt(ss / n);
+      if (scales[j] < 1e-10) scales[j] = 1;
+      for (var i = 0; i < n; i++) X[i][j] /= scales[j];
+    }
+    return { X: X, scales: scales };
+  }
+
   function matT(A) {
     var r = A.length, c = A[0].length;
     var T = [];
@@ -356,12 +374,14 @@ window.REG = (function() {
   }
 
   // Fit polynomial with Ridge (L2) regularization
-  // Returns weight vector [w0, w1, ..., wd]
+  // Returns weight vector [w0, w1, ..., wd] in original feature space (for polyEval).
+  // Also attaches .wNorm (weights in scaled feature space) for bar chart display.
   function polyFitRidge(pts, deg, lambda) {
     if (typeof lambda === 'undefined') lambda = 0;
     var xs = pts.map(function(p) { return p.x; });
     var ys = pts.map(function(p) { return p.y; });
-    var X = vandermonde(xs, deg);
+    var vs = vandermondeScaled(xs, deg);
+    var X = vs.X, scales = vs.scales;
     var Xt = matT(X);
     var XtX = matMul(Xt, X);
     // Add lambda * I (skip bias term at index 0 for proper ridge)
@@ -372,21 +392,27 @@ window.REG = (function() {
     if (!XtXinv) return null;
     var yCol = ys.map(function(v) { return [v]; });
     var Xty = matMul(Xt, yCol);
-    var w = matMul(XtXinv, Xty);
-    return w.map(function(row) { return row[0]; });
+    var wNorm = matMul(XtXinv, Xty).map(function(row) { return row[0]; });
+    // Convert back to original feature space: w_orig[j] = w_norm[j] / scale[j]
+    var w = new Array(wNorm.length);
+    for (var j = 0; j < wNorm.length; j++) w[j] = wNorm[j] / scales[j];
+    w.wNorm = wNorm.slice();
+    return w;
   }
 
-  // Fit polynomial with Lasso (L1) via coordinate descent
+  // Fit polynomial with Lasso (L1) via coordinate descent on scaled features.
+  // Returns original-space weights with .wNorm attached.
   function polyFitLasso(pts, deg, lambda, maxIter) {
     maxIter = maxIter || 1000;
     var xs = pts.map(function(p) { return p.x; });
     var ys = pts.map(function(p) { return p.y; });
-    var X = vandermonde(xs, deg);
+    var vs = vandermondeScaled(xs, deg);
+    var X = vs.X, scales = vs.scales;
     var n = xs.length, p = deg + 1;
     var w = new Array(p);
     for (var j = 0; j < p; j++) w[j] = 0;
 
-    // Precompute column norms
+    // Precompute column norms (on scaled features, these are ~n for each column)
     var colNorm = new Array(p);
     for (var j = 0; j < p; j++) {
       var s = 0;
@@ -421,16 +447,23 @@ window.REG = (function() {
       }
       if (maxDelta < 1e-8) break;
     }
-    return w;
+    var wNorm = w.slice();
+    // Convert to original feature space
+    var wOrig = new Array(p);
+    for (var j = 0; j < p; j++) wOrig[j] = w[j] / scales[j];
+    wOrig.wNorm = wNorm;
+    return wOrig;
   }
 
-  // Fit with Elastic Net (coordinate descent)
+  // Fit with Elastic Net (coordinate descent on scaled features)
+  // Returns original-space weights with .wNorm attached.
   function polyFitElasticNet(pts, deg, lambda, alpha, maxIter) {
     maxIter = maxIter || 1000;
     if (typeof alpha === 'undefined') alpha = 0.5;
     var xs = pts.map(function(p) { return p.x; });
     var ys = pts.map(function(p) { return p.y; });
-    var X = vandermonde(xs, deg);
+    var vs = vandermondeScaled(xs, deg);
+    var X = vs.X, scales = vs.scales;
     var n = xs.length, p = deg + 1;
     var w = new Array(p);
     for (var j = 0; j < p; j++) w[j] = 0;
@@ -469,7 +502,11 @@ window.REG = (function() {
       }
       if (maxDelta < 1e-8) break;
     }
-    return w;
+    var wNorm = w.slice();
+    var wOrig = new Array(p);
+    for (var j = 0; j < p; j++) wOrig[j] = w[j] / scales[j];
+    wOrig.wNorm = wNorm;
+    return wOrig;
   }
 
   function polyEval(w, x) {
@@ -570,6 +607,7 @@ window.REG = (function() {
     trueFunc: trueFunc,
     generateData: generateData,
     vandermonde: vandermonde,
+    vandermondeScaled: vandermondeScaled,
     polyFitRidge: polyFitRidge,
     polyFitLasso: polyFitLasso,
     polyFitElasticNet: polyFitElasticNet,
@@ -585,27 +623,27 @@ window.REG = (function() {
 })();
 </script>
 
-In the [previous chapter on polynomial regression]({% post_url 2026-03-16-polynomial-regression-bias-variance-interactive %}), we saw how increasing polynomial degree lets a model fit training data more and more closely, until it starts memorising noise. We identified the bias-variance tradeoff, and the classic U-shaped validation curve showed there is an optimal complexity.
+Any model that learns weights from data can overfit by assigning extreme weight values to chase noise in the training set. This applies to linear regression, polynomial regression, logistic regression, neural networks, all of them. Regularization is a general technique that combats this. It adds a penalty to the loss function that discourages large weights, forcing the model to find simpler solutions that generalise better.
 
-But choosing the "right" degree is only one way to control complexity. What if we could keep a high-degree polynomial (giving it the *capacity* to model complex patterns) but **penalise it for using that capacity excessively**? That is exactly what **regularization** does.
+Regularization is not tied to any particular model. In this chapter we use polynomial regression as a visual playground because it makes overfitting easy to *see*, but every formula and insight here applies to any model that minimises a weighted sum of features.
 
 In this chapter you will:
 - See why overfitting happens at a coefficient level, wild, large weights
-- **Drag a slider** to watch Ridge (L2) smoothly shrink coefficients toward zero
-- Visualise the geometry that explains why Lasso (L1) produces **exact zeros** (sparsity)
+- Drag a slider to watch Ridge (L2) smoothly shrink coefficients toward zero
+- Visualise the geometry that explains why Lasso (L1) produces exact zeros (sparsity)
 - Watch Lasso perform automatic feature selection on noisy features
 - Blend Ridge and Lasso with Elastic Net and see the constraint region morph
 - Build deep intuition for when to use which regularizer
 
-Let us begin.
+Let's dive in.
 
 ---
 
 ## 1. The Overfitting Problem: Wild Coefficients
 
-We know from the last chapter that a degree-10 polynomial can overfit badly. But *why* does overfitting happen, mechanically? The answer: the model assigns **enormous coefficient values** to fit noise. A coefficient of +500 on $$x^7$$ and -480 on $$x^8$$ can create tiny wiggles that pass through noisy points, but these large opposing weights produce violent oscillations everywhere else.
+When a model has more capacity than the data justifies, it compensates by assigning enormous coefficient values to fit noise. In a polynomial model, a coefficient of +500 on $$x^7$$ and -480 on $$x^8$$ can create tiny wiggles that pass through noisy points. In a linear model with many features, a few massive weights dominate the prediction. Either way, these large opposing weights produce unstable predictions that generalise poorly.
 
-Below, 20 noisy points are generated from a smooth true function. The unregularized degree-10 fit passes near every point but oscillates wildly. Look at the coefficient magnitudes on the right, some are huge.
+Below, 20 noisy points are generated from a smooth true function ($$y = \sin(1.2x) + 0.4x - 1$$ plus Gaussian noise). We fit a degree-10 polynomial using the normal equation $$\mathbf{w} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$$ with no regularization. The fit passes near every point but oscillates wildly. Look at the coefficient magnitudes on the right, some are huge.
 
 <div class="interactive-demo" id="demo-overfit">
   <div class="demo-split">
@@ -625,6 +663,8 @@ Below, 20 noisy points are generated from a smooth true function. The unregulari
 </div>
 
 <script>
+// Section 1 overfit demo - stores shared data for Ridge demo to reuse
+window._overfitState = { pts: null, deg: 10, listeners: [] };
 (function() {
   var WL = 340, WR = 340, H = 340;
   var pL = 50, pR = 15, pT = 20, pB = 40;
@@ -643,6 +683,9 @@ Below, 20 noisy points are generated from a smooth true function. The unregulari
   function regenerate() {
     pts = REG.generateData(20, 0.2, 5.8, 0.5);
     w = REG.polyFitRidge(pts, deg, 1e-10);
+    // Share data with Ridge demo
+    window._overfitState.pts = pts;
+    window._overfitState.listeners.forEach(function(fn) { fn(); });
     draw();
   }
 
@@ -673,16 +716,18 @@ Below, 20 noisy points are generated from a smooth true function. The unregulari
     ctxCoefs.fillRect(0, 0, WR, H);
 
     if (!w) return;
+    // Use normalized weights for display (reflects true feature importance)
+    var wDisp = w.wNorm || w;
     var barPL = 40, barPR = 15, barPT = 30, barPB = 40;
     var barW = WR - barPL - barPR;
     var barH = H - barPT - barPB;
-    var nCoefs = w.length;
+    var nCoefs = wDisp.length;
     var gap = 4;
     var bh = (barH - (nCoefs - 1) * gap) / nCoefs;
 
     // Find max abs coef for scaling
     var maxAbs = 0;
-    for (var i = 0; i < nCoefs; i++) maxAbs = Math.max(maxAbs, Math.abs(w[i]));
+    for (var i = 0; i < nCoefs; i++) maxAbs = Math.max(maxAbs, Math.abs(wDisp[i]));
     if (maxAbs < 1) maxAbs = 1;
 
     ctxCoefs.fillStyle = c.text;
@@ -692,7 +737,7 @@ Below, 20 noisy points are generated from a smooth true function. The unregulari
 
     for (var i = 0; i < nCoefs; i++) {
       var y = barPT + i * (bh + gap);
-      var absVal = Math.abs(w[i]);
+      var absVal = Math.abs(wDisp[i]);
       var bw = (absVal / maxAbs) * barW;
 
       // Label
@@ -717,13 +762,13 @@ Below, 20 noisy points are generated from a smooth true function. The unregulari
         ctxCoefs.fillStyle = c.text;
         ctxCoefs.font = '9px JetBrains Mono, monospace';
         ctxCoefs.textAlign = 'left';
-        ctxCoefs.fillText(w[i].toFixed(1), barPL + bw + 4, y + bh / 2 + 3);
+        ctxCoefs.fillText(wDisp[i].toFixed(1), barPL + bw + 4, y + bh / 2 + 3);
       }
     }
 
     var mse = REG.polyMSE(w, pts);
     var sumAbsW = 0;
-    for (var i = 1; i < w.length; i++) sumAbsW += Math.abs(w[i]);
+    for (var i = 1; i < wDisp.length; i++) sumAbsW += Math.abs(wDisp[i]);
     info.textContent = 'Train MSE: ' + mse.toFixed(4) + '  |  Sum |w_i|: ' + sumAbsW.toFixed(1) + '  |  Max |w_i|: ' + maxAbs.toFixed(1);
   }
 
@@ -733,9 +778,9 @@ Below, 20 noisy points are generated from a smooth true function. The unregulari
 })();
 </script>
 
-<div class="demo-hint">Click "New Data" several times. Each time the coefficients are wildly different, that is high variance. The idea behind regularization: add a penalty term that punishes large weights, forcing the model to find simpler solutions.</div>
+<div class="demo-hint">Click "New Data" several times. Each time the coefficients are wildly different, that is high variance. This happens in any model with too much capacity, not just polynomials. The idea behind regularization: add a penalty term that punishes large weights, forcing the model to find simpler solutions.</div>
 
-The regularization approach adds a **penalty** to the loss function:
+The regularization approach adds a penalty to the loss function:
 
 $$J_{\text{regularized}}(\mathbf{w}) = \underbrace{\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}_{\text{data fit (MSE)}} + \underbrace{\lambda \cdot R(\mathbf{w})}_{\text{penalty}}$$
 
@@ -745,11 +790,11 @@ where $$\lambda > 0$$ controls the penalty strength and $$R(\mathbf{w})$$ is the
 
 ## 2. Ridge Regression (L2 Regularization)
 
-Ridge regression adds the **sum of squared weights** as the penalty:
+Ridge regression adds the sum of squared weights as the penalty:
 
 $$J_{\text{Ridge}}(\mathbf{w}) = \frac{1}{n}\|\mathbf{y} - \mathbf{X}\mathbf{w}\|^2 + \lambda \sum_{j=1}^{d} w_j^2$$
 
-Note we typically do **not** penalise the bias term $$w_0$$. The penalty discourages any single weight from becoming too large. Larger $$\lambda$$ means stronger penalty, meaning smaller weights.
+Note we typically do not penalise the bias term $$w_0$$. This is because the bias just shifts the entire function up or down, so it doesn't contribute to overfitting. The penalty discourages any single weight from becoming too large. Larger $$\lambda$$ means stronger penalty, meaning smaller weights.
 
 ### Closed-form solution
 
@@ -758,18 +803,20 @@ One of the beautiful things about Ridge is that it has a closed-form solution. S
 $$\mathbf{w}_{\text{Ridge}} = (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I})^{-1} \mathbf{X}^T\mathbf{y}$$
 
 Compare this to ordinary least squares: $$\mathbf{w}_{\text{OLS}} = (\mathbf{X}^T\mathbf{X})^{-1} \mathbf{X}^T\mathbf{y}$$. The only difference is the $$\lambda \mathbf{I}$$ term added to $$\mathbf{X}^T\mathbf{X}$$. This has two effects:
-1. It **shrinks** all coefficients toward zero (more shrinkage for larger $$\lambda$$)
-2. It **guarantees invertibility**, even if $$\mathbf{X}^T\mathbf{X}$$ is singular, adding $$\lambda \mathbf{I}$$ makes it positive definite
+1. It shrinks all coefficients toward zero (more shrinkage for larger $$\lambda$$)
+2. It guarantees invertibility, even if $$\mathbf{X}^T\mathbf{X}$$ is singular, adding $$\lambda \mathbf{I}$$ makes it positive definite
 
-### Try it: Ridge on a degree-10 polynomial
+Production ML uses gradient descent based optimizers and in this chapter, we intentionally use the closed-form Ridge regularization for visualization and explanation. It allows us to directly compute the optimal weights for any $$\lambda$$ without iterative optimization, so we can instantly show the effect of changing $$\lambda$$ on the coefficients and the fit. This makes it ideal for interactive demos here.
 
-Drag the $$\lambda$$ slider to see how Ridge regularization smooths out the overfit curve. Watch the coefficient bars shrink as you increase $$\lambda$$.
+### Try it: Ridge in action
+
+This demo uses the same data points from Section 1 above. The slider starts at $$\lambda = 0$$ so the fit looks identical to the wild overfit curve you just saw. Drag $$\lambda$$ upward and watch the curve smooth out and the coefficient bars shrink. The weights are solved using the Ridge closed-form $$\mathbf{w} = (\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}$$.
 
 <div class="interactive-demo" id="demo-ridge">
   <div class="demo-split">
     <div>
       <canvas id="canvas-ridge-curve"></canvas>
-      <div class="demo-caption">Ridge-regularized degree 10 fit</div>
+      <div class="demo-caption">Same data from Section 1, now with Ridge</div>
     </div>
     <div>
       <canvas id="canvas-ridge-coefs"></canvas>
@@ -777,9 +824,8 @@ Drag the $$\lambda$$ slider to see how Ridge regularization smooths out the over
     </div>
   </div>
   <div class="demo-controls">
-    <label>&lambda;: <input type="range" id="slider-ridge-lam" min="-3" max="3" value="-1" step="0.1">
-    <span class="demo-value" id="val-ridge-lam">0.1</span></label>
-    <button id="btn-ridge-new">New Data</button>
+    <label>&lambda;: <input type="range" id="slider-ridge-lam" min="-6" max="3" value="-6" step="0.1">
+    <span class="demo-value" id="val-ridge-lam">0.000</span></label>
   </div>
   <div class="demo-info" id="info-ridge"></div>
 </div>
@@ -799,38 +845,30 @@ Drag the $$\lambda$$ slider to see how Ridge regularization smooths out the over
 
   var xMin = -0.5, xMax = 6.5, yMin = -4, yMax = 6;
   var deg = 10;
-  var pts = [];
+  // Reference to the unregularized max (set on first draw from shared data)
+  var maxAbsRef = 1;
 
-  function regenerate() {
-    pts = REG.generateData(20, 0.2, 5.8, 0.5);
-    draw();
+  function getPts() {
+    return window._overfitState.pts || [];
   }
 
   function draw() {
+    var pts = getPts();
+    if (!pts.length) return;
     var c = REG.getColors();
     var logLam = parseFloat(slider.value);
     var lambda = Math.pow(10, logLam);
-    valSpan.textContent = lambda.toFixed(lambda < 1 ? 3 : 1);
+    valSpan.textContent = lambda < 0.001 ? '\u22480' : lambda.toFixed(lambda < 1 ? 3 : 1);
 
     var w = REG.polyFitRidge(pts, deg, lambda);
-    var wUnreg = REG.polyFitRidge(pts, deg, 1e-10);
     var pWL = WL - pL - pR, pHL = H - pT - pB;
 
-    // Left: curves
+    // Curve plot - single Ridge fit line (matches Section 1 style)
     ctxCurve.fillStyle = c.bg;
     ctxCurve.fillRect(0, 0, WL, H);
     REG.drawGrid(ctxCurve, WL, H, pL, pR, pT, pB, xMin, xMax, yMin, yMax, 'x', 'y');
     REG.drawTrueFunc(ctxCurve, xMin, xMax, yMin, yMax, pL, pWL, pT, pHL);
-
-    // Unregularized (faded)
-    if (wUnreg) {
-      ctxCurve.globalAlpha = 0.25;
-      REG.drawCurve(ctxCurve, wUnreg, xMin, xMax, yMin, yMax, pL, pWL, pT, pHL, c.unregularized, 2);
-      ctxCurve.globalAlpha = 1;
-    }
-
-    // Ridge fit
-    if (w) REG.drawCurve(ctxCurve, w, xMin, xMax, yMin, yMax, pL, pWL, pT, pHL, c.ridge, 3);
+    if (w) REG.drawCurve(ctxCurve, w, xMin, xMax, yMin, yMax, pL, pWL, pT, pHL, c.ridge, 2.5);
     REG.drawPoints(ctxCurve, pts, xMin, xMax, yMin, yMax, pL, pWL, pT, pHL);
 
     // Legend
@@ -839,28 +877,30 @@ Drag the $$\lambda$$ slider to see how Ridge regularization smooths out the over
     ctxCurve.beginPath(); ctxCurve.moveTo(pL + 8, pT + 14); ctxCurve.lineTo(pL + 28, pT + 14); ctxCurve.stroke();
     ctxCurve.setLineDash([]);
     ctxCurve.fillStyle = c.text; ctxCurve.fillText('True', pL + 32, pT + 18);
-    ctxCurve.strokeStyle = c.ridge; ctxCurve.lineWidth = 3;
+    ctxCurve.strokeStyle = c.ridge; ctxCurve.lineWidth = 2.5;
     ctxCurve.beginPath(); ctxCurve.moveTo(pL + 8, pT + 32); ctxCurve.lineTo(pL + 28, pT + 32); ctxCurve.stroke();
-    ctxCurve.fillStyle = c.text; ctxCurve.fillText('Ridge', pL + 32, pT + 36);
+    ctxCurve.fillStyle = c.text; ctxCurve.fillText('Ridge (\u03BB=' + valSpan.textContent + ')', pL + 32, pT + 36);
 
     // Right: coefficient bars
     ctxCoefs.fillStyle = c.bg;
     ctxCoefs.fillRect(0, 0, WR, H);
 
     if (!w) return;
+    var wDisp = w.wNorm || w;
     var barPL = 40, barPR = 15, barPT = 30, barPB = 40;
     var barW = WR - barPL - barPR;
     var barH = H - barPT - barPB;
-    var nCoefs = w.length;
+    var nCoefs = wDisp.length;
     var gap = 4;
     var bh = (barH - (nCoefs - 1) * gap) / nCoefs;
 
-    // Use unregularized max for consistent scaling
-    var maxAbs = 0;
-    if (wUnreg) {
-      for (var i = 0; i < wUnreg.length; i++) maxAbs = Math.max(maxAbs, Math.abs(wUnreg[i]));
+    // Compute unregularized max once for consistent bar scaling
+    if (logLam <= -5.9) {
+      maxAbsRef = 0;
+      for (var i = 0; i < nCoefs; i++) maxAbsRef = Math.max(maxAbsRef, Math.abs(wDisp[i]));
+      if (maxAbsRef < 1) maxAbsRef = 1;
     }
-    if (maxAbs < 1) maxAbs = 1;
+    var maxAbs = maxAbsRef;
 
     ctxCoefs.fillStyle = c.text;
     ctxCoefs.font = 'bold 12px Inter, sans-serif';
@@ -869,7 +909,7 @@ Drag the $$\lambda$$ slider to see how Ridge regularization smooths out the over
 
     for (var i = 0; i < nCoefs; i++) {
       var y = barPT + i * (bh + gap);
-      var absVal = Math.abs(w[i]);
+      var absVal = Math.abs(wDisp[i]);
       var bw = Math.min((absVal / maxAbs) * barW, barW);
 
       ctxCoefs.fillStyle = c.textMuted;
@@ -880,7 +920,9 @@ Drag the $$\lambda$$ slider to see how Ridge regularization smooths out the over
       ctxCoefs.fillStyle = c.grid;
       ctxCoefs.fillRect(barPL, y, barW, bh);
 
-      ctxCoefs.fillStyle = c.ridge;
+      // Color: large bars in red/warning, small in accent
+      var isLarge = absVal > maxAbs * 0.3;
+      ctxCoefs.fillStyle = isLarge ? c.valid : c.ridge;
       ctxCoefs.globalAlpha = 0.7;
       ctxCoefs.fillRect(barPL, y, bw, bh);
       ctxCoefs.globalAlpha = 1;
@@ -889,42 +931,196 @@ Drag the $$\lambda$$ slider to see how Ridge regularization smooths out the over
         ctxCoefs.fillStyle = c.text;
         ctxCoefs.font = '9px JetBrains Mono, monospace';
         ctxCoefs.textAlign = 'left';
-        var dispVal = w[i];
+        var dispVal = wDisp[i];
         ctxCoefs.fillText((dispVal >= 0 ? '+' : '') + dispVal.toFixed(2), barPL + bw + 4, y + bh / 2 + 3);
       }
     }
 
-    var mse = w ? REG.polyMSE(w, pts) : 0;
+    var mse = REG.polyMSE(w, pts);
     var sumSq = 0;
-    for (var i = 1; i < w.length; i++) sumSq += w[i] * w[i];
-    info.textContent = 'Train MSE: ' + mse.toFixed(4) + '  |  \u03BB: ' + lambda.toFixed(3) + '  |  \u03A3w\u00b2: ' + sumSq.toFixed(2);
+    for (var i = 1; i < wDisp.length; i++) sumSq += wDisp[i] * wDisp[i];
+    info.textContent = 'Train MSE: ' + mse.toFixed(4) + '  |  \u03BB: ' + valSpan.textContent + '  |  \u03A3w\u00b2: ' + sumSq.toFixed(2);
   }
 
   slider.addEventListener('input', draw);
-  document.getElementById('btn-ridge-new').addEventListener('click', regenerate);
+  // Listen for data changes from Section 1
+  window._overfitState.listeners.push(function() {
+    slider.value = -6; // reset to lambda~0 when new data arrives
+    maxAbsRef = 1;
+    draw();
+  });
   REG.onThemeChange(draw);
-  regenerate();
+  // Initial draw using shared data (already generated by Section 1)
+  draw();
 })();
 </script>
 
-<div class="demo-hint">Drag &lambda; from 0.001 to 1000. At low &lambda;, the fit is wild (overfitting). At the sweet spot (~0.1-10), the curve smoothly follows the true function. At very high &lambda;, the curve flattens to nearly a constant (underfitting). Notice coefficients shrink but NEVER reach exactly zero.</div>
+<div class="demo-hint">The slider starts at &lambda;&approx;0 so you see the same wild overfit from Section 1. Slowly drag &lambda; up. Around 0.1-10 the curve smoothly follows the true function. At very high &lambda; the curve flattens to nearly a constant (underfitting). Notice the coefficients shrink but never reach exactly zero. This is the key limitation of Ridge: no matter how large &lambda; gets, it keeps all features in the model. It just reduces their influence. Ridge cannot perform feature selection.</div>
 
 ---
 
-## 3. The Ridge Coefficient Path
+## 3. Lasso Regression (L1 Regularization)
 
-A **coefficient path** plot shows how each coefficient changes as $$\lambda$$ varies. This is one of the most informative plots in regularization.
+Lasso (Least Absolute Shrinkage and Selection Operator) uses the sum of absolute values of the weights instead of the sum of squares:
 
-For Ridge, all coefficients shrink **smoothly toward zero** as $$\lambda$$ increases, but they **never reach exactly zero**. This means Ridge keeps all features in the model, it just reduces their influence.
+$$J_{\text{Lasso}}(\mathbf{w}) = \frac{1}{n}\|\mathbf{y} - \mathbf{X}\mathbf{w}\|^2 + \lambda \sum_{j=1}^{d} \lvert w_j \rvert$$
 
-<div class="interactive-demo" id="demo-ridge-path">
-  <canvas id="canvas-ridge-path"></canvas>
+### How Lasso is solved
+
+Unlike Ridge, Lasso has no closed-form solution because the absolute value $$\lvert w_j \rvert$$ is not differentiable at zero, you cannot just take the derivative and set it to zero. Instead, Lasso is solved using coordinate descent: we update one weight at a time while keeping all others fixed.
+
+For each weight $$w_j$$, coordinate descent first computes how much the data "wants" that weight to be. Call this signal $$\rho_j$$. It measures the correlation between feature $$j$$ and the residual error (what the other features could not explain). Then it applies a rule called soft thresholding:
+
+- If the signal $$\rho_j$$ is strongly positive (above $$\lambda$$), set the weight to a positive value, but shifted down by $$\lambda$$
+- If the signal is strongly negative (below $$-\lambda$$), set the weight to a negative value, but shifted up by $$\lambda$$
+- If the signal is weak (between $$-\lambda$$ and $$\lambda$$), set the weight to exactly zero
+
+In math, this is written as:
+
+$$w_j \leftarrow \begin{cases} (\rho_j - \lambda) / z_j & \text{if } \rho_j > \lambda \\ 0 & \text{if } \lvert \rho_j \rvert \leq \lambda \\ (\rho_j + \lambda) / z_j & \text{if } \rho_j < -\lambda \end{cases}$$
+
+where $$\rho_j$$ is the signal from the data for feature $$j$$, and $$z_j$$ is a normalisation factor (the sum of squared values of that feature column).
+
+### Ridge vs Lasso: why Lasso produces zeros
+
+The diagram below compares what Ridge and Lasso do to a weight given the same signal strength $$\rho_j$$. Ridge (blue) always returns a non-zero value, just shrunk toward zero. Lasso (red) has a flat dead zone: any signal weaker than $$\lambda$$ gets killed to exactly zero. This is why Lasso performs feature selection and Ridge does not.
+
+<div class="interactive-demo" id="demo-soft-threshold">
+  <canvas id="canvas-soft-threshold"></canvas>
+  <div class="demo-caption">Soft thresholding (Lasso, red) vs Ridge shrinkage (blue). The gray band is the dead zone where Lasso sets weights to zero.</div>
+</div>
+
+<script>
+(function() {
+  var W = 580, H = 320;
+  var pL = 55, pR = 25, pT = 25, pB = 45;
+  var pW = W - pL - pR, pH = H - pT - pB;
+  var canvas = document.getElementById('canvas-soft-threshold');
+  var ctx = REG.setupCanvas(canvas, W, H);
+
+  var lambda = 1.5;
+  var z = 1; // normalisation factor (assume 1 for the diagram)
+  var rhoMax = 4;
+
+  function draw() {
+    var c = REG.getColors();
+    ctx.fillStyle = c.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    var xMin = -rhoMax, xMax = rhoMax;
+    var yMin = -rhoMax, yMax = rhoMax;
+
+    REG.drawGrid(ctx, W, H, pL, pR, pT, pB, xMin, xMax, yMin, yMax, 'Signal strength (\u03C1\u2C7C)', 'Resulting weight (w\u2C7C)');
+
+    // Zero lines
+    ctx.strokeStyle = c.textMuted;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    var zeroY = REG.mapY(0, yMin, yMax, pT, pH);
+    ctx.beginPath(); ctx.moveTo(pL, zeroY); ctx.lineTo(pL + pW, zeroY); ctx.stroke();
+    var zeroX = REG.mapX(0, xMin, xMax, pL, pW);
+    ctx.beginPath(); ctx.moveTo(zeroX, pT); ctx.lineTo(zeroX, pT + pH); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Dead zone shading
+    var dzLeft = REG.mapX(-lambda, xMin, xMax, pL, pW);
+    var dzRight = REG.mapX(lambda, xMin, xMax, pL, pW);
+    ctx.fillStyle = c.grid;
+    ctx.globalAlpha = 0.5;
+    ctx.fillRect(dzLeft, pT, dzRight - dzLeft, pH);
+    ctx.globalAlpha = 1;
+
+    // Dead zone labels
+    ctx.fillStyle = c.textMuted;
+    ctx.font = '11px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('-\u03BB', dzLeft, pT + pH + 28);
+    ctx.fillText('+\u03BB', dzRight, pT + pH + 28);
+    ctx.fillText('dead zone', (dzLeft + dzRight) / 2, pT + 15);
+
+    // Identity line (no regularization) - dashed gray
+    ctx.strokeStyle = c.textMuted;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.globalAlpha = 0.4;
+    ctx.beginPath();
+    ctx.moveTo(REG.mapX(xMin, xMin, xMax, pL, pW), REG.mapY(xMin, yMin, yMax, pT, pH));
+    ctx.lineTo(REG.mapX(xMax, xMin, xMax, pL, pW), REG.mapY(xMax, yMin, yMax, pT, pH));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+
+    // Ridge shrinkage line (blue) - w = rho / (z + lambda)
+    var ridgeFactor = z / (z + lambda);
+    ctx.strokeStyle = c.ridge;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    var steps = 200;
+    for (var i = 0; i <= steps; i++) {
+      var rho = xMin + (xMax - xMin) * i / steps;
+      var wRidge = rho * ridgeFactor;
+      var px = REG.mapX(rho, xMin, xMax, pL, pW);
+      var py = REG.mapY(wRidge, yMin, yMax, pT, pH);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Lasso soft-thresholding line (red)
+    ctx.strokeStyle = c.lasso;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (var i = 0; i <= steps; i++) {
+      var rho = xMin + (xMax - xMin) * i / steps;
+      var wLasso;
+      if (rho > lambda) wLasso = (rho - lambda) / z;
+      else if (rho < -lambda) wLasso = (rho + lambda) / z;
+      else wLasso = 0;
+      var px = REG.mapX(rho, xMin, xMax, pL, pW);
+      var py = REG.mapY(wLasso, yMin, yMax, pT, pH);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Legend
+    ctx.font = '12px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    var lx = pL + 10, ly = pT + 35;
+
+    ctx.strokeStyle = c.textMuted; ctx.lineWidth = 1; ctx.setLineDash([3, 3]); ctx.globalAlpha = 0.5;
+    ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 22, ly); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+    ctx.fillStyle = c.textMuted; ctx.fillText('No regularization', lx + 27, ly + 4);
+    ly += 18;
+
+    ctx.strokeStyle = c.ridge; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 22, ly); ctx.stroke();
+    ctx.fillStyle = c.text; ctx.fillText('Ridge (shrinks, never zero)', lx + 27, ly + 4);
+    ly += 18;
+
+    ctx.strokeStyle = c.lasso; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 22, ly); ctx.stroke();
+    ctx.fillStyle = c.text; ctx.fillText('Lasso (zero in dead zone)', lx + 27, ly + 4);
+  }
+
+  REG.onThemeChange(draw);
+  draw();
+})();
+</script>
+
+Think of it this way: for each feature, the data sends a signal saying "this feature should have weight $$\rho_j$$." Ridge always listens but dampens the signal. Lasso has a threshold, if the signal is too weak (the feature is not important enough), Lasso ignores it entirely and sets the weight to zero. The larger $$\lambda$$ is, the wider this dead zone becomes, and more features get eliminated.
+
+<!-- ### Lasso Coefficient Path
+
+Remember from Section 2 that Ridge coefficients shrink but never hit zero. With Lasso, as $$\lambda$$ increases the dead zone widens and coefficients hit zero and stay there. The demo below runs coordinate descent at each $$\lambda$$ value on the same degree-10 polynomial data to produce the path plot.
+
+<div class="interactive-demo" id="demo-lasso-path">
+  <canvas id="canvas-lasso-path"></canvas>
   <div class="demo-controls">
-    <label>log<sub>10</sub>(&lambda;): <input type="range" id="slider-ridge-path" min="-3" max="4" value="0" step="0.05">
-    <span class="demo-value" id="val-ridge-path">1.000</span></label>
-    <button id="btn-ridge-path-new">New Data</button>
+    <label>&lambda;: <input type="range" id="slider-lasso-path" min="-2" max="2" value="0" step="0.05">
+    <span class="demo-value" id="val-lasso-path">1.000</span></label>
+    <button id="btn-lasso-path-new">New Data</button>
   </div>
-  <div class="demo-info" id="info-ridge-path">Vertical line shows current &lambda;. All coefficients approach zero but never reach it.</div>
+  <div class="demo-info" id="info-lasso-path"></div>
 </div>
 
 <script>
@@ -932,17 +1128,17 @@ For Ridge, all coefficients shrink **smoothly toward zero** as $$\lambda$$ incre
   var W = 680, H = 400;
   var pL = 55, pR = 20, pT = 25, pB = 45;
   var pW = W - pL - pR, pH = H - pT - pB;
-  var canvas = document.getElementById('canvas-ridge-path');
+  var canvas = document.getElementById('canvas-lasso-path');
   var ctx = REG.setupCanvas(canvas, W, H);
-  var slider = document.getElementById('slider-ridge-path');
-  var valSpan = document.getElementById('val-ridge-path');
-  var info = document.getElementById('info-ridge-path');
+  var slider = document.getElementById('slider-lasso-path');
+  var valSpan = document.getElementById('val-lasso-path');
+  var info = document.getElementById('info-lasso-path');
 
   var deg = 10;
   var pts = [];
-  var pathData = []; // array of { logLam, w[] }
+  var pathData = [];
   var lambdaSteps = 80;
-  var logLamMin = -3, logLamMax = 4;
+  var logLamMin = -2, logLamMax = 2;
 
   function regenerate() {
     pts = REG.generateData(20, 0.2, 5.8, 0.5);
@@ -955,8 +1151,8 @@ For Ridge, all coefficients shrink **smoothly toward zero** as $$\lambda$$ incre
     for (var s = 0; s <= lambdaSteps; s++) {
       var logLam = logLamMin + (logLamMax - logLamMin) * s / lambdaSteps;
       var lam = Math.pow(10, logLam);
-      var w = REG.polyFitRidge(pts, deg, lam);
-      pathData.push({ logLam: logLam, w: w });
+      var w = REG.polyFitLasso(pts, deg, lam);
+      pathData.push({ logLam: logLam, w: w.wNorm || w });
     }
   }
 
@@ -977,7 +1173,7 @@ For Ridge, all coefficients shrink **smoothly toward zero** as $$\lambda$$ incre
         yMax = Math.max(yMax, Math.abs(pathData[s].w[j]));
       }
     }
-    yMax = Math.min(yMax * 1.1, 500);
+    yMax = Math.min(yMax * 1.1, 100);
     if (yMax < 1) yMax = 1;
     var yMin = -yMax;
 
@@ -1018,7 +1214,8 @@ For Ridge, all coefficients shrink **smoothly toward zero** as $$\lambda$$ incre
     ctx.setLineDash([]);
 
     // Draw dots at intersection
-    var curW = REG.polyFitRidge(pts, deg, curLam);
+    var curWRaw = REG.polyFitLasso(pts, deg, curLam);
+    var curW = curWRaw ? (curWRaw.wNorm || curWRaw) : null;
     if (curW) {
       for (var j = 1; j <= deg; j++) {
         var val = curW[j];
@@ -1037,39 +1234,35 @@ For Ridge, all coefficients shrink **smoothly toward zero** as $$\lambda$$ incre
       for (var j = 1; j < curW.length; j++) {
         if (Math.abs(curW[j]) > 0.001) nonZero++;
       }
-      info.textContent = '\u03BB = ' + curLam.toFixed(3) + '  |  Non-zero coefs: ' + nonZero + '/' + deg + ' (Ridge never reaches exact zero)';
+      info.textContent = '\u03BB = ' + curLam.toFixed(3) + '  |  Non-zero coefs: ' + nonZero + '/' + deg + '  |  Lasso drives coefs to EXACT zero';
     }
 
     // Title
     ctx.fillStyle = c.text;
     ctx.font = 'bold 13px Inter, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Ridge Coefficient Path', W / 2, 14);
+    ctx.fillText('Lasso Coefficient Path', W / 2, 14);
   }
 
   slider.addEventListener('input', draw);
-  document.getElementById('btn-ridge-path-new').addEventListener('click', regenerate);
+  document.getElementById('btn-lasso-path-new').addEventListener('click', regenerate);
   REG.onThemeChange(draw);
   regenerate();
 })();
 </script>
 
-<div class="demo-hint">Drag the slider and watch every coefficient line approach zero as &lambda; grows, but none of them ever touch zero. This is the key limitation of Ridge: it cannot perform feature selection.</div>
+<div class="demo-hint">Compare this to Ridge in Section 2 where coefficients never reached zero. Here, as &lambda; increases, coefficient lines hit the zero axis and flatline. At high &lambda;, most coefficients are exactly zero, Lasso has selected just a few features. Ridge never does this.</div>
 
----
+--- -->
 
-## 4. L1 vs L2 Constraint Geometry
+## 4. Why Lasso Produces Zeros: L1 vs L2 Geometry
 
-This is **the** key visualization for understanding why Lasso produces sparsity and Ridge does not.
+Now that you have seen both Ridge and Lasso in action, let us understand why Lasso drives coefficients to exactly zero while Ridge does not. Regularization can be viewed as a constrained optimisation problem. Instead of minimising $$J(\mathbf{w}) + \lambda R(\mathbf{w})$$, we can equivalently minimise $$J(\mathbf{w})$$ subject to $$R(\mathbf{w}) \leq t$$ for some budget $$t$$.
 
-Regularization can be viewed as a constrained optimisation problem. Instead of minimising $$J(\mathbf{w}) + \lambda R(\mathbf{w})$$, we can equivalently minimise $$J(\mathbf{w})$$ subject to $$R(\mathbf{w}) \leq t$$ for some budget $$t$$.
+- L2 (Ridge): $$\sum w_j^2 \leq t$$, the constraint region is a circle (sphere in higher dimensions). This is just the squared weights that should be less than some budget. The circle has no corners, so the optimal solution is almost never on an axis.
+- L1 (Lasso): $$\sum \lvert w_j \rvert \leq t$$, the constraint region is a diamond (cross-polytope). 
 
-- **L2 (Ridge)**: $$\sum w_j^2 \leq t$$, the constraint region is a **circle** (sphere in higher dimensions)
-- **L1 (Lasso)**: $$\sum |w_j| \leq t$$, the constraint region is a **diamond** (cross-polytope)
-
-The optimal solution is where the elliptical contours of the loss function first touch the constraint region. Because the diamond has **corners on the axes**, the contours are much more likely to touch at a corner, which means one or more weights are exactly zero. The circle has no corners, so the touching point is almost never on an axis.
-
-Drag the contour center to see how this works for different loss function orientations.
+The optimal solution is where the elliptical contours of the loss function first touch the constraint region. Because the diamond has corners on the axes, the contours are much more likely to touch at a corner, which means one or more weights are exactly zero. The circle has no corners, so the touching point is almost never on an axis. The demo below shows this in 2D with two weights ($$w_1, w_2$$). The ellipses represent contours of the MSE loss and the shaded region is the constraint boundary. Drag the contour center to see how this works for different loss function orientations.
 
 <div class="interactive-demo" id="demo-geometry">
   <canvas id="canvas-geometry"></canvas>
@@ -1371,177 +1564,18 @@ Drag the contour center to see how this works for different loss function orient
 })();
 </script>
 
-<div class="demo-hint">Drag the white star (OLS minimum) around and watch where the coloured dots land. The L1 (red) dot frequently snaps to an axis (a corner of the diamond), meaning one weight is exactly 0. The L2 (blue) dot almost never lands on an axis. This is the geometric reason Lasso produces sparsity.</div>
+<div class="demo-hint">The L1 (red) dot frequently snaps to an axis (a corner of the diamond), meaning one weight is exactly 0. The L2 (blue) dot almost never lands on an axis. This is the geometric reason Lasso produces sparsity.</div>
 
 ---
 
-## 5. Lasso Regression (L1 Regularization)
+## 5. Lasso Feature Selection in Action
 
-Lasso (Least Absolute Shrinkage and Selection Operator) uses the **sum of absolute values** of the weights:
-
-$$J_{\text{Lasso}}(\mathbf{w}) = \frac{1}{n}\|\mathbf{y} - \mathbf{X}\mathbf{w}\|^2 + \lambda \sum_{j=1}^{d} |w_j|$$
-
-Unlike Ridge, Lasso has **no closed-form solution** because the absolute value is not differentiable at zero. It is typically solved via **coordinate descent**, using the soft-thresholding operator:
-
-$$w_j \leftarrow S_{\lambda}\!\left(\rho_j\right) = \begin{cases} (\rho_j - \lambda) / z_j & \text{if } \rho_j > \lambda \\ 0 & \text{if } |\rho_j| \leq \lambda \\ (\rho_j + \lambda) / z_j & \text{if } \rho_j < -\lambda \end{cases}$$
-
-where $$\rho_j = \sum_i x_{ij}(y_i - \hat{y}_i^{(-j)})$$ and $$z_j = \sum_i x_{ij}^2$$.
-
-The crucial property: when $$|\rho_j| \leq \lambda$$, the coefficient is set to **exactly zero**. This is automatic **feature selection**.
-
-### Lasso Coefficient Path
-
-Compare this to the Ridge path above. As $$\lambda$$ increases, coefficients **hit zero and stay there**.
-
-<div class="interactive-demo" id="demo-lasso-path">
-  <canvas id="canvas-lasso-path"></canvas>
-  <div class="demo-controls">
-    <label>log<sub>10</sub>(&lambda;): <input type="range" id="slider-lasso-path" min="-2" max="2" value="0" step="0.05">
-    <span class="demo-value" id="val-lasso-path">1.000</span></label>
-    <button id="btn-lasso-path-new">New Data</button>
-  </div>
-  <div class="demo-info" id="info-lasso-path"></div>
-</div>
-
-<script>
-(function() {
-  var W = 680, H = 400;
-  var pL = 55, pR = 20, pT = 25, pB = 45;
-  var pW = W - pL - pR, pH = H - pT - pB;
-  var canvas = document.getElementById('canvas-lasso-path');
-  var ctx = REG.setupCanvas(canvas, W, H);
-  var slider = document.getElementById('slider-lasso-path');
-  var valSpan = document.getElementById('val-lasso-path');
-  var info = document.getElementById('info-lasso-path');
-
-  var deg = 10;
-  var pts = [];
-  var pathData = [];
-  var lambdaSteps = 80;
-  var logLamMin = -2, logLamMax = 2;
-
-  function regenerate() {
-    pts = REG.generateData(20, 0.2, 5.8, 0.5);
-    computePaths();
-    draw();
-  }
-
-  function computePaths() {
-    pathData = [];
-    for (var s = 0; s <= lambdaSteps; s++) {
-      var logLam = logLamMin + (logLamMax - logLamMin) * s / lambdaSteps;
-      var lam = Math.pow(10, logLam);
-      var w = REG.polyFitLasso(pts, deg, lam);
-      pathData.push({ logLam: logLam, w: w });
-    }
-  }
-
-  function draw() {
-    var c = REG.getColors();
-    var curLogLam = parseFloat(slider.value);
-    var curLam = Math.pow(10, curLogLam);
-    valSpan.textContent = curLam.toFixed(3);
-
-    ctx.fillStyle = c.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    // Find y range
-    var yMax = 0;
-    for (var s = 0; s < pathData.length; s++) {
-      if (!pathData[s].w) continue;
-      for (var j = 1; j <= deg; j++) {
-        yMax = Math.max(yMax, Math.abs(pathData[s].w[j]));
-      }
-    }
-    yMax = Math.min(yMax * 1.1, 100);
-    if (yMax < 1) yMax = 1;
-    var yMin = -yMax;
-
-    REG.drawGrid(ctx, W, H, pL, pR, pT, pB, logLamMin, logLamMax, yMin, yMax, 'log\u2081\u2080(\u03BB)', 'Coefficient value');
-
-    // Zero line
-    var zeroY = REG.mapY(0, yMin, yMax, pT, pH);
-    ctx.strokeStyle = c.textMuted;
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(pL, zeroY); ctx.lineTo(pL + pW, zeroY); ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Draw each coefficient path
-    for (var j = 1; j <= deg; j++) {
-      ctx.beginPath();
-      ctx.strokeStyle = c.coefColors[(j - 1) % c.coefColors.length];
-      ctx.lineWidth = 2;
-      var started = false;
-      for (var s = 0; s < pathData.length; s++) {
-        if (!pathData[s].w) continue;
-        var px = REG.mapX(pathData[s].logLam, logLamMin, logLamMax, pL, pW);
-        var val = pathData[s].w[j];
-        val = Math.max(yMin, Math.min(yMax, val));
-        var py = REG.mapY(val, yMin, yMax, pT, pH);
-        if (!started) { ctx.moveTo(px, py); started = true; }
-        else ctx.lineTo(px, py);
-      }
-      ctx.stroke();
-    }
-
-    // Current lambda vertical line
-    var curPx = REG.mapX(curLogLam, logLamMin, logLamMax, pL, pW);
-    ctx.strokeStyle = c.accent;
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 3]);
-    ctx.beginPath(); ctx.moveTo(curPx, pT); ctx.lineTo(curPx, pT + pH); ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Draw dots at intersection
-    var curW = REG.polyFitLasso(pts, deg, curLam);
-    if (curW) {
-      for (var j = 1; j <= deg; j++) {
-        var val = curW[j];
-        val = Math.max(yMin, Math.min(yMax, val));
-        var py = REG.mapY(val, yMin, yMax, pT, pH);
-        ctx.beginPath();
-        ctx.arc(curPx, py, 4, 0, Math.PI * 2);
-        ctx.fillStyle = c.coefColors[(j - 1) % c.coefColors.length];
-        ctx.fill();
-        ctx.strokeStyle = c.bg;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      var nonZero = 0;
-      for (var j = 1; j < curW.length; j++) {
-        if (Math.abs(curW[j]) > 0.001) nonZero++;
-      }
-      info.textContent = '\u03BB = ' + curLam.toFixed(3) + '  |  Non-zero coefs: ' + nonZero + '/' + deg + '  |  Lasso drives coefs to EXACT zero';
-    }
-
-    // Title
-    ctx.fillStyle = c.text;
-    ctx.font = 'bold 13px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Lasso Coefficient Path', W / 2, 14);
-  }
-
-  slider.addEventListener('input', draw);
-  document.getElementById('btn-lasso-path-new').addEventListener('click', regenerate);
-  REG.onThemeChange(draw);
-  regenerate();
-})();
-</script>
-
-<div class="demo-hint">Compare this to the Ridge path in Section 3. Here, as &lambda; increases, coefficient lines hit the zero axis and flatline. At high &lambda;, most coefficients are exactly zero, Lasso has selected just a few features. Ridge never does this.</div>
-
----
-
-## 6. Lasso Feature Selection in Action
-
-Where Lasso really shines is when you have **many features but only a few are relevant**. Below we simulate a dataset with 8 features: 3 truly useful ones and 5 pure noise. As you increase $$\lambda$$, watch Lasso eliminate the noise features first while keeping the signal features.
+Where Lasso really shines is when you have many features but only a few are relevant. Below we simulate a dataset with 8 features: 3 truly useful ones (with known non-zero weights) and 5 pure noise features (random values with no relation to the target). Lasso is solved via coordinate descent. As you increase $$\lambda$$, watch Lasso eliminate the noise features first while keeping the signal features.
 
 <div class="interactive-demo" id="demo-feature-select">
   <canvas id="canvas-feature-select"></canvas>
   <div class="demo-controls">
-    <label>log<sub>10</sub>(&lambda;): <input type="range" id="slider-feat-lam" min="-2" max="2" value="-0.5" step="0.05">
+    <label>&lambda;: <input type="range" id="slider-feat-lam" min="-2" max="2" value="-0.5" step="0.05">
     <span class="demo-value" id="val-feat-lam">0.316</span></label>
     <button id="btn-feat-new">New Data</button>
   </div>
@@ -1748,11 +1782,11 @@ Where Lasso really shines is when you have **many features but only a few are re
 })();
 </script>
 
-<div class="demo-hint">Start with low &lambda; (all features active) and slowly increase it. The noise features (red bars) get eliminated to zero first, while the signal features (green bars) survive much longer. At the right &lambda;, Lasso perfectly selects only the 3 signal features. This is automatic feature selection.</div>
+<div class="demo-hint">Start with low &lambda; (all features active) and slowly increase it. The noise features (red bars) get eliminated to zero first, while the signal features (green bars) survive much longer. At the right &lambda;, Lasso perfectly selects only the 3 signal features. (The weights are computed live via coordinate descent as you drag.)</div>
 
 ---
 
-## 7. Elastic Net: The Best of Both Worlds
+## 6. Elastic Net: The Best of Both Worlds
 
 Elastic Net combines L1 and L2 penalties using a mixing parameter $$\alpha \in [0, 1]$$:
 
@@ -1766,15 +1800,13 @@ Why combine them? Pure Lasso has a limitation: when features are highly correlat
 
 ### Constraint Region Morphing
 
-Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lasso) as $$\alpha$$ changes. The Elastic Net region has **rounded corners** at intermediate values, it can still produce sparsity but is smoother than pure Lasso.
+Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lasso) as $$\alpha$$ changes. The Elastic Net region has rounded corners at intermediate values. It can still produce sparsity but is smoother than pure Lasso.
 
 <div class="interactive-demo" id="demo-elastic-shape">
   <canvas id="canvas-elastic-shape"></canvas>
   <div class="demo-controls">
     <label>&alpha; (L1 mix): <input type="range" id="slider-elastic-alpha" min="0" max="1" value="0.5" step="0.02">
     <span class="demo-value" id="val-elastic-alpha">0.50</span></label>
-    <label>&lambda;: <input type="range" id="slider-elastic-lam" min="-1" max="2" value="0.5" step="0.05">
-    <span class="demo-value" id="val-elastic-lam">3.16</span></label>
   </div>
   <div class="demo-info" id="info-elastic-shape"></div>
 </div>
@@ -1786,8 +1818,6 @@ Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lass
   var ctx = REG.setupCanvas(canvas, W, H);
   var sliderAlpha = document.getElementById('slider-elastic-alpha');
   var valAlpha = document.getElementById('val-elastic-alpha');
-  var sliderLam = document.getElementById('slider-elastic-lam');
-  var valLam = document.getElementById('val-elastic-lam');
   var info = document.getElementById('info-elastic-shape');
 
   var midX = W / 2, midY = H / 2;
@@ -1796,10 +1826,7 @@ Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lass
   function draw() {
     var c = REG.getColors();
     var alpha = parseFloat(sliderAlpha.value);
-    var logLam = parseFloat(sliderLam.value);
-    var lambda = Math.pow(10, logLam);
     valAlpha.textContent = alpha.toFixed(2);
-    valLam.textContent = lambda.toFixed(2);
 
     ctx.fillStyle = c.bg;
     ctx.fillRect(0, 0, W, H);
@@ -1919,7 +1946,6 @@ Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lass
   }
 
   sliderAlpha.addEventListener('input', draw);
-  sliderLam.addEventListener('input', draw);
   REG.onThemeChange(draw);
   draw();
 })();
@@ -1927,7 +1953,7 @@ Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lass
 
 <div class="demo-hint">Drag the &alpha; slider slowly from 0 to 1. At &alpha;=0 you see a circle (Ridge). At &alpha;=1, a sharp diamond (Lasso). In between, the shape has rounded corners but still has pointed tips on the axes, this means Elastic Net can still produce sparsity, just less aggressively than pure Lasso.</div>
 
-### Elastic Net Coefficient Paths
+<!-- ### Elastic Net Coefficient Paths
 
 Now see how the coefficient paths change as you blend between Ridge and Lasso.
 
@@ -1936,7 +1962,7 @@ Now see how the coefficient paths change as you blend between Ridge and Lasso.
   <div class="demo-controls">
     <label>&alpha; (L1 mix): <input type="range" id="slider-en-alpha" min="0" max="1" value="0.5" step="0.05">
     <span class="demo-value" id="val-en-alpha">0.50</span></label>
-    <label>log<sub>10</sub>(&lambda;): <input type="range" id="slider-en-path" min="-2" max="2.5" value="0" step="0.05">
+    <label>&lambda;: <input type="range" id="slider-en-path" min="-2" max="2.5" value="0" step="0.05">
     <span class="demo-value" id="val-en-path">1.000</span></label>
     <button id="btn-en-path-new">New Data</button>
   </div>
@@ -1979,11 +2005,11 @@ Now see how the coefficient paths change as you blend between Ridge and Lasso.
     for (var s = 0; s <= lambdaSteps; s++) {
       var logLam = logLamMin + (logLamMax - logLamMin) * s / lambdaSteps;
       var lam = Math.pow(10, logLam);
-      var w;
-      if (alpha < 0.01) w = REG.polyFitRidge(pts, deg, lam);
-      else if (alpha > 0.99) w = REG.polyFitLasso(pts, deg, lam);
-      else w = REG.polyFitElasticNet(pts, deg, lam, alpha);
-      pathData.push({ logLam: logLam, w: w });
+      var wRaw;
+      if (alpha < 0.01) wRaw = REG.polyFitRidge(pts, deg, lam);
+      else if (alpha > 0.99) wRaw = REG.polyFitLasso(pts, deg, lam);
+      else wRaw = REG.polyFitElasticNet(pts, deg, lam, alpha);
+      pathData.push({ logLam: logLam, w: wRaw ? (wRaw.wNorm || wRaw) : null });
     }
 
     ctx.fillStyle = c.bg;
@@ -2032,10 +2058,11 @@ Now see how the coefficient paths change as you blend between Ridge and Lasso.
     ctx.beginPath(); ctx.moveTo(curPx, pT); ctx.lineTo(curPx, pT + pH); ctx.stroke();
     ctx.setLineDash([]);
 
-    var curW;
-    if (alpha < 0.01) curW = REG.polyFitRidge(pts, deg, curLam);
-    else if (alpha > 0.99) curW = REG.polyFitLasso(pts, deg, curLam);
-    else curW = REG.polyFitElasticNet(pts, deg, curLam, alpha);
+    var curWRaw;
+    if (alpha < 0.01) curWRaw = REG.polyFitRidge(pts, deg, curLam);
+    else if (alpha > 0.99) curWRaw = REG.polyFitLasso(pts, deg, curLam);
+    else curWRaw = REG.polyFitElasticNet(pts, deg, curLam, alpha);
+    var curW = curWRaw ? (curWRaw.wNorm || curWRaw) : null;
 
     if (curW) {
       for (var j = 1; j <= deg; j++) {
@@ -2071,11 +2098,11 @@ Now see how the coefficient paths change as you blend between Ridge and Lasso.
 
 <div class="demo-hint">Set &alpha;=0 (Ridge) and note that no paths touch zero. Switch to &alpha;=1 (Lasso) and see paths hitting zero abruptly. Now try &alpha;=0.5: paths still hit zero but more gradually. Elastic Net gives you a dial between Ridge smoothness and Lasso sparsity.</div>
 
----
+--- -->
 
-## 8. Regularized Polynomial Fit: Ridge vs Lasso vs Elastic Net
+## 7. Putting It All Together: Ridge vs Lasso vs Elastic Net
 
-Now let us combine everything. Below is a high-degree polynomial (degree 12) fit to noisy data. Toggle between Ridge, Lasso, and Elastic Net, and use the $$\lambda$$ slider to control regularization strength. See how each method tames the wild oscillations in its own way.
+Now let us see all three regularizers side by side on the same data. We fit a degree-12 polynomial (solved via the Ridge closed-form or coordinate descent depending on the method). It has plenty of capacity to overfit, making the differences between methods easy to spot. Toggle between Ridge, Lasso, and Elastic Net, and use the $$\lambda$$ slider to control regularization strength. These same techniques apply to any model with learned weights.
 
 <div class="interactive-demo" id="demo-combined">
   <canvas id="canvas-combined"></canvas>
@@ -2083,7 +2110,7 @@ Now let us combine everything. Below is a high-degree polynomial (degree 12) fit
     <button id="btn-comb-ridge" class="active">Ridge</button>
     <button id="btn-comb-lasso">Lasso</button>
     <button id="btn-comb-elastic">Elastic Net</button>
-    <label>log<sub>10</sub>(&lambda;): <input type="range" id="slider-comb-lam" min="-3" max="3" value="0" step="0.1">
+    <label>&lambda;: <input type="range" id="slider-comb-lam" min="-3" max="3" value="0" step="0.1">
     <span class="demo-value" id="val-comb-lam">1.000</span></label>
     <label id="label-comb-alpha" style="display:none">&alpha;: <input type="range" id="slider-comb-alpha" min="0.1" max="0.9" value="0.5" step="0.05">
     <span class="demo-value" id="val-comb-alpha">0.50</span></label>
@@ -2190,9 +2217,10 @@ Now let us combine everything. Below is a high-degree polynomial (degree 12) fit
     // Info
     if (w) {
       var mse = REG.polyMSE(w, pts);
+      var wCheck = w.wNorm || w;
       var nonZero = 0;
-      for (var j = 1; j < w.length; j++) {
-        if (Math.abs(w[j]) > 0.001) nonZero++;
+      for (var j = 1; j < wCheck.length; j++) {
+        if (Math.abs(wCheck[j]) > 0.001) nonZero++;
       }
       info.textContent = methodName + '  |  \u03BB=' + lambda.toFixed(3) +
         '  |  Train MSE: ' + mse.toFixed(4) +
@@ -2211,11 +2239,11 @@ Now let us combine everything. Below is a high-degree polynomial (degree 12) fit
 })();
 </script>
 
-<div class="demo-hint">Try each method at &lambda;=1. Ridge smooths the curve but keeps all 12 polynomial terms. Lasso aggressively kills coefficients, the curve may look simpler. Elastic Net is in between. For polynomial regression, Ridge often works best because all terms carry some information. Lasso shines when many features are irrelevant.</div>
+<div class="demo-hint">Try each method at &lambda;=1. Ridge smooths the curve but keeps all coefficients. Lasso aggressively kills coefficients, so the curve may look simpler. Elastic Net is in between. In general, Ridge works best when most features carry some signal. Lasso shines when many features are irrelevant and you want automatic feature selection.</div>
 
 ---
 
-## 9. Summary: Ridge vs Lasso vs Elastic Net
+## 8. Summary: Ridge vs Lasso vs Elastic Net
 
 <table class="summary-table">
   <thead>
@@ -2283,12 +2311,6 @@ Now let us combine everything. Below is a high-degree polynomial (degree 12) fit
 4. **Elastic Net** combines both penalties with a mixing parameter $$\alpha$$. It inherits sparsity from L1 and the grouping effect from L2, making it ideal when features are correlated.
 
 5. **Choosing $$\lambda$$** is typically done via cross-validation: try a range of values on a log scale and pick the one with the lowest validation error.
-
----
-
-### What's Next
-
-In the next chapter, we will move beyond linear models entirely and explore **logistic regression** for classification tasks. The regularization concepts we learned here will carry over directly, you can (and should!) regularize logistic regression too.
 
 <script>
 // Force redraw on page load (handles late theme detection)
