@@ -2,7 +2,8 @@
 layout: default
 ---
 
-{% assign listed_posts = site.posts | where_exp: "post", "post.archived != true" | sort: "date" | reverse %}
+{% assign non_archived_posts = site.posts | where_exp: "post", "post.archived != true" %}
+{% assign listed_posts = non_archived_posts | where_exp: "post", "post.hidden != true or post.series == true" | sort: "date" | reverse %}
 {% assign sorted_categories = site.categories | sort %}
 
 <div class="container">
@@ -17,7 +18,9 @@ layout: default
       {% for category in sorted_categories %}
         {% assign category_count = 0 %}
         {% for post in category[1] %}
-          {% unless post.archived %}{% assign category_count = category_count | plus: 1 %}{% endunless %}
+          {% if post.archived != true %}
+            {% if post.hidden != true or post.series == true %}{% assign category_count = category_count | plus: 1 %}{% endif %}
+          {% endif %}
         {% endfor %}
         {% if category_count > 0 %}
           <button type="button" class="category-filter" data-category="{{ category[0] | slugify }}">

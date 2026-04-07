@@ -3,6 +3,7 @@ layout: post
 title: "Gradient Descent Deep Dive: From SGD to Adam - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+series: true
 hidden: true
 description: "Explore gradient descent optimizers interactively. Race SGD, Momentum, RMSProp, and Adam side-by-side, tune learning rates, escape saddle points, and compare mini-batch vs batch - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
@@ -93,6 +94,62 @@ date: 2026-03-17
   border-radius: 0 6px 6px 0;
   font-size: 0.85rem;
   color: var(--text-secondary);
+}
+sup.cite {
+  font-size: 0.72em;
+  vertical-align: super;
+  line-height: 0;
+}
+sup.cite .cite-ref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  position: relative;
+  padding: 0 1px;
+}
+sup.cite .cite-ref:hover,
+sup.cite .cite-ref:focus {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+sup.cite .cite-ref::after {
+  content: attr(data-cite-preview);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(6px);
+  min-width: 220px;
+  max-width: 320px;
+  width: max-content;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 30;
+  white-space: normal;
+}
+sup.cite .cite-ref:hover::after,
+sup.cite .cite-ref:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.references {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+}
+.references li {
+  margin: 0.55rem 0;
+  line-height: 1.5;
+}
+.references a {
+  word-break: break-word;
 }
 .lr-trio {
   display: grid;
@@ -527,7 +584,7 @@ In this chapter, we will dive deep into the layers of gradient descent and explo
 
 ## 1. The Core Idea: Follow the Slope Downhill
 
-All gradient-based optimizers share the same fundamental principle: compute the gradient of the loss with respect to the parameters, then update the parameters in the direction that decreases the loss.
+All gradient-based optimizers share the same fundamental principle: compute the gradient of the loss with respect to the parameters, then update the parameters in the direction that decreases the loss.<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Cauchy (1847), Methode generale pour la resolution des systemes d'equations simultanees. Comptes Rendus, 25, 536-538.">1</a></sup>
 
 Think of it as standing on a hilly landscape in dense fog. You cannot see the valley, but you can feel the slope under your feet. You take a step in the steepest downhill direction, feel the slope again, and repeat. The question is: how big should each step be, and should we remember anything about previous steps?
 
@@ -839,7 +896,7 @@ Click anywhere on the contour plot below to set a starting point, then watch bat
   </div>
   <div class="demo-info" id="info-vanilla">Click on the contour plot to set a starting point.</div>
 </div>
-<div class="demo-caption">Batch Gradient Descent on a modified Rosenbrock surface. Minimum at (1, 1).</div>
+<div class="demo-caption">Batch GD on the Rosenbrock surface. Minimum at (1, 1).</div>
 
 <div class="demo-hint">
   <strong>Try this:</strong> Set a starting point near (-1.5, 2.5) and see the long, curving path GD takes through the narrow valley. Then try starting at (0.5, 0.5) for a much shorter path.
@@ -1080,7 +1137,7 @@ The canvases below show the same surface, same starting point, but with differen
 
 ## 4. Stochastic Gradient Descent (SGD)
 
-Batch GD computes the gradient over the entire dataset before making a single step. When datasets are large (millions of samples), this is extremely slow. Stochastic Gradient Descent fixes this by using a single random sample per update:
+Batch GD computes the gradient over the entire dataset before making a single step. When datasets are large (millions of samples), this is extremely slow. Stochastic Gradient Descent<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Robbins &amp; Monro (1951), A Stochastic Approximation Method. Annals of Mathematical Statistics, 22(3), 400-407.">2</a></sup> fixes this by using a single random sample per update:
 
 $$\theta := \theta - \alpha \nabla_\theta J(\theta;\; x^{(i)}, y^{(i)})$$
 
@@ -1089,7 +1146,7 @@ The gradient from a single sample is a noisy estimate of the true gradient. This
 In the demo below, we compare optimizers under a simple compute-budget view. One animation tick represents one unit of time: Batch GD performs one full-gradient update, while SGD can perform multiple cheaper noisy updates (controlled by the slider). This setup helps explain why SGD often shows faster early progress in wall-clock time, even though its path is less smooth.
 
 <div class="demo-hint">
-  <strong>How to read this demo:</strong> This is a synthetic optimization task on the Rosenbrock surface, not a real dataset. Batch GD uses the exact gradient of that surface. SGD is simulated by adding Gaussian noise to each gradient step to mimic single-sample variability. The "SGD updates/tick" control approximates how SGD can take more parameter updates in the same time budget.
+  Synthetic optimization on the Rosenbrock surface. Batch GD uses exact gradients; SGD adds noise to mimic single-sample variability.
 </div>
 
 <div class="interactive-demo" id="demo-sgd">
@@ -1264,7 +1321,7 @@ The hyperparameter $$\beta$$ controls how much history to retain. A higher $$\be
   </div>
   <div class="demo-info" id="info-ema">β = 0.90 | Effective window ≈ 10 steps</div>
 </div>
-<div class="demo-caption">Noisy gradient signal (faded) vs EMA-smoothed signal (blue). Adjust β to see how smoothing affects responsiveness.</div>
+<div class="demo-caption">Noisy signal (faded) vs EMA-smoothed signal (blue).</div>
 
 <div class="demo-hint">
   <strong>Try this:</strong> Set β = 0 (no smoothing, EMA equals the raw signal). Then slowly increase to 0.99 and watch the smoothed line flatten. This is exactly what happens inside Momentum and Adam.
@@ -1450,7 +1507,7 @@ The hyperparameter $$\beta$$ controls how much history to retain. A higher $$\be
 
 Vanilla GD can oscillate when the loss surface is shaped like a narrow valley, steep in one direction and shallow in another. Instead of moving directly toward the minimum, it keeps bouncing back and forth across the steep sides while making only slow progress along the valley floor.
 
-Momentum helps fix this by maintaining a velocity that accumulates past gradients. Think of a ball rolling downhill: it builds up speed in directions that stay consistent and reduces oscillations in directions that keep changing. This helps the optimizer move more smoothly and usually faster toward the minimum.
+Momentum<sup class="cite"><a class="cite-ref" href="#ref-3" data-cite-preview="Polyak (1964), Some methods of speeding up the convergence of iteration methods. USSR Computational Mathematics and Mathematical Physics, 4(5), 1-17.">3</a></sup> helps fix this by maintaining a velocity that accumulates past gradients. Think of a ball rolling downhill: it builds up speed in directions that stay consistent and reduces oscillations in directions that keep changing. This helps the optimizer move more smoothly and usually faster toward the minimum.
 
 $$v_t = \beta \, v_{t-1} + \alpha \, \nabla_\theta J(\theta)$$
 
@@ -1459,7 +1516,7 @@ $$\theta := \theta - v_t$$
 The hyperparameter $$\beta$$ (typically 0.9) controls how much of the previous velocity is retained. A higher $$\beta$$ means more momentum, so the optimizer remembers more of its earlier direction.
 
 <div class="demo-hint">
-  <strong>Setup + how to read:</strong> Both panels use the same synthetic elongated bowl $f(x,y) = x^2 + 50y^2$, start point, and learning rate $\alpha$; only the update rule changes. Vanilla GD uses the current gradient, while Momentum uses velocity memory $v_t = \beta v_{t-1} + \alpha \nabla J$ and updates with $\theta := \theta - v_t$. Each frame is one update in both panels: compare oscillation first, then loss. Set $\beta = 0$ to match vanilla GD, then increase $\beta$ to see smoother, faster convergence.
+  Both panels share the same elongated bowl, start point, and learning rate. Set $$\beta = 0$$ to match vanilla GD, then increase it to see smoother, faster convergence.
 </div>
 
 <div class="interactive-demo" id="demo-momentum">
@@ -1604,7 +1661,7 @@ Watch how the velocity arrow grows along the valley direction as momentum builds
   </div>
   <div class="demo-info" id="info-mom-anatomy">Step mode: press Step or Animate. Switch to Drag mode to explore freely.</div>
 </div>
-<div class="demo-caption">Decomposition of a momentum update on the elongated bowl f(x,y) = x² + 50y². Drag mode lets you explore the vector field.</div>
+<div class="demo-caption">Momentum update decomposition on the elongated bowl.</div>
 
 <script>
 (function() {
@@ -2381,7 +2438,7 @@ On the elongated bowl, the y-gradient is huge (steep walls) while the x-gradient
 
 ## 7. Adam: The Best of Both Worlds
 
-Adam (Adaptive Moment Estimation) combines the ideas of Momentum and RMSProp. It maintains both a first moment (mean of gradients, like Momentum) and a second moment (mean of squared gradients, like RMSProp), plus bias correction to account for the fact that both estimates start at zero.
+Adam<sup class="cite"><a class="cite-ref" href="#ref-4" data-cite-preview="Kingma &amp; Ba (2015), Adam: A Method for Stochastic Optimization. ICLR. arXiv:1412.6980.">4</a></sup> (Adaptive Moment Estimation) combines the ideas of Momentum and RMSProp. It maintains both a first moment (mean of gradients, like Momentum) and a second moment (mean of squared gradients, like RMSProp), plus bias correction to account for the fact that both estimates start at zero.
 
 First moment (momentum):
 
@@ -2417,7 +2474,7 @@ The chart below shows this effect. The top panel plots the correction factor $$\
   </div>
   <div class="demo-info" id="info-bias">At t=1: β₁ correction = 10.0× | β₂ correction = 1000.0×</div>
 </div>
-<div class="demo-caption">Top: correction factor over time for β₁ and β₂. Bottom: raw moment m_t vs bias-corrected m̂_t for a constant gradient.</div>
+<div class="demo-caption">Bias-correction factor and its effect on early moment estimates.</div>
 
 <script>
 (function() {
@@ -2709,7 +2766,7 @@ Important interpretation note: this race uses one shared learning-rate slider fo
   </div>
   <div class="demo-info" id="info-race">Click on the surface to set a starting point, then press "Start Race". (Shared α for all optimizers.)</div>
 </div>
-<div class="demo-caption">Plot setup: all optimizers run on the same Rosenbrock surface from the same start point, with one shared learning-rate slider (comparison view, not per-optimizer retuning). Adam normalizes gradient magnitude, so its early moves are often smaller at the same $$\alpha$$.</div>
+<div class="demo-caption">All optimizers share one learning rate and start point on the Rosenbrock surface.</div>
 
 <script>
 (function() {
@@ -3340,3 +3397,12 @@ In the next chapter, we will put these optimizers to work training neural networ
 <div class="demo-hint">
   <strong>Key takeaway:</strong> The optimizer is not just a knob to turn, it fundamentally shapes how your model navigates the loss landscape. Understanding the tradeoffs between speed, stability, and generalization will make you a better practitioner. When in doubt, start with Adam and tune from there.
 </div>
+
+#### References
+
+<ol class="references">
+  <li id="ref-1">Cauchy, A. (1847). <em>Methode generale pour la resolution des systemes d'equations simultanees</em>. Comptes Rendus de l'Academie des Sciences, 25, 536-538.</li>
+  <li id="ref-2">Robbins, H., &amp; Monro, S. (1951). <em>A Stochastic Approximation Method</em>. Annals of Mathematical Statistics, 22(3), 400-407. <a href="https://doi.org/10.1214/aoms/1177729586" target="_blank" rel="noopener">https://doi.org/10.1214/aoms/1177729586</a></li>
+  <li id="ref-3">Polyak, B. T. (1964). <em>Some methods of speeding up the convergence of iteration methods</em>. USSR Computational Mathematics and Mathematical Physics, 4(5), 1-17.</li>
+  <li id="ref-4">Kingma, D. P., &amp; Ba, J. (2015). <em>Adam: A Method for Stochastic Optimization</em>. ICLR. <a href="https://arxiv.org/abs/1412.6980" target="_blank" rel="noopener">https://arxiv.org/abs/1412.6980</a></li>
+</ol>

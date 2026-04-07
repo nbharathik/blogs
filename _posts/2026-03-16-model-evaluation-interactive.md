@@ -3,6 +3,8 @@ layout: post
 title: "Model Evaluation: Metrics, Curves & Cross-Validation - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+tags: [ml-part-2]
+series: false
 hidden: true
 description: "Build confusion matrices, trace ROC and Precision-Recall curves, animate K-Fold cross-validation, and diagnose bias vs variance with learning curves - all interactively."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg

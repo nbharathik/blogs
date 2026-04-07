@@ -3,6 +3,7 @@ layout: post
 title: "Polynomial Regression & the Bias-Variance Tradeoff: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+series: true
 hidden: true
 description: "Explore polynomial regression and the bias-variance tradeoff with interactive visualizations. Drag a degree slider from underfitting to overfitting, watch training vs validation curves, and build intuition for model complexity - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
@@ -94,6 +95,14 @@ date: 2026-03-17
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
+sup.cite { font-size: 0.72em; vertical-align: super; line-height: 0; }
+sup.cite .cite-ref { color: var(--accent); text-decoration: none; border-bottom: 1px dotted transparent; position: relative; padding: 0 1px; }
+sup.cite .cite-ref:hover, sup.cite .cite-ref:focus { border-bottom-color: var(--accent); outline: none; }
+sup.cite .cite-ref::after { content: attr(data-cite-preview); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%) translateY(6px); min-width: 220px; max-width: 320px; width: max-content; padding: 0.45rem 0.55rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.78rem; line-height: 1.35; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28); opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 30; white-space: normal; }
+sup.cite .cite-ref:hover::after, sup.cite .cite-ref:focus::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+.references { margin: 0.75rem 0 0; padding-left: 1.2rem; }
+.references li { margin: 0.55rem 0; line-height: 1.5; }
+.references a { word-break: break-word; }
 .code-runner-area {
   width: 100%;
   min-height: 220px;
@@ -614,15 +623,12 @@ Click on the canvas to add data points, then see polynomial fits of degree 1 (li
 })();
 </script>
 
-<div class="demo-hint">
-How this compare demo works:
-1. For each degree, it solves for weights using the closed-form normal equation: $\mathbf{w}=(\mathbf{X}^T\mathbf{X}+\lambda I)^{-1}\mathbf{X}^T\mathbf{y}$. So this section does not run gradient descent. In larger ML systems we often prefer gradient descent (or variants like SGD/Adam) because matrix inversion can become expensive or unstable for very large feature sets.
-</div>
+<div class="demo-hint">Each degree is solved via the normal equation (closed-form). In larger systems, gradient descent is preferred for scalability.</div>
 
 ---
 
 ## 3. The Degree Slider: From Underfitting to Overfitting
-p This is the core intuition builder. Below, 25 noisy points are sampled from a hidden true function (shown as a dashed purple line). Use the degree slider to control the polynomial degree from 1 to 15 and watch the fitted curve evolve:
+This is the core intuition builder. Below, 25 noisy points are sampled from a hidden true function (shown as a dashed purple line). Use the degree slider to control the polynomial degree from 1 to 15 and watch the fitted curve evolve:
 
 - Degree 1-2: The curve is too rigid. It cannot capture the true shape. This is underfitting.
 - Degree 3-5: The curve follows the true function nicely. The sweet spot.
@@ -731,7 +737,7 @@ p This is the core intuition builder. Below, 25 noisy points are sampled from a 
 
 ### The Decomposition
 
-For any model, the expected prediction error on new data decomposes as:
+For any model, the expected prediction error on new data decomposes as<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Geman, Bienenstock &amp; Doursat (1992), Neural Networks and the Bias/Variance Dilemma. Neural Computation, 4(1), 1-58.">1</a></sup>:
 
 $$E\left[(y - \hat{f}(x))^2\right] = \underbrace{\text{Bias}(\hat{f}(x))^2}_{\text{systematic error}} + \underbrace{\text{Var}(\hat{f}(x))}_{\text{sensitivity to training data}} + \underbrace{\sigma^2}_{\text{irreducible noise}}$$
 
@@ -892,9 +898,7 @@ Below, we generate 10 different random training sets from the same true function
 })();
 </script>
 
-<div class="demo-hint">
-About this plot: 1) Random data points are generated as y = sin(1.5x) + 0.5x + epsilon, where epsilon is Gaussian noise with sigma = 0.5. 2) The dashed purple "true" line is the noise-free function y = sin(1.5x) + 0.5x, drawn directly from that formula over many x values. 3) Each colored curve is a polynomial fit trained on one independently sampled dataset. 4) Resample All generates 10 new random datasets and refits all curves.
-</div>
+<div class="demo-hint">Data sampled from y = sin(1.5x) + 0.5x + noise. Dashed purple line is the true noise-free function. Each curve is a polynomial fit on one random sample.</div>
 
 ---
 
@@ -1184,7 +1188,7 @@ The amount of noise in your data affects which model complexity is optimal. With
 
 ## 7. Polynomial Feature Visualization
 
-In polynomial regression with degree $$d$$, each input is expanded into features $$[1, x, x^2, \ldots, x^d]$$. This expansion increases model flexibility, but it also creates large differences in feature magnitudes as the degree increases. If you train with gradient descent, feature scaling is essential for stable and efficient optimization.
+In polynomial regression with degree $$d$$, each input is expanded into features $$[1, x, x^2, \ldots, x^d]$$<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Hastie, Tibshirani &amp; Friedman (2009), The Elements of Statistical Learning, 2nd ed. Springer.">2</a></sup>. This expansion increases model flexibility, but it also creates large differences in feature magnitudes as the degree increases. If you train with gradient descent, feature scaling is essential for stable and efficient optimization.
 
 ### Feature Magnitude Growth
 
@@ -1341,3 +1345,10 @@ But manually choosing the right degree is fragile. In the next chapter, we will 
 ### What's Next
 
 Next up: [Regularization, Ridge, Lasso & Elastic Net]({{ site.baseurl }}/regularization-ridge-lasso/), Add a penalty term to tame overfitting, explore the L1/L2 landscape interactively, and see how regularisation connects to the bias-variance tradeoff.
+
+#### References
+
+<ol class="references">
+  <li id="ref-1">Geman, S., Bienenstock, E., &amp; Doursat, R. (1992). <em>Neural Networks and the Bias/Variance Dilemma</em>. Neural Computation, 4(1), 1-58. <a href="https://doi.org/10.1162/neco.1992.4.1.1" target="_blank" rel="noopener">https://doi.org/10.1162/neco.1992.4.1.1</a></li>
+  <li id="ref-2">Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). <em>The Elements of Statistical Learning</em>, 2nd ed. Springer. <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank" rel="noopener">https://hastie.su.domains/ElemStatLearn/</a></li>
+</ol>

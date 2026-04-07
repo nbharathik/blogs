@@ -3,6 +3,8 @@ layout: post
 title: "Decision Trees from Scratch - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+tags: [ml-part-2]
+series: false
 hidden: true
 description: "Watch decision trees grow split-by-split, compare Gini vs Entropy, control tree depth to see overfitting, and explore regression trees - all interactively in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg

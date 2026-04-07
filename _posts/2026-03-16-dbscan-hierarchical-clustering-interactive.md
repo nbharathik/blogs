@@ -3,6 +3,8 @@ layout: post
 title: "DBSCAN & Hierarchical Clustering - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+tags: [ml-part-2]
+series: false
 hidden: true
 description: "Explore density-based clustering with DBSCAN, build dendrograms interactively, compare linkage methods, and see why K-Means fails on non-convex shapes - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg

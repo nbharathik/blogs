@@ -3,6 +3,8 @@ layout: post
 title: "Boosting: AdaBoost & Gradient Boosting - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+tags: [ml-part-2]
+series: false
 hidden: true
 description: "Watch AdaBoost reweight misclassified samples, see gradient boosting fit residuals step-by-step, and compare boosting vs bagging - all interactively in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg

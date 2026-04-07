@@ -3,6 +3,8 @@ layout: post
 title: "Principal Component Analysis (PCA) from Scratch - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+tags: [ml-part-2]
+series: false
 hidden: true
 description: "Visualize PCA eigenvectors, project data onto principal components, reduce 3D to 2D interactively, and understand variance explained - all from scratch in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg

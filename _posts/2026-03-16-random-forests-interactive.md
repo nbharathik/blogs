@@ -3,6 +3,8 @@ layout: post
 title: "Random Forests & Bagging from Scratch - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+tags: [ml-part-2]
+series: false
 hidden: true
 description: "Watch a random forest grow tree-by-tree, see bootstrap sampling in action, compare individual vs ensemble predictions, and explore feature importance - all interactively."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg

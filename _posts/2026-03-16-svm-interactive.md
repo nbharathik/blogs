@@ -3,6 +3,8 @@ layout: post
 title: "Support Vector Machines from Scratch: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+tags: [ml-part-2]
+series: false
 hidden: true
 description: "Build intuition for Support Vector Machines with interactive visualizations. Find the maximum margin, explore soft margins with the C parameter, visualize the kernel trick in 3D, and compare RBF vs polynomial kernels - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg

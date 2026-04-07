@@ -3,6 +3,7 @@ layout: post
 title: "Logistic Regression II: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+series: true
 hidden: true
 description: "Extend logistic regression to two features with interactive 3D visualizations. Watch a sigmoid probability surface shape itself to fit data, explore the cost surface, and see gradient descent converge."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
@@ -27,6 +28,62 @@ date: 2026-03-17
   border-radius: 0 6px 6px 0;
   font-size: 0.85rem;
   color: var(--text-secondary);
+}
+sup.cite {
+  font-size: 0.72em;
+  vertical-align: super;
+  line-height: 0;
+}
+sup.cite .cite-ref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  position: relative;
+  padding: 0 1px;
+}
+sup.cite .cite-ref:hover,
+sup.cite .cite-ref:focus {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+sup.cite .cite-ref::after {
+  content: attr(data-cite-preview);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(6px);
+  min-width: 220px;
+  max-width: 320px;
+  width: max-content;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 30;
+  white-space: normal;
+}
+sup.cite .cite-ref:hover::after,
+sup.cite .cite-ref:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.references {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+}
+.references li {
+  margin: 0.55rem 0;
+  line-height: 1.5;
+}
+.references a {
+  word-break: break-word;
 }
 .demo-controls {
   display: flex;
@@ -326,7 +383,7 @@ This is the follow-up to the first post:
 
 In that post, we built logistic regression for a **single feature**: one input $$x$$ (hours studied). The decision boundary was a **single point** on the number line separating pass from fail. Now we take the natural next step: **two input features**. We predict whether a student passes or fails an exam based on both **hours studied** and **attendance score**. The decision boundary goes from a point on a line to an actual **line** in 2D space.
 
-The full model with two features is:
+The full model with two features is<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Cox (1958), The regression analysis of binary sequences. Journal of the Royal Statistical Society, Series B, 20(2), 215-242.">1</a></sup>:
 
 $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$
 
@@ -338,7 +395,7 @@ where $$\sigma(z) = \frac{1}{1 + e^{-z}}$$ is the sigmoid function. The weights 
 
 ---
 
-## From a Point to a Line
+## 1. From a Point to a Line
 
 With one feature, the decision boundary was a **single threshold** on the $$x$$-axis. Everything to the right was classified as 1, everything to the left as 0:
 
@@ -360,12 +417,12 @@ The decision boundary line is where the model predicts exactly 50% probability, 
 
 ---
 
-## Seeing the Data in 3D
+## 2. Seeing the Data in 3D
 
 Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space, where $$y$$ is either 0 (fail) or 1 (pass). The curved surface is the **sigmoid probability surface** $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$, which smoothly transitions from 0 to 1. The **decision boundary** is where the surface crosses the 0.5 probability level, on one side the model predicts pass, on the other fail.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Drag <strong>w₁</strong> and <strong>w₂</strong> sliders to tilt the sigmoid surface. Drag <strong>b</strong> to shift it. <strong>Drag on the 3D plot</strong> to rotate the view. Click <strong>Fit</strong> to animate gradient descent finding the best parameters. The surface color transitions from <span style="color:#e63946;font-weight:600;">red</span> (class 0) to <span style="color:#2563eb;font-weight:600;">blue</span> (class 1).
+Drag w₁ and w₂ to tilt the sigmoid surface; drag b to shift. Click Fit to run gradient descent.
 </div>
 
 <div class="interactive-demo">
@@ -395,7 +452,7 @@ Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2
   </div>
   <div class="demo-info" id="logr2-info">Adjust w₁, w₂, and b to shape the sigmoid surface.</div>
   <canvas id="logr2-3d"></canvas>
-  <div class="demo-caption">Drag to rotate. Curved surface = sigmoid h(x). Red dots = fail (0), Blue dots = pass (1).</div>
+  <div class="demo-caption">Sigmoid surface</div>
   <div class="demo-controls">
     <label>Rotate:
       <input type="range" id="logr2-az" min="0" max="360" step="1" value="35">
@@ -742,7 +799,7 @@ Notice how the **sigmoid surface** curves between 0 and 1, red points (fail) sit
 
 ---
 
-## The Decision Boundary
+## 3. The Decision Boundary
 
 The boundary equation $$w_1 x_1 + w_2 x_2 + b = 0$$ is just the equation of a line. You can rearrange it to the familiar slope-intercept form:
 
@@ -760,7 +817,7 @@ On one side of the boundary (where $$w_1 x_1 + w_2 x_2 + b > 0$$), the sigmoid o
 
 ---
 
-## The Cost Surface
+## 4. The Cost Surface
 
 For the visualizations below, we set $$b = 0$$ so the cost depends on only two variables, $$w_1$$ and $$w_2$$. This lets us plot the cost as a 3D surface and a 2D contour, something impossible with three free parameters. The bias slider above still works for exploring the full model; down here we focus on the weight landscape.
 
@@ -773,7 +830,7 @@ where $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$. Every possible com
 Compared with linear regression, the shape is usually less perfectly quadratic, but with binary cross-entropy the objective is still **convex** in the parameters. In practice this gives one basin for typical non-separable data. (For perfectly separable data without regularization, weights can keep growing while loss approaches 0.)
 
 <div class="demo-hint">
-<strong>Interactive:</strong> The red dot shows your current <code>w₁, w₂</code> position. Drag the green dot on the contour plot to explore. Adjust the w₁/w₂ sliders above and watch both views update. Drag on the 3D surface to rotate it. (Cost here is shown for <code>b = 0</code>.)
+Red dot shows current weights. Drag the green dot to explore. Cost shown for b = 0.
 </div>
 
 <div class="interactive-demo">
@@ -781,12 +838,12 @@ Compared with linear regression, the shape is usually less perfectly quadratic, 
     <div class="lr2-card">
       <div class="lr2-title">3D Cost Surface J(w₁, w₂)</div>
       <canvas id="logr2-surface"></canvas>
-      <div class="demo-caption">Red dot = current weights. Drag to rotate.</div>
+      <div class="demo-caption">Current weights</div>
     </div>
     <div class="lr2-card">
       <div class="lr2-title">Contour Plot (top-down view)</div>
       <canvas id="logr2-contour"></canvas>
-      <div class="demo-caption">Drag the green dot to explore</div>
+      <div class="demo-caption">Cost contour</div>
     </div>
   </div>
   <div class="demo-controls">
@@ -1074,7 +1131,7 @@ The cross-entropy cost penalizes confident wrong predictions heavily. If the mod
 
 ---
 
-## Training with Gradient Descent
+## 5. Training with Gradient Descent
 
 The update rules for two weights are the same form as linear regression, but with the sigmoid applied:
 
@@ -1087,7 +1144,7 @@ $$\frac{\partial J}{\partial w_1} = \frac{1}{m}\sum_{i=1}^{m}\left(h(x^{(i)}) - 
 Notice how similar this looks to the linear regression gradient. The only difference is that $$\hat{y}^{(i)}$$ is replaced by $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$. The sigmoid introduces nonlinearity, but the gradient formula stays elegant.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> for one gradient descent iteration, or <strong>Run</strong> to animate. The left panel shows the optimization path on the contour. The right panel shows the sigmoid surface converging in 3D. The chart below shows cost decreasing over iterations. (This section keeps <code>b = 0</code>.)
+Step runs one iteration. Run animates. This section keeps b = 0.
 </div>
 
 <div class="interactive-demo">
@@ -1095,16 +1152,16 @@ Notice how similar this looks to the linear regression gradient. The only differ
     <div class="lr2-card">
       <div class="lr2-title">Gradient Descent Path</div>
       <canvas id="logr2-gd-contour"></canvas>
-      <div class="demo-caption">Green path on the cost contour</div>
+      <div class="demo-caption">Optimization path</div>
     </div>
     <div class="lr2-card">
       <div class="lr2-title">Sigmoid Surface Converging</div>
       <canvas id="logr2-gd-3d"></canvas>
-      <div class="demo-caption">Surface shapes to fit the data</div>
+      <div class="demo-caption">Fitted surface</div>
     </div>
   </div>
   <canvas id="logr2-gd-loss" style="width:100%; max-width:680px;"></canvas>
-  <div class="demo-caption">Cost J(w₁, w₂) vs. iteration number</div>
+  <div class="demo-caption">Cost vs. iteration</div>
   <div class="demo-controls">
     <label>Learning rate α:
       <input type="range" id="logr2-gd-lr" min="0.005" max="0.5" step="0.005" value="0.1">
@@ -1468,3 +1525,9 @@ After running gradient descent for enough iterations, the green dot settles near
 - The gradient formulas look almost identical to linear regression. The only difference is that the prediction $$\hat{y}$$ is replaced by $$h(x) = \sigma(w \cdot x + b)$$. This elegance comes from the choice of cross-entropy as the cost function.
 
 - We kept $$b = 0$$ for the cost surface and gradient descent visualizations. Adding a bias $$b$$ adds one more dimension but changes nothing about how the algorithm works. The first demo above lets you explore the full model with all three parameters.
+
+#### References
+
+<ol class="references">
+  <li id="ref-1">Cox, D. R. (1958). <em>The regression analysis of binary sequences</em>. Journal of the Royal Statistical Society, Series B, 20(2), 215-242.</li>
+</ol>

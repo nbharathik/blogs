@@ -3,6 +3,7 @@ layout: post
 title: "Activation Functions - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+series: true
 hidden: true
 description: "Explore every major activation function interactively - see why activations matter, compare Sigmoid, Tanh, ReLU, Leaky ReLU, ELU, Swish, and GELU with their derivatives."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg

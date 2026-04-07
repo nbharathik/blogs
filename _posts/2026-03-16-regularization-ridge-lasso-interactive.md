@@ -3,6 +3,7 @@ layout: post
 title: "Regularization: Ridge, Lasso & Elastic Net - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+series: true
 hidden: true
 description: "Visualize how L1 and L2 regularization shrink coefficients, why Lasso produces sparsity, and how Elastic Net combines both - all interactively in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
@@ -98,6 +99,14 @@ date: 2026-03-17
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
+sup.cite { font-size: 0.72em; vertical-align: super; line-height: 0; }
+sup.cite .cite-ref { color: var(--accent); text-decoration: none; border-bottom: 1px dotted transparent; position: relative; padding: 0 1px; }
+sup.cite .cite-ref:hover, sup.cite .cite-ref:focus { border-bottom-color: var(--accent); outline: none; }
+sup.cite .cite-ref::after { content: attr(data-cite-preview); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%) translateY(6px); min-width: 220px; max-width: 320px; width: max-content; padding: 0.45rem 0.55rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.78rem; line-height: 1.35; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28); opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 30; white-space: normal; }
+sup.cite .cite-ref:hover::after, sup.cite .cite-ref:focus::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+.references { margin: 0.75rem 0 0; padding-left: 1.2rem; }
+.references li { margin: 0.55rem 0; line-height: 1.5; }
+.references a { word-break: break-word; }
 .coef-bar-container {
   display: flex;
   flex-direction: column;
@@ -778,7 +787,7 @@ window._overfitState = { pts: null, deg: 10, listeners: [] };
 })();
 </script>
 
-<div class="demo-hint">Click "New Data" several times. Each time the coefficients are wildly different, that is high variance. This happens in any model with too much capacity, not just polynomials. The idea behind regularization: add a penalty term that punishes large weights, forcing the model to find simpler solutions.</div>
+<div class="demo-hint">Click New Data repeatedly. Wildly varying coefficients signal high variance. Regularization penalizes large weights to enforce simpler solutions.</div>
 
 The regularization approach adds a penalty to the loss function:
 
@@ -790,7 +799,7 @@ where $$\lambda > 0$$ controls the penalty strength and $$R(\mathbf{w})$$ is the
 
 ## 2. Ridge Regression (L2 Regularization)
 
-Ridge regression adds the sum of squared weights as the penalty:
+Ridge regression adds the sum of squared weights as the penalty<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Hoerl &amp; Kennard (1970), Ridge Regression: Biased Estimation for Nonorthogonal Problems. Technometrics, 12(1), 55-67.">1</a></sup>:
 
 $$J_{\text{Ridge}}(\mathbf{w}) = \frac{1}{n}\|\mathbf{y} - \mathbf{X}\mathbf{w}\|^2 + \lambda \sum_{j=1}^{d} w_j^2$$
 
@@ -961,7 +970,7 @@ This demo uses the same data points from Section 1 above. The slider starts at $
 
 ## 3. Lasso Regression (L1 Regularization)
 
-Lasso (Least Absolute Shrinkage and Selection Operator) uses the sum of absolute values of the weights instead of the sum of squares:
+Lasso (Least Absolute Shrinkage and Selection Operator)<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Tibshirani (1996), Regression Shrinkage and Selection via the Lasso. Journal of the Royal Statistical Society, Series B, 58(1), 267-288.">2</a></sup> uses the sum of absolute values of the weights instead of the sum of squares:
 
 $$J_{\text{Lasso}}(\mathbf{w}) = \frac{1}{n}\|\mathbf{y} - \mathbf{X}\mathbf{w}\|^2 + \lambda \sum_{j=1}^{d} \lvert w_j \rvert$$
 
@@ -1782,13 +1791,13 @@ Where Lasso really shines is when you have many features but only a few are rele
 })();
 </script>
 
-<div class="demo-hint">Start with low &lambda; (all features active) and slowly increase it. The noise features (red bars) get eliminated to zero first, while the signal features (green bars) survive much longer. At the right &lambda;, Lasso perfectly selects only the 3 signal features. (The weights are computed live via coordinate descent as you drag.)</div>
+<div class="demo-hint">Increase lambda gradually. Noise features (red) go to zero first; signal features (green) survive longer.</div>
 
 ---
 
 ## 6. Elastic Net: The Best of Both Worlds
 
-Elastic Net combines L1 and L2 penalties using a mixing parameter $$\alpha \in [0, 1]$$:
+Elastic Net<sup class="cite"><a class="cite-ref" href="#ref-3" data-cite-preview="Zou &amp; Hastie (2005), Regularization and Variable Selection via the Elastic Net. Journal of the Royal Statistical Society, Series B, 67(2), 301-320.">3</a></sup> combines L1 and L2 penalties using a mixing parameter $$\alpha \in [0, 1]$$:
 
 $$J_{\text{ElasticNet}}(\mathbf{w}) = \frac{1}{n}\|\mathbf{y} - \mathbf{X}\mathbf{w}\|^2 + \lambda \left[\alpha \sum_{j=1}^{d}|w_j| + (1-\alpha)\sum_{j=1}^{d}w_j^2\right]$$
 
@@ -2309,6 +2318,14 @@ Now let us see all three regularizers side by side on the same data. We fit a de
 4. **Elastic Net** combines both penalties with a mixing parameter $$\alpha$$. It inherits sparsity from L1 and the grouping effect from L2, making it ideal when features are correlated.
 
 5. **Choosing $$\lambda$$** is typically done via cross-validation: try a range of values on a log scale and pick the one with the lowest validation error.
+
+#### References
+
+<ol class="references">
+  <li id="ref-1">Hoerl, A. E., &amp; Kennard, R. W. (1970). <em>Ridge Regression: Biased Estimation for Nonorthogonal Problems</em>. Technometrics, 12(1), 55-67. <a href="https://doi.org/10.1080/00401706.1970.10488634" target="_blank" rel="noopener">https://doi.org/10.1080/00401706.1970.10488634</a></li>
+  <li id="ref-2">Tibshirani, R. (1996). <em>Regression Shrinkage and Selection via the Lasso</em>. Journal of the Royal Statistical Society, Series B, 58(1), 267-288.</li>
+  <li id="ref-3">Zou, H., &amp; Hastie, T. (2005). <em>Regularization and Variable Selection via the Elastic Net</em>. Journal of the Royal Statistical Society, Series B, 67(2), 301-320. <a href="https://doi.org/10.1111/j.1467-9868.2005.00503.x" target="_blank" rel="noopener">https://doi.org/10.1111/j.1467-9868.2005.00503.x</a></li>
+</ol>
 
 <script>
 // Force redraw on page load (handles late theme detection)

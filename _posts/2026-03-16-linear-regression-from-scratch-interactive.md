@@ -3,6 +3,7 @@ layout: post
 title: "Linear Regression: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+series: true
 hidden: true
 description: "Build linear regression from the ground up with interactive visualizations. Drag points, adjust parameters, watch gradient descent converge - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
@@ -149,6 +150,62 @@ date: 2026-03-16
   border-radius: 0 6px 6px 0;
   font-size: 0.85rem;
   color: var(--text-secondary);
+}
+sup.cite {
+  font-size: 0.72em;
+  vertical-align: super;
+  line-height: 0;
+}
+sup.cite .cite-ref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  position: relative;
+  padding: 0 1px;
+}
+sup.cite .cite-ref:hover,
+sup.cite .cite-ref:focus {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+sup.cite .cite-ref::after {
+  content: attr(data-cite-preview);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(6px);
+  min-width: 220px;
+  max-width: 320px;
+  width: max-content;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 30;
+  white-space: normal;
+}
+sup.cite .cite-ref:hover::after,
+sup.cite .cite-ref:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.references {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+}
+.references li {
+  margin: 0.55rem 0;
+  line-height: 1.5;
+}
+.references a {
+  word-break: break-word;
 }
 .demo-3d-container {
   position: relative;
@@ -388,12 +445,12 @@ By the end of this post, you will understand:
 - **Prediction** - how to use trained parameters on new inputs
 
 <div class="demo-hint">
-<strong>How to use the interactive demos:</strong> Work from top to bottom. The dataset you create in the first demo is shared across all sections, and trained parameters carry forward to later demos.
+Demos share one dataset. Changes in the first demo propagate to all sections below, and trained parameters carry forward.
 </div>
 
 ---
 
-## What is Linear Regression?
+## 1. What is Linear Regression?
 
 Linear regression is a **supervised learning** algorithm. "Supervised" means we train on examples where both input and correct output are known. The model learns a mapping from input to output, then uses that mapping on unseen inputs.
 
@@ -420,12 +477,12 @@ The goal is simple: **given data points $$(x, y)$$, find $$w$$ and $$b$$ so that
 
 ---
 
-## The Training Dataset
+## 2. The Training Dataset
 
 Every machine learning model starts with data. Below, we have 10 houses with area (sq ft) and price (in $1000s). This is our **training dataset**: labeled examples the model uses to learn a pattern. It is only a simplified example and does not represent real market prices, but it is sufficient for understanding linear regression.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click anywhere on the plot to <strong>add</strong> a new data point. Drag existing points to <strong>move</strong> them. Double-click a point to <strong>remove</strong> it. All demos below automatically use this dataset. Try adding outliers (e.g. a very expensive small house) and see how it affects the model in later sections!
+Click to add points, drag to move, double-click to remove. All demos below share this dataset. Adding outliers here will visibly affect the fit in later sections.
 </div>
 
 <div class="interactive-demo">
@@ -534,7 +591,7 @@ Looking at the plot, there is a clear trend: larger area usually means higher pr
 
 ---
 
-## The Hypothesis Function
+## 3. The Hypothesis Function
 
 In machine learning, the **hypothesis function** is the model's prediction formula. It maps input to predicted output. For linear regression, the hypothesis is:
 
@@ -548,7 +605,7 @@ This is a straight line. The two parameters $$w$$ and $$b$$ completely determine
 Together, $$w$$ and $$b$$ are the model's **parameters**. Training means finding the values that produce the best fit.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Drag the <strong>weight</strong> and <strong>bias</strong> sliders to see how each parameter affects the line. Try setting the weight to 0, or making it negative. Try large and small bias values.
+Drag the weight and bias sliders. Setting weight to 0 produces a flat line; a negative weight flips the slope.
 </div>
 
 <div class="interactive-demo">
@@ -599,11 +656,11 @@ Notice how **weight** changes steepness while **bias** shifts vertically. To fin
 
 ---
 
-## The Cost Function
+## 4. The Cost Function
 
 The cost function (also called **loss** or **objective**) is a single number that tells us **how wrong the current model is**. High cost means predictions are far from actual values. Low cost means the line fits well. Training is the process of finding $$w$$ and $$b$$ that minimize this value.
 
-The most common cost function for linear regression is the **Mean Squared Error (MSE)**:
+The most common cost function for linear regression is the **Mean Squared Error (MSE)**,<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Legendre (1805), Nouvelles methodes pour la determination des orbites des cometes. Firmin Didot, Paris.">1</a></sup> which traces back to the method of least squares:
 
 $$J(w,b) = \frac{1}{2m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^{(i)}\right)^2$$
 
@@ -618,7 +675,7 @@ Let us break this down:
 4. **$$\frac{1}{2m}$$** averages over the dataset. The extra $$\frac{1}{2}$$ is a convenience that simplifies derivatives.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Adjust the weight and bias sliders. The <strong>red dashed lines</strong> show the error (residual) for each point. The <strong>semi-transparent red squares</strong> visualize the squared error - bigger squares mean bigger errors. Watch the MSE value and try to minimize it!
+Red dashed lines show residuals. Semi-transparent red squares visualize squared error; bigger squares mean bigger penalties. The MSE value updates as you drag.
 </div>
 
 <div class="interactive-demo">
@@ -696,7 +753,7 @@ Try finding the minimum manually with sliders. It is harder than it looks, becau
 
 ---
 
-## The Cost Landscape
+## 5. The Cost Landscape
 
 Every pair $$(w, b)$$ gives a different cost $$J(w,b)$$. If we evaluate many pairs, we get a **cost surface**: a 3D landscape where horizontal axes are $$w$$ and $$b$$, and height is cost. For linear regression with MSE, this surface is **bowl-shaped** (convex). That is useful because it has one global minimum: a single best parameter set.
 
@@ -705,18 +762,18 @@ Every pair $$(w, b)$$ gives a different cost $$J(w,b)$$. If we evaluate many pai
 A **contour plot** is a top-down view of this surface, like a topographic map. Each band represents a cost level. Moving toward lighter center regions means lower cost.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Drag the green dot around the contour plot. The right panel shows the line corresponding to the current (w, b) position. Try dragging the dot toward the lightest region - that is the minimum cost!
+Drag the green dot on the contour plot. The right panel shows the corresponding fitted line. Lighter regions mean lower cost.
 </div>
 
 <div class="interactive-demo">
 <div class="demo-split">
   <div>
     <canvas id="demo4-contour"></canvas>
-    <div class="demo-caption">Cost contour - drag the green dot</div>
+    <div class="demo-caption">Cost contour</div>
   </div>
   <div>
     <canvas id="demo4-line"></canvas>
-    <div class="demo-caption">Line for current (w, b)</div>
+    <div class="demo-caption">Fitted line</div>
   </div>
 </div>
 <div class="demo-info" id="demo4-info">w = 0.15, b = 50, Cost = 0.00</div>
@@ -826,7 +883,7 @@ Here is the same cost function visualized as a 3D surface. You can see the bowl 
   <label>Rotate: <input type="range" id="demo4b-angle" min="0" max="360" step="1" value="35"> <span class="demo-value" id="demo4b-angle-val">35 deg</span></label>
   <label>Tilt: <input type="range" id="demo4b-tilt" min="15" max="75" step="1" value="30"> <span class="demo-value" id="demo4b-tilt-val">30 deg</span></label>
 </div>
-<div class="demo-caption">3D cost surface J(w, b) - rotate and tilt to explore</div>
+<div class="demo-caption">Cost surface J(w, b)</div>
 </div>
 
 <script>
@@ -950,9 +1007,9 @@ The bowl shape is important. In convex problems like linear regression (and logi
 
 ---
 
-## Gradient Descent
+## 6. Gradient Descent
 
-Gradient descent is the **optimization algorithm** that helps parameters move toward the minimum cost. The same idea scales to much larger models, including neural networks.
+Gradient descent is the **optimization algorithm** that helps parameters move toward the minimum cost.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Cauchy (1847), Methode generale pour la resolution des systemes d'equations simultanees. Comptes Rendus de l'Academie des Sciences, 25, 536-538.">2</a></sup> The same idea scales to much larger models, including neural networks.
 
 ### The Intuition: Lost on a Foggy Mountain
 
@@ -983,22 +1040,22 @@ $$b := b - \alpha \cdot \frac{\partial J}{\partial b}$$
 The minus sign makes the update move **against** the gradient, which reduces cost, and the learning rate $$\alpha$$ sets step size. If a gradient component is **positive**, subtracting it decreases that parameter; if it is **negative**, subtracting it increases that parameter, so one rule handles both directions automatically.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> for one gradient descent iteration, or <strong>Run</strong> to animate. The green path on the contour plot shows the optimization trajectory. The line on the right converges to the best fit. The chart below shows cost decreasing over iterations.
+Step runs one iteration. Run animates continuously. The green path traces the optimization trajectory on the contour; the chart below shows cost decreasing over iterations.
 </div>
 
 <div class="interactive-demo">
 <div class="demo-split">
   <div>
     <canvas id="demo5-contour"></canvas>
-    <div class="demo-caption">Gradient descent path on contour</div>
+    <div class="demo-caption">Optimization path</div>
   </div>
   <div>
     <canvas id="demo5-line"></canvas>
-    <div class="demo-caption">Line evolving toward best fit</div>
+    <div class="demo-caption">Fitted line</div>
   </div>
 </div>
 <canvas id="demo5-loss" style="width:100%; max-width:680px;"></canvas>
-<div class="demo-caption">Cost J(w,b) vs. iteration number</div>
+<div class="demo-caption">Cost vs. iteration</div>
 <div class="demo-controls">
   <label>alpha (10^x): <input type="range" id="demo5-lr" min="-10" max="-5" step="0.1" value="-7"> <span class="demo-value" id="demo5-lr-val">1.0e-7</span></label>
   <button id="demo5-step">Step</button>
@@ -1182,7 +1239,7 @@ After enough iterations, the green dot settles near the bottom of the bowl and t
 
 ---
 
-## The Learning Rate
+## 7. The Learning Rate
 
 The **learning rate** $$\alpha$$ is a crucial **hyperparameter**. You choose it before training. It controls step size in each gradient descent update.
 
@@ -1200,7 +1257,7 @@ A quick rule of thumb:
 - Keep the largest value that still gives stable, smooth convergence.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Run All</strong> to see three learning rates competing simultaneously. Each chart shows cost vs. iteration. You can edit the learning rate values to experiment.
+Run All starts three learning rates simultaneously. Edit the rate values to compare convergence speeds.
 </div>
 
 <div class="interactive-demo">
@@ -1316,7 +1373,7 @@ A quick rule of thumb:
 
 ---
 
-## Implementing from Scratch
+## 8. Implementing from Scratch
 
 Let us put the complete algorithm together step by step:
 
@@ -1652,7 +1709,7 @@ In this simplified code, we train directly on raw area values, so a very small l
 </script>
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Edit the parameters below and click <strong>Run</strong>. The output shows training progress and the final best-fit line. The trained parameters are saved - the Prediction section below will automatically use them.
+Edit the parameters below and click Run. Trained parameters are saved and used automatically by the Prediction section.
 </div>
 
 <div class="interactive-demo">
@@ -1735,7 +1792,7 @@ var w = 0, b = 0;
 })();
 </script>
 
-## Making Predictions
+## 9. Making Predictions
 
 Once we have trained the model and found $$w$$ and $$b$$, prediction is direct substitution into the hypothesis:
 
@@ -1748,7 +1805,7 @@ $$\hat{y} = 0.151 \times 2800 + 42.2 = 465.0$$
 So the predicted price is approximately **$465,000**. This value is in thousands of dollars, so `465.0` means about **$465,000**. The model did not use hand-written pricing rules. It learned a pattern from data. One important caveat: predictions are usually more reliable **within** the training range than far outside it. Predicting a 12,000 sq ft house from data mostly between 800 and 3,800 sq ft is extrapolation, and can be inaccurate.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> This demo uses the trained parameters from the gradient descent above. If you have not trained yet, click <strong>Auto-Train</strong>. Then enter any house area and click <strong>Predict</strong> to see the result on the plot.
+Uses trained parameters from above. Click Auto-Train first if needed, then enter an area and click Predict.
 </div>
 
 <div class="interactive-demo">
@@ -1864,4 +1921,8 @@ This post is part of my **Interactive Machine Learning from Scratch** series. If
 
 #### References
 
-- [Machine Learning](https://www.coursera.org/learn/machine-learning) course by Andrew Ng on Coursera
+<ol class="references">
+  <li id="ref-1">Legendre, A. M. (1805). <em>Nouvelles methodes pour la determination des orbites des cometes</em>. Firmin Didot, Paris.</li>
+  <li id="ref-2">Cauchy, A. (1847). <em>Methode generale pour la resolution des systemes d'equations simultanees</em>. Comptes Rendus de l'Academie des Sciences, 25, 536-538.</li>
+  <li id="ref-3">Ng, A. (2012). <em>Machine Learning</em>. Coursera / Stanford University. <a href="https://www.coursera.org/learn/machine-learning" target="_blank" rel="noopener">https://www.coursera.org/learn/machine-learning</a></li>
+</ol>

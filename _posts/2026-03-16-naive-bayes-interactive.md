@@ -3,6 +3,8 @@ layout: post
 title: "Naive Bayes Classifier from Scratch - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+tags: [ml-part-2]
+series: false
 hidden: true
 description: "Understand Naive Bayes through interactive Gaussian distributions, posterior probability heatmaps, prior adjustment, and a live text classification demo - all from scratch in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg

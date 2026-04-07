@@ -3,6 +3,8 @@ layout: post
 title: "Feature Engineering & Data Preprocessing - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+tags: [ml-part-2]
+series: false
 hidden: true
 description: "Visualize feature scaling, one-hot encoding, missing value imputation, correlation heatmaps, and polynomial features - see how preprocessing transforms your data interactively."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg

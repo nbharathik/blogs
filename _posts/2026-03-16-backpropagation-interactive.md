@@ -3,6 +3,7 @@ layout: post
 title: "Backpropagation Visualized - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+series: true
 hidden: true
 description: "Watch data flow forward and gradients flow backward through neural networks, visualize the chain rule at every node, and understand vanishing gradients - all interactively."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
@@ -215,7 +216,7 @@ Click any node in the graph below to see how the chain rule applies at that poin
   </div>
   <div class="demo-info" id="info-chain">Click a node to see the chain rule derivation at that point.</div>
 </div>
-<div class="demo-caption">A computational graph for f(x, y, z) = (x + y) * z with default values x = 2, y = 1, z = -3. Drag the sliders to change inputs and watch both forward values (blue) and backward gradients (red) update instantly. Click any node to see its chain rule derivation.</div>
+<div class="demo-caption">Computational graph: f(x,y,z) = (x+y)*z</div>
 
 <div class="demo-hint">Try setting z to 0 and observe that all gradients with respect to x and y vanish, the output is zero regardless of the sum. Then set x = -y to make q = 0, and notice df/dz becomes zero too.</div>
 
@@ -243,7 +244,7 @@ Watch data flow left to right through a 2-layer network. Each neuron "lights up"
     <span><span class="bp-legend-dot" style="background:#565f89"></span> Waiting</span>
   </div>
 </div>
-<div class="demo-caption">A 2-3-2-1 network with sigmoid activations and pre-set weights. Data flows left to right: each neuron computes z = sum(w·x) + b, then a = sigmoid(z). Adjust x₁ and x₂ to change the inputs.</div>
+<div class="demo-caption">Forward pass: 2-3-2-1 network</div>
 
 <div class="demo-hint">Try extreme input values (both at +2 or both at -2). Notice how sigmoid saturates the activations near 0 or 1 when the pre-activation values are large.</div>
 
@@ -268,7 +269,7 @@ Now for the heart of backpropagation. After the forward pass, we compute the los
     <span><span class="bp-legend-dot" style="background:#ff9e64"></span> Chain rule multiplication</span>
   </div>
 </div>
-<div class="demo-caption">Gradients flow right to left through the same 2-3-2-1 network. At each connection: local gradient × upstream gradient = downstream gradient. The δ values shown at each neuron represent the error signal reaching that node.</div>
+<div class="demo-caption">Backward pass: gradient flow</div>
 
 <div class="demo-hint">The key insight: each node only needs to know its local derivative and the gradient coming from above (upstream). It multiplies them together and passes the result backward. No node needs to know the full network structure.</div>
 
@@ -301,9 +302,9 @@ Watch the edges change thickness and color as weights evolve. Thick edges carry 
     <span>Thickness = magnitude</span>
   </div>
 </div>
-<div class="demo-caption">A 2-4-1 network learning XOR with binary cross-entropy loss. Edge thickness shows weight magnitude; blue = positive, red = negative. Click Train to run 10 gradient update steps, or use continuous training to watch weights evolve smoothly.</div>
+<div class="demo-caption">XOR training: weight evolution</div>
 
-<div class="demo-hint">Try a very high learning rate (2.5+) and watch the weights oscillate wildly. Then try 0.1 and notice how slowly they converge. A learning rate around 1.0 usually works well for this small network. If the network gets stuck (XOR has local minima), click Reset and try again.</div>
+<div class="demo-hint">High learning rate (>2.5): weights oscillate. Low (0.1): slow convergence. Around 1.0 works well. Click Reset if stuck in a local minimum.</div>
 
 ---
 
@@ -324,9 +325,9 @@ Not all neurons receive equal gradients. In deep networks, gradients can vary en
   </div>
   <div class="demo-info" id="info-heatmap">Bright = large gradient, dark = small gradient. Increase layers with Sigmoid to see gradients vanish.</div>
 </div>
-<div class="demo-caption">Gradient magnitude heatmap for a configurable-depth network with 4 neurons per hidden layer. Bright nodes = large gradient (learning fast), dark nodes = small gradient (learning slowly or stalled). Compare Sigmoid vs ReLU.</div>
+<div class="demo-caption">Gradient magnitude heatmap</div>
 
-<div class="demo-hint">Start with 3 layers on Sigmoid and note the gradient magnitudes. Then increase to 6 layers and watch the early layers go dark, their gradients have shrunk by orders of magnitude. Switch to ReLU and notice the gradient magnitude stays comparable across all layers.</div>
+<div class="demo-hint">Compare 3 vs 6 sigmoid layers: early-layer gradients shrink by orders of magnitude. Switch to ReLU to see gradients stay comparable.</div>
 
 ---
 
@@ -380,7 +381,7 @@ Explore different computational graphs and watch backpropagation compute gradien
   </div>
   <div class="demo-info" id="info-builder">Select an expression and click Compute. Forward values shown in blue, gradients in red.</div>
 </div>
-<div class="demo-caption">Select a preset expression to see its computational graph. Each node displays its forward value (blue, below) and gradient (red, above) after clicking Compute. The third expression includes a sigmoid node to see how it attenuates gradients.</div>
+<div class="demo-caption">Expression computational graphs</div>
 
 <div class="demo-hint">Compare the three expressions. In the sigmoid expression, notice how the sigmoid node compresses the gradient: its local derivative is at most 0.25, so every gradient upstream of the sigmoid is attenuated. This is the same mechanism that causes vanishing gradients in deep networks.</div>
 
@@ -422,9 +423,9 @@ Finally, let us put it all together. A **2-4-4-1** MLP is trained on a 2D classi
   </div>
   <div class="demo-info" id="info-real">Watch backpropagation train a network in real time. The decision boundary updates every 5 epochs.</div>
 </div>
-<div class="demo-caption">A 2-4-4-1 network trained with backpropagation and binary cross-entropy loss. Left: decision boundary evolving in real time (blue region = class 0, red = class 1). Right: training loss curve. Weights use He initialization.</div>
+<div class="demo-caption">Full network training</div>
 
-<div class="demo-hint">Recommended learning rates: Circle works well with LR 0.5-1.5. XOR needs LR 1.0-2.0 for fast convergence. Spiral is hardest and may need LR 1.5-2.5 with a reset if stuck in a local minimum. Try switching to ReLU activations on the Spiral dataset, it often converges faster.</div>
+<div class="demo-hint">Suggested rates: Circle 0.5-1.5, XOR 1.0-2.0, Spiral 1.5-2.5. ReLU often helps on Spiral.</div>
 
 ---
 

@@ -3,6 +3,7 @@ layout: post
 title: "The Perceptron & Multi-Layer Perceptron: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+series: true
 hidden: true
 description: "Build neural networks from scratch with interactive visualizations. Train a single neuron, watch it fail on XOR, then add a hidden layer to solve it. Adjust network architecture and watch decision boundaries evolve in real-time - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
@@ -235,7 +236,7 @@ Boolean logic gates are the simplest classification problems. Each has four data
     </tbody>
   </table>
 </div>
-<div class="demo-caption">Default training setup here and in the training demos below: sigmoid activations with stochastic gradient descent, unless a control explicitly changes it.</div>
+<div class="demo-caption">Default: sigmoid activations, SGD.</div>
 
 ---
 
@@ -272,7 +273,7 @@ This is not a matter of finding the right weights. It is mathematically impossib
     </tbody>
   </table>
 </div>
-<div class="demo-caption">No matter how long you train, the perceptron cannot solve XOR. The line keeps oscillating without converging.</div>
+<div class="demo-caption">Perceptron on XOR: no convergence.</div>
 
 In 1969, Marvin Minsky and Seymour Papert published *Perceptrons*, proving rigorously that single-layer networks cannot solve XOR or any non-linearly-separable problem.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Minsky and Papert (1969), Perceptrons: An Introduction to Computational Geometry. Web: mitpress.mit.edu/9780262631112/perceptrons/">2</a></sup> This contributed to the first "AI Winter", a decade-long decline in neural network research funding.<sup class="cite"><a class="cite-ref" href="#ref-6" data-cite-preview="Schmidhuber (2015), Deep Learning in Neural Networks: An Overview.">6</a></sup> The fix, as we will see, was hiding in plain sight.
 
@@ -322,7 +323,7 @@ For XOR, we need just 2 hidden neurons. The first hidden neuron can learn one di
     </tbody>
   </table>
 </div>
-<div class="demo-caption">The MLP solves XOR by learning a nonlinear decision boundary. Watch the loss decrease and the colored regions form.</div>
+<div class="demo-caption">MLP solves XOR.</div>
 
 <div class="demo-hint">If the network gets stuck (it happens, neural networks have local minima!), click Reset and try again. Different random initializations lead to different learning trajectories.</div>
 
@@ -369,7 +370,7 @@ Now let us explore how network architecture affects what a network can learn. Ch
   </div>
   <div class="demo-info" id="info-playground">Configure the network and click Train. Try the spiral dataset with 2 layers of 6 neurons.</div>
 </div>
-<div class="demo-caption">Experiment with different architectures. More neurons and layers can fit more complex boundaries.</div>
+<div class="demo-caption">Architecture playground.</div>
 
 <div class="demo-hint">Try 1 hidden neuron on XOR, it cannot solve it. Then increase to 2 and watch it succeed. For the spiral dataset, you may need 2-3 layers with 6-8 neurons each.</div>
 
@@ -395,7 +396,7 @@ ReLU: $$f(z) = \max(0, z)$$, simple and fast. The workhorse of modern deep learn
   </div>
   <div class="demo-info" id="info-activations">Each activation and its derivative are shown. Sigmoid and Tanh saturate at extremes; ReLU has constant gradient for positive inputs.</div>
 </div>
-<div class="demo-caption">Compare activation functions and their derivatives. Click each button or "Show All" to overlay them.</div>
+<div class="demo-caption">Activation comparison.</div>
 
 ---
 
@@ -419,7 +420,7 @@ We compute gradients layer by layer, starting from the output and propagating ba
   </div>
   <div class="demo-info" id="info-backprop">Click "Forward Pass" to see data flow through the network, then "Backward Pass" to see gradients flow back.</div>
 </div>
-<div class="demo-caption">Step through forward and backward passes. Neurons light up as activations and gradients flow through the network.</div>
+<div class="demo-caption">Forward and backward pass.</div>
 
 <div class="demo-hint">We will derive backpropagation fully in the [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/) guide. For now, focus on the intuition: each weight's gradient tells it how much it contributed to the error, via the chain rule.</div>
 
@@ -441,7 +442,7 @@ The practical question is: how many neurons do you need?
   </div>
   <div class="demo-info" id="info-universal">Target: sin(x). Increase hidden neurons and retrain to see the approximation improve.</div>
 </div>
-<div class="demo-caption">A single hidden layer approximates sin(x). With 1-3 neurons, it is rough; with 10+, it is nearly perfect.</div>
+<div class="demo-caption">Universal approximation of sin(x).</div>
 
 ---
 

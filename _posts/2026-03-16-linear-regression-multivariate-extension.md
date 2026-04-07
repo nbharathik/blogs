@@ -3,6 +3,7 @@ layout: post
 title: "Linear Regression II: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+series: true
 hidden: true
 description: "Extend linear regression to two features with interactive 3D visualizations. Watch a prediction plane tilt through data, explore the cost surface, and see gradient descent converge."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
@@ -27,6 +28,62 @@ date: 2026-03-16
   border-radius: 0 6px 6px 0;
   font-size: 0.85rem;
   color: var(--text-secondary);
+}
+sup.cite {
+  font-size: 0.72em;
+  vertical-align: super;
+  line-height: 0;
+}
+sup.cite .cite-ref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  position: relative;
+  padding: 0 1px;
+}
+sup.cite .cite-ref:hover,
+sup.cite .cite-ref:focus {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+sup.cite .cite-ref::after {
+  content: attr(data-cite-preview);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(6px);
+  min-width: 220px;
+  max-width: 320px;
+  width: max-content;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 30;
+  white-space: normal;
+}
+sup.cite .cite-ref:hover::after,
+sup.cite .cite-ref:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.references {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+}
+.references li {
+  margin: 0.55rem 0;
+  line-height: 1.5;
+}
+.references a {
+  word-break: break-word;
 }
 .demo-controls {
   display: flex;
@@ -275,7 +332,7 @@ window.LR2 = (function() {
 This is the follow-up to the first post:
 [Linear Regression from Scratch: An Interactive Guide]({{ site.baseurl }}/linear-regression/)
 
-Now we move to the next step: multiple input features. We start with the simplest multivariate case, two features because it can still be visualized. With two inputs, linear regression is no longer just a line, it becomes a plane in 3D space. More generally, with additional features the same idea extends to a hyperplane in higher dimensions.
+Now we move to the next step: multiple input features.<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Gauss (1809), Theoria Motus Corporum Coelestium. Perthes et Besser, Hamburg.">1</a></sup> We start with the simplest multivariate case, two features because it can still be visualized. With two inputs, linear regression is no longer just a line, it becomes a plane in 3D space. More generally, with additional features the same idea extends to a hyperplane in higher dimensions.
 
 The full model with two features is:
 
@@ -287,7 +344,7 @@ where $$w_1$$ and $$w_2$$ control the **tilt** of the prediction plane, and $$b$
 
 ---
 
-## From a Line to a Plane
+## 1. From a Line to a Plane
 
 With one feature, the hypothesis was a **line** on a 2D plot ($$x$$ vs $$y$$):
 
@@ -309,12 +366,12 @@ Together, $$w_1$$, $$w_2$$, and $$b$$ fully determine the prediction plane. Trai
 
 ---
 
-## Seeing the Data in 3D
+## 2. Seeing the Data in 3D
 
 Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space. The semi-transparent blue surface is the **prediction plane** $$\hat{y} = w_1 x_1 + w_2 x_2 + b$$. The red dashed lines are the **errors** (residuals), the vertical distance from each point to the plane.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Drag <strong>w₁</strong> and <strong>w₂</strong> sliders to tilt the prediction plane. Drag <strong>b</strong> to shift it up or down. <strong>Drag on the 3D plot</strong> to rotate the view. Click <strong>Fit</strong> to animate gradient descent finding the best parameters. The red lines show prediction errors and try to make them as short as possible!
+Drag w₁ and w₂ to tilt the plane; drag b to shift vertically. Click Fit to run gradient descent.
 </div>
 
 <div class="interactive-demo">
@@ -344,7 +401,7 @@ Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2
   </div>
   <div class="demo-info" id="lr2-info">Adjust w₁ and w₂ to tilt the plane through the data.</div>
   <canvas id="lr2-3d"></canvas>
-  <div class="demo-caption">Drag to rotate the 3D view. Blue surface = prediction plane. Red dashed = errors.</div>
+  <div class="demo-caption">Prediction plane</div>
   <div class="demo-controls">
     <label>Rotate:
       <input type="range" id="lr2-az" min="0" max="360" step="1" value="35">
@@ -712,7 +769,7 @@ Notice how the **red error lines** shrink when you find good weights and grow wh
 
 ---
 
-## The Cost Surface
+## 3. The Cost Surface
 
 For the visualizations below, we set $$b = 0$$ so the cost depends on only two variables, $$w_1$$ and $$w_2$$. This lets us plot the cost as a 3D surface and a 2D contour - something impossible with three free parameters (that would need a 4D plot). The bias slider above still works for exploring the full model; down here we focus on the weight landscape.
 
@@ -727,7 +784,7 @@ For linear regression with MSE, this surface is always **bowl-shaped** (convex).
 The **contour plot** on the right is a top-down view of the same bowl, like a topographic map. The darkest regions have the highest cost, and the lightest center is the minimum.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> The red dot shows your current <code>w₁, w₂</code> position from the sliders above. Drag the green dot on the contour plot to explore. Adjust the w₁/w₂ sliders above and watch both views update.
+Red dot shows current weights. Drag the green dot to explore the cost surface.
 </div>
 
 <div class="interactive-demo">
@@ -735,12 +792,12 @@ The **contour plot** on the right is a top-down view of the same bowl, like a to
     <div class="lr2-card">
       <div class="lr2-title">3D Cost Surface J(w₁, w₂)</div>
       <canvas id="lr2-surface"></canvas>
-      <div class="demo-caption">Red dot = current weights</div>
+      <div class="demo-caption">Current weights</div>
     </div>
     <div class="lr2-card">
       <div class="lr2-title">Contour Plot (top-down view)</div>
       <canvas id="lr2-contour"></canvas>
-      <div class="demo-caption">Drag the green dot to explore</div>
+      <div class="demo-caption">Cost contour</div>
     </div>
   </div>
   <div class="demo-controls">
@@ -997,9 +1054,9 @@ The bowl shape is key. No matter where you start on this surface, if you always 
 
 ---
 
-## Training with Gradient Descent
+## 4. Training with Gradient Descent
 
-The update rules for two weights are a natural extension of the single-weight case:
+The update rules for two weights are a natural extension of the single-weight case:<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Cauchy (1847), Methode generale pour la resolution des systemes d'equations simultanees. Comptes Rendus, 25, 536-538.">2</a></sup>
 
 $$w_1 := w_1 - \alpha \cdot \frac{\partial J}{\partial w_1} \qquad w_2 := w_2 - \alpha \cdot \frac{\partial J}{\partial w_2}$$
 
@@ -1010,7 +1067,7 @@ $$\frac{\partial J}{\partial w_1} = \frac{1}{m}\sum_{i=1}^{m}\left(\hat{y}^{(i)}
 Each derivative tells us: "if I slightly increase this weight, how does the cost change?" We step in the **opposite** direction (minus sign) to reduce the cost. The **learning rate** $$\alpha$$ controls how big each step is.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> for one gradient descent iteration, or <strong>Run</strong> to animate. The left panel shows the optimization path on the contour. The right panel shows the prediction plane converging in 3D. The chart below shows cost decreasing over iterations.
+Step runs one iteration. Run animates. Left: contour path. Right: plane converging.
 </div>
 
 <div class="interactive-demo">
@@ -1018,16 +1075,16 @@ Each derivative tells us: "if I slightly increase this weight, how does the cost
     <div class="lr2-card">
       <div class="lr2-title">Gradient Descent Path</div>
       <canvas id="lr2-gd-contour"></canvas>
-      <div class="demo-caption">Green path on the cost contour</div>
+      <div class="demo-caption">Optimization path</div>
     </div>
     <div class="lr2-card">
       <div class="lr2-title">Prediction Plane Converging</div>
       <canvas id="lr2-gd-3d"></canvas>
-      <div class="demo-caption">Plane tilts to fit the data</div>
+      <div class="demo-caption">Fitted plane</div>
     </div>
   </div>
   <canvas id="lr2-gd-loss" style="width:100%; max-width:680px;"></canvas>
-  <div class="demo-caption">Cost J(w₁, w₂) vs. iteration number</div>
+  <div class="demo-caption">Cost vs. iteration</div>
   <div class="demo-controls">
     <label>Learning rate α:
       <input type="range" id="lr2-gd-lr" min="0.005" max="0.15" step="0.005" value="0.04">
@@ -1372,8 +1429,8 @@ Each derivative tells us: "if I slightly increase this weight, how does the cost
 })();
 </script>
 
-<div class="demo-try">
-<strong>Try this:</strong> Click <strong>Step</strong> 10 times slowly to see individual gradient descent steps. Watch how the green dot takes larger steps when far from the minimum and smaller steps as it approaches. Then click <strong>Run</strong> to see rapid convergence. Try different learning rates - too high and the path overshoots; too low and convergence is painfully slow.
+<div class="demo-hint">
+Try stepping slowly, then click Run. Adjust the learning rate to see overshooting vs. slow convergence.
 </div>
 
 After running gradient descent for enough iterations, the green dot settles at the bowl's minimum, and the plane in the right panel fits snugly through the data. The convergence curve shows the cost rapidly decreasing at first and then flattening as it approaches the minimum - the same pattern we saw in the single-feature case.
@@ -1391,3 +1448,10 @@ After running gradient descent for enough iterations, the green dot settles at t
 - **Gradient descent** generalizes naturally: each weight gets its own partial derivative, and all weights update simultaneously each iteration.
 
 - We kept $$b = 0$$ intentionally for clarity. Adding a bias $$b$$ adds one more dimension to the cost surface but changes nothing about how the algorithm works.
+
+#### References
+
+<ol class="references">
+  <li id="ref-1">Gauss, C. F. (1809). <em>Theoria Motus Corporum Coelestium</em>. Perthes et Besser, Hamburg.</li>
+  <li id="ref-2">Cauchy, A. (1847). <em>Methode generale pour la resolution des systemes d'equations simultanees</em>. Comptes Rendus de l'Academie des Sciences, 25, 536-538.</li>
+</ol>

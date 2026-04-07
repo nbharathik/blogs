@@ -3,6 +3,7 @@ layout: post
 title: "Logistic Regression: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+series: true
 hidden: true
 description: "Build logistic regression from the ground up with interactive visualizations. Adjust parameters, watch gradient descent optimize the sigmoid curve, and explore the decision boundary - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
@@ -130,6 +131,62 @@ date: 2026-03-17
   border-radius: 0 6px 6px 0;
   font-size: 0.85rem;
   color: var(--text-secondary);
+}
+sup.cite {
+  font-size: 0.72em;
+  vertical-align: super;
+  line-height: 0;
+}
+sup.cite .cite-ref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  position: relative;
+  padding: 0 1px;
+}
+sup.cite .cite-ref:hover,
+sup.cite .cite-ref:focus {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+sup.cite .cite-ref::after {
+  content: attr(data-cite-preview);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(6px);
+  min-width: 220px;
+  max-width: 320px;
+  width: max-content;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 30;
+  white-space: normal;
+}
+sup.cite .cite-ref:hover::after,
+sup.cite .cite-ref:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.references {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+}
+.references li {
+  margin: 0.55rem 0;
+  line-height: 1.5;
+}
+.references a {
+  word-break: break-word;
 }
 .demo-try {
   margin-top: 0.6rem;
@@ -400,7 +457,7 @@ window.LogR = (function() {
 })();
 </script>
 
-Logistic regression is one of the most fundamental **classification** algorithms in machine learning. Despite the word "regression" in its name, logistic regression is used for **classification**, not regression. It is the natural next step after linear regression and shares many of the same ideas: a hypothesis function, a cost function, and gradient descent for optimization.
+Logistic regression is one of the most fundamental **classification** algorithms in machine learning.<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Cox (1958), The regression analysis of binary sequences. Journal of the Royal Statistical Society, Series B, 20(2), 215-242.">1</a></sup> Despite the word "regression" in its name, logistic regression is used for **classification**, not regression. It is the natural next step after linear regression and shares many of the same ideas: a hypothesis function, a cost function, and gradient descent for optimization.
 
 In this interactive guide, we will build logistic regression **completely from scratch**, and you will get to play with every concept right in the browser. We will use a concrete, intuitive example: **predicting whether a student passes an exam based on the number of hours they studied**. Given a set of students where we know both how many hours they studied and whether they passed, can we learn a model that predicts whether a *new* student will pass?
 
@@ -413,12 +470,12 @@ By the end of this post you will understand:
 - **Making predictions** - using the trained model on new data
 
 <div class="demo-hint">
-<strong>How to use the interactive demos:</strong> Each section has a hands-on visualization. You can click, drag, and adjust sliders to experiment. The dataset you create in the first demo is shared across all sections. Trained model parameters also carry forward, so you do not need to retrain for predictions.
+Demos share one dataset. Trained model parameters carry forward to later sections.
 </div>
 
 ---
 
-## What is Classification?
+## 1. What is Classification?
 
 In **regression**, we predict a continuous value (like house prices). In **classification**, we predict a **discrete category**. The simplest form is **binary classification**, where there are exactly two possible outcomes:
 
@@ -437,14 +494,14 @@ You might wonder: can we just fit a straight line and use a threshold? If the li
 
 ---
 
-## The Training Dataset
+## 2. The Training Dataset
 
 Every machine learning model starts with data. Below we have 16 students with their hours studied and whether they passed (1) or failed (0). This is our **training dataset**, the set of labeled examples from which the model will learn patterns.
 
 Notice the pattern: students who studied fewer hours tend to fail, while those who studied more tend to pass. There is a region in the middle where the outcome is less certain. Our model needs to learn this boundary.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click on the plot to <strong>add</strong> a new data point. Click near <code>y=1</code> to add a pass, near <code>y=0</code> to add a fail. Double-click a point to <strong>remove</strong> it. All demos below automatically use this dataset.
+Click near y=1 to add a pass, near y=0 to add a fail. Double-click to remove.
 </div>
 
 <div class="interactive-demo">
@@ -549,11 +606,11 @@ Looking at the plot, you can see a clear pattern: low study hours cluster near y
 
 ---
 
-## The Sigmoid Function
+## 3. The Sigmoid Function
 
 We need a function that takes any real number and squashes it into the range $$(0, 1)$$. This function is the **sigmoid** (also called the **logistic function**):
 
-$$\sigma(z) = \frac{1}{1 + e^{-z}}$$
+$$\sigma(z) = \frac{1}{1 + e^{-z}}$$<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Berkson (1944), Application of the Logistic Function to Bio-Assay. Journal of the American Statistical Association, 39(227), 357-365.">2</a></sup>
 
 Key properties of the sigmoid:
 - When $$z$$ is very large and positive, $$e^{-z} \to 0$$, so $$\sigma(z) \to 1$$
@@ -564,7 +621,7 @@ Key properties of the sigmoid:
 These properties make it perfect for representing probabilities. The output of the sigmoid can be interpreted as: "the probability that the input belongs to class 1."
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Hover over the sigmoid curve to see exact values. Adjust the <strong>scale</strong> and <strong>shift</strong> parameters to see how the S-curve changes shape and position. Scale controls the steepness; shift moves the curve left or right.
+Scale controls steepness; shift moves the curve left or right. Hover for exact values.
 </div>
 
 <div class="interactive-demo">
@@ -660,7 +717,7 @@ The sigmoid function is the key ingredient that transforms linear regression int
 
 ---
 
-## The Hypothesis Function
+## 4. The Hypothesis Function
 
 In logistic regression, prediction happens in two simple steps:
 
@@ -689,7 +746,7 @@ The two parameters $$w$$ and $$b$$ control the shape and position of the sigmoid
 Together, $$w$$ and $$b$$ define the full probability curve. Training logistic regression means finding the values of $$w$$ and $$b$$ that make this curve fit the data best.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Drag the <strong>weight</strong> and <strong>bias</strong> sliders to see how each parameter affects the sigmoid curve fitting the data. The curve represents the predicted probability of passing for each number of hours studied.
+Drag weight and bias sliders. The sigmoid curve shows predicted probability of passing.
 </div>
 
 <div class="interactive-demo">
@@ -772,7 +829,7 @@ Notice how the **weight** controls the sharpness of the transition, while the **
 
 ---
 
-## The Cost Function (Binary Cross-Entropy)
+## 5. The Cost Function (Binary Cross-Entropy)
 
 For linear regression, we used Mean Squared Error. Can we use it here? Technically yes, but it creates problems. When MSE is combined with the sigmoid function, the resulting cost surface is **non-convex**, full of local minima where gradient descent can get stuck.
 
@@ -905,7 +962,7 @@ Let us understand why this works. For a single data point, the cost is:
 The log loss penalizes **confident wrong predictions** severely. If the model says "99% chance of pass" but the student failed, the cost is enormous. This is exactly what we want.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Adjust the weight and bias sliders. The <strong>dashed lines</strong> are a geometric visual cue between labels and predicted probabilities. The optimization target is still <strong>log loss</strong>, shown in the metric below.
+Dashed lines connect labels to predicted probabilities. The log loss metric updates below.
 </div>
 
 <div class="interactive-demo">
@@ -985,12 +1042,12 @@ Manually tuning is difficult. Just like with linear regression, we need an autom
 
 ---
 
-## The Cost Landscape
+## 6. The Cost Landscape
 
 Every possible combination of $$w$$ and $$b$$ produces a different log loss value $$J(w,b)$$. If we plot the cost for all combinations, we get a **cost surface**. For binary logistic regression with log loss, the objective is convex in parameters, so for typical non-perfectly-separable data we get a single basin and a unique finite minimum.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Drag the green dot around the contour plot. The right panel shows the sigmoid curve corresponding to the current (w, b) position. Try dragging the dot toward the lightest region, that is the minimum cost!
+Drag the green dot toward the lightest region to find the minimum cost.
 </div>
 
 <div class="interactive-demo">
@@ -1114,7 +1171,7 @@ The lightest region on the contour plot represents the lowest cost, the optimal 
 
 ---
 
-## Gradient Descent
+## 7. Gradient Descent
 
 The gradient descent algorithm for logistic regression follows the same structure as linear regression. The key difference is that the hypothesis function now uses the sigmoid. The gradients turn out to have the same elegant form:
 
@@ -1133,7 +1190,7 @@ $$b := b - \alpha \cdot \frac{\partial J}{\partial b}$$
 Just like in linear regression, the learning rate $$\alpha$$ controls the step size. Too small and convergence is slow. Too large and the algorithm overshoots and diverges.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> for one gradient descent iteration, or <strong>Run</strong> to animate. The green path on the contour plot shows the optimization trajectory. The sigmoid curve on the right converges to the best fit. The chart below shows cost decreasing over iterations. (Features are normalized internally for stability.)
+Step runs one iteration. Run animates. Features are normalized internally for stability.
 </div>
 
 <div class="interactive-demo">
@@ -1353,7 +1410,7 @@ After running gradient descent for enough iterations, the green dot settles at t
 
 ---
 
-## The Decision Boundary
+## 8. The Decision Boundary
 
 Once we have trained the model and found the optimal $$w$$ and $$b$$, we need a rule for converting the predicted probability into a class prediction. The standard approach is to use a **threshold of 0.5**:
 
@@ -1367,7 +1424,7 @@ $$w \cdot x + b = 0 \quad \Rightarrow \quad x = -\frac{b}{w}$$
 Everything to the left of this boundary is classified as fail, and everything to the right is classified as pass (assuming $$w > 0$$).
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Auto-Train</strong> to train the model, then see the decision boundary. The shaded regions show the predicted class for each area of the plot. Adjust the threshold slider to see how it changes the decision boundary.
+Auto-Train fits the model. Shaded regions show predicted class. Adjust the threshold slider.
 </div>
 
 <div class="interactive-demo">
@@ -1494,7 +1551,7 @@ The decision boundary is a powerful concept. In our one-dimensional example, it 
 
 ---
 
-## Implementing from Scratch
+## 9. Implementing from Scratch
 
 Let us put together the complete algorithm step-by-step:
 
@@ -1556,7 +1613,7 @@ print(f"Prediction: {'PASS' if prob >= 0.5 else 'FAIL'}")
 ```
 
 <div class="demo-hint">
-<strong>Interactive:</strong> Edit the parameters below and click <strong>Run</strong>. The output shows training progress and the final trained sigmoid. Features are normalized internally for stable optimization, then mapped back to the original scale. The trained parameters are saved, and the Prediction section below will automatically use them.
+Edit parameters and click Run. Trained parameters are saved for the Prediction section.
 </div>
 
 <div class="interactive-demo">
@@ -1672,7 +1729,7 @@ var w = 0, b = 0;
 
 ---
 
-## Making Predictions
+## 10. Making Predictions
 
 Once we have trained our model and found the optimal values of $$w$$ and $$b$$, making predictions is straightforward:
 
@@ -1686,7 +1743,7 @@ $$P(\text{pass}) = \sigma(2.0 \times 6 + (-10.0)) = \sigma(2.0) = 0.88$$
 Since $$0.88 \geq 0.5$$, we predict **PASS**; the model's estimated probability is 88%.
 
 <div class="demo-hint">
-<strong>Interactive:</strong> This demo uses the trained parameters from the gradient descent above. If you have not trained yet, click <strong>Auto-Train</strong>. Then enter any number of hours and click <strong>Predict</strong> to see the result.
+Uses trained parameters from above. Click Auto-Train if needed, then enter hours and Predict.
 </div>
 
 <div class="interactive-demo">
@@ -1821,4 +1878,8 @@ The logistic regression model shares the same fundamental framework as linear re
 
 #### References
 
-- [Machine Learning](https://www.coursera.org/learn/machine-learning) course by Andrew Ng on Coursera
+<ol class="references">
+  <li id="ref-1">Cox, D. R. (1958). <em>The regression analysis of binary sequences</em>. Journal of the Royal Statistical Society, Series B, 20(2), 215-242.</li>
+  <li id="ref-2">Berkson, J. (1944). <em>Application of the Logistic Function to Bio-Assay</em>. Journal of the American Statistical Association, 39(227), 357-365.</li>
+  <li id="ref-3">Ng, A. (2012). <em>Machine Learning</em>. Coursera / Stanford University. <a href="https://www.coursera.org/learn/machine-learning" target="_blank" rel="noopener">https://www.coursera.org/learn/machine-learning</a></li>
+</ol>

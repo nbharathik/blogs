@@ -3,6 +3,8 @@ layout: post
 title: "K-Means Clustering from Scratch: An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
+tags: [ml-part-2]
+series: false
 hidden: true
 description: "Build K-Means clustering from scratch with interactive visualizations. Watch centroids move step-by-step, explore K selection with the elbow method, compare initialization strategies, and see Voronoi regions form - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
