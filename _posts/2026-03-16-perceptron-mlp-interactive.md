@@ -122,15 +122,69 @@ date: 2026-03-17
   color: #73daca;
   font-weight: 700;
 }
+sup.cite {
+  font-size: 0.72em;
+  margin-left: 0.12rem;
+  vertical-align: super;
+}
+sup.cite .cite-ref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  position: relative;
+  padding: 0 1px;
+}
+sup.cite .cite-ref:hover,
+sup.cite .cite-ref:focus {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+sup.cite .cite-ref::after {
+  content: attr(data-cite-preview);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(6px);
+  min-width: 220px;
+  max-width: 320px;
+  width: max-content;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 30;
+  white-space: normal;
+}
+sup.cite .cite-ref:hover::after,
+sup.cite .cite-ref:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.references {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+}
+.references li {
+  margin: 0.55rem 0;
+  line-height: 1.5;
+}
+.references a {
+  word-break: break-word;
+}
 </style>
 
-## From Logistic Regression to Neural Networks
+## Perceptrons and Neural Networks
 
-In the previous chapters, we built logistic regression from scratch, a single linear boundary that separates two classes. It works beautifully when the data is linearly separable. But what happens when it is not?
+A perceptron is one of the simplest models for binary classification: it computes a weighted sum of inputs, adds a bias, and applies an activation function. If you want background on the closely related linear classifier, see [Logistic Regression from Scratch]({% post_url 2026-03-16-logistic-regression-from-scratch-interactive %}). This chapter is fully self-contained, so you can continue directly from here.
 
-The **perceptron**, invented by Frank Rosenblatt in 1958, is the ancestor of every neural network. It is, at its core, the same computation as logistic regression: a weighted sum of inputs passed through an activation function. The difference is not in the math of a single neuron, it is in what happens when you stack them.
-
-This chapter tells the story of the perceptron's triumph, its devastating limitation, and the elegant solution that launched the deep learning revolution.
+The perceptron, invented by Frank Rosenblatt in 1958, is the ancestor of every neural network.<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Rosenblatt (1958), The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain.">1</a></sup> It is, at its core, the same computation as logistic regression: a weighted sum of inputs passed through an activation function. The difference is not in the math of a single neuron, it is in what happens when you stack them.
 
 ---
 
@@ -144,7 +198,7 @@ $$a = \sigma(z)$$
 
 where $$\sigma$$ is an activation function (we will use the sigmoid $$\sigma(z) = \frac{1}{1+e^{-z}}$$ for now). If $$a \geq 0.5$$ we predict class 1, otherwise class 0.
 
-This is identical to logistic regression, and that is the point. A single neuron **is** logistic regression. The neural network framing simply invites us to ask: what if we connect many of them together?
+This is identical to logistic regression, and that is the point. A single neuron is logistic regression. The neural network framing is when we start stacking neurons into layers, allowing us to learn much more complex functions.
 
 <div class="interactive-demo" id="demo-neuron">
   <canvas id="canvas-neuron" width="680" height="340"></canvas>
@@ -155,20 +209,12 @@ This is identical to logistic regression, and that is the point. A single neuron
   </div>
   <div class="demo-info" id="info-neuron">Decision boundary: 1.5·x₁ + -1.0·x₂ + 0.0 = 0</div>
 </div>
-<div class="demo-caption">Drag the sliders to move the decision boundary. The left panel shows the neuron diagram; the right shows the 2D decision boundary.</div>
-
-<div class="demo-hint">Try setting w₁=0 to make the boundary horizontal, or w₂=0 to make it vertical. The bias shifts the line away from the origin.</div>
 
 ---
 
 ## 2. Learning Logic Gates
 
-Boolean logic gates are the simplest classification problems. Each has four data points with two binary inputs and one binary output.
-
-**AND gate:** output is 1 only when both inputs are 1.
-**OR gate:** output is 1 when at least one input is 1.
-
-Both are **linearly separable**, a single line can separate the 1s from the 0s. A perceptron can learn them easily.
+Boolean logic gates are the simplest classification problems. Each has four data points with two binary inputs and one binary output. AND gate: output is 1 only when both inputs are 1. OR gate: output is 1 when at least one input is 1. Both are linearly separable, a single line can separate the 1s from the 0s. A perceptron can learn them easily.
 
 <div class="interactive-demo" id="demo-gates">
   <canvas id="canvas-gates" width="680" height="340"></canvas>
@@ -189,13 +235,13 @@ Both are **linearly separable**, a single line can separate the 1s from the 0s. 
     </tbody>
   </table>
 </div>
-<div class="demo-caption">Watch the decision boundary animate into the correct position for AND and OR gates.</div>
+<div class="demo-caption">Default training setup here and in the training demos below: sigmoid activations with stochastic gradient descent, unless a control explicitly changes it.</div>
 
 ---
 
 ## 3. The XOR Problem, Where Single Neurons Fail
 
-Now try XOR: output is 1 when the inputs are **different**.
+Now try XOR: output is 1 when the inputs are different.
 
 | x₁ | x₂ | XOR |
 |---|---|---|
@@ -204,7 +250,7 @@ Now try XOR: output is 1 when the inputs are **different**.
 | 1 | 0 | 1 |
 | 1 | 1 | 0 |
 
-Look at these four points on a 2D plane. The 1s are at (0,1) and (1,0), diagonally opposite corners. The 0s are at (0,0) and (1,1). **No single straight line can separate them.**
+Look at these four points on a 2D plane. The 1s are at (0,1) and (1,0), diagonally opposite corners. The 0s are at (0,0) and (1,1). No single straight line can separate them.
 
 This is not a matter of finding the right weights. It is mathematically impossible. A single neuron computes a linear boundary, and XOR requires a nonlinear one.
 
@@ -228,23 +274,21 @@ This is not a matter of finding the right weights. It is mathematically impossib
 </div>
 <div class="demo-caption">No matter how long you train, the perceptron cannot solve XOR. The line keeps oscillating without converging.</div>
 
-In 1969, Marvin Minsky and Seymour Papert published *Perceptrons*, proving rigorously that single-layer networks cannot solve XOR or any non-linearly-separable problem. This contributed to the first "AI Winter", a decade-long decline in neural network research funding.
-
-The fix, as we will see, was hiding in plain sight.
+In 1969, Marvin Minsky and Seymour Papert published *Perceptrons*, proving rigorously that single-layer networks cannot solve XOR or any non-linearly-separable problem.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Minsky and Papert (1969), Perceptrons: An Introduction to Computational Geometry. Web: mitpress.mit.edu/9780262631112/perceptrons/">2</a></sup> This contributed to the first "AI Winter", a decade-long decline in neural network research funding.<sup class="cite"><a class="cite-ref" href="#ref-6" data-cite-preview="Schmidhuber (2015), Deep Learning in Neural Networks: An Overview.">6</a></sup> The fix, as we will see, was hiding in plain sight.
 
 ---
 
 ## 4. The Solution: Hidden Layers
 
-The key insight: if one neuron draws one line, **two neurons draw two lines**, and a third neuron can combine them. Stack neurons into layers, and you can carve up the input space into arbitrarily complex regions.
+The key insight: if one neuron draws one line, two neurons draw two lines, and a third neuron can combine them. Stack neurons into layers, and you can carve up the input space into arbitrarily complex regions.
 
-A **Multi-Layer Perceptron (MLP)** adds one or more hidden layers between input and output:
+A Multi-Layer Perceptron (MLP) adds one or more hidden layers between input and output:
 
-**Layer 1 (hidden):**
+Layer 1 (hidden):
 
 $$\mathbf{h} = \sigma(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1)$$
 
-**Layer 2 (output):**
+Layer 2 (output):
 
 $$\hat{y} = \sigma(\mathbf{W}_2 \mathbf{h} + \mathbf{b}_2)$$
 
@@ -335,11 +379,11 @@ Now let us explore how network architecture affects what a network can learn. Ch
 
 The activation function determines the shape of the nonlinearity each neuron introduces. The three most common choices:
 
-**Sigmoid:** $$\sigma(z) = \frac{1}{1+e^{-z}}$$, squashes output to (0, 1). Smooth gradient but can saturate.
+Sigmoid: $$\sigma(z) = \frac{1}{1+e^{-z}}$$, squashes output to (0, 1). Smooth gradient but can saturate.
 
-**Tanh:** $$\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$, squashes to (-1, 1). Zero-centered, often trains faster than sigmoid.
+Tanh: $$\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$, squashes to (-1, 1). Zero-centered, often trains faster than sigmoid.
 
-**ReLU:** $$f(z) = \max(0, z)$$, simple and fast. The workhorse of modern deep learning. Can "die" if inputs are always negative.
+ReLU: $$f(z) = \max(0, z)$$, simple and fast. The workhorse of modern deep learning.<sup class="cite"><a class="cite-ref" href="#ref-5" data-cite-preview="Nair and Hinton (2010), Rectified Linear Units Improve Restricted Boltzmann Machines. PDF: cs.toronto.edu/~hinton/absps/reluICML.pdf">5</a></sup> Can "die" if inputs are always negative.
 
 <div class="interactive-demo" id="demo-activations">
   <canvas id="canvas-activations" width="680" height="300"></canvas>
@@ -357,13 +401,13 @@ The activation function determines the shape of the nonlinearity each neuron int
 
 ## 7. How Backpropagation Works (Intuition)
 
-Training a neural network means finding weights that minimize the loss. We use **gradient descent**, but the challenge is: how do you compute the gradient of the loss with respect to a weight buried deep in the network?
+Training a neural network means finding weights that minimize the loss. We use gradient descent, but the challenge is: how do you compute the gradient of the loss with respect to a weight buried deep in the network?
 
-The answer is the **chain rule**. If the loss depends on the output, which depends on the hidden layer, which depends on the weights:
+The answer is the chain rule. If the loss depends on the output, which depends on the hidden layer, which depends on the weights:
 
 $$\frac{\partial L}{\partial w} = \frac{\partial L}{\partial a} \cdot \frac{\partial a}{\partial z} \cdot \frac{\partial z}{\partial w}$$
 
-We compute gradients layer by layer, starting from the output and propagating backward, hence "backpropagation." Each layer passes its gradient to the previous layer, scaled by the local derivative.
+We compute gradients layer by layer, starting from the output and propagating backward, hence "backpropagation."<sup class="cite"><a class="cite-ref" href="#ref-4" data-cite-preview="Rumelhart, Hinton, and Williams (1986), Learning representations by back-propagating errors.">4</a></sup> Each layer passes its gradient to the previous layer, scaled by the local derivative.
 
 <div class="interactive-demo" id="demo-backprop">
   <canvas id="canvas-backprop" width="680" height="380"></canvas>
@@ -383,7 +427,7 @@ We compute gradients layer by layer, starting from the output and propagating ba
 
 ## 8. Universal Approximation
 
-One of the most powerful results in neural network theory is the **Universal Approximation Theorem**: a neural network with a single hidden layer containing enough neurons can approximate any continuous function to arbitrary accuracy.
+One of the most powerful results in neural network theory is the Universal Approximation Theorem: a neural network with a single hidden layer containing enough neurons can approximate any continuous function to arbitrary accuracy.<sup class="cite"><a class="cite-ref" href="#ref-3" data-cite-preview="Cybenko (1989), Approximation by superpositions of a sigmoidal function.">3</a></sup>
 
 The practical question is: how many neurons do you need?
 
@@ -405,14 +449,27 @@ The practical question is: how many neurons do you need?
 
 | Concept | Key Idea |
 |---|---|
-| **Perceptron** | A single neuron: weighted sum + activation. Equivalent to logistic regression. |
-| **Linear separability** | A perceptron can only learn linearly separable patterns (AND, OR) but not XOR. |
-| **Multi-Layer Perceptron** | Adding hidden layers enables nonlinear decision boundaries. |
-| **Backpropagation** | Chain rule applied layer-by-layer to compute gradients for all weights. |
-| **Activation functions** | Sigmoid, Tanh, ReLU, each introduces nonlinearity with different trade-offs. |
-| **Universal Approximation** | One hidden layer with enough neurons can approximate any continuous function. |
+| Perceptron | A single neuron: weighted sum + activation. Equivalent to logistic regression. |
+| Linear separability | A perceptron can only learn linearly separable patterns (AND, OR) but not XOR. |
+| Multi-Layer Perceptron | Adding hidden layers enables nonlinear decision boundaries. |
+| Backpropagation | Chain rule applied layer-by-layer to compute gradients for all weights. |
+| Activation functions | Sigmoid, Tanh, ReLU, each introduces nonlinearity with different trade-offs. |
+| Universal Approximation | One hidden layer with enough neurons can approximate any continuous function. |
 
-**What's next:** In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/), we will visualize backpropagation in detail, deriving the math, watching gradients flow, and understanding why deep networks can be hard to train.
+What's next: In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/), we will visualize backpropagation in detail and understanding why deep networks can be hard to train.
+
+---
+
+## References
+
+<ol class="references">
+  <li id="ref-1">Rosenblatt, F. (1958). <em>The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain</em>. Psychological Review, 65(6), 386-408. <a href="https://doi.org/10.1037/h0042519" target="_blank" rel="noopener">https://doi.org/10.1037/h0042519</a></li>
+  <li id="ref-2">Minsky, M., &amp; Papert, S. (1969). <em>Perceptrons: An Introduction to Computational Geometry</em>. MIT Press. <a href="https://mitpress.mit.edu/9780262631112/perceptrons/" target="_blank" rel="noopener">https://mitpress.mit.edu/9780262631112/perceptrons/</a></li>
+  <li id="ref-3">Cybenko, G. (1989). <em>Approximation by superpositions of a sigmoidal function</em>. Mathematics of Control, Signals, and Systems, 2, 303-314. <a href="https://doi.org/10.1007/BF02551274" target="_blank" rel="noopener">https://doi.org/10.1007/BF02551274</a></li>
+  <li id="ref-4">Rumelhart, D. E., Hinton, G. E., &amp; Williams, R. J. (1986). <em>Learning representations by back-propagating errors</em>. Nature, 323, 533-536. <a href="https://doi.org/10.1038/323533a0" target="_blank" rel="noopener">https://doi.org/10.1038/323533a0</a></li>
+  <li id="ref-5">Nair, V., &amp; Hinton, G. E. (2010). <em>Rectified Linear Units Improve Restricted Boltzmann Machines</em>. ICML. <a href="https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf" target="_blank" rel="noopener">https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf</a></li>
+  <li id="ref-6">Schmidhuber, J. (2015). <em>Deep Learning in Neural Networks: An Overview</em>. Neural Networks, 61, 85-117. <a href="https://doi.org/10.1016/j.neunet.2014.09.003" target="_blank" rel="noopener">https://doi.org/10.1016/j.neunet.2014.09.003</a></li>
+</ol>
 
 ---
 
@@ -1526,7 +1583,7 @@ The practical question is: how many neurons do you need?
       var oPos=getNodePos(2,0);
       ctx.fillStyle=c.textSec; ctx.font='11px JetBrains Mono, monospace'; ctx.textAlign='left';
       ctx.fillText('target = '+target,oPos.x+34,oPos.y-6);
-      ctx.fillText('loss = '+((activations[2][0]-target)**2).toFixed(4),oPos.x+34,oPos.y+10);
+      ctx.fillText('loss = '+Math.pow((activations[2][0]-target), 2).toFixed(4),oPos.x+34,oPos.y+10);
     }
   }
 

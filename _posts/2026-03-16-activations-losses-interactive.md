@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "Activation Functions & Loss Functions - An Interactive Guide"
+title: "Activation Functions - An Interactive Guide"
 author: bharathikannan
 categories: [Machine learning]
 hidden: true
-description: "Explore every major activation function and loss function interactively - see derivatives, dead neurons, loss landscapes, softmax probabilities, and MSE vs cross-entropy compared."
+description: "Explore every major activation function interactively - see why activations matter, compare Sigmoid, Tanh, ReLU, Leaky ReLU, ELU, Swish, and GELU with their derivatives."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
-permalink: /activations-losses/
+permalink: /activation-functions/
 date: 2026-03-17
 ---
 
@@ -98,6 +98,54 @@ date: 2026-03-17
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
+.grid-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.gt-matrix-panel {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+.gt-matrix-panel .gt-layer-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+  flex-wrap: wrap;
+}
+.gt-matrix-panel .gt-layer-row.active {
+  background: var(--bg-secondary);
+}
+.gt-matrix-panel .gt-layer-row.done {
+  opacity: 0.5;
+}
+.gt-matrix-panel .gt-layer-label {
+  font-weight: 700;
+  min-width: 4.5rem;
+  color: var(--accent, #2563eb);
+}
+.gt-matrix-panel .gt-layer-vals {
+  color: var(--text-secondary);
+}
+.gt-matrix-panel .gt-relu-tag {
+  color: #9ece6a;
+  font-weight: 600;
+  margin-left: 0.3rem;
+}
 .summary-table {
   width: 100%;
   border-collapse: collapse;
@@ -131,30 +179,62 @@ date: 2026-03-17
   border-radius: 50%;
   display: inline-block;
 }
-.neuron-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
-  gap: 4px;
-  margin: 0.5rem 0;
+sup.cite {
+  font-size: 0.72em;
+  vertical-align: super;
+  line-height: 0;
 }
-.neuron-cell {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
+sup.cite .cite-ref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  position: relative;
+  padding: 0 1px;
 }
-.bar-chart-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.25rem 0;
-  font-size: 0.82rem;
-  font-family: 'JetBrains Mono', monospace;
+sup.cite .cite-ref:hover,
+sup.cite .cite-ref:focus {
+  border-bottom-color: var(--accent);
+  outline: none;
 }
-.bar-chart-label { min-width: 60px; text-align: right; }
-.bar-chart-track { flex: 1; height: 22px; background: var(--bg-primary); border-radius: 4px; overflow: hidden; position: relative; }
-.bar-chart-fill { height: 100%; border-radius: 4px; transition: width 0.15s; }
-.bar-chart-val { min-width: 50px; }
+sup.cite .cite-ref::after {
+  content: attr(data-cite-preview);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(6px);
+  min-width: 220px;
+  max-width: 320px;
+  width: max-content;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 30;
+  white-space: normal;
+}
+sup.cite .cite-ref:hover::after,
+sup.cite .cite-ref:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.references {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+}
+.references li {
+  margin: 0.55rem 0;
+  line-height: 1.5;
+}
+.references a {
+  word-break: break-word;
+}
 </style>
 
 <script>
@@ -176,12 +256,6 @@ window.AL = (function() {
       elu: '#bb9af7',
       swish: '#73daca',
       gelu: '#e0af68',
-      mse: '#7aa2f7',
-      mae: '#f7768e',
-      huber: '#9ece6a',
-      bce: '#f7768e',
-      hinge: '#7aa2f7',
-      focal: '#bb9af7',
       positive: '#9ece6a',
       negative: '#f7768e',
       warn: '#e0af68',
@@ -241,39 +315,6 @@ window.AL = (function() {
     swish:   { fn: swish, deriv: swishDeriv, label: 'Swish', formula: 'x * sigmoid(x)' },
     gelu:    { fn: gelu, deriv: geluDeriv, label: 'GELU', formula: 'x * Phi(x)' }
   };
-
-  // ---- Loss functions ----
-  function mseLoss(y, yhat) { return (y - yhat) * (y - yhat); }
-  function maeLoss(y, yhat) { return Math.abs(y - yhat); }
-  function huberLoss(y, yhat, delta) {
-    delta = delta || 1.0;
-    var a = Math.abs(y - yhat);
-    return a <= delta ? 0.5 * a * a : delta * (a - 0.5 * delta);
-  }
-  function bceLoss(y, p) {
-    p = Math.max(1e-7, Math.min(1 - 1e-7, p));
-    return -(y * Math.log(p) + (1 - y) * Math.log(1 - p));
-  }
-  function hingeLoss(y, f) {
-    // y in {-1, 1}, f is raw score
-    return Math.max(0, 1 - y * f);
-  }
-  function focalLoss(y, p, gamma) {
-    gamma = gamma || 2;
-    p = Math.max(1e-7, Math.min(1 - 1e-7, p));
-    var pt = y === 1 ? p : 1 - p;
-    return -Math.pow(1 - pt, gamma) * Math.log(pt);
-  }
-
-  // Softmax
-  function softmax(logits, temp) {
-    temp = temp || 1;
-    var scaled = logits.map(function(v) { return v / temp; });
-    var maxV = Math.max.apply(null, scaled);
-    var exps = scaled.map(function(v) { return Math.exp(v - maxV); });
-    var sum = exps.reduce(function(a, b) { return a + b; }, 0);
-    return exps.map(function(v) { return v / sum; });
-  }
 
   // ---- Plot helpers ----
   function drawAxes(ctx, w, h, pad, xMin, xMax, yMin, yMax, colors, xlabel, ylabel) {
@@ -377,13 +418,6 @@ window.AL = (function() {
     eluDeriv: eluDeriv,
     swishDeriv: swishDeriv,
     geluDeriv: geluDeriv,
-    mseLoss: mseLoss,
-    maeLoss: maeLoss,
-    huberLoss: huberLoss,
-    bceLoss: bceLoss,
-    hingeLoss: hingeLoss,
-    focalLoss: focalLoss,
-    softmax: softmax,
     drawAxes: drawAxes,
     plotLine: plotLine,
     onThemeChange: onThemeChange
@@ -391,9 +425,13 @@ window.AL = (function() {
 })();
 </script>
 
-In the [previous chapter on the perceptron and MLP]({% post_url 2026-03-16-perceptron-mlp-interactive %}), we saw that activation functions are what give neural networks their power, without them, stacking layers would be pointless. And we trained networks using loss functions without examining what makes one loss better than another.
+Activation functions are one of the most important design choices in neural networks. They control what patterns a model can represent and how gradients flow during learning. This chapter explains them from the ground up, with interactive visualizations to build deep intuition.
 
-This chapter is dedicated entirely to these two critical ingredients. We will explore every major activation function, understand why some cause vanishing gradients, see dead neurons in action, and then turn to loss functions, understanding why cross-entropy dominates classification and when to use alternatives. Every concept comes with an interactive visualization.
+In this guide, you will:
+
+- See why activation functions are necessary by watching a network collapse without them
+- Explore every major activation function (Sigmoid, Tanh, ReLU, Leaky ReLU, ELU, Swish, GELU) with their derivatives
+- Understand saturation, vanishing gradients, and how modern activations solve these problems
 
 ---
 
@@ -403,26 +441,43 @@ Without activation functions, every layer in a neural network performs a linear 
 
 $$f(\mathbf{x}) = W_2(W_1 \mathbf{x} + b_1) + b_2 = (W_2 W_1)\mathbf{x} + (W_2 b_1 + b_2) = W'\mathbf{x} + b'$$
 
-No matter how many layers you stack, the entire network collapses to a single linear transformation. Adding a nonlinear activation function between layers is what breaks this collapse and gives depth its power.
+No matter how many layers you stack, the entire network collapses to a single linear transformation. Adding a nonlinear activation function between layers breaks this collapse and gives depth its power.<sup class="cite"><a class="cite-ref" href="#ref-3" data-cite-preview="Cybenko (1989), Approximation by superpositions of a sigmoidal function. Mathematics of Control, Signals, and Systems.">3</a></sup>
 
-<div class="interactive-demo" id="demo-linear-collapse">
-  <canvas id="canvas-linear-collapse" width="680" height="320"></canvas>
-  <div class="demo-controls">
-    <label>Layers <input type="range" id="lc-layers" min="1" max="6" step="1" value="1"><span class="demo-value" id="val-lc-layers">1</span></label>
-    <button id="btn-lc-linear" class="active">No Activation (Linear)</button>
-    <button id="btn-lc-relu">With ReLU</button>
+Each layer in a neural network computes a 2D transformation on its input:
+
+$$\mathbf{h} = W\mathbf{x} + \mathbf{b} = \begin{bmatrix} w_{11} & w_{12} \\ w_{21} & w_{22} \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} + \begin{bmatrix} b_1 \\ b_2 \end{bmatrix}$$
+
+This is a linear transformation: a combination of rotation, scaling, and shearing. When you compose multiple linear layers, the result is always another linear transformation (just multiplying the matrices together). But when you insert ReLU between layers, it clips all negative values to zero:
+
+$$\text{ReLU}(\mathbf{h}) = \begin{bmatrix} \max(0,\, h_1) \\ \max(0,\, h_2) \end{bmatrix}$$
+
+This clipping is nonlinear. It folds parts of the space onto the axes, creating bends that no single matrix can undo. The visualization below shows this in action. A 2D grid of points is passed through neural network layers. On the left, no activation function is applied, so every layer is just a matrix multiply plus bias. On the right, ReLU is applied after each layer. Watch what happens to the grid:
+
+<div class="interactive-demo" id="demo-grid-transform">
+  <div class="demo-split">
+    <div>
+      <div class="grid-label">Without Activation (Linear Only)</div>
+      <canvas id="canvas-grid-linear" width="330" height="330"></canvas>
+    </div>
+    <div>
+      <div class="grid-label">With ReLU Activation</div>
+      <canvas id="canvas-grid-relu" width="330" height="330"></canvas>
+    </div>
   </div>
-  <div class="demo-info" id="info-lc">With no activation, stacking layers produces the same linear function (orange). With ReLU, the network can learn complex shapes (green).</div>
+  <div class="demo-controls">
+    <label>Layers <input type="range" id="gt-layers" min="1" max="4" step="1" value="1"><span class="demo-value" id="val-gt-layers">1</span></label>
+    <button id="btn-gt-animate">&#9654; Animate</button>
+    <button id="btn-gt-reset">Reset</button>
+    <button id="btn-gt-newweights">New Weights</button>
+  </div>
+  <div class="demo-info" id="info-gt">Click "Animate" to watch the transformation unfold layer by layer. Both sides use the same weight matrices.</div>
+  <div class="gt-matrix-panel" id="gt-matrices"></div>
 </div>
-<div class="demo-caption">Stack up to 6 layers. Without activation, the result is always a straight line. With ReLU, each layer adds a "bend."</div>
-
-<div class="demo-hint">Try increasing the layers from 1 to 6 in linear mode, the line changes slope but stays straight. Then switch to ReLU and watch each layer add a new hinge point.</div>
-
 ---
 
 ## 2. Activation Function Explorer
 
-This is the flagship demo. Every major activation function, plotted side-by-side with its derivative. Hover over the plot to see exact values at any input.
+The choice of activation function has a huge impact on training dynamics and final performance. This explorer lets you visualize the most popular activations and their derivatives. The derivative is crucial because it controls how much the weights update during backpropagation. If the derivative is too small (vanishing gradients) or zero (dead neurons), learning can stall.
 
 $$\text{Sigmoid: } \sigma(x) = \frac{1}{1+e^{-x}} \qquad \sigma'(x) = \sigma(x)(1 - \sigma(x))$$
 
@@ -461,15 +516,11 @@ $$\text{GELU: } f(x) = x \cdot \Phi(x) \approx 0.5x\left(1 + \tanh\left(\sqrt{\f
   </div>
   <div class="demo-info" id="info-explorer">Sigmoid: output in (0,1), max derivative = 0.25 at x=0.</div>
 </div>
-<div class="demo-caption">Switch between activation functions or overlay them all. Hover over the canvas to see exact values.</div>
-
 ---
 
 ## 3. Sigmoid & Tanh Deep Dive
 
-Sigmoid and Tanh were the workhorses of early neural networks. They are smooth and differentiable everywhere, but they share a critical flaw: **saturation**. When the input is very large or very small, the output plateaus and the gradient approaches zero.
-
-This is the **vanishing gradient problem**. During backpropagation, gradients are multiplied through each layer. If every layer has a near-zero gradient, the product vanishes exponentially, and early layers learn almost nothing.
+Sigmoid and Tanh were commonly used in early neural networks.<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Rumelhart, Hinton &amp; Williams (1986), Learning representations by back-propagating errors. Nature, 323, 533-536.">1</a></sup> They are smooth and differentiable everywhere, but they share a critical flaw: saturation. When the input is very large or very small, the output plateaus and the gradient approaches zero.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Glorot &amp; Bengio (2010), Understanding the difficulty of training deep feedforward neural networks. AISTATS.">2</a></sup>. This is the vanishing gradient problem. During backpropagation, gradients are multiplied through each layer. If every layer has a near-zero gradient, the product vanishes exponentially, and early layers learn almost nothing.
 
 <div class="interactive-demo" id="demo-saturation">
   <canvas id="canvas-saturation" width="680" height="320"></canvas>
@@ -480,19 +531,11 @@ This is the **vanishing gradient problem**. During backpropagation, gradients ar
   </div>
   <div class="demo-info" id="info-saturation">x = 0.0 | output = 0.500 | gradient = 0.250 | Gradient is HEALTHY</div>
 </div>
-<div class="demo-caption">Slide the input value and watch the gradient shrink as you move away from zero. The red zones mark saturation regions where the gradient is below 0.01.</div>
-
-<div class="demo-hint">Slide x beyond +/-4 for Sigmoid or +/-2 for Tanh. The gradient drops to nearly zero, this is why deep networks with these activations are hard to train.</div>
-
 ---
 
 ## 4. ReLU Family
 
-ReLU (Rectified Linear Unit) solved the vanishing gradient problem with a brutally simple idea: output zero for negative inputs, pass positive inputs through unchanged. The gradient is either 0 or 1, no saturation.
-
-But ReLU has its own problem: **dead neurons**. If a neuron's input is always negative (due to unlucky initialization or a large gradient update), its output is always 0, its gradient is always 0, and it can never recover. It is permanently "dead."
-
-The ReLU family offers several fixes:
+ReLU (Rectified Linear Unit) solved the vanishing gradient problem with a very simple idea: output zero for negative inputs, pass positive inputs through unchanged.<sup class="cite"><a class="cite-ref" href="#ref-4" data-cite-preview="Nair &amp; Hinton (2010), Rectified Linear Units Improve Restricted Boltzmann Machines. ICML.">4</a></sup> The gradient is either 0 or 1, no saturation. But ReLU has its own problem: dead neurons. If a neuron's input is always negative (due to improper initialization or a large gradient update), its output is always 0, its gradient is always 0, and it can never recover. The ReLU family offers several fixes:
 
 <div class="interactive-demo" id="demo-relu-family">
   <canvas id="canvas-relu-family" width="680" height="320"></canvas>
@@ -505,48 +548,17 @@ The ReLU family offers several fixes:
   </div>
   <div class="demo-info" id="info-relu-family">ReLU: zero for x &lt; 0. Leaky ReLU allows a small gradient. ELU smoothly approaches -alpha.</div>
 </div>
-<div class="demo-caption">Adjust the leak parameter to see how Leaky ReLU and ELU allow gradient flow for negative inputs.</div>
-
-<div class="demo-hint">Increase the alpha slider to 0.3 and compare. A larger leak means more gradient flow for negative inputs, but the function becomes less "rectified." ELU provides smooth saturation to -alpha.</div>
-
 ---
 
-## 5. Dead Neuron Demo
-
-Let us see the dead neuron problem in action. We simulate a hidden layer of 64 ReLU neurons receiving random inputs during training. When weights push a neuron's pre-activation permanently negative, it dies. Compare with Leaky ReLU where neurons survive.
-
-<div class="interactive-demo" id="demo-dead-neurons">
-  <div class="demo-split">
-    <div>
-      <canvas id="canvas-dead-relu" width="330" height="280"></canvas>
-      <div class="demo-caption" id="dead-relu-caption">ReLU: 0% dead</div>
-    </div>
-    <div>
-      <canvas id="canvas-dead-leaky" width="330" height="280"></canvas>
-      <div class="demo-caption" id="dead-leaky-caption">Leaky ReLU: 0% dead</div>
-    </div>
-  </div>
-  <div class="demo-controls">
-    <button id="btn-dead-run">Run Training Simulation</button>
-    <button id="btn-dead-reset">Reset</button>
-    <label>Learning Rate <input type="range" id="dead-lr" min="0.01" max="0.5" step="0.01" value="0.1"><span class="demo-value" id="val-dead-lr">0.10</span></label>
-    <span class="demo-value" id="dead-step">Step: 0</span>
-  </div>
-  <div class="demo-info" id="info-dead">Green = active neuron, Red = dead (always 0). Higher learning rates kill more neurons.</div>
-</div>
-<div class="demo-caption">Each circle is a neuron. Watch ReLU neurons die off (turn red) while Leaky ReLU neurons stay alive.</div>
-
----
-
-## 6. Modern Activations: Swish & GELU
+## 5. Modern Activations: Swish & GELU
 
 Modern architectures (EfficientNet, BERT, GPT) use smoother activation functions that are not monotonic, they allow small negative values through:
 
-**Swish** $$f(x) = x \cdot \sigma(x)$$ was discovered by neural architecture search at Google. It is smooth, non-monotonic, and self-gated.
+**Swish** $$f(x) = x \cdot \sigma(x)$$ was discovered by neural architecture search at Google.<sup class="cite"><a class="cite-ref" href="#ref-5" data-cite-preview="Ramachandran, Zoph &amp; Le (2017), Searching for Activation Functions. arXiv:1710.05941.">5</a></sup> It is smooth, non-monotonic, and self-gated.
 
-**GELU** $$f(x) = x \cdot \Phi(x)$$ (Gaussian Error Linear Unit) uses the CDF of the standard normal distribution. It is the default in Transformers.
+**GELU** $$f(x) = x \cdot \Phi(x)$$ (Gaussian Error Linear Unit) uses the CDF of the standard normal distribution.<sup class="cite"><a class="cite-ref" href="#ref-6" data-cite-preview="Hendrycks &amp; Gimpel (2016), Gaussian Error Linear Units (GELUs). arXiv:1606.08415.">6</a></sup> It is the default activation in Transformers (BERT, GPT).
 
-Both functions look similar to ReLU for large positive inputs but curve smoothly near zero, allowing a small "dip" into negative territory.
+Both functions look similar to ReLU for large positive inputs but curve smoothly near zero, allowing a small "dip" into negative values. This can help optimization by providing a non-zero gradient for mildly negative inputs, unlike ReLU which is exactly 0.
 
 <div class="interactive-demo" id="demo-modern">
   <canvas id="canvas-modern" width="680" height="320"></canvas>
@@ -558,135 +570,9 @@ Both functions look similar to ReLU for large positive inputs but curve smoothly
   </div>
   <div class="demo-info" id="info-modern">Swish and GELU are smooth and non-monotonic near zero, unlike ReLU's hard corner.</div>
 </div>
-<div class="demo-caption">Notice how Swish and GELU dip slightly below zero before rising, this small negative bump helps gradient flow.</div>
-
 ---
 
-## 7. Loss Functions for Regression
-
-A loss function measures how wrong our model's predictions are. For regression, the three major choices are:
-
-**Mean Squared Error (MSE):** $$L = \frac{1}{n}\sum(y_i - \hat{y}_i)^2$$
-
-Penalizes large errors quadratically. Sensitive to outliers.
-
-**Mean Absolute Error (MAE):** $$L = \frac{1}{n}\sum|y_i - \hat{y}_i|$$
-
-Linear penalty. Robust to outliers but not differentiable at zero.
-
-**Huber Loss:** $$L = \begin{cases} \frac{1}{2}(y - \hat{y})^2 & |y - \hat{y}| \leq \delta \\ \delta|y - \hat{y}| - \frac{1}{2}\delta^2 & \text{otherwise} \end{cases}$$
-
-Best of both: quadratic near zero (smooth gradients), linear for large errors (outlier robustness).
-
-<div class="interactive-demo" id="demo-regression-loss">
-  <canvas id="canvas-reg-loss" width="680" height="340"></canvas>
-  <div class="demo-controls">
-    <button id="rl-mse" class="active">MSE</button>
-    <button id="rl-mae">MAE</button>
-    <button id="rl-huber">Huber</button>
-    <button id="rl-all">Compare All</button>
-    <label>Huber delta <input type="range" id="rl-delta" min="0.1" max="3" step="0.1" value="1"><span class="demo-value" id="val-rl-delta">1.0</span></label>
-  </div>
-  <div class="demo-info" id="info-reg-loss">MSE grows quadratically. MAE grows linearly. Huber transitions between them at delta.</div>
-</div>
-<div class="demo-caption">The x-axis is the error (y - y_hat), the y-axis is the loss. Notice how MSE explodes for large errors while MAE stays linear.</div>
-
-<div class="demo-hint">Adjust the Huber delta slider with "Compare All" active to see how Huber transitions from MSE-like behavior near zero to MAE-like behavior for large errors.</div>
-
----
-
-## 8. Loss Functions for Classification
-
-For classification, the loss must penalize wrong predictions more than it rewards correct ones, especially when the model is confident and wrong.
-
-**Binary Cross-Entropy:** $$L = -[y\log(p) + (1-y)\log(1-p)]$$
-
-The standard for binary classification. Goes to infinity when the model is confidently wrong.
-
-**Hinge Loss:** $$L = \max(0, 1 - y \cdot f(x))$$
-
-Used by SVMs. Only penalizes predictions within the margin.
-
-**Focal Loss:** $$L = -(1 - p_t)^\gamma \log(p_t)$$
-
-Down-weights easy examples, focuses on hard ones. Crucial for imbalanced datasets.
-
-<div class="interactive-demo" id="demo-class-loss">
-  <canvas id="canvas-class-loss" width="680" height="340"></canvas>
-  <div class="demo-controls">
-    <button id="cl-bce" class="active">Cross-Entropy</button>
-    <button id="cl-hinge">Hinge Loss</button>
-    <button id="cl-focal">Focal Loss</button>
-    <button id="cl-all">Compare All</button>
-    <label>Focal gamma <input type="range" id="cl-gamma" min="0" max="5" step="0.5" value="2"><span class="demo-value" id="val-cl-gamma">2.0</span></label>
-  </div>
-  <div class="demo-info" id="info-class-loss">Showing loss for the TRUE class (y=1) as predicted probability varies from 0 to 1.</div>
-</div>
-<div class="demo-caption">The x-axis is the model's predicted probability for the true class. Cross-entropy rises steeply as the prediction approaches 0 (confident wrong answer).</div>
-
----
-
-## 9. MSE vs Cross-Entropy for Classification
-
-A common mistake is using MSE for classification. Let us see why cross-entropy converges faster. We train a tiny network on the same 2D classification task with both losses side-by-side.
-
-The key insight: MSE's gradient depends on $$(\hat{y} - y) \cdot \sigma'(z)$$. When the sigmoid saturates (confident wrong prediction), $$\sigma'(z) \approx 0$$, so the gradient vanishes and the model learns very slowly. Cross-entropy cancels this term: its gradient is simply $$(\hat{y} - y)$$, which is large precisely when the model is wrong.
-
-<div class="interactive-demo" id="demo-mse-vs-ce">
-  <div class="demo-split">
-    <div>
-      <canvas id="canvas-mse-train" width="330" height="280"></canvas>
-      <div class="demo-caption">MSE Loss Curve</div>
-    </div>
-    <div>
-      <canvas id="canvas-ce-train" width="330" height="280"></canvas>
-      <div class="demo-caption">Cross-Entropy Loss Curve</div>
-    </div>
-  </div>
-  <div class="demo-controls">
-    <button id="btn-mse-ce-train">Train Both</button>
-    <button id="btn-mse-ce-reset">Reset</button>
-    <label>Learning Rate <input type="range" id="mse-ce-lr" min="0.1" max="5" step="0.1" value="1"><span class="demo-value" id="val-mse-ce-lr">1.0</span></label>
-    <span class="demo-value" id="mse-ce-epoch">Epoch: 0</span>
-  </div>
-  <div class="demo-info" id="info-mse-ce">Cross-entropy typically converges 2-5x faster than MSE for classification.</div>
-</div>
-<div class="demo-caption">Watch the loss curves. Cross-entropy drops faster because its gradient does not suffer from sigmoid saturation.</div>
-
----
-
-## 10. Softmax Visualization
-
-For multi-class classification, we use **softmax** to convert raw logits into a probability distribution:
-
-$$\text{softmax}(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}$$
-
-The **temperature** parameter $$T$$ controls the sharpness of the distribution:
-
-$$\text{softmax}(z_i; T) = \frac{e^{z_i/T}}{\sum_j e^{z_j/T}}$$
-
-Low temperature makes the distribution peaked (more confident). High temperature makes it uniform (more uncertain). This is used in knowledge distillation and language model sampling.
-
-<div class="interactive-demo" id="demo-softmax">
-  <canvas id="canvas-softmax" width="680" height="300"></canvas>
-  <div class="demo-controls">
-    <label>Class A <input type="range" id="sm-a" min="-5" max="5" step="0.1" value="2"><span class="demo-value" id="val-sm-a">2.0</span></label>
-    <label>Class B <input type="range" id="sm-b" min="-5" max="5" step="0.1" value="1"><span class="demo-value" id="val-sm-b">1.0</span></label>
-    <label>Class C <input type="range" id="sm-c" min="-5" max="5" step="0.1" value="-1"><span class="demo-value" id="val-sm-c">-1.0</span></label>
-    <label>Class D <input type="range" id="sm-d" min="-5" max="5" step="0.1" value="0"><span class="demo-value" id="val-sm-d">0.0</span></label>
-  </div>
-  <div class="demo-controls">
-    <label>Temperature <input type="range" id="sm-temp" min="0.1" max="5" step="0.1" value="1"><span class="demo-value" id="val-sm-temp">1.0</span></label>
-  </div>
-  <div class="demo-info" id="info-softmax">Probabilities: A=0.576, B=0.212, C=0.029, D=0.078 | Temperature: 1.0</div>
-</div>
-<div class="demo-caption">Adjust logit sliders to change the raw scores. The temperature slider controls distribution sharpness. Low temp = peaked, high temp = uniform.</div>
-
-<div class="demo-hint">Try setting one logit much higher than the others, then lower the temperature to 0.1, the distribution becomes nearly one-hot. Then raise temperature to 5, it becomes nearly uniform regardless of the logits.</div>
-
----
-
-## 11. Summary
+## 6. Summary
 
 ### Activation Function Cheat Sheet
 
@@ -705,151 +591,387 @@ Low temperature makes the distribution peaked (more confident). High temperature
 </tbody>
 </table>
 
-### Loss Function Selection Guide
-
-<table class="summary-table">
-<thead>
-<tr><th>Task</th><th>Loss Function</th><th>When to Use</th></tr>
-</thead>
-<tbody>
-<tr><td><strong>Regression</strong></td><td>MSE</td><td>Default choice, data has few outliers</td></tr>
-<tr><td><strong>Regression</strong></td><td>MAE</td><td>Data has outliers, want robust estimates</td></tr>
-<tr><td><strong>Regression</strong></td><td>Huber</td><td>Want the best of MSE and MAE</td></tr>
-<tr><td><strong>Binary Classification</strong></td><td>Cross-Entropy</td><td>Default choice for probabilistic outputs</td></tr>
-<tr><td><strong>Binary Classification</strong></td><td>Hinge</td><td>SVM-style margin-based classification</td></tr>
-<tr><td><strong>Multi-class</strong></td><td>Softmax + Cross-Entropy</td><td>Standard multi-class classification</td></tr>
-<tr><td><strong>Imbalanced</strong></td><td>Focal Loss</td><td>Extreme class imbalance (e.g., object detection)</td></tr>
-</tbody>
-</table>
-
-**What's next:** In the next chapter, we will explore **regularization**, dropout, weight decay, batch normalization, and the techniques that prevent neural networks from memorizing training data.
-
 ---
 
+## References
+
+<ol class="references">
+  <li id="ref-1">Rumelhart, D. E., Hinton, G. E., &amp; Williams, R. J. (1986). <em>Learning representations by back-propagating errors</em>. Nature, 323, 533-536. <a href="https://doi.org/10.1038/323533a0" target="_blank" rel="noopener">https://doi.org/10.1038/323533a0</a></li>
+  <li id="ref-2">Glorot, X., &amp; Bengio, Y. (2010). <em>Understanding the difficulty of training deep feedforward neural networks</em>. AISTATS. <a href="http://proceedings.mlr.press/v9/glorot10a.html" target="_blank" rel="noopener">http://proceedings.mlr.press/v9/glorot10a.html</a></li>
+  <li id="ref-3">Cybenko, G. (1989). <em>Approximation by superpositions of a sigmoidal function</em>. Mathematics of Control, Signals, and Systems, 2, 303-314. <a href="https://doi.org/10.1007/BF02551274" target="_blank" rel="noopener">https://doi.org/10.1007/BF02551274</a></li>
+  <li id="ref-4">Nair, V., &amp; Hinton, G. E. (2010). <em>Rectified Linear Units Improve Restricted Boltzmann Machines</em>. ICML. <a href="https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf" target="_blank" rel="noopener">https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf</a></li>
+  <li id="ref-5">Ramachandran, P., Zoph, B., &amp; Le, Q. V. (2017). <em>Searching for Activation Functions</em>. arXiv:1710.05941. <a href="https://arxiv.org/abs/1710.05941" target="_blank" rel="noopener">https://arxiv.org/abs/1710.05941</a></li>
+  <li id="ref-6">Hendrycks, D., &amp; Gimpel, K. (2016). <em>Gaussian Error Linear Units (GELUs)</em>. arXiv:1606.08415. <a href="https://arxiv.org/abs/1606.08415" target="_blank" rel="noopener">https://arxiv.org/abs/1606.08415</a></li>
+</ol>
+
+
 <script>
-// ==================== DEMO 1: Linear Collapse ====================
+// ==================== DEMO 1: 2D Grid Transformation (3B1B style) ====================
 (function(){
-  var canvas = document.getElementById('canvas-linear-collapse');
-  var ctx = AL.setupCanvas(canvas, 680, 320);
-  var layerSlider = document.getElementById('lc-layers');
-  var layerVal = document.getElementById('val-lc-layers');
-  var btnLinear = document.getElementById('btn-lc-linear');
-  var btnRelu = document.getElementById('btn-lc-relu');
-  var info = document.getElementById('info-lc');
-  var useRelu = false;
-  var W = 680, H = 320, pad = 50;
+  var canvasL = document.getElementById('canvas-grid-linear');
+  var canvasR = document.getElementById('canvas-grid-relu');
+  var ctxL = AL.setupCanvas(canvasL, 330, 330);
+  var ctxR = AL.setupCanvas(canvasR, 330, 330);
+  var layerSlider = document.getElementById('gt-layers');
+  var layerVal = document.getElementById('val-gt-layers');
+  var btnAnimate = document.getElementById('btn-gt-animate');
+  var btnReset = document.getElementById('btn-gt-reset');
+  var btnNewWeights = document.getElementById('btn-gt-newweights');
+  var info = document.getElementById('info-gt');
+  var matrixPanel = document.getElementById('gt-matrices');
+  var CW = 330, CH = 330, PAD = 15;
+  var GRID_RANGE = 2.0;
+  var DISPLAY_RANGE = 2.5;
+  var GRID_LINES = 11;
+  var GRID_RES = 50;
+  var animId = null;
+  var animStart = 0;
+  var animT = 0; // current T value (0 = identity, nLayers = fully transformed)
+  var isAnimating = false;
 
-  // Generate random layer weights and biases
-  function genParams(nLayers) {
-    var params = [];
+  // --- Math utilities ---
+  function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; }
+  function lerp2d(a, b, t) { return [a[0]*(1-t) + b[0]*t, a[1]*(1-t) + b[1]*t]; }
+  function matmul2d(M, v) { return [M[0][0]*v[0] + M[0][1]*v[1], M[1][0]*v[0] + M[1][1]*v[1]]; }
+  function addVec(a, b) { return [a[0]+b[0], a[1]+b[1]]; }
+  function relu2d(v) { return [Math.max(0, v[0]), Math.max(0, v[1])]; }
+
+  // --- Layer generation ---
+  function makeLayer(angle, scaleX, scaleY, shear, bx, by) {
+    var c = Math.cos(angle), s = Math.sin(angle);
+    return {
+      W: [[scaleX * (c + shear * s), scaleX * (-s)],
+          [scaleY * (s), scaleY * (c + shear * c)]],
+      b: [bx, by]
+    };
+  }
+
+  function generateDefaultLayers() {
+    return [
+      makeLayer(0.52, 0.9, 0.85, 0.15, 0.0, 0.0),   // ~30deg rotation + slight shear
+      makeLayer(-0.35, 0.85, 0.95, -0.2, 0.1, -0.05), // counter-rotate + shear
+      makeLayer(0.25, 0.95, 0.8, 0.1, -0.05, 0.1),    // mild rotation + scale
+      makeLayer(-0.15, 0.9, 0.9, -0.15, 0.05, -0.05)  // gentle counter
+    ];
+  }
+
+  function generateRandomLayers() {
+    var layers = [];
+    for (var i = 0; i < 4; i++) {
+      var angle = (Math.random() - 0.5) * Math.PI * 0.5;
+      var sx = 0.7 + Math.random() * 0.4;
+      var sy = 0.7 + Math.random() * 0.4;
+      var sh = (Math.random() - 0.5) * 0.4;
+      var bx = (Math.random() - 0.5) * 0.2;
+      var by = (Math.random() - 0.5) * 0.2;
+      layers.push(makeLayer(angle, sx, sy, sh, bx, by));
+    }
+    return layers;
+  }
+
+  var allLayers = generateDefaultLayers();
+
+  // --- Grid generation ---
+  function genGridLines() {
+    var hLines = [], vLines = [];
+    for (var li = 0; li < GRID_LINES; li++) {
+      var coord = -GRID_RANGE + (2 * GRID_RANGE) * li / (GRID_LINES - 1);
+      var hLine = [], vLine = [];
+      for (var si = 0; si <= GRID_RES; si++) {
+        var s = -GRID_RANGE + (2 * GRID_RANGE) * si / GRID_RES;
+        hLine.push([s, coord]);
+        vLine.push([coord, s]);
+      }
+      hLines.push(hLine);
+      vLines.push(vLine);
+    }
+    return { h: hLines, v: vLines };
+  }
+
+  var grid = genGridLines();
+
+  // --- Core animated transform ---
+  function transformPt(p, layers, nLayers, useRelu, T) {
+    var cur = [p[0], p[1]];
     for (var i = 0; i < nLayers; i++) {
-      params.push({
-        w: 0.6 + Math.sin(i * 2.1 + 0.5) * 0.8,
-        b: Math.cos(i * 1.7 + 0.3) * 0.5
-      });
+      var lp = Math.max(0, Math.min(1, T - i)); // layer progress 0..1
+      if (lp <= 0) break;
+      var target = addVec(matmul2d(layers[i].W, cur), layers[i].b);
+      cur = lerp2d(cur, target, ease(lp));
+      if (useRelu && lp >= 1) {
+        cur = relu2d(cur);
+      } else if (useRelu && lp > 0.5) {
+        // smoothly blend toward relu in second half of layer
+        var reluBlend = (lp - 0.5) * 2; // 0 at lp=0.5, 1 at lp=1
+        var reluTarget = relu2d(cur);
+        cur = lerp2d(cur, reluTarget, ease(reluBlend));
+      }
     }
-    return params;
+    return cur;
   }
 
-  function computeOutput(x, params, activation) {
-    var val = x;
-    for (var i = 0; i < params.length; i++) {
-      val = params[i].w * val + params[i].b;
-      if (activation) val = AL.relu(val);
-    }
-    return val;
+  // --- Coordinate transform ---
+  function toScreen(p) {
+    var sx = PAD + (p[0] + DISPLAY_RANGE) / (2 * DISPLAY_RANGE) * (CW - 2 * PAD);
+    var sy = PAD + (DISPLAY_RANGE - p[1]) / (2 * DISPLAY_RANGE) * (CH - 2 * PAD);
+    return [sx, sy];
   }
 
-  function draw() {
-    var colors = AL.getColors();
-    var nLayers = parseInt(layerSlider.value);
-    layerVal.textContent = nLayers;
-    var params = genParams(nLayers);
-
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = colors.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    var xMin = -3, xMax = 3, yMin = -3, yMax = 3;
-    var dims = AL.drawAxes(ctx, W, H, pad, xMin, xMax, yMin, yMax, colors, 'x', 'f(x)');
-
-    // Draw identity line for reference
-    ctx.setLineDash([4, 4]);
-    ctx.strokeStyle = colors.textMuted;
-    ctx.lineWidth = 1;
+  // --- Drawing ---
+  function drawArrow(ctx, from, to, color, lw, headSize) {
+    var dx = to[0] - from[0], dy = to[1] - from[1];
+    var len = Math.sqrt(dx*dx + dy*dy);
+    if (len < 1) return;
+    var angle = Math.atan2(dy, dx);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw;
     ctx.beginPath();
-    var steps = 200;
-    for (var i = 0; i <= steps; i++) {
-      var x = xMin + (xMax - xMin) * i / steps;
-      var px = dims.pad + (x - xMin) / (xMax - xMin) * dims.pw;
-      var py = dims.pad + dims.ph - (x - yMin) / (yMax - yMin) * dims.ph;
-      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-    }
+    ctx.moveTo(from[0], from[1]);
+    ctx.lineTo(to[0], to[1]);
     ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(to[0], to[1]);
+    ctx.lineTo(to[0] - headSize * Math.cos(angle - 0.4), to[1] - headSize * Math.sin(angle - 0.4));
+    ctx.lineTo(to[0] - headSize * Math.cos(angle + 0.4), to[1] - headSize * Math.sin(angle + 0.4));
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawScene(ctx, useRelu, T, colors) {
+    var nLayers = parseInt(layerSlider.value);
+    ctx.clearRect(0, 0, CW, CH);
+    ctx.fillStyle = colors.bg;
+    ctx.fillRect(0, 0, CW, CH);
+
+    // Ghost grid (original, faint dashed)
+    ctx.setLineDash([3, 3]);
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = colors.grid;
+    var i, j, sp;
+    for (i = 0; i < grid.h.length; i++) {
+      ctx.beginPath();
+      for (j = 0; j <= GRID_RES; j++) {
+        sp = toScreen(grid.h[i][j]);
+        if (j === 0) ctx.moveTo(sp[0], sp[1]); else ctx.lineTo(sp[0], sp[1]);
+      }
+      ctx.stroke();
+    }
+    for (i = 0; i < grid.v.length; i++) {
+      ctx.beginPath();
+      for (j = 0; j <= GRID_RES; j++) {
+        sp = toScreen(grid.v[i][j]);
+        if (j === 0) ctx.moveTo(sp[0], sp[1]); else ctx.lineTo(sp[0], sp[1]);
+      }
+      ctx.stroke();
+    }
     ctx.setLineDash([]);
 
-    // Draw linear composition
-    ctx.strokeStyle = colors.sigmoid;
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    for (var i = 0; i <= steps; i++) {
-      var x = xMin + (xMax - xMin) * i / steps;
-      var y = computeOutput(x, params, false);
-      var px = dims.pad + (x - xMin) / (xMax - xMin) * dims.pw;
-      var py = dims.pad + dims.ph - (y - yMin) / (yMax - yMin) * dims.ph;
-      py = Math.max(dims.pad, Math.min(dims.pad + dims.ph, py));
-      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-    }
-    ctx.stroke();
-
-    // Draw with activation
-    if (useRelu) {
-      ctx.strokeStyle = colors.positive;
-      ctx.lineWidth = 2.5;
+    // Transformed grid
+    var midIdx = Math.floor(GRID_LINES / 2);
+    // Horizontal lines
+    for (i = 0; i < grid.h.length; i++) {
+      var isAxis = (i === midIdx);
+      ctx.strokeStyle = isAxis ? colors.sigmoid : (useRelu ? 'rgba(122,162,247,0.35)' : 'rgba(122,162,247,0.35)');
+      ctx.lineWidth = isAxis ? 2 : 1;
       ctx.beginPath();
-      for (var i = 0; i <= steps; i++) {
-        var x = xMin + (xMax - xMin) * i / steps;
-        var y = computeOutput(x, params, true);
-        var px = dims.pad + (x - xMin) / (xMax - xMin) * dims.pw;
-        var py = dims.pad + dims.ph - (y - yMin) / (yMax - yMin) * dims.ph;
-        py = Math.max(dims.pad, Math.min(dims.pad + dims.ph, py));
-        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      for (j = 0; j <= GRID_RES; j++) {
+        var tp = transformPt(grid.h[i][j], allLayers, nLayers, useRelu, T);
+        sp = toScreen(tp);
+        if (j === 0) ctx.moveTo(sp[0], sp[1]); else ctx.lineTo(sp[0], sp[1]);
+      }
+      ctx.stroke();
+    }
+    // Vertical lines
+    for (i = 0; i < grid.v.length; i++) {
+      var isAxis = (i === midIdx);
+      ctx.strokeStyle = isAxis ? colors.relu : (useRelu ? 'rgba(158,206,106,0.35)' : 'rgba(158,206,106,0.35)');
+      ctx.lineWidth = isAxis ? 2 : 1;
+      ctx.beginPath();
+      for (j = 0; j <= GRID_RES; j++) {
+        var tp = transformPt(grid.v[i][j], allLayers, nLayers, useRelu, T);
+        sp = toScreen(tp);
+        if (j === 0) ctx.moveTo(sp[0], sp[1]); else ctx.lineTo(sp[0], sp[1]);
       }
       ctx.stroke();
     }
 
-    // Legend
-    ctx.font = '12px sans-serif';
+    // Basis vectors
+    var origin = transformPt([0, 0], allLayers, nLayers, useRelu, T);
+    var iHat = transformPt([1, 0], allLayers, nLayers, useRelu, T);
+    var jHat = transformPt([0, 1], allLayers, nLayers, useRelu, T);
+    var oScr = toScreen(origin);
+    var iScr = toScreen(iHat);
+    var jScr = toScreen(jHat);
+    drawArrow(ctx, oScr, iScr, colors.relu, 2.5, 8);   // i-hat green
+    drawArrow(ctx, oScr, jScr, colors.sigmoid, 2.5, 8); // j-hat pink/red
+
+    // Origin dot
+    ctx.fillStyle = colors.text;
+    ctx.beginPath();
+    ctx.arc(oScr[0], oScr[1], 3, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Basis labels
+    ctx.font = '11px JetBrains Mono, monospace';
+    ctx.fillStyle = colors.relu;
     ctx.textAlign = 'left';
-    ctx.fillStyle = colors.textMuted;
-    ctx.fillText('--- identity (y=x)', dims.pad + 10, dims.pad + 15);
+    ctx.fillText('î', iScr[0] + 5, iScr[1] - 5);
     ctx.fillStyle = colors.sigmoid;
-    ctx.fillText(nLayers + ' linear layer' + (nLayers > 1 ? 's' : '') + ' (no activation)', dims.pad + 10, dims.pad + 32);
+    ctx.fillText('ĵ', jScr[0] + 5, jScr[1] - 5);
+
+    // Title overlay
+    ctx.font = '11px JetBrains Mono, monospace';
+    ctx.fillStyle = colors.textMuted;
+    ctx.textAlign = 'left';
     if (useRelu) {
-      ctx.fillStyle = colors.positive;
-      ctx.fillText(nLayers + ' layer' + (nLayers > 1 ? 's' : '') + ' with ReLU', dims.pad + 10, dims.pad + 49);
+      ctx.fillText('With ReLU', PAD, PAD - 8);
+    } else {
+      ctx.fillText('Linear only', PAD, PAD - 8);
     }
 
-    info.textContent = useRelu
-      ? 'Orange = linear stack (always a line). Green = with ReLU (' + nLayers + ' hinge points possible).'
-      : nLayers + ' linear layers compose to: y = ' + (params.reduce(function(a,p){return a*p.w;},1)).toFixed(3) + 'x + ' + computeOutput(0, params, false).toFixed(3) + ', still linear!';
+    // Layer indicator during animation
+    if (T > 0 && T < nLayers) {
+      var currentLayer = Math.floor(T) + 1;
+      ctx.fillStyle = colors.accent;
+      ctx.textAlign = 'right';
+      ctx.fillText('Layer ' + currentLayer + '/' + nLayers, CW - PAD, PAD - 8);
+    } else if (T >= nLayers && nLayers > 0) {
+      ctx.fillStyle = colors.positive;
+      ctx.textAlign = 'right';
+      ctx.fillText(nLayers + ' layer' + (nLayers > 1 ? 's' : '') + ' applied', CW - PAD, PAD - 8);
+    }
   }
 
-  btnLinear.addEventListener('click', function() {
-    useRelu = false;
-    btnLinear.classList.add('active');
-    btnRelu.classList.remove('active');
-    draw();
+  // --- Animation loop ---
+  function drawBoth(T) {
+    var colors = AL.getColors();
+    var nLayers = parseInt(layerSlider.value);
+    layerVal.textContent = nLayers;
+    drawScene(ctxL, false, T, colors);
+    drawScene(ctxR, true, T, colors);
+    updateMatrixDisplay(T, nLayers);
+    updateInfo(T, nLayers);
+  }
+
+  function animate(timestamp) {
+    if (!isAnimating) return;
+    if (!animStart) animStart = timestamp;
+    var nLayers = parseInt(layerSlider.value);
+    var totalDuration = nLayers * 1200; // 1.2s per layer
+    var elapsed = timestamp - animStart;
+    var progress = Math.min(elapsed / totalDuration, 1);
+
+    // Map progress to T with pauses between layers
+    var T;
+    if (nLayers === 0) {
+      T = 0;
+    } else {
+      // Each layer gets 1 unit of T, with slight easing overlap
+      T = progress * nLayers;
+    }
+
+    animT = T;
+    drawBoth(T);
+
+    if (progress < 1) {
+      animId = requestAnimationFrame(animate);
+    } else {
+      isAnimating = false;
+      animT = nLayers;
+      btnAnimate.textContent = '\u25B6 Animate';
+    }
+  }
+
+  function fmt(v) { return (v < 0 ? '' : '\u2007') + v.toFixed(2); }
+
+  function updateMatrixDisplay(T, nLayers) {
+    var html = '';
+    for (var i = 0; i < nLayers; i++) {
+      var L = allLayers[i];
+      var lp = Math.max(0, Math.min(1, T - i));
+      var cls = '';
+      if (lp > 0 && lp < 1) cls = ' active';
+      else if (lp >= 1) cls = ' done';
+      var tag = '';
+      if (lp > 0 && lp < 1) tag = ' <span style="color:var(--accent,#2563eb);font-weight:600;">\u25C0 applying</span>';
+      else if (lp >= 1) tag = ' <span class="gt-relu-tag">+ ReLU on right</span>';
+
+      html += '<div class="gt-layer-row' + cls + '">'
+        + '<span class="gt-layer-label">Layer ' + (i + 1) + ':</span>'
+        + '<span class="gt-layer-vals">'
+        + 'W = [' + fmt(L.W[0][0]) + ', ' + fmt(L.W[0][1]) + '; '
+        + fmt(L.W[1][0]) + ', ' + fmt(L.W[1][1]) + ']'
+        + '&ensp;b = [' + fmt(L.b[0]) + ', ' + fmt(L.b[1]) + ']'
+        + tag
+        + '</span></div>';
+    }
+    if (nLayers === 0) html = '<span class="gt-layer-vals">No layers selected.</span>';
+    matrixPanel.innerHTML = html;
+  }
+
+  function updateInfo(T, nLayers) {
+    if (T <= 0) {
+      info.textContent = 'Click "Animate" to watch the transformation unfold layer by layer. Both sides use the same weight matrices.';
+    } else if (T < nLayers) {
+      var cl = Math.floor(T) + 1;
+      info.textContent = 'Applying layer ' + cl + ' of ' + nLayers + '... Left: grid deforms but stays rectilinear. Right: ReLU bends it at the zero-boundaries.';
+    } else {
+      info.textContent = nLayers + ' layer' + (nLayers > 1 ? 's' : '') + ' applied. Left: still a perfect grid (linear = rotate, scale, shear). Right: nonlinear warping from ReLU, this is expressive power.';
+    }
+  }
+
+  function drawStatic() {
+    var nLayers = parseInt(layerSlider.value);
+    animT = nLayers;
+    drawBoth(nLayers);
+  }
+
+  // --- Event handlers ---
+  btnAnimate.addEventListener('click', function() {
+    if (isAnimating) {
+      isAnimating = false;
+      if (animId) cancelAnimationFrame(animId);
+      btnAnimate.textContent = '\u25B6 Animate';
+      return;
+    }
+    isAnimating = true;
+    animStart = 0;
+    btnAnimate.textContent = '\u23F8 Pause';
+    animId = requestAnimationFrame(animate);
   });
-  btnRelu.addEventListener('click', function() {
-    useRelu = true;
-    btnRelu.classList.add('active');
-    btnLinear.classList.remove('active');
-    draw();
+
+  btnReset.addEventListener('click', function() {
+    isAnimating = false;
+    if (animId) cancelAnimationFrame(animId);
+    animT = 0;
+    btnAnimate.textContent = '\u25B6 Animate';
+    drawBoth(0);
   });
-  layerSlider.addEventListener('input', draw);
-  AL.onThemeChange(draw);
-  draw();
+
+  btnNewWeights.addEventListener('click', function() {
+    isAnimating = false;
+    if (animId) cancelAnimationFrame(animId);
+    allLayers = generateRandomLayers();
+    animT = 0;
+    btnAnimate.textContent = '\u25B6 Animate';
+    drawBoth(0);
+  });
+
+  layerSlider.addEventListener('input', function() {
+    isAnimating = false;
+    if (animId) cancelAnimationFrame(animId);
+    animT = 0;
+    btnAnimate.textContent = '\u25B6 Animate';
+    drawBoth(0);
+  });
+
+  AL.onThemeChange(function() {
+    drawBoth(animT);
+  });
+
+  // Initial draw
+  drawBoth(0);
 })();
 
 // ==================== DEMO 2: Activation Function Explorer ====================
@@ -1158,146 +1280,7 @@ Low temperature makes the distribution peaked (more confident). High temperature
   draw();
 })();
 
-// ==================== DEMO 5: Dead Neuron Demo ====================
-(function(){
-  var canvasR = document.getElementById('canvas-dead-relu');
-  var canvasL = document.getElementById('canvas-dead-leaky');
-  var ctxR = AL.setupCanvas(canvasR, 330, 280);
-  var ctxL = AL.setupCanvas(canvasL, 330, 280);
-  var btnRun = document.getElementById('btn-dead-run');
-  var btnReset = document.getElementById('btn-dead-reset');
-  var lrSlider = document.getElementById('dead-lr');
-  var lrVal = document.getElementById('val-dead-lr');
-  var stepSpan = document.getElementById('dead-step');
-  var capR = document.getElementById('dead-relu-caption');
-  var capL = document.getElementById('dead-leaky-caption');
-  var W = 330, H = 280;
-  var nNeurons = 64;
-  var cols = 8, rows = 8;
-  var weightsR, weightsL, biasR, biasL;
-  var step = 0, animId = null;
-
-  function initWeights() {
-    weightsR = []; weightsL = []; biasR = []; biasL = [];
-    for (var i = 0; i < nNeurons; i++) {
-      var w = (Math.random() - 0.5) * 2;
-      weightsR.push(w);
-      weightsL.push(w);
-      var b = (Math.random() - 0.5) * 0.5;
-      biasR.push(b);
-      biasL.push(b);
-    }
-    step = 0;
-    stepSpan.textContent = 'Step: 0';
-  }
-
-  function drawNeurons(ctx_, weights, biases, isLeaky, caption) {
-    var colors = AL.getColors();
-    ctx_.clearRect(0, 0, W, H);
-    ctx_.fillStyle = colors.bg;
-    ctx_.fillRect(0, 0, W, H);
-
-    var cellW = (W - 40) / cols;
-    var cellH = (H - 60) / rows;
-    var r = Math.min(cellW, cellH) * 0.38;
-    var deadCount = 0;
-
-    for (var i = 0; i < nNeurons; i++) {
-      var row = Math.floor(i / cols);
-      var col = i % cols;
-      var cx = 20 + col * cellW + cellW / 2;
-      var cy = 30 + row * cellH + cellH / 2;
-
-      // Simulate activation with random input
-      var input = Math.sin(step * 0.1 + i * 0.7) * 2;
-      var z = weights[i] * input + biases[i];
-      var active = isLeaky ? (z > 0 || true) : (z > 0);
-      // Track if neuron has been consistently dead
-      var testInputs = [-2, -1, 0, 1, 2];
-      var anyActive = false;
-      for (var t = 0; t < testInputs.length; t++) {
-        var zt = weights[i] * testInputs[t] + biases[i];
-        if (zt > 0) anyActive = true;
-      }
-      var isDead = !isLeaky && !anyActive;
-      if (isDead) deadCount++;
-
-      ctx_.beginPath();
-      ctx_.arc(cx, cy, r, 0, Math.PI * 2);
-      if (isDead) {
-        ctx_.fillStyle = colors.negative;
-      } else {
-        var act = isLeaky ? Math.max(0.01 * z, z) : Math.max(0, z);
-        var intensity = Math.min(1, Math.abs(act) / 3);
-        ctx_.fillStyle = 'rgba(158,206,106,' + (0.3 + 0.7 * intensity) + ')';
-      }
-      ctx_.fill();
-      ctx_.strokeStyle = colors.textMuted;
-      ctx_.lineWidth = 1.5;
-      ctx_.stroke();
-    }
-
-    var pct = Math.round(deadCount / nNeurons * 100);
-    caption.textContent = (isLeaky ? 'Leaky ReLU' : 'ReLU') + ': ' + pct + '% dead (' + deadCount + '/' + nNeurons + ')';
-
-    // Title
-    ctx_.fillStyle = colors.text;
-    ctx_.font = 'bold 13px sans-serif';
-    ctx_.textAlign = 'center';
-    ctx_.fillText(isLeaky ? 'Leaky ReLU' : 'ReLU', W / 2, 18);
-  }
-
-  function simulateStep() {
-    var lr = parseFloat(lrSlider.value);
-    // Simulate gradient updates that can push weights negative
-    for (var i = 0; i < nNeurons; i++) {
-      var grad = (Math.random() - 0.55) * 2; // slightly biased negative
-      weightsR[i] -= lr * grad;
-      weightsL[i] -= lr * grad;
-      var gradB = (Math.random() - 0.55) * 1;
-      biasR[i] -= lr * gradB;
-      biasL[i] -= lr * gradB;
-    }
-    step++;
-    stepSpan.textContent = 'Step: ' + step;
-  }
-
-  function drawAll() {
-    drawNeurons(ctxR, weightsR, biasR, false, capR);
-    drawNeurons(ctxL, weightsL, biasL, true, capL);
-  }
-
-  function animate() {
-    simulateStep();
-    drawAll();
-    if (step < 200) {
-      animId = requestAnimationFrame(animate);
-    }
-  }
-
-  btnRun.addEventListener('click', function() {
-    if (animId) cancelAnimationFrame(animId);
-    if (step === 0) initWeights();
-    animate();
-  });
-
-  btnReset.addEventListener('click', function() {
-    if (animId) cancelAnimationFrame(animId);
-    animId = null;
-    initWeights();
-    drawAll();
-  });
-
-  lrSlider.addEventListener('input', function() {
-    lrVal.textContent = parseFloat(this.value).toFixed(2);
-  });
-
-  AL.onThemeChange(drawAll);
-  initWeights();
-  drawAll();
-})();
-
-// ==================== DEMO 6: Modern Activations ====================
+// ==================== DEMO 5: Modern Activations ====================
 (function(){
   var canvas = document.getElementById('canvas-modern');
   var ctx = AL.setupCanvas(canvas, 680, 320);
@@ -1307,6 +1290,9 @@ Low temperature makes the distribution peaked (more confident). High temperature
   var showAll = false;
 
   var btns = { 'mod-relu': 'relu', 'mod-swish': 'swish', 'mod-gelu': 'gelu' };
+  var hoverX = null;
+  var fnMap = { relu: AL.relu, swish: AL.swish, gelu: AL.gelu };
+  var labelMap = { relu: 'ReLU', swish: 'Swish', gelu: 'GELU' };
 
   function draw() {
     var colors = AL.getColors();
@@ -1316,6 +1302,8 @@ Low temperature makes the distribution peaked (more confident). High temperature
 
     var xMin = -5, xMax = 5, yMin = -1.5, yMax = 4;
     var dims = AL.drawAxes(ctx, W, H, pad, xMin, xMax, yMin, yMax, colors, 'x', 'f(x)');
+
+    var toDraw = showAll ? ['relu', 'swish', 'gelu'] : [current];
 
     if (showAll || current === 'relu') {
       AL.plotLine(ctx, AL.relu, xMin, xMax, yMin, yMax, dims.pad, dims.pw, dims.ph, colors.relu, 2.5);
@@ -1327,6 +1315,26 @@ Low temperature makes the distribution peaked (more confident). High temperature
       AL.plotLine(ctx, AL.gelu, xMin, xMax, yMin, yMax, dims.pad, dims.pw, dims.ph, colors.gelu, 2.5);
     }
 
+    // Hover crosshair and dots
+    if (hoverX !== null) {
+      var px = dims.pad + (hoverX - xMin) / (xMax - xMin) * dims.pw;
+      ctx.strokeStyle = colors.crosshair;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(px, pad); ctx.lineTo(px, pad + dims.ph); ctx.stroke();
+      ctx.setLineDash([]);
+      var parts = [];
+      for (var k = 0; k < toDraw.length; k++) {
+        var key = toDraw[k];
+        var yVal = fnMap[key](hoverX);
+        var pyVal = dims.pad + dims.ph - (yVal - yMin) / (yMax - yMin) * dims.ph;
+        var col = colors[key === 'relu' ? 'relu' : key === 'swish' ? 'swish' : 'gelu'];
+        ctx.beginPath(); ctx.arc(px, pyVal, 4, 0, Math.PI * 2); ctx.fillStyle = col; ctx.fill();
+        parts.push(labelMap[key] + '(' + hoverX.toFixed(1) + ')=' + yVal.toFixed(4));
+      }
+      info.textContent = 'x=' + hoverX.toFixed(2) + ' | ' + parts.join(' | ');
+    }
+
     // Legend
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'left';
@@ -1336,11 +1344,10 @@ Low temperature makes the distribution peaked (more confident). High temperature
     if (showAll || current === 'gelu') { ctx.fillStyle = colors.gelu; ctx.fillText('GELU (x * Phi(x))', dims.pad + 10, y0); }
 
     // Highlight the negative dip
-    if ((showAll || current === 'swish' || current === 'gelu') && !showAll) {
+    if ((showAll || current === 'swish' || current === 'gelu') && !showAll && hoverX === null) {
       ctx.fillStyle = colors.textMuted;
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
-      // Arrow pointing to the dip
       var dipX = current === 'swish' ? -1.28 : -1.0;
       var dipY = current === 'swish' ? AL.swish(dipX) : AL.gelu(dipX);
       var dpx = dims.pad + (dipX - xMin) / (xMax - xMin) * dims.pw;
@@ -1348,6 +1355,16 @@ Low temperature makes the distribution peaked (more confident). High temperature
       ctx.fillText('small negative dip', dpx, dpy + 18);
     }
   }
+
+  canvas.addEventListener('mousemove', function(e) {
+    var rect = canvas.getBoundingClientRect();
+    var mx = (e.clientX - rect.left) * (W / rect.width);
+    if (mx >= pad && mx <= W - pad) {
+      hoverX = -5 + (mx - pad) / (W - 2 * pad) * 10;
+      draw();
+    }
+  });
+  canvas.addEventListener('mouseleave', function() { hoverX = null; draw(); });
 
   Object.keys(btns).forEach(function(id) {
     document.getElementById(id).addEventListener('click', function() {
@@ -1371,390 +1388,4 @@ Low temperature makes the distribution peaked (more confident). High temperature
   draw();
 })();
 
-// ==================== DEMO 7: Regression Loss Functions ====================
-(function(){
-  var canvas = document.getElementById('canvas-reg-loss');
-  var ctx = AL.setupCanvas(canvas, 680, 340);
-  var deltaSlider = document.getElementById('rl-delta');
-  var deltaVal = document.getElementById('val-rl-delta');
-  var info = document.getElementById('info-reg-loss');
-  var W = 680, H = 340, pad = 50;
-  var current = 'mse';
-  var showAll = false;
-
-  var btns = { 'rl-mse': 'mse', 'rl-mae': 'mae', 'rl-huber': 'huber' };
-
-  function draw() {
-    var colors = AL.getColors();
-    var delta = parseFloat(deltaSlider.value);
-    deltaVal.textContent = delta.toFixed(1);
-
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = colors.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    var xMin = -4, xMax = 4, yMin = 0, yMax = 8;
-    var dims = AL.drawAxes(ctx, W, H, pad, xMin, xMax, yMin, yMax, colors, 'error (y - y_hat)', 'loss');
-
-    if (showAll || current === 'mse') {
-      AL.plotLine(ctx, function(e) { return e * e; }, xMin, xMax, yMin, yMax, dims.pad, dims.pw, dims.ph, colors.mse, 2.5);
-    }
-    if (showAll || current === 'mae') {
-      AL.plotLine(ctx, function(e) { return Math.abs(e); }, xMin, xMax, yMin, yMax, dims.pad, dims.pw, dims.ph, colors.mae, 2.5);
-    }
-    if (showAll || current === 'huber') {
-      AL.plotLine(ctx, function(e) { return AL.huberLoss(0, e, delta); }, xMin, xMax, yMin, yMax, dims.pad, dims.pw, dims.ph, colors.huber, 2.5);
-    }
-
-    // Legend
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'left';
-    var y0 = dims.pad + 15;
-    if (showAll || current === 'mse') { ctx.fillStyle = colors.mse; ctx.fillText('MSE (quadratic)', dims.pad + 10, y0); y0 += 16; }
-    if (showAll || current === 'mae') { ctx.fillStyle = colors.mae; ctx.fillText('MAE (linear)', dims.pad + 10, y0); y0 += 16; }
-    if (showAll || current === 'huber') { ctx.fillStyle = colors.huber; ctx.fillText('Huber (delta=' + delta.toFixed(1) + ')', dims.pad + 10, y0); }
-  }
-
-  Object.keys(btns).forEach(function(id) {
-    document.getElementById(id).addEventListener('click', function() {
-      showAll = false;
-      current = btns[id];
-      Object.keys(btns).forEach(function(bid) { document.getElementById(bid).classList.remove('active'); });
-      document.getElementById('rl-all').classList.remove('active');
-      this.classList.add('active');
-      draw();
-    });
-  });
-  document.getElementById('rl-all').addEventListener('click', function() {
-    showAll = true;
-    Object.keys(btns).forEach(function(bid) { document.getElementById(bid).classList.remove('active'); });
-    this.classList.add('active');
-    info.textContent = 'All three losses compared. MSE penalizes outliers harshly; MAE is linear; Huber transitions at delta.';
-    draw();
-  });
-  deltaSlider.addEventListener('input', draw);
-  AL.onThemeChange(draw);
-  draw();
-})();
-
-// ==================== DEMO 8: Classification Loss Functions ====================
-(function(){
-  var canvas = document.getElementById('canvas-class-loss');
-  var ctx = AL.setupCanvas(canvas, 680, 340);
-  var gammaSlider = document.getElementById('cl-gamma');
-  var gammaVal = document.getElementById('val-cl-gamma');
-  var info = document.getElementById('info-class-loss');
-  var W = 680, H = 340, pad = 50;
-  var current = 'bce';
-  var showAll = false;
-
-  var btns = { 'cl-bce': 'bce', 'cl-hinge': 'hinge', 'cl-focal': 'focal' };
-
-  function draw() {
-    var colors = AL.getColors();
-    var gamma = parseFloat(gammaSlider.value);
-    gammaVal.textContent = gamma.toFixed(1);
-
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = colors.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    // x-axis = predicted probability for y=1
-    var xMin = 0.01, xMax = 0.99, yMin = 0, yMax = 5;
-    var dims = AL.drawAxes(ctx, W, H, pad, xMin, xMax, yMin, yMax, colors, 'predicted P(y=1)', 'loss');
-
-    if (showAll || current === 'bce') {
-      AL.plotLine(ctx, function(p) { return AL.bceLoss(1, p); }, xMin, xMax, yMin, yMax, dims.pad, dims.pw, dims.ph, colors.bce, 2.5);
-    }
-    if (showAll || current === 'hinge') {
-      // Map probability to score: f = 2p - 1 (so p=0.5 -> f=0, p=1 -> f=1)
-      AL.plotLine(ctx, function(p) { return AL.hingeLoss(1, 2 * p - 1); }, xMin, xMax, yMin, yMax, dims.pad, dims.pw, dims.ph, colors.hinge, 2.5);
-    }
-    if (showAll || current === 'focal') {
-      AL.plotLine(ctx, function(p) { return AL.focalLoss(1, p, gamma); }, xMin, xMax, yMin, yMax, dims.pad, dims.pw, dims.ph, colors.focal, 2.5);
-    }
-
-    // Legend
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'left';
-    var y0 = dims.pad + 15;
-    if (showAll || current === 'bce') { ctx.fillStyle = colors.bce; ctx.fillText('Cross-Entropy', dims.pad + 10, y0); y0 += 16; }
-    if (showAll || current === 'hinge') { ctx.fillStyle = colors.hinge; ctx.fillText('Hinge Loss', dims.pad + 10, y0); y0 += 16; }
-    if (showAll || current === 'focal') { ctx.fillStyle = colors.focal; ctx.fillText('Focal (gamma=' + gamma.toFixed(1) + ')', dims.pad + 10, y0); }
-  }
-
-  Object.keys(btns).forEach(function(id) {
-    document.getElementById(id).addEventListener('click', function() {
-      showAll = false;
-      current = btns[id];
-      Object.keys(btns).forEach(function(bid) { document.getElementById(bid).classList.remove('active'); });
-      document.getElementById('cl-all').classList.remove('active');
-      this.classList.add('active');
-      draw();
-    });
-  });
-  document.getElementById('cl-all').addEventListener('click', function() {
-    showAll = true;
-    Object.keys(btns).forEach(function(bid) { document.getElementById(bid).classList.remove('active'); });
-    this.classList.add('active');
-    info.textContent = 'All losses for true class y=1. Cross-entropy explodes near p=0. Focal loss is suppressed for easy (high p) examples.';
-    draw();
-  });
-  gammaSlider.addEventListener('input', draw);
-  AL.onThemeChange(draw);
-  draw();
-})();
-
-// ==================== DEMO 9: MSE vs Cross-Entropy ====================
-(function(){
-  var canvasMSE = document.getElementById('canvas-mse-train');
-  var canvasCE = document.getElementById('canvas-ce-train');
-  var ctxM = AL.setupCanvas(canvasMSE, 330, 280);
-  var ctxC = AL.setupCanvas(canvasCE, 330, 280);
-  var btnTrain = document.getElementById('btn-mse-ce-train');
-  var btnReset = document.getElementById('btn-mse-ce-reset');
-  var lrSlider = document.getElementById('mse-ce-lr');
-  var lrVal = document.getElementById('val-mse-ce-lr');
-  var epochSpan = document.getElementById('mse-ce-epoch');
-  var info = document.getElementById('info-mse-ce');
-  var W = 330, H = 280, pad = 45;
-
-  // Simple 1D classification: 4 points
-  var data = [
-    { x: -2, y: 0 }, { x: -1, y: 0 },
-    { x: 1, y: 1 }, { x: 2, y: 1 }
-  ];
-
-  var wMSE, bMSE, wCE, bCE;
-  var lossMSE, lossCE;
-  var epoch, animId;
-
-  function init() {
-    wMSE = 0.1; bMSE = 0;
-    wCE = 0.1; bCE = 0;
-    lossMSE = []; lossCE = [];
-    epoch = 0;
-    epochSpan.textContent = 'Epoch: 0';
-  }
-
-  function trainStep() {
-    var lr = parseFloat(lrSlider.value);
-    // MSE training
-    var dwM = 0, dbM = 0, lM = 0;
-    for (var i = 0; i < data.length; i++) {
-      var z = wMSE * data[i].x + bMSE;
-      var a = AL.sigmoid(z);
-      var err = a - data[i].y;
-      var sd = a * (1 - a);
-      lM += 0.5 * err * err;
-      dwM += err * sd * data[i].x;
-      dbM += err * sd;
-    }
-    wMSE -= lr * dwM / data.length;
-    bMSE -= lr * dbM / data.length;
-    lossMSE.push(lM / data.length);
-
-    // CE training
-    var dwC = 0, dbC = 0, lC = 0;
-    for (var i = 0; i < data.length; i++) {
-      var z = wCE * data[i].x + bCE;
-      var a = AL.sigmoid(z);
-      var err = a - data[i].y;
-      lC += AL.bceLoss(data[i].y, a);
-      dwC += err * data[i].x;  // CE gradient: no sigmoid derivative term!
-      dbC += err;
-    }
-    wCE -= lr * dwC / data.length;
-    bCE -= lr * dbC / data.length;
-    lossCE.push(lC / data.length);
-
-    epoch++;
-    epochSpan.textContent = 'Epoch: ' + epoch;
-  }
-
-  function drawLossCurve(ctx_, losses, title, color) {
-    var colors = AL.getColors();
-    ctx_.clearRect(0, 0, W, H);
-    ctx_.fillStyle = colors.bg;
-    ctx_.fillRect(0, 0, W, H);
-
-    if (losses.length < 2) {
-      ctx_.fillStyle = colors.textMuted;
-      ctx_.font = '13px sans-serif';
-      ctx_.textAlign = 'center';
-      ctx_.fillText('Click "Train Both" to start', W / 2, H / 2);
-      ctx_.fillStyle = colors.text;
-      ctx_.font = 'bold 13px sans-serif';
-      ctx_.fillText(title, W / 2, 20);
-      return;
-    }
-
-    var maxL = Math.max.apply(null, losses.slice(0, Math.min(20, losses.length)));
-    maxL = Math.max(maxL, 0.1);
-    var xMin = 0, xMax = losses.length, yMin = 0, yMax = maxL * 1.1;
-    var dims = AL.drawAxes(ctx_, W, H, pad, xMin, xMax, yMin, yMax, colors, 'epoch', 'loss');
-
-    ctx_.strokeStyle = color;
-    ctx_.lineWidth = 2;
-    ctx_.beginPath();
-    for (var i = 0; i < losses.length; i++) {
-      var px = dims.pad + i / (losses.length - 1) * dims.pw;
-      var py = dims.pad + dims.ph - (losses[i] - yMin) / (yMax - yMin) * dims.ph;
-      py = Math.max(dims.pad, Math.min(dims.pad + dims.ph, py));
-      if (i === 0) ctx_.moveTo(px, py); else ctx_.lineTo(px, py);
-    }
-    ctx_.stroke();
-
-    ctx_.fillStyle = colors.text;
-    ctx_.font = 'bold 12px sans-serif';
-    ctx_.textAlign = 'center';
-    ctx_.fillText(title, W / 2, 16);
-
-    // Final loss
-    ctx_.fillStyle = colors.textMuted;
-    ctx_.font = '10px JetBrains Mono, monospace';
-    ctx_.fillText('loss: ' + losses[losses.length - 1].toFixed(4), W / 2, 32);
-  }
-
-  function drawAll() {
-    var colors = AL.getColors();
-    drawLossCurve(ctxM, lossMSE, 'MSE Loss', colors.mse);
-    drawLossCurve(ctxC, lossCE, 'Cross-Entropy Loss', colors.bce);
-  }
-
-  function animate() {
-    for (var i = 0; i < 5; i++) trainStep();
-    drawAll();
-    if (epoch < 500) {
-      animId = requestAnimationFrame(animate);
-    } else {
-      info.textContent = 'Done! MSE final: ' + lossMSE[lossMSE.length-1].toFixed(4) + ', CE final: ' + lossCE[lossCE.length-1].toFixed(4);
-    }
-  }
-
-  btnTrain.addEventListener('click', function() {
-    if (animId) cancelAnimationFrame(animId);
-    if (epoch === 0) init();
-    animate();
-  });
-  btnReset.addEventListener('click', function() {
-    if (animId) cancelAnimationFrame(animId);
-    animId = null;
-    init();
-    drawAll();
-    info.textContent = 'Cross-entropy typically converges 2-5x faster than MSE for classification.';
-  });
-  lrSlider.addEventListener('input', function() { lrVal.textContent = parseFloat(this.value).toFixed(1); });
-
-  AL.onThemeChange(drawAll);
-  init();
-  drawAll();
-})();
-
-// ==================== DEMO 10: Softmax Visualization ====================
-(function(){
-  var canvas = document.getElementById('canvas-softmax');
-  var ctx = AL.setupCanvas(canvas, 680, 300);
-  var sliderA = document.getElementById('sm-a');
-  var sliderB = document.getElementById('sm-b');
-  var sliderC = document.getElementById('sm-c');
-  var sliderD = document.getElementById('sm-d');
-  var sliderTemp = document.getElementById('sm-temp');
-  var valA = document.getElementById('val-sm-a');
-  var valB = document.getElementById('val-sm-b');
-  var valC = document.getElementById('val-sm-c');
-  var valD = document.getElementById('val-sm-d');
-  var valTemp = document.getElementById('val-sm-temp');
-  var info = document.getElementById('info-softmax');
-  var W = 680, H = 300;
-
-  var labels = ['A', 'B', 'C', 'D'];
-  var barColors = ['#7aa2f7', '#f7768e', '#9ece6a', '#bb9af7'];
-
-  function draw() {
-    var colors = AL.getColors();
-    var logits = [parseFloat(sliderA.value), parseFloat(sliderB.value), parseFloat(sliderC.value), parseFloat(sliderD.value)];
-    var temp = parseFloat(sliderTemp.value);
-    valA.textContent = logits[0].toFixed(1);
-    valB.textContent = logits[1].toFixed(1);
-    valC.textContent = logits[2].toFixed(1);
-    valD.textContent = logits[3].toFixed(1);
-    valTemp.textContent = temp.toFixed(1);
-
-    var probs = AL.softmax(logits, temp);
-
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = colors.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    var pad = 40;
-    var barAreaW = W - 2 * pad;
-    var barAreaH = H - 2 * pad - 30;
-
-    // Title
-    ctx.fillStyle = colors.text;
-    ctx.font = 'bold 13px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Softmax Probabilities (Temperature = ' + temp.toFixed(1) + ')', W / 2, 22);
-
-    // Draw bars
-    var barW = barAreaW / labels.length * 0.6;
-    var gap = barAreaW / labels.length;
-    var baseY = pad + barAreaH + 10;
-
-    for (var i = 0; i < labels.length; i++) {
-      var cx = pad + gap * i + gap / 2;
-      var barH = probs[i] * barAreaH;
-
-      // Bar
-      ctx.fillStyle = barColors[i];
-      ctx.fillRect(cx - barW / 2, baseY - barH, barW, barH);
-
-      // Label
-      ctx.fillStyle = colors.text;
-      ctx.font = 'bold 13px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Class ' + labels[i], cx, baseY + 18);
-
-      // Probability on top
-      ctx.fillStyle = colors.text;
-      ctx.font = '12px JetBrains Mono, monospace';
-      ctx.fillText((probs[i] * 100).toFixed(1) + '%', cx, baseY - barH - 8);
-
-      // Logit value
-      ctx.fillStyle = colors.textMuted;
-      ctx.font = '10px JetBrains Mono, monospace';
-      ctx.fillText('z=' + logits[i].toFixed(1), cx, baseY + 32);
-    }
-
-    // Baseline
-    ctx.strokeStyle = colors.axis;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(pad, baseY);
-    ctx.lineTo(pad + barAreaW, baseY);
-    ctx.stroke();
-
-    // Scale marks
-    ctx.fillStyle = colors.textMuted;
-    ctx.font = '9px JetBrains Mono, monospace';
-    ctx.textAlign = 'right';
-    for (var p = 0; p <= 1; p += 0.25) {
-      var y = baseY - p * barAreaH;
-      ctx.fillText((p * 100).toFixed(0) + '%', pad - 5, y + 3);
-      ctx.strokeStyle = colors.grid;
-      ctx.lineWidth = 0.5;
-      ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(pad + barAreaW, y); ctx.stroke();
-    }
-
-    info.textContent = 'Probabilities: A=' + probs[0].toFixed(3) + ', B=' + probs[1].toFixed(3) + ', C=' + probs[2].toFixed(3) + ', D=' + probs[3].toFixed(3) + ' | Temperature: ' + temp.toFixed(1);
-  }
-
-  [sliderA, sliderB, sliderC, sliderD, sliderTemp].forEach(function(s) {
-    s.addEventListener('input', draw);
-  });
-
-  AL.onThemeChange(draw);
-  draw();
-})();
 </script>

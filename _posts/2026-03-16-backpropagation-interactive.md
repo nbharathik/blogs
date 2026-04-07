@@ -116,15 +116,77 @@ date: 2026-03-17
   border-radius: 50%;
   display: inline-block;
 }
+sup.cite {
+  font-size: 0.72em;
+  vertical-align: super;
+  line-height: 0;
+}
+sup.cite .cite-ref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  position: relative;
+  padding: 0 1px;
+}
+sup.cite .cite-ref:hover,
+sup.cite .cite-ref:focus {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+sup.cite .cite-ref::after {
+  content: attr(data-cite-preview);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(6px);
+  min-width: 220px;
+  max-width: 320px;
+  width: max-content;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 30;
+  white-space: normal;
+}
+sup.cite .cite-ref:hover::after,
+sup.cite .cite-ref:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.references {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+}
+.references li {
+  margin: 0.55rem 0;
+  line-height: 1.5;
+}
+.references a {
+  word-break: break-word;
+}
 </style>
 
 ## The Engine Behind Neural Network Learning
 
-In the [Perceptron & MLP]({{ site.baseurl }}/perceptron-mlp/) guide, we built multi-layer perceptrons and watched them learn. We saw decision boundaries form, loss decrease, and weights update. But we treated the weight update as a black box. How does the network know which weight to adjust and by how much?
+In the [Perceptron & MLP]({% post_url 2026-03-16-perceptron-mlp-interactive %}) guide, we built multi-layer perceptrons and watched them learn. We saw decision boundaries form, loss decrease, and weights update. But we treated the weight update as a black box: how does the network know *which* weight to adjust and by *how much*? This chapter answers that question. It is fully self-contained, so you can continue directly from here.
 
-The answer is **backpropagation**, an elegant algorithm that computes the gradient of the loss with respect to every weight in the network, using nothing more than the chain rule from calculus. It is the engine behind all of deep learning.
+The answer is **backpropagation**, an algorithm that computes the gradient of the loss with respect to every weight in the network using the chain rule from calculus.<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Rumelhart, Hinton &amp; Williams (1986), Learning representations by back-propagating errors. Nature, 323, 533-536.">1</a></sup> Introduced by Rumelhart, Hinton and Williams in 1986, it is the engine behind all of modern deep learning.
 
-This chapter makes the invisible visible. We will watch data flow forward, gradients flow backward, and weights update, step by step, node by node.
+**In this guide, you will:**
+
+- Visualize the chain rule on computational graphs and trace gradients through every node
+- Watch data flow forward and gradients flow backward through a neural network, step by step
+- See how each weight updates from its gradient using the learning rate
+- Understand why sigmoid gradients vanish in deep networks, and how ReLU solves the problem
+- Train a real network on 2D classification tasks and watch the decision boundary evolve in real time
 
 ---
 
@@ -153,11 +215,13 @@ Click any node in the graph below to see how the chain rule applies at that poin
   </div>
   <div class="demo-info" id="info-chain">Click a node to see the chain rule derivation at that point.</div>
 </div>
-<div class="demo-caption">A computational graph for f(x,y,z) = (x+y)*z. Blue values flow forward; red gradients flow backward.</div>
+<div class="demo-caption">A computational graph for f(x, y, z) = (x + y) * z with default values x = 2, y = 1, z = -3. Drag the sliders to change inputs and watch both forward values (blue) and backward gradients (red) update instantly. Click any node to see its chain rule derivation.</div>
+
+<div class="demo-hint">Try setting z to 0 and observe that all gradients with respect to x and y vanish, the output is zero regardless of the sum. Then set x = -y to make q = 0, and notice df/dz becomes zero too.</div>
 
 ---
 
-## 2. Forward Pass Animation
+## 2. Forward Pass
 
 Before we can compute gradients, we need values. The **forward pass** sends input data through the network layer by layer, computing weighted sums and activations at each neuron, until we reach the output and compute the loss.
 
@@ -179,15 +243,15 @@ Watch data flow left to right through a 2-layer network. Each neuron "lights up"
     <span><span class="bp-legend-dot" style="background:#565f89"></span> Waiting</span>
   </div>
 </div>
-<div class="demo-caption">Data flows left to right. Each neuron computes z = sum(w*x) + b, then a = sigmoid(z).</div>
+<div class="demo-caption">A 2-3-2-1 network with sigmoid activations and pre-set weights. Data flows left to right: each neuron computes z = sum(w·x) + b, then a = sigmoid(z). Adjust x₁ and x₂ to change the inputs.</div>
+
+<div class="demo-hint">Try extreme input values (both at +2 or both at -2). Notice how sigmoid saturates the activations near 0 or 1 when the pre-activation values are large.</div>
 
 ---
 
-## 3. Backward Pass Animation
+## 3. Backward Pass
 
-Now for the heart of backpropagation. After the forward pass, we compute the loss, then send **gradients** flowing right to left. At each connection, the chain rule multiplies the incoming gradient by the local derivative.
-
-This is the flagship visualization. Watch the red/orange gradient signals propagate backward, with the chain rule computation shown at each node.
+Now for the heart of backpropagation. After the forward pass, we compute the loss, then send **gradients** flowing right to left. At each connection, the chain rule multiplies the incoming gradient by the local derivative. Watch the red/orange gradient signals propagate backward, with the chain rule computation shown at each node.
 
 <div class="interactive-demo" id="demo-backward">
   <canvas id="canvas-backward" width="680" height="420"></canvas>
@@ -204,41 +268,28 @@ This is the flagship visualization. Watch the red/orange gradient signals propag
     <span><span class="bp-legend-dot" style="background:#ff9e64"></span> Chain rule multiplication</span>
   </div>
 </div>
-<div class="demo-caption">Gradients flow right to left. At each node: local gradient times upstream gradient equals downstream gradient.</div>
+<div class="demo-caption">Gradients flow right to left through the same 2-3-2-1 network. At each connection: local gradient × upstream gradient = downstream gradient. The δ values shown at each neuron represent the error signal reaching that node.</div>
 
 <div class="demo-hint">The key insight: each node only needs to know its local derivative and the gradient coming from above (upstream). It multiplies them together and passes the result backward. No node needs to know the full network structure.</div>
 
 ---
 
-## 4. Full Forward + Backward Cycle
+## 4. Weight Update Visualization
 
-Now let us see the complete cycle: forward pass (blue/green), loss computation, backward pass (red/orange), all in one continuous animation. Use the step button to advance one stage at a time, or play the full cycle.
-
-<div class="interactive-demo" id="demo-cycle">
-  <canvas id="canvas-cycle" width="680" height="420"></canvas>
-  <div class="demo-controls">
-    <button id="btn-cy-play">Play Cycle</button>
-    <button id="btn-cy-step">Step</button>
-    <button id="btn-cy-reset">Reset</button>
-    <label>Speed <input type="range" id="cy-speed" min="1" max="5" step="1" value="2"><span class="demo-value" id="val-cy-speed">2</span></label>
-    <span class="demo-value" id="cy-phase">Phase: Ready</span>
-  </div>
-  <div class="demo-info" id="info-cycle">Watch the complete training cycle: forward → loss → backward → update.</div>
-</div>
-<div class="demo-caption">The complete backpropagation cycle. Blue = forward, red = backward, green = weight update.</div>
-
----
-
-## 5. Weight Update Visualization
+Now we combine the forward and backward ideas from the previous two sections and apply the actual parameter update rule.
 
 After backpropagation computes gradients, we update each weight: $$w \leftarrow w - \eta \cdot \frac{\partial L}{\partial w}$$
 
-Watch the edges of the network change thickness and color as weights evolve over multiple training iterations. Thick edges carry large weights; blue means positive, red means negative.
+Below is a **2-4-1** network learning XOR (four inputs: [0,0], [0,1], [1,0], [1,1] with targets 0, 1, 1, 0). The loss function is **binary cross-entropy**: $$L = -\bigl[y \log \hat{y} + (1-y)\log(1-\hat{y})\bigr]$$. Weights are initialized using **He initialization**, where each weight is drawn from a distribution scaled by $$\sqrt{2/n_{\text{in}}}$$, which helps maintain signal variance across layers.<sup class="cite"><a class="cite-ref" href="#ref-5" data-cite-preview="He, Zhang, Ren &amp; Sun (2015), Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification. ICCV.">5</a></sup>
+
+Watch the edges change thickness and color as weights evolve. Thick edges carry large weights; blue means positive, red means negative.
 
 <div class="interactive-demo" id="demo-weights">
   <canvas id="canvas-weights" width="680" height="400"></canvas>
   <div class="demo-controls">
     <button id="btn-wt-train">Train (10 steps)</button>
+    <button id="btn-wt-run">Continuous</button>
+    <button id="btn-wt-stop">Stop</button>
     <button id="btn-wt-reset">Reset</button>
     <label>Learning Rate <input type="range" id="wt-lr" min="0.1" max="3" step="0.1" value="1.0"><span class="demo-value" id="val-wt-lr">1.0</span></label>
     <span class="demo-value" id="wt-epoch">Step: 0</span>
@@ -250,13 +301,15 @@ Watch the edges of the network change thickness and color as weights evolve over
     <span>Thickness = magnitude</span>
   </div>
 </div>
-<div class="demo-caption">Click "Train" repeatedly to watch weights evolve. The network is learning XOR.</div>
+<div class="demo-caption">A 2-4-1 network learning XOR with binary cross-entropy loss. Edge thickness shows weight magnitude; blue = positive, red = negative. Click Train to run 10 gradient update steps, or use continuous training to watch weights evolve smoothly.</div>
+
+<div class="demo-hint">Try a very high learning rate (2.5+) and watch the weights oscillate wildly. Then try 0.1 and notice how slowly they converge. A learning rate around 1.0 usually works well for this small network. If the network gets stuck (XOR has local minima), click Reset and try again.</div>
 
 ---
 
-## 6. Gradient Magnitude Heatmap
+## 5. Gradient Magnitude Heatmap
 
-Not all neurons receive equal gradients. In deep networks, gradients can vary enormously across layers. This heatmap colors each neuron by the magnitude of its gradient, bright means a large gradient (fast learning), dark means a small gradient (slow learning).
+Not all neurons receive equal gradients. In deep networks, gradients can vary enormously across layers.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Hochreiter (1991), Untersuchungen zu dynamischen neuronalen Netzen. Diploma thesis, TU Munich. First formal analysis of the vanishing gradient problem.">2</a></sup> This heatmap colors each neuron by the magnitude of its gradient: bright means a large gradient (fast learning), dark means a small gradient (slow or stalled learning). The bar chart below shows the average gradient magnitude per layer.
 
 <div class="interactive-demo" id="demo-heatmap">
   <canvas id="canvas-heatmap" width="680" height="380"></canvas>
@@ -271,17 +324,19 @@ Not all neurons receive equal gradients. In deep networks, gradients can vary en
   </div>
   <div class="demo-info" id="info-heatmap">Bright = large gradient, dark = small gradient. Increase layers with Sigmoid to see gradients vanish.</div>
 </div>
-<div class="demo-caption">Gradient magnitude across layers. With Sigmoid, deeper layers have vanishingly small gradients.</div>
+<div class="demo-caption">Gradient magnitude heatmap for a configurable-depth network with 4 neurons per hidden layer. Bright nodes = large gradient (learning fast), dark nodes = small gradient (learning slowly or stalled). Compare Sigmoid vs ReLU.</div>
+
+<div class="demo-hint">Start with 3 layers on Sigmoid and note the gradient magnitudes. Then increase to 6 layers and watch the early layers go dark, their gradients have shrunk by orders of magnitude. Switch to ReLU and notice the gradient magnitude stays comparable across all layers.</div>
 
 ---
 
-## 7. The Vanishing Gradient Problem
+## 6. The Vanishing Gradient Problem
 
-The **vanishing gradient problem** is one of the most important challenges in deep learning. With sigmoid or tanh activations, each layer multiplies the gradient by a value between 0 and 0.25 (the maximum of sigmoid's derivative). Stack 5+ layers, and the gradients at early layers become astronomically small, the network effectively stops learning there.
+The **vanishing gradient problem** is one of the most important challenges in deep learning.<sup class="cite"><a class="cite-ref" href="#ref-3" data-cite-preview="Glorot &amp; Bengio (2010), Understanding the difficulty of training deep feedforward neural networks. AISTATS.">3</a></sup> With sigmoid or tanh activations, each layer multiplies the gradient by a value between 0 and 0.25 (the maximum of sigmoid's derivative). Stack 5+ layers, and the gradients at early layers become astronomically small: the network effectively stops learning there.
 
 $$\frac{\partial L}{\partial w_1} = \underbrace{\sigma'(z_5) \cdot \sigma'(z_4) \cdot \sigma'(z_3) \cdot \sigma'(z_2) \cdot \sigma'(z_1)}_{\text{each} \leq 0.25 \implies \text{product} \leq 0.001} \cdot \ldots$$
 
-**ReLU** solves this: its derivative is either 0 or 1, so gradients pass through unchanged (as long as the neuron is active).
+**ReLU** solves this: its derivative is either 0 or 1, so gradients pass through unchanged (as long as the neuron is active).<sup class="cite"><a class="cite-ref" href="#ref-4" data-cite-preview="Nair &amp; Hinton (2010), Rectified Linear Units Improve Restricted Boltzmann Machines. ICML.">4</a></sup>
 
 <div class="interactive-demo" id="demo-vanishing">
   <div class="demo-split">
@@ -304,17 +359,17 @@ $$\frac{\partial L}{\partial w_1} = \underbrace{\sigma'(z_5) \cdot \sigma'(z_4) 
 
 <div class="demo-hint">This is why modern deep networks almost universally use ReLU or its variants (Leaky ReLU, GELU, Swish). The sigmoid is mostly confined to the output layer for binary classification.</div>
 
+<div class="demo-hint">Increase to 8 layers with Sigmoid. The first-layer gradient may be 1000× smaller than the last layer. This is why networks deeper than 2-3 layers were considered untrainable before ReLU became standard.</div>
+
 ---
 
-## 8. Computational Graph Builder
+## 7. Computational Graph Builder
 
-Build your own computational graph and watch backpropagation in action. Add input values, connect them through addition and multiplication nodes, then see gradients compute automatically.
+Explore different computational graphs and watch backpropagation compute gradients automatically. Select a preset expression to see its graph structure, then click Compute to run both the forward and backward passes.
 
 <div class="interactive-demo" id="demo-builder">
   <canvas id="canvas-builder" width="680" height="400"></canvas>
   <div class="demo-controls">
-    <button id="btn-bl-add">+ Add Node</button>
-    <button id="btn-bl-mul">* Multiply Node</button>
     <button id="btn-bl-run">Compute</button>
     <button id="btn-bl-reset">Reset</button>
     <label>Expression:
@@ -323,15 +378,17 @@ Build your own computational graph and watch backpropagation in action. Add inpu
       <button id="bl-expr3">sigmoid(a*b+c)</button>
     </label>
   </div>
-  <div class="demo-info" id="info-builder">Select a preset expression or build your own. Forward values shown in blue, gradients in red.</div>
+  <div class="demo-info" id="info-builder">Select an expression and click Compute. Forward values shown in blue, gradients in red.</div>
 </div>
-<div class="demo-caption">Each node shows its forward value (top) and gradient (bottom). Click "Compute" to run forward + backward.</div>
+<div class="demo-caption">Select a preset expression to see its computational graph. Each node displays its forward value (blue, below) and gradient (red, above) after clicking Compute. The third expression includes a sigmoid node to see how it attenuates gradients.</div>
+
+<div class="demo-hint">Compare the three expressions. In the sigmoid expression, notice how the sigmoid node compresses the gradient: its local derivative is at most 0.25, so every gradient upstream of the sigmoid is attenuated. This is the same mechanism that causes vanishing gradients in deep networks.</div>
 
 ---
 
-## 9. Backprop on a Real Task
+## 8. Backprop on a Real Task
 
-Finally, let us put it all together. Watch a neural network train on a 2D classification task, seeing the complete cycle repeat: forward pass, loss, backward pass, weight update. The decision boundary evolves in real time.
+Finally, let us put it all together. A **2-4-4-1** MLP is trained on a 2D classification task using **binary cross-entropy** loss and full-batch gradient descent. The complete backpropagation cycle repeats each epoch: forward pass, loss computation, backward pass, weight update. You can switch between Sigmoid and ReLU activations for the hidden layers to see how they affect convergence.
 
 <div class="interactive-demo" id="demo-real">
   <div class="demo-split">
@@ -351,6 +408,10 @@ Finally, let us put it all together. Watch a neural network train on a 2D classi
       <button id="rl-ds-xor">XOR</button>
     </label>
     <label>LR <input type="range" id="rl-lr" min="0.1" max="3" step="0.1" value="1.0"><span class="demo-value" id="val-rl-lr">1.0</span></label>
+    <label>Activation:
+      <button id="rl-act-sigmoid" class="active">Sigmoid</button>
+      <button id="rl-act-relu">ReLU</button>
+    </label>
   </div>
   <div class="demo-controls">
     <button id="btn-rl-train">Train</button>
@@ -359,15 +420,15 @@ Finally, let us put it all together. Watch a neural network train on a 2D classi
     <span class="demo-value" id="rl-epoch">Epoch: 0</span>
     <span class="demo-value" id="rl-loss">Loss: --</span>
   </div>
-  <div class="demo-info" id="info-real">Watch backpropagation train a network in real time. The decision boundary updates after each epoch.</div>
+  <div class="demo-info" id="info-real">Watch backpropagation train a network in real time. The decision boundary updates every 5 epochs.</div>
 </div>
-<div class="demo-caption">A 2-4-4-1 network trained with backpropagation. Watch the decision boundary evolve as gradients update weights.</div>
+<div class="demo-caption">A 2-4-4-1 network trained with backpropagation and binary cross-entropy loss. Left: decision boundary evolving in real time (blue region = class 0, red = class 1). Right: training loss curve. Weights use He initialization.</div>
 
-<div class="demo-hint">Try the spiral dataset, it requires the network to learn a complex, winding boundary. If it gets stuck, reset and try a higher learning rate.</div>
+<div class="demo-hint">Recommended learning rates: Circle works well with LR 0.5-1.5. XOR needs LR 1.0-2.0 for fast convergence. Spiral is hardest and may need LR 1.5-2.5 with a reset if stuck in a local minimum. Try switching to ReLU activations on the Spiral dataset, it often converges faster.</div>
 
 ---
 
-## 10. Summary
+## 9. Summary
 
 | Concept | Key Idea |
 |---|---|
@@ -375,16 +436,28 @@ Finally, let us put it all together. Watch a neural network train on a 2D classi
 | **Forward Pass** | Data flows input to output, computing weighted sums and activations. |
 | **Backward Pass** | Gradients flow output to input, applying the chain rule at every connection. |
 | **Weight Update** | Each weight is nudged opposite to its gradient: $$w \leftarrow w - \eta \nabla_w L$$. |
+| **Binary Cross-Entropy** | The loss $$L = -[y\log\hat{y} + (1-y)\log(1-\hat{y})]$$ used for binary classification throughout this guide. |
+| **He Initialization** | Weights drawn from $$\mathcal{N}(0, \sqrt{2/n_{\text{in}}})$$ to maintain variance across layers. |
 | **Vanishing Gradients** | Sigmoid/tanh squash gradients exponentially with depth. ReLU preserves them. |
 | **Computational Graph** | Any expression can be decomposed into a graph for automatic differentiation. |
 
 Backpropagation is not just an algorithm, it is a way of thinking about computation. Every modern deep learning framework (PyTorch, TensorFlow, JAX) is built around the idea of recording a computational graph during the forward pass and then traversing it backward to compute gradients automatically. This is called **automatic differentiation**, and backpropagation is its most important special case.
 
-The time complexity of backpropagation is **O(n)** where n is the number of operations in the forward pass, we traverse each edge exactly once going forward and once going backward. This efficiency is what makes training networks with millions of parameters practical.
+The time complexity of backpropagation is **O(n)** where n is the number of operations in the forward pass: we traverse each edge exactly once going forward and once going backward. This efficiency is what makes training networks with millions of parameters practical.
 
-**What's next:** In the [Activation & Loss Functions]({{ site.baseurl }}/activations-losses/) guide, we will explore, dropout, weight decay, batch normalization, and understand how they prevent overfitting and stabilize training.
+What's next: In the [Activation Functions]({{ site.baseurl }}/activation-functions/) guide, we will explore different activation functions and understand how they affect gradient flow and network expressivity.
 
 ---
+
+## References
+
+<ol class="references">
+  <li id="ref-1">Rumelhart, D. E., Hinton, G. E., &amp; Williams, R. J. (1986). <em>Learning representations by back-propagating errors</em>. Nature, 323, 533-536. <a href="https://doi.org/10.1038/323533a0" target="_blank" rel="noopener">https://doi.org/10.1038/323533a0</a></li>
+  <li id="ref-2">Hochreiter, S. (1991). <em>Untersuchungen zu dynamischen neuronalen Netzen</em>. Diploma thesis, Technische Universität München. First formal analysis of the vanishing gradient problem.</li>
+  <li id="ref-3">Glorot, X., &amp; Bengio, Y. (2010). <em>Understanding the difficulty of training deep feedforward neural networks</em>. AISTATS. <a href="http://proceedings.mlr.press/v9/glorot10a.html" target="_blank" rel="noopener">http://proceedings.mlr.press/v9/glorot10a.html</a></li>
+  <li id="ref-4">Nair, V., &amp; Hinton, G. E. (2010). <em>Rectified Linear Units Improve Restricted Boltzmann Machines</em>. ICML. <a href="https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf" target="_blank" rel="noopener">https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf</a></li>
+  <li id="ref-5">He, K., Zhang, X., Ren, S., &amp; Sun, J. (2015). <em>Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification</em>. ICCV. <a href="https://doi.org/10.1109/ICCV.2015.123" target="_blank" rel="noopener">https://doi.org/10.1109/ICCV.2015.123</a></li>
+</ol>
 
 <script>
 // ==================== SHARED BACKPROP UTILITIES ====================
@@ -1122,6 +1195,26 @@ window.BP = (function() {
   }
   resetLit();
 
+  function getEdgeLabelPos(from, to, fromIdx, toIdx, fromCount, toCount) {
+    var mx = (from.x + to.x) / 2;
+    var my = (from.y + to.y) / 2;
+    var dx = to.x - from.x;
+    var dy = to.y - from.y;
+    var len = Math.sqrt(dx * dx + dy * dy) || 1;
+    var nx = -dy / len;
+    var ny = dx / len;
+    var tx = dx / len;
+    var ty = dy / len;
+    var fromOffset = fromIdx - (fromCount - 1) / 2;
+    var toOffset = toIdx - (toCount - 1) / 2;
+    var normalOffset = fromOffset * 14 + toOffset * 10;
+    var tangentOffset = (toIdx % 2 === 0 ? -1 : 1) * 6;
+    return {
+      x: mx + nx * normalOffset + tx * tangentOffset,
+      y: my + ny * normalOffset + ty * tangentOffset
+    };
+  }
+
   function drawNet() {
     var c = BP.getColors();
     ctx.fillStyle = c.bg;
@@ -1144,12 +1237,11 @@ window.BP = (function() {
           if (phase === 'done' || (phase === 'animating-back' && l >= animLayer + 1) ||
               (phase === 'animating-back' && l === animLayer && litBk[l + 1][i])) {
             if (net.dW && net.dW[l]) {
-              var mx = (from.x + to.x) / 2;
-              var my = (from.y + to.y) / 2;
+              var pos = getEdgeLabelPos(from, to, j, i, sizes[l], sizes[l + 1]);
               ctx.fillStyle = c.backward;
               ctx.font = '9px JetBrains Mono, monospace';
               ctx.textAlign = 'center';
-              ctx.fillText('\u2207w=' + net.dW[l][i][j].toFixed(3), mx, my - 4);
+              ctx.fillText('\u2207w=' + net.dW[l][i][j].toFixed(2), pos.x, pos.y - 5);
             }
           }
         }
@@ -1282,10 +1374,11 @@ window.BP = (function() {
 <script>
 (function() {
   var canvas = document.getElementById('canvas-cycle');
+  if (!canvas) return;
   var ctx = BP.setupCanvas(canvas);
   var W = 680, H = 420;
-  var btnPlay = document.getElementById('btn-cy-play');
-  var btnStep = document.getElementById('btn-cy-step');
+  var btnForward = document.getElementById('btn-cy-forward');
+  var btnBackward = document.getElementById('btn-cy-backward');
   var btnReset = document.getElementById('btn-cy-reset');
   var slSpeed = document.getElementById('cy-speed');
   var valSpeed = document.getElementById('val-cy-speed');
@@ -1301,12 +1394,10 @@ window.BP = (function() {
 
   var layout = BP.getNetworkLayout(sizes, W, H - 40, 120, 80);
   var phase = 'ready'; // ready, forward, loss, backward, update, done
-  var stepIdx = 0;
   var animT = 0;
   var animLayer = 0, animNeuron = 0;
   var litFwd = [], litBk = [];
   var animId = null;
-  var playing = false;
   var target = 1;
   var input = [0.8, 0.4];
 
@@ -1411,7 +1502,6 @@ window.BP = (function() {
           var loss = -(target * Math.log(out + 1e-15) + (1 - target) * Math.log(1 - out + 1e-15));
           infoEl.textContent = 'Loss = ' + loss.toFixed(4);
           drawNet();
-          if (playing) setTimeout(function() { stepBackward(); }, 600);
           return;
         }
       }
@@ -1443,9 +1533,13 @@ window.BP = (function() {
           phase = 'update';
           phaseEl.textContent = 'Phase: Update';
           net.update(0.5);
-          infoEl.textContent = 'Weights updated! Cycle complete.';
+          infoEl.textContent = 'Weights updated! Backward pass complete.';
           drawNet();
-          if (playing) setTimeout(function() { phase = 'done'; phaseEl.textContent = 'Phase: Done'; playing = false; drawNet(); }, 800);
+          setTimeout(function() {
+            phase = 'done';
+            phaseEl.textContent = 'Phase: Done';
+            drawNet();
+          }, 450);
           return;
         }
       }
@@ -1455,35 +1549,34 @@ window.BP = (function() {
     animId = requestAnimationFrame(animateBack);
   }
 
-  function doStep() {
+  function runForward() {
     if (animId) cancelAnimationFrame(animId);
-    if (phase === 'ready') stepForward();
-    else if (phase === 'loss') stepBackward();
-    else if (phase === 'update' || phase === 'done') {
-      phase = 'done'; phaseEl.textContent = 'Phase: Done';
-      infoEl.textContent = 'Cycle complete. Click Reset to start again.';
-    }
+    resetLit();
+    phase = 'ready';
+    stepForward();
   }
 
-  function doPlay() {
+  function runBackward() {
     if (animId) cancelAnimationFrame(animId);
-    playing = true;
-    resetState();
-    stepForward();
+    if (phase !== 'loss') {
+      infoEl.textContent = 'Run Forward first, then click Backward.';
+      return;
+    }
+    stepBackward();
   }
 
   function resetState() {
     if (animId) cancelAnimationFrame(animId);
+    animId = null;
     phase = 'ready';
-    playing = false;
     resetLit();
     phaseEl.textContent = 'Phase: Ready';
-    infoEl.textContent = 'Click Play or Step to begin the cycle.';
+    infoEl.textContent = 'Click Forward, then Backward to run one cycle.';
     drawNet();
   }
 
-  btnPlay.addEventListener('click', doPlay);
-  btnStep.addEventListener('click', doStep);
+  btnForward.addEventListener('click', runForward);
+  btnBackward.addEventListener('click', runBackward);
   btnReset.addEventListener('click', resetState);
   slSpeed.addEventListener('input', function() { valSpeed.textContent = slSpeed.value; });
   resetState();
@@ -1508,9 +1601,35 @@ window.BP = (function() {
   var net, step;
   var data = { X: [[0,0],[0,1],[1,0],[1,1]], y: [0,1,1,0] };
   var layout = BP.getNetworkLayout(sizes, W, H, 100, 50);
+  var initialState = null;
+
+  function clone2D(arr) {
+    var out = [];
+    for (var i = 0; i < arr.length; i++) out.push(arr[i].slice());
+    return out;
+  }
+
+  function snapshotState(model) {
+    return {
+      W: model.W.map(function(layer) { return clone2D(layer); }),
+      b: clone2D(model.b)
+    };
+  }
+
+  function applyState(model, state) {
+    model.W = state.W.map(function(layer) { return clone2D(layer); });
+    model.b = clone2D(state.b);
+  }
 
   function initNet() {
     net = new BP.MLP(sizes, 'sigmoid');
+    step = 0;
+    if (!initialState) initialState = snapshotState(net);
+  }
+
+  function restoreInitialNet() {
+    net = new BP.MLP(sizes, 'sigmoid');
+    if (initialState) applyState(net, initialState);
     step = 0;
   }
   initNet();
@@ -1586,6 +1705,12 @@ window.BP = (function() {
     }
   }
 
+  var running = false;
+  var runAnimId = null;
+  var runToken = 0;
+  var btnRun = document.getElementById('btn-wt-run');
+  var btnStop = document.getElementById('btn-wt-stop');
+
   function trainStep() {
     var lr = parseFloat(slLR.value);
     for (var i = 0; i < 10; i++) {
@@ -1602,14 +1727,39 @@ window.BP = (function() {
     drawNet();
   }
 
+  function continuousLoop(token) {
+    if (!running || token !== runToken) return;
+    trainStep();
+    runAnimId = requestAnimationFrame(function() { continuousLoop(token); });
+  }
+
+  function startContinuous() {
+    if (running) return;
+    running = true;
+    runToken++;
+    continuousLoop(runToken);
+  }
+
+  function stopContinuous() {
+    running = false;
+    runToken++;
+    if (runAnimId) {
+      cancelAnimationFrame(runAnimId);
+      runAnimId = null;
+    }
+  }
+
   function reset() {
-    initNet();
+    stopContinuous();
+    restoreInitialNet();
     epochEl.textContent = 'Step: 0';
-    infoEl.textContent = 'Edge thickness = weight magnitude. Blue = positive, red = negative.';
+    infoEl.textContent = 'Reset complete. Edge thickness = weight magnitude. Blue = positive, red = negative.';
     drawNet();
   }
 
-  btnTrain.addEventListener('click', trainStep);
+  btnTrain.addEventListener('click', function() { stopContinuous(); trainStep(); });
+  btnRun.addEventListener('click', startContinuous);
+  btnStop.addEventListener('click', stopContinuous);
   btnReset.addEventListener('click', reset);
   slLR.addEventListener('input', function() { valLR.textContent = parseFloat(slLR.value).toFixed(1); });
   reset();
@@ -1738,8 +1888,9 @@ window.BP = (function() {
 
   btnCompute.addEventListener('click', function() { buildAndCompute(); draw(); });
   btnReset.addEventListener('click', function() { computed = false; draw(); });
+  buildAndCompute();
   draw();
-  BP.onThemeChange(draw);
+  BP.onThemeChange(function() { if (computed) { buildAndCompute(); } draw(); });
 })();
 </script>
 
@@ -1764,14 +1915,6 @@ window.BP = (function() {
     for (var i = 0; i < nLayers; i++) sizes.push(4);
     sizes.push(1);
     var net = new BP.MLP(sizes, actName);
-    // Use moderate weights so gradients are meaningful
-    for (var l = 0; l < net.W.length; l++) {
-      for (var i = 0; i < net.W[l].length; i++) {
-        for (var j = 0; j < net.W[l][i].length; j++) {
-          net.W[l][i][j] *= 0.8;
-        }
-      }
-    }
     net.forward([0.5, 0.8]);
     net.backward(1);
     var grads = [];
@@ -1856,8 +1999,8 @@ window.BP = (function() {
   btnRun.addEventListener('click', runComparison);
   btnReset.addEventListener('click', function() { computed = false; draw(); });
   slLayers.addEventListener('input', function() { valLayers.textContent = slLayers.value; computed = false; draw(); });
-  draw();
-  BP.onThemeChange(draw);
+  runComparison();
+  BP.onThemeChange(function() { if (computed) { runComparison(); } draw(); });
 })();
 </script>
 
@@ -2102,7 +2245,11 @@ window.BP = (function() {
   var lossEl = document.getElementById('rl-loss');
   var infoEl = document.getElementById('info-real');
 
+  var btnActSigmoid = document.getElementById('rl-act-sigmoid');
+  var btnActRelu = document.getElementById('rl-act-relu');
+
   var dsName = 'circle';
+  var actName = 'sigmoid';
   var net, data, epoch, losses, training, animId;
 
   function initAll() {
@@ -2112,14 +2259,12 @@ window.BP = (function() {
     losses = [];
     if (dsName === 'xor') {
       data = BP.datasets.xor();
-      net = new BP.MLP([2, 4, 4, 1], 'sigmoid');
     } else if (dsName === 'spiral') {
       data = BP.datasets.spiral(120);
-      net = new BP.MLP([2, 4, 4, 1], 'sigmoid');
     } else {
       data = BP.datasets.circle(100);
-      net = new BP.MLP([2, 4, 4, 1], 'sigmoid');
     }
+    net = new BP.MLP([2, 4, 4, 1], actName);
     epochEl.textContent = 'Epoch: 0';
     lossEl.textContent = 'Loss: --';
     drawBoundary();
@@ -2159,9 +2304,18 @@ window.BP = (function() {
     initAll();
   }
 
+  function setAct(name) {
+    actName = name;
+    btnActSigmoid.classList.toggle('active', name === 'sigmoid');
+    btnActRelu.classList.toggle('active', name === 'relu');
+    initAll();
+  }
+
   btnCircle.addEventListener('click', function() { setDS('circle'); });
   btnSpiral.addEventListener('click', function() { setDS('spiral'); });
   btnXor.addEventListener('click', function() { setDS('xor'); });
+  btnActSigmoid.addEventListener('click', function() { setAct('sigmoid'); });
+  btnActRelu.addEventListener('click', function() { setAct('relu'); });
   btnTrain.addEventListener('click', function() { training = true; trainLoop(); });
   btnStop.addEventListener('click', function() { training = false; if (animId) cancelAnimationFrame(animId); });
   btnReset.addEventListener('click', function() { initAll(); });
