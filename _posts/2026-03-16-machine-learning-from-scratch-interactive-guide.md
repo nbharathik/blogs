@@ -595,7 +595,7 @@ Each post starts with the intuition, walks through the math step by step, and th
       return fitLine(points);
     });
 
-    drawClassPoints(points);
+    drawRegressionPoints(points);
     drawLine(0, clamp01(fit.b), 1, clamp01(fit.m + fit.b), 'var(--accent)', 3, 1);
   }
 
@@ -668,6 +668,12 @@ Each post starts with the intuition, walks through the math step by step, and th
     points.forEach(function (p) {
       var color = p.cls ? '#e67e22' : '#2e86c1';
       drawCircle(p.x, p.y, 4.2, color, '#ffffff', 0.9, 0.92);
+    });
+  }
+
+  function drawRegressionPoints(points) {
+    points.forEach(function (p) {
+      drawCircle(p.x, p.y, 4.2, '#2e86c1', '#ffffff', 0.9, 0.92);
     });
   }
 

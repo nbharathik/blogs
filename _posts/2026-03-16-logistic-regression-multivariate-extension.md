@@ -379,39 +379,37 @@ window.LogR2 = (function() {
 </script>
 
 This is the follow-up to the first post:
-[Logistic Regression: An Interactive Guide]({{ site.baseurl }}/logistic-regression/)
+[Logistic Regression: An Interactive Guide]({{ site.baseurl }}/logistic-regression/). In that post, we built logistic regression for a single feature: one input $$x$$ (hours studied). The decision boundary was a single point on the number line separating pass from fail. Now we take the natural next step: two input features. We predict whether a student passes or fails an exam based on both hours studied and attendance score. The decision boundary goes from a point on a line to an actual line in 2D space.
 
-In that post, we built logistic regression for a **single feature**: one input $$x$$ (hours studied). The decision boundary was a **single point** on the number line separating pass from fail. Now we take the natural next step: **two input features**. We predict whether a student passes or fails an exam based on both **hours studied** and **attendance score**. The decision boundary goes from a point on a line to an actual **line** in 2D space.
-
-The full model with two features is<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Cox (1958), The regression analysis of binary sequences. Journal of the Royal Statistical Society, Series B, 20(2), 215-242.">1</a></sup>:
+The full model with two features is:
 
 $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$
 
-where $$\sigma(z) = \frac{1}{1 + e^{-z}}$$ is the sigmoid function. The weights $$w_1$$ and $$w_2$$ control the **orientation** of the decision boundary line, and $$b$$ (the **bias**) shifts it. The decision boundary itself is the set of points where $$w_1 x_1 + w_2 x_2 + b = 0$$.
+where $$\sigma(z) = \frac{1}{1 + e^{-z}}$$ is the sigmoid function. The weights $$w_1$$ and $$w_2$$ control the orientation of the decision boundary line, and $$b$$ (the bias) shifts it. The decision boundary itself is the set of points where $$w_1 x_1 + w_2 x_2 + b = 0$$.
 
-<!-- For the **cost surface** and **gradient descent** sections further down, we fix $$b = 0$$ so we have only two free parameters. This lets us directly visualize:
-1. The **cost surface** $$J(w_1, w_2)$$ as a 3D landscape
-2. **Gradient descent** walking across that surface to find the best weights -->
+<!-- For the cost surface and gradient descent sections further down, we fix $$b = 0$$ so we have only two free parameters. This lets us directly visualize:
+1. The cost surface $$J(w_1, w_2)$$ as a 3D landscape
+2. Gradient descent walking across that surface to find the best weights -->
 
 ---
 
 ## 1. From a Point to a Line
 
-With one feature, the decision boundary was a **single threshold** on the $$x$$-axis. Everything to the right was classified as 1, everything to the left as 0:
+With one feature, the decision boundary was a single threshold on the $$x$$-axis. Everything to the right was classified as 1, everything to the left as 0:
 
 $$h(x) = \sigma(w \cdot x + b)$$
 
-With two features, the decision boundary becomes a **line** in 2D space ($$x_1$$ vs $$x_2$$):
+With two features, the decision boundary becomes a line in 2D space ($$x_1$$ vs $$x_2$$):
 
 $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$
 
 What does each parameter do?
 
-- **$$w_1$$** controls how much **hours studied** ($$x_1$$) influences the prediction. A larger $$w_1$$ means more study hours push the prediction toward passing.
+- $$w_1$$ controls how much hours studied ($$x_1$$) influences the prediction. A larger $$w_1$$ means more study hours push the prediction toward passing.
 
-- **$$w_2$$** controls how much **attendance score** ($$x_2$$) influences the prediction. It works independently from $$w_1$$.
+- $$w_2$$ controls how much attendance score ($$x_2$$) influences the prediction. It works independently from $$w_1$$.
 
-- **$$b$$** (the **bias**) shifts the decision boundary without changing its orientation. A more negative $$b$$ makes the model harder to satisfy, requiring more study and attendance to predict a pass.
+- $$b$$ (the bias) shifts the decision boundary without changing its orientation. A more negative $$b$$ makes the model harder to satisfy, requiring more study and attendance to predict a pass.
 
 The decision boundary line is where the model predicts exactly 50% probability, that is, where $$w_1 x_1 + w_2 x_2 + b = 0$$. On one side, the model predicts pass; on the other, fail.
 
@@ -419,7 +417,7 @@ The decision boundary line is where the model predicts exactly 50% probability, 
 
 ## 2. Seeing the Data in 3D
 
-Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space, where $$y$$ is either 0 (fail) or 1 (pass). The curved surface is the **sigmoid probability surface** $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$, which smoothly transitions from 0 to 1. The **decision boundary** is where the surface crosses the 0.5 probability level, on one side the model predicts pass, on the other fail.
+Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space, where $$y$$ is either 0 (fail) or 1 (pass). The curved surface is the sigmoid probability surface $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$, which smoothly transitions from 0 to 1. The decision boundary is where the surface crosses the 0.5 probability level, on one side the model predicts pass, on the other fail.
 
 <div class="demo-hint">
 Drag w₁ and w₂ to tilt the sigmoid surface; drag b to shift. Click Fit to run gradient descent.
@@ -795,7 +793,7 @@ Drag w₁ and w₂ to tilt the sigmoid surface; drag b to shift. Click Fit to ru
 })();
 </script>
 
-Notice how the **sigmoid surface** curves between 0 and 1, red points (fail) sit near the bottom where the surface is low, and blue points (pass) cluster near the top. The dashed line at P = 0.5 shows the decision boundary. Points near this boundary are the hardest to classify since the sigmoid outputs values close to 0.5 there.
+Notice how the sigmoid surface curves between 0 and 1, red points (fail) sit near the bottom where the surface is low, and blue points (pass) cluster near the top. The dashed line at P = 0.5 shows the decision boundary. Points near this boundary are the hardest to classify since the sigmoid outputs values close to 0.5 there.
 
 ---
 
@@ -809,11 +807,11 @@ $$x_2 = -\frac{w_1}{w_2}\,x_1 - \frac{b}{w_2}$$
 
 This makes it clear what each parameter controls:
 
-- The **slope** of the boundary is $$-w_1 / w_2$$. Changing the ratio of $$w_1$$ to $$w_2$$ rotates the line.
+- The slope of the boundary is $$-w_1 / w_2$$. Changing the ratio of $$w_1$$ to $$w_2$$ rotates the line.
 
-- The **intercept** is $$-b / w_2$$. Changing $$b$$ slides the line up or down without rotating it.
+- The intercept is $$-b / w_2$$. Changing $$b$$ slides the line up or down without rotating it.
 
-On one side of the boundary (where $$w_1 x_1 + w_2 x_2 + b > 0$$), the sigmoid outputs values above 0.5, so the model predicts class 1. On the other side, it predicts class 0. The further a point is from the boundary, the more confident the prediction. As in the single-feature case, the 0.5 threshold is a policy choice: lowering it increases recall for class 1 while raising it increases precision.
+On one side of the boundary (where $$w_1 x_1 + w_2 x_2 + b > 0$$), the sigmoid outputs values above 0.5, so the model predicts class 1. On the other side, it predicts class 0. The further a point is from the boundary, the more confident the prediction. As in the single-feature case, the 0.5 threshold is a policy choice. You could choose a different threshold to trade off precision and recall, but 0.5 is the most common default.
 
 ---
 
@@ -821,13 +819,13 @@ On one side of the boundary (where $$w_1 x_1 + w_2 x_2 + b > 0$$), the sigmoid o
 
 For the visualizations below, we set $$b = 0$$ so the cost depends on only two variables, $$w_1$$ and $$w_2$$. This lets us plot the cost as a 3D surface and a 2D contour, something impossible with three free parameters. The bias slider above still works for exploring the full model; down here we focus on the weight landscape.
 
-The cost function for logistic regression is the **binary cross-entropy**:
+The cost function for logistic regression is the binary cross-entropy:
 
 $$J(w_1,w_2) = -\frac{1}{m}\sum_{i=1}^{m}\left[y^{(i)}\log h(x^{(i)}) + (1-y^{(i)})\log(1-h(x^{(i)}))\right]$$
 
-where $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$. Every possible combination of $$w_1$$ and $$w_2$$ produces a different cost. Plotting all combinations gives us a **cost surface**.
+where $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$. Every possible combination of $$w_1$$ and $$w_2$$ produces a different cost. Plotting all combinations gives us a cost surface.
 
-Compared with linear regression, the shape is usually less perfectly quadratic, but with binary cross-entropy the objective is still **convex** in the parameters. In practice this gives one basin for typical non-separable data. (For perfectly separable data without regularization, weights can keep growing while loss approaches 0.)
+Compared with linear regression, the shape is usually less perfectly quadratic, but with binary cross-entropy the objective is still convex in the parameters. In practice this gives one basin for typical non-separable data.
 
 <div class="demo-hint">
 Red dot shows current weights. Drag the green dot to explore. Cost shown for b = 0.
@@ -1127,7 +1125,7 @@ Red dot shows current weights. Drag the green dot to explore. Cost shown for b =
 })();
 </script>
 
-The cross-entropy cost penalizes confident wrong predictions heavily. If the model says "99% pass" but the true label is fail, the cost spikes. This is why the surface rises steeply in regions where the weights are badly wrong. The minimum sits where the weights produce a boundary that best separates the two classes.
+Cross-entropy loss gives a large penalty when the model is very confident and still wrong. For example, if the model predicts a very high probability for “pass” but the true label is “fail,” the loss becomes large. Because of this, the cost surface rises quickly in regions where the weights lead to strongly wrong predictions. The minimum is reached when the weights produce predictions that separate the two classes as well as possible.
 
 ---
 
@@ -1516,18 +1514,23 @@ After running gradient descent for enough iterations, the green dot settles near
 
 ## What to Learn From This
 
-- With **one feature**, the decision boundary is a **point** on the number line. With **two features**, it becomes a **line** in 2D. With $$n$$ features, it becomes a **hyperplane** in $$n$$-dimensional space.
+- With one feature, the decision boundary is a point on the number line. With two features, it becomes a line in 2D. With $$n$$ features, it becomes a hyperplane in $$n$$-dimensional space.
 
 - Each weight $$w_k$$ controls how much feature $$x_k$$ contributes to the classification. Setting $$w_k = 0$$ means "ignore feature $$k$$."
 
-- The **cost surface** for logistic regression (binary cross-entropy) is convex in parameters. On typical non-separable data this gives one basin and stable convergence; perfectly separable data may need regularization for a finite optimum.
-
+- The cost surface for logistic regression (binary cross-entropy) is convex in parameters. This means there are no local minima, and gradient descent will always find the global minimum if run long enough with a suitable learning rate.
+  
 - The gradient formulas look almost identical to linear regression. The only difference is that the prediction $$\hat{y}$$ is replaced by $$h(x) = \sigma(w \cdot x + b)$$. This elegance comes from the choice of cross-entropy as the cost function.
 
 - We kept $$b = 0$$ for the cost surface and gradient descent visualizations. Adding a bias $$b$$ adds one more dimension but changes nothing about how the algorithm works. The first demo above lets you explore the full model with all three parameters.
 
+#### Continue the ML Series
+
+This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
+
 #### References
 
 <ol class="references">
-  <li id="ref-1">Cox, D. R. (1958). <em>The regression analysis of binary sequences</em>. Journal of the Royal Statistical Society, Series B, 20(2), 215-242.</li>
+  <li id="ref-3">Ng, A. (2012). <em>Machine Learning</em>. Coursera / Stanford University. <a href="https://www.coursera.org/learn/machine-learning" target="_blank" rel="noopener">https://www.coursera.org/learn/machine-learning</a></li>
 </ol>
+

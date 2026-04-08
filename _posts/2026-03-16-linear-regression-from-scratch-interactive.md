@@ -435,51 +435,47 @@ window.LR = (function() {
 
 Linear regression is one of the most important starting points in machine learning. It is simple enough to understand deeply, but powerful enough to teach ideas used in larger models: defining a model, measuring error, and improving parameters with optimization.
 
-In this interactive guide, we will build linear regression **from scratch** using one concrete problem: **predicting house prices from area (square feet)**. If we know area and price for past houses, can we learn a formula that predicts price for a new house?
+In this interactive guide, we will build linear regression from scratch using one concrete problem: predicting house prices from area. If we know area and price for past houses, can we learn a formula that predicts price for a new house?
 
 By the end of this post, you will understand:
-- **Hypothesis function** - the prediction formula
-- **Cost function** - how prediction error is measured
-- **Gradient descent** - how parameters are optimized
-- **Learning rate** - why step size matters during training
-- **Prediction** - how to use trained parameters on new inputs
-
-<div class="demo-hint">
-Demos share one dataset. Changes in the first demo propagate to all sections below, and trained parameters carry forward.
-</div>
+- Hypothesis function: the prediction formula
+- Cost function: how prediction error is measured
+- Gradient descent: how parameters are optimized
+- Learning rate: why step size matters during training
+- Prediction: how to use trained parameters on new inputs
 
 ---
 
 ## 1. What is Linear Regression?
 
-Linear regression is a **supervised learning** algorithm. "Supervised" means we train on examples where both input and correct output are known. The model learns a mapping from input to output, then uses that mapping on unseen inputs.
+Linear regression is a supervised learning algorithm. "Supervised" means we train on examples where both input and correct output are known. The model learns a mapping from input to output, then uses that mapping on unseen inputs.
 
 In our example:
-- **Input (feature):** House area in square feet (we call this $$x$$)
-- **Output (label):** House price in thousands of dollars (we call this $$y$$)
+- Input (feature): House area in square feet (we call this $$x$$)
+- Output (label): House price in thousands of dollars (we call this $$y$$)
 
-The "linear" part means the model assumes a **straight-line relationship** between input and output. It is the simplest possible form, and often a strong baseline.
+The "linear" part means the model assumes a straight-line relationship between input and output. It is the simplest possible form, and often a strong baseline.
 
 A simple linear equation looks like:
 
 $$y = m \cdot x + c$$
 
-$$m$$ is the **slope** of the line and $$c$$ is the **y-intercept** (where the line crosses the y-axis). In machine learning, we use different notation:
+$$m$$ is the slope of the line and $$c$$ is the y-intercept (where the line crosses the y-axis). In machine learning, we use different notation:
 
 $$\hat{y} = w \cdot x + b$$
 
 where:
-- $$w$$ stands for **weight** (same as slope $$m$$)
-- $$b$$ stands for **bias** (same as y-intercept $$c$$)
-- $$\hat{y}$$ ("y-hat") is the **predicted** value (to distinguish it from the actual value $$y$$)
+- $$w$$ stands for weight (same as slope $$m$$)
+- $$b$$ stands for bias (same as y-intercept $$c$$)
+- $$\hat{y}$$ ("y-hat") is the predicted value (to distinguish it from the actual value $$y$$)
 
-The goal is simple: **given data points $$(x, y)$$, find $$w$$ and $$b$$ so that $$\hat{y} = wx + b$$ fits the data as closely as possible.**
+The goal is simple: given data points $$(x, y)$$, find $$w$$ and $$b$$ so that $$\hat{y} = wx + b$$ fits the data as closely as possible.
 
 ---
 
 ## 2. The Training Dataset
 
-Every machine learning model starts with data. Below, we have 10 houses with area (sq ft) and price (in $1000s). This is our **training dataset**: labeled examples the model uses to learn a pattern. It is only a simplified example and does not represent real market prices, but it is sufficient for understanding linear regression.
+Every machine learning model starts with data. Below, we have 10 houses with area (sq ft) and price (in $1000s). This is our training dataset: labeled examples the model uses to learn a pattern. It is only a simplified example and does not represent real market prices, but it is sufficient for understanding linear regression.
 
 <div class="demo-hint">
 Click to add points, drag to move, double-click to remove. All demos below share this dataset. Adding outliers here will visibly affect the fit in later sections.
@@ -587,22 +583,22 @@ Click to add points, drag to move, double-click to remove. All demos below share
 })();
 </script>
 
-Looking at the plot, there is a clear trend: larger area usually means higher price. The points are not perfectly on one line, and that is normal. Our goal is to find a **best-fit line** that keeps overall error as small as possible across all points.
+Looking at the plot, there is a clear trend: larger area usually means higher price. The points are not perfectly on one line, and that is normal. Our goal is to find a best-fit line that keeps overall error as small as possible across all points.
 
 ---
 
 ## 3. The Hypothesis Function
 
-In machine learning, the **hypothesis function** is the model's prediction formula. It maps input to predicted output. For linear regression, the hypothesis is:
+In machine learning, the hypothesis function is the model's prediction formula. It maps input to predicted output. For linear regression, the hypothesis is:
 
 $$h(x) = w \cdot x + b$$
 
 This is a straight line. The two parameters $$w$$ and $$b$$ completely determine the line:
 
-- **Weight ($$w$$)** controls the **slope**. Larger $$w$$ means price rises faster with area. If $$w = 0$$, the line is flat. If $$w < 0$$, price decreases as area increases.
-- **Bias ($$b$$)** controls the **y-intercept**. It shifts the line up or down without changing slope. You can think of it as a base level before area contributes through $$w$$.
+- Weight ($$w$$) controls the slope. Larger $$w$$ means price rises faster with area. If $$w = 0$$, the line is flat. If $$w < 0$$, price decreases as area increases.
+- Bias ($$b$$) controls the y-intercept. It shifts the line up or down without changing slope. You can think of it as a base level before area contributes through $$w$$.
 
-Together, $$w$$ and $$b$$ are the model's **parameters**. Training means finding the values that produce the best fit.
+Together, $$w$$ and $$b$$ are the model's parameters. Training means finding the values that produce the best fit.
 
 <div class="demo-hint">
 Drag the weight and bias sliders. Setting weight to 0 produces a flat line; a negative weight flips the slope.
@@ -652,27 +648,27 @@ Drag the weight and bias sliders. Setting weight to 0 produces a flat line; a ne
 })();
 </script>
 
-Notice how **weight** changes steepness while **bias** shifts vertically. To find the best fit, we need a precise way to measure "how wrong" a line is. That is the **cost function**.
+Notice how weight changes steepness while bias shifts vertically. To find the best fit, we need a precise way to measure "how wrong" a line is. That is the cost function.
 
 ---
 
 ## 4. The Cost Function
 
-The cost function (also called **loss** or **objective**) is a single number that tells us **how wrong the current model is**. High cost means predictions are far from actual values. Low cost means the line fits well. Training is the process of finding $$w$$ and $$b$$ that minimize this value.
+The cost function (also called loss or objective) is a single number that tells us how wrong the current model is. High cost means predictions are far from actual values. Low cost means the line fits well. Training is the process of finding $$w$$ and $$b$$ that minimize this value.
 
-The most common cost function for linear regression is the **Mean Squared Error (MSE)**,<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Legendre (1805), Nouvelles methodes pour la determination des orbites des cometes. Firmin Didot, Paris.">1</a></sup> which traces back to the method of least squares:
+The most common cost function for linear regression is the Mean Squared Error (MSE), which traces back to the method of least squares:
 
 $$J(w,b) = \frac{1}{2m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^{(i)}\right)^2$$
 
 Let us break this down:
 
-1. **$$h(x^{(i)}) - y^{(i)}$$** is the **error** (residual) for one point: prediction minus actual value.
+1. $$h(x^{(i)}) - y^{(i)}$$ is the error (residual) for one point: prediction minus actual value.
 
-2. **$$(\ldots)^2$$** squares each error, so positives and negatives do not cancel, and large misses are penalized more strongly.
+2. $$(\ldots)^2$$ squares each error, so positives and negatives do not cancel, and large misses are penalized more strongly.
 
-3. **$$\sum_{i=1}^{m}$$** adds squared errors across all $$m$$ points.
+3. $$\sum_{i=1}^{m}$$ adds squared errors across all $$m$$ points.
 
-4. **$$\frac{1}{2m}$$** averages over the dataset. The extra $$\frac{1}{2}$$ is a convenience that simplifies derivatives.
+4. $$\frac{1}{2m}$$ averages over the dataset. The extra $$\frac{1}{2}$$ is a convenience that simplifies derivatives.
 
 <div class="demo-hint">
 Red dashed lines show residuals. Semi-transparent red squares visualize squared error; bigger squares mean bigger penalties. The MSE value updates as you drag.
@@ -749,17 +745,17 @@ Red dashed lines show residuals. Semi-transparent red squares visualize squared 
 <strong>Try this:</strong> Set <code>w = 0</code>, then tune only <code>b</code> to reduce cost. Next freeze <code>b</code> and tune <code>w</code>. Compare the best cost from each step vs tuning both together.
 </div> -->
 
-Try finding the minimum manually with sliders. It is harder than it looks, because changing $$w$$ affects the best value of $$b$$, and vice versa. This is why we need an **automated optimizer**. First, let us visualize the full cost landscape.
+Try finding the minimum manually with sliders. It is harder than it looks, because changing $$w$$ affects the best value of $$b$$, and vice versa. This is why we need an automated optimizer. First, let us visualize the full cost landscape.
 
 ---
 
 ## 5. The Cost Landscape
 
-Every pair $$(w, b)$$ gives a different cost $$J(w,b)$$. If we evaluate many pairs, we get a **cost surface**: a 3D landscape where horizontal axes are $$w$$ and $$b$$, and height is cost. For linear regression with MSE, this surface is **bowl-shaped** (convex). That is useful because it has one global minimum: a single best parameter set.
+Every pair $$(w, b)$$ gives a different cost $$J(w,b)$$. If we evaluate many pairs, we get a cost surface: a 3D landscape where horizontal axes are $$w$$ and $$b$$, and height is cost. For linear regression with MSE, this surface is bowl-shaped (convex). That is useful because it has one global minimum: a single best parameter set.
 
 ### Contour Plot View
 
-A **contour plot** is a top-down view of this surface, like a topographic map. Each band represents a cost level. Moving toward lighter center regions means lower cost.
+A contour plot is a top-down view of this surface, like a topographic map. Each band represents a cost level. Moving toward lighter center regions means lower cost.
 
 <div class="demo-hint">
 Drag the green dot on the contour plot. The right panel shows the corresponding fitted line. Lighter regions mean lower cost.
@@ -875,7 +871,7 @@ Drag the green dot on the contour plot. The right panel shows the corresponding 
 
 ### 3D Surface View
 
-Here is the same cost function visualized as a 3D surface. You can see the bowl shape clearly - there is one lowest point (the global minimum) that represents the optimal parameters.
+Here is the same cost function visualized as a 3D surface. You can see the bowl shape clearly and there is one lowest point (the global minimum) that represents the optimal parameters.
 
 <div class="interactive-demo">
 <canvas id="demo4b-3d"></canvas>
@@ -1009,38 +1005,38 @@ The bowl shape is important. In convex problems like linear regression (and logi
 
 ## 6. Gradient Descent
 
-Gradient descent is the **optimization algorithm** that helps parameters move toward the minimum cost.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Cauchy (1847), Methode generale pour la resolution des systemes d'equations simultanees. Comptes Rendus de l'Academie des Sciences, 25, 536-538.">2</a></sup> The same idea scales to much larger models, including neural networks.
+Gradient descent is the optimization algorithm that helps parameters move toward the minimum cost. The same idea scales to much larger models, including neural networks.
 
 ### The Intuition: Lost on a Foggy Mountain
 
 Imagine you are standing on a mountain in thick fog. You cannot see the whole landscape, but you still need to find your way to the valley floor. What do you do? You cannot jump to the bottom, and you cannot see the best path. However, you can feel the slope of the ground under your feet. You can figure out which direction goes downhill the steepest, take a step in that direction, and repeat. Eventually, you will reach the bottom. This is essentially how gradient descent works.
 
-1. **Compute the gradient** at the current $$w, b$$ (the direction of steepest increase)
-2. **Move opposite to the gradient** (downhill)
-3. **Repeat** until the improvement becomes very small
+1. Compute the gradient at the current $$w, b$$ (the direction of steepest increase)
+2. Move opposite to the gradient (downhill)
+3. Repeat until the improvement becomes very small
 
 ### The Math
 
-The **gradient** is the vector of partial derivatives of the cost function with respect to each parameter. For our two parameters $$w$$ and $$b$$:
+The gradient is the vector of partial derivatives of the cost function with respect to each parameter. For our two parameters $$w$$ and $$b$$:
 
 $$\frac{\partial J}{\partial w} = \frac{1}{m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^{(i)}\right) \cdot x^{(i)}$$
 
 $$\frac{\partial J}{\partial b} = \frac{1}{m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^{(i)}\right)$$
 
 These derivatives tell us local sensitivity:
-- **$$\frac{\partial J}{\partial w}$$**: how cost changes if we increase $$w$$ slightly
-- **$$\frac{\partial J}{\partial b}$$**: same idea for $$b$$
+- $$\frac{\partial J}{\partial w}$$: how cost changes if we increase $$w$$ slightly
+- $$\frac{\partial J}{\partial b}$$: same idea for $$b$$
 
-The **update rules** are:
+The update rules are:
 
 $$w := w - \alpha \cdot \frac{\partial J}{\partial w}$$
 
 $$b := b - \alpha \cdot \frac{\partial J}{\partial b}$$
 
-The minus sign makes the update move **against** the gradient, which reduces cost, and the learning rate $$\alpha$$ sets step size. If a gradient component is **positive**, subtracting it decreases that parameter; if it is **negative**, subtracting it increases that parameter, so one rule handles both directions automatically.
+The minus sign makes the update move against the gradient, which reduces cost, and the learning rate $$\alpha$$ sets step size. If a gradient component is positive, subtracting it decreases that parameter; if it is negative, subtracting it increases that parameter, so one rule handles both directions automatically.
 
 <div class="demo-hint">
-Step runs one iteration. Run animates continuously. The green path traces the optimization trajectory on the contour; the chart below shows cost decreasing over iterations.
+Step runs one iteration. Run button animates continuously. The green path traces the optimization trajectory on the contour; the chart below shows cost decreasing over iterations.
 </div>
 
 <div class="interactive-demo">
@@ -1241,13 +1237,13 @@ After enough iterations, the green dot settles near the bottom of the bowl and t
 
 ## 7. The Learning Rate
 
-The **learning rate** $$\alpha$$ is a crucial **hyperparameter**. You choose it before training. It controls step size in each gradient descent update.
+The learning rate $$\alpha$$ is a crucial hyperparameter. You choose it before training. It controls step size in each gradient descent update.
 
 Choosing it well is important:
 
-- **Too small** (for example $$\alpha = 0.000000001$$): steps are tiny, convergence is very slow.
-- **Reasonable** (for example $$\alpha = 0.00000005$$): smooth, stable convergence.
-- **Too large** (for example $$\alpha = 0.000001$$): updates overshoot, cost oscillates or increases, and training can diverge.
+- Too small: steps are tiny, convergence is very slow.
+- Reasonable: smooth, stable convergence.
+- Too large: updates overshoot, cost oscillates or increases, and training can diverge.
 
 There is no universal best value. In practice, try a few values and watch the cost curve.
 
@@ -1257,7 +1253,7 @@ A quick rule of thumb:
 - Keep the largest value that still gives stable, smooth convergence.
 
 <div class="demo-hint">
-Run All starts three learning rates simultaneously. Edit the rate values to compare convergence speeds.
+Run All starts three learning rates simultaneously. Edit the rate values to compare convergence speeds. In each mini chart, x-axis is iteration count and y-axis is cost.
 </div>
 
 <div class="interactive-demo">
@@ -1308,6 +1304,13 @@ Run All starts three learning rates simultaneously. Edit the rate values to comp
     ctx.strokeStyle = c.textMuted; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(padL, padT + ph); ctx.lineTo(padL + pw, padT + ph); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + ph); ctx.stroke();
+    ctx.fillStyle = c.textMuted; ctx.font = '8.5px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('iterations', padL + pw / 2, H - 4);
+    ctx.save();
+    ctx.translate(9, padT + ph / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('cost', 0, 0);
+    ctx.restore();
     if (st.losses.length < 2) {
       ctx.fillStyle = c.textMuted; ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('Waiting...', W / 2, H / 2);
@@ -1377,11 +1380,11 @@ Run All starts three learning rates simultaneously. Edit the rate values to comp
 
 Let us put the complete algorithm together step by step:
 
-**Algorithm A: Single-Feature Linear Regression**
+Algorithm A: Single-Feature Linear Regression
 
-1. **Initialize** $$w = 0$$ and $$b = 0$$ (starting point)
-2. **Choose** a learning rate $$\alpha$$ and number of iterations
-3. **For each iteration**, repeat:
+1. Initialize $$w = 0$$ and $$b = 0$$ (starting point)
+2. Choose a learning rate $$\alpha$$ and number of iterations
+3. For each iteration, repeat:
    - Compute predictions: $$\hat{y}^{(i)} = w \cdot x^{(i)} + b$$ for all data points
    - Compute gradients:
      - $$\frac{\partial J}{\partial w} = \frac{1}{m}\sum_{i=1}^{m}(\hat{y}^{(i)} - y^{(i)}) \cdot x^{(i)}$$
@@ -1408,7 +1411,7 @@ def linear_regression(X, y, lr=1e-7, iterations=5000):
 
 In this simplified code, we train directly on raw area values, so a very small learning rate is used. In practice, feature scaling usually lets you train with larger and more stable learning rates.
 
-**Walk through this code step by step** and watch each line update live values and the fitted line:
+Walk through this code step by step and watch each line update live values and the fitted line:
 
 <style>
 .cw-wrap{display:grid;grid-template-columns:1fr;gap:0.75rem}
@@ -1802,7 +1805,7 @@ For example, if training gives $$w = 0.151$$ and $$b = 42.2$$, then for a 2800 s
 
 $$\hat{y} = 0.151 \times 2800 + 42.2 = 465.0$$
 
-So the predicted price is approximately **$465,000**. This value is in thousands of dollars, so `465.0` means about **$465,000**. The model did not use hand-written pricing rules. It learned a pattern from data. One important caveat: predictions are usually more reliable **within** the training range than far outside it. Predicting a 12,000 sq ft house from data mostly between 800 and 3,800 sq ft is extrapolation, and can be inaccurate.
+So the predicted price is approximately $465,000. This value is in thousands of dollars, so `465.0` means about $465,000. The model did not use hand-written pricing rules. It learned a pattern from data. One important caveat: predictions are usually more reliable within the training range than far outside it. Predicting a 12,000 sq ft house from data mostly between 800 and 3,800 sq ft is extrapolation, and can be inaccurate.
 
 <div class="demo-hint">
 Uses trained parameters from above. Click Auto-Train first if needed, then enter an area and click Predict.
@@ -1901,28 +1904,23 @@ Here is everything we covered, building linear regression completely from the gr
 
 | Concept | What it does | Formula |
 |---|---|---|
-| **Hypothesis function** | Predicts output from input | $$h(x) = wx + b$$ |
-| **Cost function (MSE)** | Measures prediction error | $$J = \frac{1}{2m}\sum(h(x^{(i)}) - y^{(i)})^2$$ |
-| **Gradient** | Direction of steepest ascent | $$\frac{\partial J}{\partial w}, \frac{\partial J}{\partial b}$$ |
-| **Gradient descent** | Updates parameters to reduce cost | $$w := w - \alpha \frac{\partial J}{\partial w}$$ |
-| **Learning rate** ($$\alpha$$) | Controls step size | Hyperparameter (you choose) |
-| **Prediction** | Uses trained model on new data | $$\hat{y} = w_{trained} \cdot x + b_{trained}$$ |
+| Hypothesis function | Predicts output from input | $$h(x) = wx + b$$ |
+| Cost function (MSE) | Measures prediction error | $$J = \frac{1}{2m}\sum(h(x^{(i)}) - y^{(i)})^2$$ |
+| Gradient | Direction of steepest ascent | $$\frac{\partial J}{\partial w}, \frac{\partial J}{\partial b}$$ |
+| Gradient descent | Updates parameters to reduce cost | $$w := w - \alpha \frac{\partial J}{\partial w}$$ |
+| Learning rate ($$\alpha$$) | Controls step size | Hyperparameter (you choose) |
+| Prediction | Uses trained model on new data | $$\hat{y} = w_{trained} \cdot x + b_{trained}$$ |
 
 These same ideas appear again in larger models: define a differentiable objective, compute gradients, and iteratively optimize parameters.
 
 #### Continue the ML Series
 
-This post is part of my **Interactive Machine Learning from Scratch** series. If you would like to learn more, check out the other posts:
+This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series:
 
-- **Series overview**: [Machine Learning from Scratch: Interactive Guide]({{ site.baseurl }}/ml/)
-- **Linear Regression Part 2 (multiple features)**: [Linear Regression from Scratch II: Multivariate Extension]({{ site.baseurl }}/linear-regression-multivariate/)
-- **Then next**: [Polynomial Regression: Bias Variance Interactive]({{ site.baseurl }}/polynomial-regression/)
-- **After that**: [Logistic Regression from Scratch: Interactive]({{ site.baseurl }}/logistic-regression/)
+- Linear Regression Part 2 (multiple features): [Linear Regression from Scratch II: Multivariate Extension]({{ site.baseurl }}/linear-regression-multivariate/)
 
 #### References
 
 <ol class="references">
-  <li id="ref-1">Legendre, A. M. (1805). <em>Nouvelles methodes pour la determination des orbites des cometes</em>. Firmin Didot, Paris.</li>
-  <li id="ref-2">Cauchy, A. (1847). <em>Methode generale pour la resolution des systemes d'equations simultanees</em>. Comptes Rendus de l'Academie des Sciences, 25, 536-538.</li>
   <li id="ref-3">Ng, A. (2012). <em>Machine Learning</em>. Coursera / Stanford University. <a href="https://www.coursera.org/learn/machine-learning" target="_blank" rel="noopener">https://www.coursera.org/learn/machine-learning</a></li>
 </ol>

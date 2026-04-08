@@ -27,6 +27,9 @@ date: 2026-03-17
   border-radius: 8px;
   cursor: crosshair;
 }
+#logr-sigmoid-canvas {
+  cursor: default;
+}
 .demo-controls {
   display: flex;
   flex-wrap: wrap;
@@ -457,46 +460,42 @@ window.LogR = (function() {
 })();
 </script>
 
-Logistic regression is one of the most fundamental **classification** algorithms in machine learning.<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Cox (1958), The regression analysis of binary sequences. Journal of the Royal Statistical Society, Series B, 20(2), 215-242.">1</a></sup> Despite the word "regression" in its name, logistic regression is used for **classification**, not regression. It is the natural next step after linear regression and shares many of the same ideas: a hypothesis function, a cost function, and gradient descent for optimization.
+Logistic regression is one of the most fundamental classification algorithms in machine learning. Despite the word "regression" in its name, logistic regression is used for classification, not regression. It is the natural next step after linear regression and shares many of the same ideas: a hypothesis function, a cost function, and gradient descent for optimization.
 
-In this interactive guide, we will build logistic regression **completely from scratch**, and you will get to play with every concept right in the browser. We will use a concrete, intuitive example: **predicting whether a student passes an exam based on the number of hours they studied**. Given a set of students where we know both how many hours they studied and whether they passed, can we learn a model that predicts whether a *new* student will pass?
+In this interactive guide, we will build logistic regression completely from scratch, and you will get to play with every concept right in the browser. We will use a concrete, intuitive example: predicting whether a student passes an exam based on the number of hours they studied. Given a set of students where we know both how many hours they studied and whether they passed, can we learn a model that predicts whether a *new* student will pass?
 
 By the end of this post you will understand:
-- **Sigmoid function** - the function that maps any real number to a probability between 0 and 1
-- **Hypothesis function** - the model's prediction formula for classification
-- **Cost function (log loss)** - how to measure classification errors
-- **Gradient descent** - the same optimization algorithm, adapted for logistic regression
-- **Decision boundary** - the threshold that separates the two classes
-- **Making predictions** - using the trained model on new data
-
-<div class="demo-hint">
-Demos share one dataset. Trained model parameters carry forward to later sections.
-</div>
-
+- Sigmoid function: the function that maps any real number to a probability between 0 and 1
+- Hypothesis function: the model's prediction formula for classification
+- Cost function (log loss): how to measure classification errors
+- Gradient descent: the same optimization algorithm, adapted for logistic regression
+- Decision boundary: the threshold that separates the two classes
+- Making predictions: using the trained model on new data
+  
 ---
 
 ## 1. What is Classification?
 
-In **regression**, we predict a continuous value (like house prices). In **classification**, we predict a **discrete category**. The simplest form is **binary classification**, where there are exactly two possible outcomes:
+In regression, we predict a continuous value (like house prices). In classification, we predict a discrete category. The simplest form is binary classification, where there are exactly two possible outcomes:
 
 - Spam or not spam
 - Pass or fail
 - Tumor is malignant or benign
 - Customer will buy or not buy
 
-We encode these two outcomes as **0** and **1**:
-- $$y = 0$$ means the **negative class** (fail, not spam, benign)
-- $$y = 1$$ means the **positive class** (pass, spam, malignant)
+We encode these two outcomes as 0 and 1:
+- $$y = 0$$ means the negative class (fail, not spam, benign)
+- $$y = 1$$ means the positive class (pass, spam, malignant)
 
 ### Why Not Use Linear Regression for Classification?
 
-You might wonder: can we just fit a straight line and use a threshold? If the line predicts a value above 0.5, we classify as 1. If below 0.5, we classify as 0. The problem is that linear regression can produce predictions **far below 0 or far above 1**. For a student who studied 20 hours, the line might predict 2.5. For a student who studied 0 hours, it might predict -0.3. These are not meaningful probabilities. What we really want is a model that always outputs a value **between 0 and 1**, which we can interpret as a probability. For example, "there is a 0.87 probability that this student will pass." This is exactly what logistic regression gives us.
+You might wonder: can we just fit a straight line and use a threshold? If the line predicts a value above 0.5, we classify as 1. If below 0.5, we classify as 0. The problem is that linear regression can produce predictions far below 0 or far above 1. For a student who studied 20 hours, the line might predict 2.5. For a student who studied 0 hours, it might predict -0.3. These are not meaningful probabilities. What we really want is a model that always outputs a value between 0 and 1, which we can interpret as a probability. For example, "there is a 0.87 probability that this student will pass." This is exactly what logistic regression gives us.
 
 ---
 
 ## 2. The Training Dataset
 
-Every machine learning model starts with data. Below we have 16 students with their hours studied and whether they passed (1) or failed (0). This is our **training dataset**, the set of labeled examples from which the model will learn patterns.
+Every machine learning model starts with data. Below we have 16 students with their hours studied and whether they passed (1) or failed (0). This is our training dataset, the set of labeled examples from which the model will learn patterns.
 
 Notice the pattern: students who studied fewer hours tend to fail, while those who studied more tend to pass. There is a region in the middle where the outcome is less certain. Our model needs to learn this boundary.
 
@@ -602,15 +601,15 @@ Click near y=1 to add a pass, near y=0 to add a fail. Double-click to remove.
 })();
 </script>
 
-Looking at the plot, you can see a clear pattern: low study hours cluster near y=0 (fail) and high study hours cluster near y=1 (pass). Our goal is to find a smooth curve that separates these two classes, one that gives us a **probability** of passing for any number of hours studied.
+Looking at the plot, you can see a clear pattern: low study hours cluster near y=0 (fail) and high study hours cluster near y=1 (pass). Our goal is to find a smooth curve that separates these two classes, one that gives us a probability of passing for any number of hours studied.
 
 ---
 
 ## 3. The Sigmoid Function
 
-We need a function that takes any real number and squashes it into the range $$(0, 1)$$. This function is the **sigmoid** (also called the **logistic function**):
+We need a function that takes any real number and squashes it into the range $$(0, 1)$$. This function is the sigmoid (also called the logistic function):
 
-$$\sigma(z) = \frac{1}{1 + e^{-z}}$$<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Berkson (1944), Application of the Logistic Function to Bio-Assay. Journal of the American Statistical Association, 39(227), 357-365.">2</a></sup>
+$$\sigma(z) = \frac{1}{1 + e^{-z}}$$
 
 Key properties of the sigmoid:
 - When $$z$$ is very large and positive, $$e^{-z} \to 0$$, so $$\sigma(z) \to 1$$
@@ -618,39 +617,24 @@ Key properties of the sigmoid:
 - When $$z = 0$$, $$\sigma(0) = \frac{1}{1+1} = 0.5$$
 - The output is always strictly between 0 and 1
 
-These properties make it perfect for representing probabilities. The output of the sigmoid can be interpreted as: "the probability that the input belongs to class 1."
-
 <div class="demo-hint">
-Scale controls steepness; shift moves the curve left or right. Hover for exact values.
+This plot shows the standard sigmoid curve with fixed parameters.
 </div>
 
 <div class="interactive-demo">
 <canvas id="logr-sigmoid-canvas"></canvas>
-<div class="demo-controls">
-  <label>Scale: <input type="range" id="logr-sigmoid-scale" min="0.2" max="5" step="0.1" value="1"> <span class="demo-value" id="logr-sigmoid-scale-val">1.0</span></label>
-  <label>Shift: <input type="range" id="logr-sigmoid-shift" min="-5" max="5" step="0.1" value="0"> <span class="demo-value" id="logr-sigmoid-shift-val">0.0</span></label>
-</div>
 <div class="demo-info" id="logr-sigmoid-info">sigma(z) = 1 / (1 + e^(-z))</div>
 </div>
 
 <script>
 (function() {
   var canvas = document.getElementById('logr-sigmoid-canvas');
-  var scaleSlider = document.getElementById('logr-sigmoid-scale');
-  var shiftSlider = document.getElementById('logr-sigmoid-shift');
-  var scaleVal = document.getElementById('logr-sigmoid-scale-val');
-  var shiftVal = document.getElementById('logr-sigmoid-shift-val');
   var infoEl = document.getElementById('logr-sigmoid-info');
   var W = 680, H = 380;
   var padL = 55, padR = 20, padT = 20, padB = 45;
   var xMin = -8, xMax = 8, yMin = -0.1, yMax = 1.1;
-  var hoverX = null;
 
   function draw() {
-    var sc = parseFloat(scaleSlider.value);
-    var sh = parseFloat(shiftSlider.value);
-    scaleVal.textContent = sc.toFixed(1);
-    shiftVal.textContent = sh.toFixed(1);
     var ctx = LogR.setupCanvas(canvas, W, H);
     var c = LogR.getColors();
     var plotW = W - padL - padR, plotH = H - padT - padB;
@@ -668,50 +652,19 @@ Scale controls steepness; shift moves the curve left or right. Hover for exact v
     ctx.strokeStyle = c.sigmoid; ctx.lineWidth = 2.5; ctx.beginPath();
     for (var px = 0; px <= plotW; px++) {
       var z = xMin + (px / plotW) * (xMax - xMin);
-      var sig = LogR.sigmoid(sc * (z - sh));
+      var sig = LogR.sigmoid(z);
       var sx = padL + px;
       var sy = LogR.mapY(sig, yMin, yMax, padT, plotH);
       if (px === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
     }
     ctx.stroke();
-    // Hover indicator
-    if (hoverX !== null) {
-      var z = hoverX;
-      var sig = LogR.sigmoid(sc * (z - sh));
-      var sx = LogR.mapX(z, xMin, xMax, padL, plotW);
-      var sy = LogR.mapY(sig, yMin, yMax, padT, plotH);
-      ctx.strokeStyle = c.accent; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
-      ctx.beginPath(); ctx.moveTo(sx, padT + plotH); ctx.lineTo(sx, sy); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(padL, sy); ctx.lineTo(sx, sy); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.beginPath(); ctx.arc(sx, sy, 5, 0, Math.PI * 2);
-      ctx.fillStyle = c.accent; ctx.fill();
-      ctx.fillStyle = c.text; ctx.font = 'bold 12px JetBrains Mono, monospace'; ctx.textAlign = 'left';
-      ctx.fillText('z=' + z.toFixed(2) + ', \u03c3=' + sig.toFixed(4), sx + 10, sy - 10);
-      infoEl.textContent = '\u03c3(' + (sc !== 1 ? sc.toFixed(1) + ' \u00b7 ' : '') + '(' + z.toFixed(2) + (sh !== 0 ? ' - ' + sh.toFixed(1) : '') + ')) = ' + sig.toFixed(4);
-    }
+    infoEl.textContent = 'sigma(z) = 1 / (1 + e^(-z))';
   }
 
-  canvas.addEventListener('mousemove', function(e) {
-    var rect = canvas.getBoundingClientRect();
-    var mx = (e.clientX - rect.left) * (W / rect.width);
-    var plotW = W - padL - padR;
-    hoverX = LogR.unmapX(mx, xMin, xMax, padL, plotW);
-    if (hoverX < xMin || hoverX > xMax) hoverX = null;
-    draw();
-  });
-  canvas.addEventListener('mouseleave', function() { hoverX = null; draw(); });
-
-  scaleSlider.addEventListener('input', draw);
-  shiftSlider.addEventListener('input', draw);
   LogR.onThemeChange(draw);
   draw();
 })();
 </script>
-
-<div class="demo-try">
-<strong>Try this:</strong> Set scale to <code>1</code> and shift to <code>0</code> to see the standard sigmoid. Then increase the scale to <code>3</code> or <code>5</code> - notice how the curve becomes steeper (more decisive). Try a negative shift to move the curve to the left.
-</div>
 
 The sigmoid function is the key ingredient that transforms linear regression into logistic regression. Instead of predicting raw values, we pass the linear output through the sigmoid to get a probability.
 
@@ -737,10 +690,10 @@ This means:
 
 The two parameters $$w$$ and $$b$$ control the shape and position of the sigmoid curve when plotted against the input $$x$$:
 
-- **Weight ($$w$$)** controls **how steep** the curve is.
+- Weight ($$w$$) controls how steep the curve is.
   Larger $$|w|$$ means a sharper transition from 0 to 1. If $$w > 0$$, probability increases as $$x$$ increases.
 
-- **Bias ($$b$$)** moves the curve **left or right**.
+- Bias ($$b$$) moves the curve left or right.
   It sets where the model reaches 0.5 probability. The decision boundary (where $$h(x) = 0.5$$) occurs at $$x = -b/w$$. 
 
 Together, $$w$$ and $$b$$ define the full probability curve. Training logistic regression means finding the values of $$w$$ and $$b$$ that make this curve fit the data best.
@@ -825,15 +778,15 @@ Drag weight and bias sliders. The sigmoid curve shows predicted probability of p
 <strong>Try this:</strong> Set <code>w = 2</code> and adjust <code>b</code> until the sigmoid curve separates the pass and fail points well. Then try <code>w = 0.5</code> - notice how the transition becomes much more gradual. Try a negative <code>w</code> to flip the curve.
 </div> -->
 
-Notice how the **weight** controls the sharpness of the transition, while the **bias** slides the transition point left or right. The purple dashed line shows the **decision boundary**, the value of $$x$$ where the model switches from predicting fail to predicting pass. To find the best sigmoid curve, we need a way to measure how well it fits the data. That is the **cost function**.
+Notice how the weight controls the sharpness of the transition, while the bias slides the transition point left or right. The purple dashed line shows the decision boundary, the value of $$x$$ where the model switches from predicting fail to predicting pass. To find the best sigmoid curve, we need a way to measure how well it fits the data. That is the cost function.
 
 ---
 
 ## 5. The Cost Function (Binary Cross-Entropy)
 
-For linear regression, we used Mean Squared Error. Can we use it here? Technically yes, but it creates problems. When MSE is combined with the sigmoid function, the resulting cost surface is **non-convex**, full of local minima where gradient descent can get stuck.
+For linear regression, we used Mean Squared Error. Can we use it here? Technically yes, but it creates problems. When MSE is combined with the sigmoid function, the resulting cost surface is non-convex, full of local minima where gradient descent can get stuck.
 
-Instead, we use **binary cross-entropy** (also called **log loss**):
+Instead, we use binary cross-entropy (also called log loss):
 
 $$J(w,b) = -\frac{1}{m}\sum_{i=1}^{m}\left[y^{(i)} \cdot \log(h(x^{(i)})) + (1-y^{(i)}) \cdot \log(1-h(x^{(i)}))\right]$$
 
@@ -955,11 +908,11 @@ The chart below shows both single-point log-loss curves on one plot.
 
 Let us understand why this works. For a single data point, the cost is:
 
-- **When $$y = 1$$ (actual = pass):** cost $$= -\log(h(x))$$. If the model predicts $$h(x)$$ close to 1 (correct!), $$-\log(1) = 0$$ (no penalty). If it predicts close to 0 (wrong!), $$-\log(0) \to \infty$$ (huge penalty).
+- When $$y = 1$$ (actual = pass): cost $$= -\log(h(x))$$. If the model predicts $$h(x)$$ close to 1 (correct!), $$-\log(1) = 0$$ (no penalty). If it predicts close to 0 (wrong!), $$-\log(0) \to \infty$$ (huge penalty).
 
-- **When $$y = 0$$ (actual = fail):** cost $$= -\log(1 - h(x))$$. If the model predicts $$h(x)$$ close to 0 (correct!), $$-\log(1) = 0$$ (no penalty). If it predicts close to 1 (wrong!), $$-\log(0) \to \infty$$ (huge penalty).
+- When $$y = 0$$ (actual = fail): cost $$= -\log(1 - h(x))$$. If the model predicts $$h(x)$$ close to 0 (correct!), $$-\log(1) = 0$$ (no penalty). If it predicts close to 1 (wrong!), $$-\log(0) \to \infty$$ (huge penalty).
 
-The log loss penalizes **confident wrong predictions** severely. If the model says "99% chance of pass" but the student failed, the cost is enormous. This is exactly what we want.
+The log loss penalizes confident wrong predictions severely. If the model says "99% chance of pass" but the student failed, the cost is high. This is exactly what we want.
 
 <div class="demo-hint">
 Dashed lines connect labels to predicted probabilities. The log loss metric updates below.
@@ -1044,7 +997,7 @@ Manually tuning is difficult. Just like with linear regression, we need an autom
 
 ## 6. The Cost Landscape
 
-Every possible combination of $$w$$ and $$b$$ produces a different log loss value $$J(w,b)$$. If we plot the cost for all combinations, we get a **cost surface**. For binary logistic regression with log loss, the objective is convex in parameters, so for typical non-perfectly-separable data we get a single basin and a unique finite minimum.
+Every possible combination of $$w$$ and $$b$$ produces a different log loss value $$J(w,b)$$. If we plot the cost for all combinations, we get a cost surface. For binary logistic regression with log loss, the objective is convex in parameters, so for typical non-perfectly-separable data we get a single basin and a unique finite minimum.
 
 <div class="demo-hint">
 Drag the green dot toward the lightest region to find the minimum cost.
@@ -1402,22 +1355,18 @@ Step runs one iteration. Run animates. Features are normalized internally for st
 })();
 </script>
 
-<div class="demo-try">
-<strong>Try this:</strong> Start with the default learning rate of <code>1.0</code>, click <strong>Step</strong> 10 times, then switch to <strong>Run</strong>. Observe how the path moves quickly at first and then takes smaller steps near the minimum. Try resetting and using a learning rate of <code>10</code> to see what happens when the rate is too high.
-</div>
-
 After running gradient descent for enough iterations, the green dot settles at the bottom of the cost surface (minimum cost), and the sigmoid curve fits the data well. The convergence curve shows the cost rapidly decreasing at first and then flattening as it approaches the minimum.
 
 ---
 
 ## 8. The Decision Boundary
 
-Once we have trained the model and found the optimal $$w$$ and $$b$$, we need a rule for converting the predicted probability into a class prediction. The standard approach is to use a **threshold of 0.5**:
+Once we have trained the model and found the optimal $$w$$ and $$b$$, we need a rule for converting the predicted probability into a class prediction. The standard approach is to use a threshold of 0.5:
 
-- If $$h(x) \geq 0.5$$, predict **class 1** (pass)
-- If $$h(x) < 0.5$$, predict **class 0** (fail)
+- If $$h(x) \geq 0.5$$, predict class 1 (pass)
+- If $$h(x) < 0.5$$, predict class 0 (fail)
 
-The **decision boundary** is the value of $$x$$ where $$h(x) = 0.5$$. Since $$\sigma(z) = 0.5$$ when $$z = 0$$, the decision boundary occurs when:
+The decision boundary is the value of $$x$$ where $$h(x) = 0.5$$. Since $$\sigma(z) = 0.5$$ when $$z = 0$$, the decision boundary occurs when:
 
 $$w \cdot x + b = 0 \quad \Rightarrow \quad x = -\frac{b}{w}$$
 
@@ -1555,11 +1504,11 @@ The decision boundary is a powerful concept. In our one-dimensional example, it 
 
 Let us put together the complete algorithm step-by-step:
 
-**Algorithm: Single-Feature (Univariate) Logistic Regression**
+Algorithm: Single-Feature (Univariate) Logistic Regression
 
-1. **Initialize** $$w = 0$$ and $$b = 0$$ (starting point)
-2. **Choose** a learning rate $$\alpha$$ and number of iterations
-3. **For each iteration**, repeat:
+1. Initialize $$w = 0$$ and $$b = 0$$ (starting point)
+2. Choose a learning rate $$\alpha$$ and number of iterations
+3. For each iteration, repeat:
    - Compute predictions: $$h(x^{(i)}) = \sigma(w \cdot x^{(i)} + b)$$ for all data points
    - Compute gradients:
      - $$\frac{\partial J}{\partial w} = \frac{1}{m}\sum_{i=1}^{m}(h(x^{(i)}) - y^{(i)}) \cdot x^{(i)}$$
@@ -1734,13 +1683,13 @@ var w = 0, b = 0;
 Once we have trained our model and found the optimal values of $$w$$ and $$b$$, making predictions is straightforward:
 
 1. Compute the probability: $$P(\text{pass}) = \sigma(w_{trained} \cdot x_{new} + b_{trained})$$
-2. Apply the threshold: if $$P(\text{pass}) \geq 0.5$$, predict **PASS**, otherwise predict **FAIL**
+2. Apply the threshold: if $$P(\text{pass}) \geq 0.5$$, predict PASS, otherwise predict FAIL
 
 For example, if we trained and found $$w = 2.0$$ and $$b = -10.0$$, then for a student who studied 6 hours:
 
 $$P(\text{pass}) = \sigma(2.0 \times 6 + (-10.0)) = \sigma(2.0) = 0.88$$
 
-Since $$0.88 \geq 0.5$$, we predict **PASS**; the model's estimated probability is 88%.
+Since $$0.88 \geq 0.5$$, we predict PASS; the model's estimated probability is 88%.
 
 <div class="demo-hint">
 Uses trained parameters from above. Click Auto-Train if needed, then enter hours and Predict.
@@ -1861,25 +1810,22 @@ Here is everything we covered, building logistic regression completely from the 
 
 | Concept | What it does | Formula |
 |---|---|---|
-| **Sigmoid function** | Squashes any value to (0,1) | $$\sigma(z) = \frac{1}{1+e^{-z}}$$ |
-| **Hypothesis function** | Predicts probability of class 1 | $$h(x) = \sigma(wx + b)$$ |
-| **Cost function (log loss)** | Measures classification error | $$J = -\frac{1}{m}\sum[y\log(h) + (1-y)\log(1-h)]$$ |
-| **Gradient** | Direction of steepest ascent | $$\frac{\partial J}{\partial w}, \frac{\partial J}{\partial b}$$ |
-| **Gradient descent** | Updates parameters to reduce cost | $$w := w - \alpha \frac{\partial J}{\partial w},\; b := b - \alpha \frac{\partial J}{\partial b}$$ |
-| **Decision boundary** | Threshold for classification | $$x = -b/w$$ (where $$h(x) = 0.5$$) |
-| **Prediction** | Uses trained model on new data | $$\hat{y} = \begin{cases}1 & h(x) \geq 0.5 \\ 0 & h(x) < 0.5\end{cases}$$ |
+| Sigmoid function | Squashes any value to (0,1) | $$\sigma(z) = \frac{1}{1+e^{-z}}$$ |
+| Hypothesis function | Predicts probability of class 1 | $$h(x) = \sigma(wx + b)$$ |
+| Cost function (log loss) | Measures classification error | $$J = -\frac{1}{m}\sum[y\log(h) + (1-y)\log(1-h)]$$ |
+| Gradient | Direction of steepest ascent | $$\frac{\partial J}{\partial w}, \frac{\partial J}{\partial b}$$ |
+| Gradient descent | Updates parameters to reduce cost | $$w := w - \alpha \frac{\partial J}{\partial w},\; b := b - \alpha \frac{\partial J}{\partial b}$$ |
+| Decision boundary | Threshold for classification | $$x = -b/w$$ (where $$h(x) = 0.5$$) |
+| Prediction | Uses trained model on new data | $$\hat{y} = \begin{cases}1 & h(x) \geq 0.5 \\ 0 & h(x) < 0.5\end{cases}$$ |
 
 The logistic regression model shares the same fundamental framework as linear regression: hypothesis, cost function, and gradient descent. The key differences are the sigmoid activation, the log loss cost function, and the classification threshold.
 
-#### Next Steps
+#### Continue the ML Series
 
-- [Multivariate Logistic Regression]({{ site.baseurl }}/logistic-regression-multivariate/): Extend to multiple features and see how the decision boundary becomes a line or plane.
-- [Linear Regression refresher]({{ site.baseurl }}/linear-regression/): Review the linear regression algorithm and see how it compares to logistic regression.
+This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
 
 #### References
 
 <ol class="references">
-  <li id="ref-1">Cox, D. R. (1958). <em>The regression analysis of binary sequences</em>. Journal of the Royal Statistical Society, Series B, 20(2), 215-242.</li>
-  <li id="ref-2">Berkson, J. (1944). <em>Application of the Logistic Function to Bio-Assay</em>. Journal of the American Statistical Association, 39(227), 357-365.</li>
   <li id="ref-3">Ng, A. (2012). <em>Machine Learning</em>. Coursera / Stanford University. <a href="https://www.coursera.org/learn/machine-learning" target="_blank" rel="noopener">https://www.coursera.org/learn/machine-learning</a></li>
 </ol>
