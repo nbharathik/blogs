@@ -185,7 +185,7 @@ sup.cite .cite-ref:focus::after {
 
 A perceptron is one of the simplest models for binary classification: it computes a weighted sum of inputs, adds a bias, and applies an activation function. If you want background on the closely related linear classifier, see [Logistic Regression from Scratch]({% post_url 2026-03-16-logistic-regression-from-scratch-interactive %}). This chapter is fully self-contained, so you can continue directly from here.
 
-The perceptron, invented by Frank Rosenblatt in 1958, is the ancestor of every neural network.<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Rosenblatt (1958), The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain.">1</a></sup> It is, at its core, the same computation as logistic regression: a weighted sum of inputs passed through an activation function. The difference is not in the math of a single neuron, it is in what happens when you stack them.
+The perceptron at its core is the same computation as logistic regression: a weighted sum of inputs passed through an activation function. The difference is not in the math of a single neuron, it is in what happens when you stack them.
 
 ---
 
@@ -208,7 +208,6 @@ This is identical to logistic regression, and that is the point. A single neuron
     <label>w₂ <input type="range" id="neuron-w2" min="-5" max="5" step="0.1" value="-1"><span class="demo-value" id="val-w2">-1.0</span></label>
     <label>b <input type="range" id="neuron-b" min="-5" max="5" step="0.1" value="0"><span class="demo-value" id="val-b">0.0</span></label>
   </div>
-  <div class="demo-info" id="info-neuron">Decision boundary: 1.5·x₁ + -1.0·x₂ + 0.0 = 0</div>
 </div>
 
 ---
@@ -771,13 +770,11 @@ What's next: In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/
   var valW1=document.getElementById('val-w1');
   var valW2=document.getElementById('val-w2');
   var valB=document.getElementById('val-b');
-  var info=document.getElementById('info-neuron');
 
   function draw(){
     var c=NN.getColors();
     var w1=parseFloat(slW1.value), w2=parseFloat(slW2.value), b=parseFloat(slB.value);
     valW1.textContent=w1.toFixed(1); valW2.textContent=w2.toFixed(1); valB.textContent=b.toFixed(1);
-    info.textContent='Decision boundary: '+w1.toFixed(1)+'*x\u2081 + '+w2.toFixed(1)+'*x\u2082 + '+b.toFixed(1)+' = 0';
     ctx.fillStyle=c.bg;
     ctx.fillRect(0,0,w,h);
 

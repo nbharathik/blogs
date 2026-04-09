@@ -430,7 +430,7 @@ Activation functions are one of the most important design choices in neural netw
 
 In this guide, you will:
 
-- See why activation functions are necessary by watching a network collapse without them
+- See why activation functions are necessary for deep learning
 - Explore every major activation function (Sigmoid, Tanh, ReLU, Leaky ReLU, ELU, Swish, GELU) with their derivatives
 - Understand saturation, vanishing gradients, and how modern activations solve these problems
 
@@ -442,7 +442,7 @@ Without activation functions, every layer in a neural network performs a linear 
 
 $$f(\mathbf{x}) = W_2(W_1 \mathbf{x} + b_1) + b_2 = (W_2 W_1)\mathbf{x} + (W_2 b_1 + b_2) = W'\mathbf{x} + b'$$
 
-No matter how many layers you stack, the entire network collapses to a single linear transformation. Adding a nonlinear activation function between layers breaks this collapse and gives depth its power.<sup class="cite"><a class="cite-ref" href="#ref-3" data-cite-preview="Cybenko (1989), Approximation by superpositions of a sigmoidal function. Mathematics of Control, Signals, and Systems.">3</a></sup>
+No matter how many layers you stack, the entire network collapses to a single linear transformation. Adding a nonlinear activation function between layers breaks this collapse and gives depth its power.
 
 Each layer in a neural network computes a 2D transformation on its input:
 
@@ -521,7 +521,7 @@ $$\text{GELU: } f(x) = x \cdot \Phi(x) \approx 0.5x\left(1 + \tanh\left(\sqrt{\f
 
 ## 3. Sigmoid & Tanh Deep Dive
 
-Sigmoid and Tanh were commonly used in early neural networks.<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Rumelhart, Hinton &amp; Williams (1986), Learning representations by back-propagating errors. Nature, 323, 533-536.">1</a></sup> They are smooth and differentiable everywhere, but they share a critical flaw: saturation. When the input is very large or very small, the output plateaus and the gradient approaches zero.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Glorot &amp; Bengio (2010), Understanding the difficulty of training deep feedforward neural networks. AISTATS.">2</a></sup>. This is the vanishing gradient problem. During backpropagation, gradients are multiplied through each layer. If every layer has a near-zero gradient, the product vanishes exponentially, and early layers learn almost nothing.
+Sigmoid and Tanh were commonly used in early neural networks. They are smooth and differentiable everywhere, but they share a critical flaw: saturation. When the input is very large or very small, the output plateaus and the gradient approaches zero.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Glorot &amp; Bengio (2010), Understanding the difficulty of training deep feedforward neural networks. AISTATS.">2</a></sup>. This is the vanishing gradient problem. During backpropagation, gradients are multiplied through each layer. If every layer has a near-zero gradient, the product vanishes exponentially, and early layers learn almost nothing.
 
 <div class="interactive-demo" id="demo-saturation">
   <canvas id="canvas-saturation" width="680" height="320"></canvas>
@@ -592,18 +592,29 @@ Both functions look similar to ReLU for large positive inputs but curve smoothly
 </tbody>
 </table>
 
+#### Continue the ML Series
+
+This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. 
+
 ---
 
 ## References
 
 <ol class="references">
-  <li id="ref-1">Rumelhart, D. E., Hinton, G. E., &amp; Williams, R. J. (1986). <em>Learning representations by back-propagating errors</em>. Nature, 323, 533-536. <a href="https://doi.org/10.1038/323533a0" target="_blank" rel="noopener">https://doi.org/10.1038/323533a0</a></li>
   <li id="ref-2">Glorot, X., &amp; Bengio, Y. (2010). <em>Understanding the difficulty of training deep feedforward neural networks</em>. AISTATS. <a href="http://proceedings.mlr.press/v9/glorot10a.html" target="_blank" rel="noopener">http://proceedings.mlr.press/v9/glorot10a.html</a></li>
-  <li id="ref-3">Cybenko, G. (1989). <em>Approximation by superpositions of a sigmoidal function</em>. Mathematics of Control, Signals, and Systems, 2, 303-314. <a href="https://doi.org/10.1007/BF02551274" target="_blank" rel="noopener">https://doi.org/10.1007/BF02551274</a></li>
   <li id="ref-4">Nair, V., &amp; Hinton, G. E. (2010). <em>Rectified Linear Units Improve Restricted Boltzmann Machines</em>. ICML. <a href="https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf" target="_blank" rel="noopener">https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf</a></li>
   <li id="ref-5">Ramachandran, P., Zoph, B., &amp; Le, Q. V. (2017). <em>Searching for Activation Functions</em>. arXiv:1710.05941. <a href="https://arxiv.org/abs/1710.05941" target="_blank" rel="noopener">https://arxiv.org/abs/1710.05941</a></li>
   <li id="ref-6">Hendrycks, D., &amp; Gimpel, K. (2016). <em>Gaussian Error Linear Units (GELUs)</em>. arXiv:1606.08415. <a href="https://arxiv.org/abs/1606.08415" target="_blank" rel="noopener">https://arxiv.org/abs/1606.08415</a></li>
 </ol>
+
+<!-- 
+#### Cite This Post
+
+If you would like to reference this post, cite: 
+```
+Bharathi Kannan N. (2026). Activation Functions - An Interactive Guide. https://nbharathik.github.io/blogs/activation-functions/
+``` -->
+
 
 
 <script>
