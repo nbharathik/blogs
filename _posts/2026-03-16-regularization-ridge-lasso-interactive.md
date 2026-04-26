@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Regularization: Ridge, Lasso & Elastic Net - An Interactive Guide"
+title: "Regularization: Ridge, Lasso & Elastic Net"
 author: bharathikannan
 categories: [Machine learning]
 series: true
@@ -99,14 +99,6 @@ date: 2026-03-17
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
-sup.cite { font-size: 0.72em; vertical-align: super; line-height: 0; }
-sup.cite .cite-ref { color: var(--accent); text-decoration: none; border-bottom: 1px dotted transparent; position: relative; padding: 0 1px; }
-sup.cite .cite-ref:hover, sup.cite .cite-ref:focus { border-bottom-color: var(--accent); outline: none; }
-sup.cite .cite-ref::after { content: attr(data-cite-preview); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%) translateY(6px); min-width: 220px; max-width: 320px; width: max-content; padding: 0.45rem 0.55rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.78rem; line-height: 1.35; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28); opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 30; white-space: normal; }
-sup.cite .cite-ref:hover::after, sup.cite .cite-ref:focus::after { opacity: 1; transform: translateX(-50%) translateY(0); }
-.references { margin: 0.75rem 0 0; padding-left: 1.2rem; }
-.references li { margin: 0.55rem 0; line-height: 1.5; }
-.references a { word-break: break-word; }
 .coef-bar-container {
   display: flex;
   flex-direction: column;
@@ -154,12 +146,12 @@ sup.cite .cite-ref:hover::after, sup.cite .cite-ref:focus::after { opacity: 1; t
 }
 .feature-active {
   background: rgba(158, 206, 106, 0.25);
-  color: #9ece6a;
+  color: var(--viz-green);
   border: 1px solid rgba(158, 206, 106, 0.4);
 }
 .feature-dead {
   background: rgba(247, 118, 142, 0.15);
-  color: #f7768e;
+  color: var(--viz-red);
   border: 1px solid rgba(247, 118, 142, 0.3);
   text-decoration: line-through;
 }
@@ -183,34 +175,7 @@ sup.cite .cite-ref:hover::after, sup.cite .cite-ref:focus::after { opacity: 1; t
 <script>
 // Shared utilities for all regularization demos
 window.REG = (function() {
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      grid: dark ? '#292e42' : '#e5e7eb',
-      point: dark ? '#7aa2f7' : '#2563eb',
-      pointStroke: dark ? '#3d59a1' : '#1d4ed8',
-      line: dark ? '#ff9e64' : '#e63946',
-      ridge: dark ? '#7aa2f7' : '#2563eb',
-      lasso: dark ? '#f7768e' : '#dc2626',
-      elastic: dark ? '#9ece6a' : '#16a34a',
-      unregularized: dark ? '#ff9e64' : '#e67e22',
-      trueFunc: dark ? '#bb9af7' : '#7c3aed',
-      accent: dark ? '#9ece6a' : '#16a34a',
-      valid: dark ? '#f7768e' : '#dc2626',
-      coefColors: dark
-        ? ['#7aa2f7','#f7768e','#9ece6a','#ff9e64','#e0af68','#bb9af7','#73daca','#2ac3de','#c0caf5','#ff7a93','#7dcfff','#c3e88d','#ffc777','#ff98a4','#86e1fc']
-        : ['#2563eb','#dc2626','#16a34a','#e67e22','#ca8a04','#7c3aed','#0d9488','#0284c7','#475569','#be123c','#0369a1','#4d7c0f','#c2410c','#9f1239','#0e7490'],
-      contourLow: dark ? '#1a1b26' : '#eef2ff',
-      contourHigh: dark ? '#7aa2f7' : '#2563eb',
-      l2Region: dark ? 'rgba(122,162,247,0.25)' : 'rgba(37,99,235,0.15)',
-      l1Region: dark ? 'rgba(247,118,142,0.25)' : 'rgba(220,38,38,0.15)',
-      l2Border: dark ? '#7aa2f7' : '#2563eb',
-      l1Border: dark ? '#f7768e' : '#dc2626'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -632,27 +597,19 @@ window.REG = (function() {
 })();
 </script>
 
-Any model that learns weights from data can overfit by assigning extreme weight values to chase noise in the training set. This applies to linear regression, polynomial regression, logistic regression, neural networks, all of them. Regularization is a general technique that combats this. It adds a penalty to the loss function that discourages large weights, forcing the model to find simpler solutions that generalise better.
+Any model that learns weights from data can overfit by assigning extreme weight values to chase noise in the training set. This applies to linear regression, polynomial regression, logistic regression, and neural networks alike. Regularization is a general technique that prevents this by adding a penalty to the loss function that discourages large weights, forcing the model to find simpler solutions that generalise better. Regularization is not tied to any particular model, and in this chapter we use polynomial regression as a visual playground because it makes overfitting easy to inspect, but every formula and insight here applies to any model that minimises a weighted sum of features.
 
-Regularization is not tied to any particular model. In this chapter we use polynomial regression as a visual playground because it makes overfitting easy to *see*, but every formula and insight here applies to any model that minimises a weighted sum of features.
+In this guide, you will:
 
-In this chapter you will:
-- See why overfitting happens at a coefficient level, wild, large weights
-- Drag a slider to watch Ridge (L2) smoothly shrink coefficients toward zero
-- Visualise the geometry that explains why Lasso (L1) produces exact zeros (sparsity)
-- Watch Lasso perform automatic feature selection on noisy features
-- Blend Ridge and Lasso with Elastic Net and see the constraint region morph
-- Build deep intuition for when to use which regularizer
-
-Let's dive in.
-
+- See why overfitting happens at the coefficient level through large weights
+- Watch Ridge (L2) smoothly shrink coefficients toward zero as the penalty grows
+- Understand the geometry that explains why Lasso (L1) produces exact zeros and performs feature selection
+- Explore Elastic Net, which combines both L1 and L2 penalties, and see how it can balance coefficient shrinkage with sparsity
 ---
 
-## 1. The Overfitting Problem: Wild Coefficients
+## 1. The Overfitting Problem
 
-When a model has more capacity than the data justifies, it compensates by assigning enormous coefficient values to fit noise. In a polynomial model, a coefficient of +500 on $$x^7$$ and -480 on $$x^8$$ can create tiny wiggles that pass through noisy points. In a linear model with many features, a few massive weights dominate the prediction. Either way, these large opposing weights produce unstable predictions that generalise poorly.
-
-Below, 20 noisy points are generated from a smooth true function ($$y = \sin(1.2x) + 0.4x - 1$$ plus Gaussian noise). We fit a degree-10 polynomial using the normal equation $$\mathbf{w} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$$ with no regularization. The fit passes near every point but oscillates wildly. Look at the coefficient magnitudes on the right, some are huge.
+When a model has more capacity than the data justifies, it compensates by assigning large coefficient values to fit noise. Below, 20 noisy points are generated from a smooth true function ($$y = \sin(1.2x) + 0.4x - 1$$ plus Gaussian noise) and we fit a degree-10 polynomial using the closed-form equation $$\mathbf{w} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$$ with no regularization. The fit passes near every point but oscillates wildly, and the coefficient magnitudes on the right show that several weights have grown into the hundreds. This is a demo using closed form solution, but the same thing happens with gradient descent or any other optimization method. The model is trying to reduce training error as much as possible, and without any penalty on weight size, the cheapest way to do that is to assign huge weights that chase noise. This leads to a very wiggly curve that will perform poorly on new data.
 
 <div class="interactive-demo" id="demo-overfit">
   <div class="demo-split">
@@ -669,6 +626,7 @@ Below, 20 noisy points are generated from a smooth true function ($$y = \sin(1.2
     <button id="btn-overfit-new">New Data</button>
   </div>
   <div class="demo-info" id="info-overfit"></div>
+  <div class="demo-caption">Settings: 20 noisy points from y = sin(1.2x) + 0.4x &minus; 1 with &sigma;=0.5 Gaussian noise, degree-10 polynomial fit by the unregularized normal equation.</div>
 </div>
 
 <script>
@@ -787,39 +745,27 @@ window._overfitState = { pts: null, deg: 10, listeners: [] };
 })();
 </script>
 
-<div class="demo-hint">Click New Data repeatedly. Wildly varying coefficients signal high variance. Regularization penalizes large weights to enforce simpler solutions.</div>
-
-The regularization approach adds a penalty to the loss function:
+Each time you click New Data the coefficients change dramatically, which is a sign of high variance. The regularization approach prevents this by adding a penalty to the loss function that discourages large weights:
 
 $$J_{\text{regularized}}(\mathbf{w}) = \underbrace{\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}_{\text{data fit (MSE)}} + \underbrace{\lambda \cdot R(\mathbf{w})}_{\text{penalty}}$$
 
-where $$\lambda > 0$$ controls the penalty strength and $$R(\mathbf{w})$$ is the regularization term. The choice of $$R$$ gives us different regularizers.
+Here $$\lambda > 0$$ controls the penalty strength and $$R(\mathbf{w})$$ is the regularization term, and the choice of $$R$$ gives us different regularizers. The next sections work through the three most common ones: Ridge (L2), Lasso (L1), and Elastic Net.
 
 ---
 
 ## 2. Ridge Regression (L2 Regularization)
 
-Ridge regression adds the sum of squared weights as the penalty<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Hoerl &amp; Kennard (1970), Ridge Regression: Biased Estimation for Nonorthogonal Problems. Technometrics, 12(1), 55-67.">1</a></sup>:
+Ridge regression adds the sum of squared weights as the penalty:
 
 $$J_{\text{Ridge}}(\mathbf{w}) = \frac{1}{n}\|\mathbf{y} - \mathbf{X}\mathbf{w}\|^2 + \lambda \sum_{j=1}^{d} w_j^2$$
 
-Note we typically do not penalise the bias term $$w_0$$. This is because the bias just shifts the entire function up or down, so it doesn't contribute to overfitting. The penalty discourages any single weight from becoming too large. Larger $$\lambda$$ means stronger penalty, meaning smaller weights.
-
-### Closed-form solution
-
-One of the beautiful things about Ridge is that it has a closed-form solution. Starting from the normal equation and adding the penalty:
+We typically do not penalise the bias term $$w_0$$, since the bias just shifts the entire function up or down and does not contribute to overfitting. The penalty discourages any single weight from becoming too large, and a larger $$\lambda$$ means a stronger penalty and smaller weights. One useful property of Ridge is that it has a closed-form solution. Starting from the normal equation and adding the penalty gives:
 
 $$\mathbf{w}_{\text{Ridge}} = (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I})^{-1} \mathbf{X}^T\mathbf{y}$$
 
-Compare this to ordinary least squares: $$\mathbf{w}_{\text{OLS}} = (\mathbf{X}^T\mathbf{X})^{-1} \mathbf{X}^T\mathbf{y}$$. The only difference is the $$\lambda \mathbf{I}$$ term added to $$\mathbf{X}^T\mathbf{X}$$. This has two effects:
-1. It shrinks all coefficients toward zero (more shrinkage for larger $$\lambda$$)
-2. It guarantees invertibility, even if $$\mathbf{X}^T\mathbf{X}$$ is singular, adding $$\lambda \mathbf{I}$$ makes it positive definite
+Compare this to ordinary least squares: $$\mathbf{w}_{\text{OLS}} = (\mathbf{X}^T\mathbf{X})^{-1} \mathbf{X}^T\mathbf{y}$$. The only difference is the $$\lambda \mathbf{I}$$ term added to $$\mathbf{X}^T\mathbf{X}$$, which has two effects: it shrinks all coefficients toward zero (with more shrinkage for larger $$\lambda$$), and it guarantees invertibility because even if $$\mathbf{X}^T\mathbf{X}$$ is singular, adding $$\lambda \mathbf{I}$$ makes it positive definite.
 
-Production ML uses gradient descent based optimizers and in this chapter, we intentionally use the closed-form Ridge regularization for visualization and explanation. It allows us to directly compute the optimal weights for any $$\lambda$$ without iterative optimization, so we can instantly show the effect of changing $$\lambda$$ on the coefficients and the fit. This makes it ideal for interactive demos here.
-
-### Try it: Ridge in action
-
-This demo uses the same data points from Section 1 above. The slider starts at $$\lambda = 0$$ so the fit looks identical to the wild overfit curve you just saw. Drag $$\lambda$$ upward and watch the curve smooth out and the coefficient bars shrink. The weights are solved using the Ridge closed-form $$\mathbf{w} = (\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}$$.
+Production machine learning typically uses gradient-descent-based optimizers, but in this chapter we use the closed-form Ridge solution because it lets us directly compute the optimal weights for any $$\lambda$$ without iterative optimization. The demo below reuses the same data points from Section 1, with the slider starting at $$\lambda \approx 0$$ so the fit matches the wild overfit curve you just saw. As you drag $$\lambda$$ upward the curve smooths out toward the true function and the coefficient bars shrink, and once $$\lambda$$ becomes very large the curve flattens to nearly a constant. The coefficients shrink but never reach exactly zero, which is the key limitation of Ridge: no matter how large $$\lambda$$ gets, every feature is kept in the model, just with reduced influence.
 
 <div class="interactive-demo" id="demo-ridge">
   <div class="demo-split">
@@ -837,6 +783,7 @@ This demo uses the same data points from Section 1 above. The slider starts at $
     <span class="demo-value" id="val-ridge-lam">0.000</span></label>
   </div>
   <div class="demo-info" id="info-ridge"></div>
+  <div class="demo-caption">Settings: same Section 1 data, degree-10 polynomial fit by the Ridge closed form (X&#7488;X + &lambda;I)&#8315;&sup1;X&#7488;y, &lambda; on a log scale from &asymp;0 to 1000.</div>
 </div>
 
 <script>
@@ -964,31 +911,19 @@ This demo uses the same data points from Section 1 above. The slider starts at $
 })();
 </script>
 
-<div class="demo-hint">The slider starts at &lambda;&approx;0 so you see the same wild overfit from Section 1. Slowly drag &lambda; up. Around 0.1-10 the curve smoothly follows the true function. At very high &lambda; the curve flattens to nearly a constant (underfitting). Notice the coefficients shrink but never reach exactly zero. This is the key limitation of Ridge: no matter how large &lambda; gets, it keeps all features in the model. It just reduces their influence. Ridge cannot perform feature selection.</div>
-
 ---
 
 ## 3. Lasso Regression (L1 Regularization)
 
-Lasso (Least Absolute Shrinkage and Selection Operator)<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Tibshirani (1996), Regression Shrinkage and Selection via the Lasso. Journal of the Royal Statistical Society, Series B, 58(1), 267-288.">2</a></sup> uses the sum of absolute values of the weights instead of the sum of squares:
+Lasso (Least Absolute Shrinkage and Selection Operator) uses the sum of absolute values of the weights instead of the sum of squares:
 
 $$J_{\text{Lasso}}(\mathbf{w}) = \frac{1}{n}\|\mathbf{y} - \mathbf{X}\mathbf{w}\|^2 + \lambda \sum_{j=1}^{d} \lvert w_j \rvert$$
 
-### How Lasso is solved
-
-Unlike Ridge, Lasso has no closed-form solution because the absolute value $$\lvert w_j \rvert$$ is not differentiable at zero, you cannot just take the derivative and set it to zero. Instead, Lasso is solved using coordinate descent: we update one weight at a time while keeping all others fixed.
-
-For each weight $$w_j$$, coordinate descent first computes how much the data "wants" that weight to be. Call this signal $$\rho_j$$. It measures the correlation between feature $$j$$ and the residual error (what the other features could not explain). Then it applies a rule called soft thresholding:
-
-- If the signal $$\rho_j$$ is strongly positive (above $$\lambda$$), set the weight to a positive value, but shifted down by $$\lambda$$
-- If the signal is strongly negative (below $$-\lambda$$), set the weight to a negative value, but shifted up by $$\lambda$$
-- If the signal is weak (between $$-\lambda$$ and $$\lambda$$), set the weight to exactly zero
-
-In math, this is written as:
+Unlike Ridge, Lasso has no closed-form solution because the absolute value $$\lvert w_j \rvert$$ is not differentiable at zero, so we cannot simply take the derivative and set it to zero. Instead, Lasso is solved using coordinate descent: we update one weight at a time while keeping all others fixed. For each weight $$w_j$$, coordinate descent first computes how much the data wants that weight to be, a quantity we call the signal $$\rho_j$$ that measures the correlation between feature $$j$$ and the residual error left over by the other features. It then applies a rule called soft thresholding: if the signal is strongly positive (above $$\lambda$$) the weight is set to a positive value shifted down by $$\lambda$$, if it is strongly negative (below $$-\lambda$$) the weight is set to a negative value shifted up by $$\lambda$$, and if the signal is weak (between $$-\lambda$$ and $$\lambda$$) the weight is set to exactly zero. In math, this is:
 
 $$w_j \leftarrow \begin{cases} (\rho_j - \lambda) / z_j & \text{if } \rho_j > \lambda \\ 0 & \text{if } \lvert \rho_j \rvert \leq \lambda \\ (\rho_j + \lambda) / z_j & \text{if } \rho_j < -\lambda \end{cases}$$
 
-where $$\rho_j$$ is the signal from the data for feature $$j$$, and $$z_j$$ is a normalisation factor (the sum of squared values of that feature column).
+where $$z_j$$ is a normalisation factor (the sum of squared values of that feature column). Intuitively, for each feature the data sends a signal saying that the feature should have weight $$\rho_j$$, and Ridge always listens but dampens that signal, whereas Lasso has a threshold and ignores any signal weaker than $$\lambda$$ by setting the weight to zero. The larger $$\lambda$$ is, the wider this dead zone becomes and the more features are eliminated from the model entirely.
 
 <!-- ### Ridge vs Lasso: why Lasso produces zeros
 
@@ -1115,8 +1050,6 @@ The diagram below compares what Ridge and Lasso do to a weight given the same si
   draw();
 })();
 </script>
-
-Think of it this way: for each feature, the data sends a signal saying "this feature should have weight $$\rho_j$$." Ridge always listens but dampens the signal. Lasso has a threshold, if the signal is too weak (the feature is not important enough), Lasso ignores it entirely and sets the weight to zero. The larger $$\lambda$$ is, the wider this dead zone becomes, and more features get eliminated.
 
 <!-- ### Lasso Coefficient Path
 
@@ -1266,12 +1199,9 @@ Remember from Section 2 that Ridge coefficients shrink but never hit zero. With 
 
 ## 4. Why Lasso Produces Zeros: L1 vs L2 Geometry
 
-Now that you have seen both Ridge and Lasso in action, let us understand why Lasso drives coefficients to exactly zero while Ridge does not. Regularization can be viewed as a constrained optimisation problem. Instead of minimising $$J(\mathbf{w}) + \lambda R(\mathbf{w})$$, we can equivalently minimise $$J(\mathbf{w})$$ subject to $$R(\mathbf{w}) \leq t$$ for some budget $$t$$.
+Now that you have seen both Ridge and Lasso in action, the next question is why Lasso drives coefficients to exactly zero while Ridge does not. Regularization can be viewed as a constrained optimisation problem: instead of minimising $$J(\mathbf{w}) + \lambda R(\mathbf{w})$$, we can equivalently minimise $$J(\mathbf{w})$$ subject to $$R(\mathbf{w}) \leq t$$ for some budget $$t$$. For L2 (Ridge) this constraint is $$\sum w_j^2 \leq t$$ and the constraint region is a circle (a sphere in higher dimensions), while for L1 (Lasso) the constraint is $$\sum \lvert w_j \rvert \leq t$$ and the region is a diamond (a cross-polytope).
 
-- L2 (Ridge): $$\sum w_j^2 \leq t$$, the constraint region is a circle (sphere in higher dimensions). This is just the squared weights that should be less than some budget. The circle has no corners, so the optimal solution is almost never on an axis.
-- L1 (Lasso): $$\sum \lvert w_j \rvert \leq t$$, the constraint region is a diamond (cross-polytope). 
-
-The optimal solution is where the elliptical contours of the loss function first touch the constraint region. Because the diamond has corners on the axes, the contours are much more likely to touch at a corner, which means one or more weights are exactly zero. The circle has no corners, so the touching point is almost never on an axis. The demo below shows this in 2D with two weights ($$w_1, w_2$$). The ellipses represent contours of the MSE loss and the shaded region is the constraint boundary. Drag the contour center to see how this works for different loss function orientations.
+The optimal solution sits where the elliptical contours of the loss function first touch the constraint region. Because the diamond has corners that lie exactly on the coordinate axes, the contours are much more likely to touch at a corner, which means one or more weights are exactly zero. The circle has no corners, so the touching point is almost never on an axis. The demo below shows this in 2D with two weights ($$w_1, w_2$$), where the ellipses represent contours of the MSE loss and the shaded region is the constraint boundary. Drag the contour centre and the ellipse angle to see how the touch point behaves for different loss orientations.
 
 <div class="interactive-demo" id="demo-geometry">
   <canvas id="canvas-geometry"></canvas>
@@ -1281,7 +1211,8 @@ The optimal solution is where the elliptical contours of the loss function first
     <label>Ellipse angle: <input type="range" id="slider-geo-angle" min="0" max="90" value="30" step="1">
     <span class="demo-value" id="val-geo-angle">30&deg;</span></label>
   </div>
-  <div class="demo-info" id="info-geometry">Drag the contour center (white dot). Notice: the diamond solution is often on a corner (axis), the circle solution is not.</div>
+  <div class="demo-info" id="info-geometry">Drag the contour centre (white dot) and the ellipse angle to see how the touch point shifts.</div>
+  <div class="demo-caption">Settings: 2D weight space, MSE loss contours (ellipses) versus L2 circle and L1 diamond constraint regions, both at the same budget t.</div>
 </div>
 
 <script>
@@ -1573,13 +1504,11 @@ The optimal solution is where the elliptical contours of the loss function first
 })();
 </script>
 
-<div class="demo-hint">The L1 (red) dot frequently snaps to an axis (a corner of the diamond), meaning one weight is exactly 0. The L2 (blue) dot almost never lands on an axis. This is the geometric reason Lasso produces sparsity.</div>
+---
 
---- -->
+<!-- ## 5. Lasso Feature Selection in Action
 
-## 5. Lasso Feature Selection in Action
-
-Where Lasso really shines is when you have many features but only a few are relevant. Below we simulate a dataset with 8 features: 3 truly useful ones (with known non-zero weights) and 5 pure noise features (random values with no relation to the target). Lasso is solved via coordinate descent. As you increase $$\lambda$$, watch Lasso eliminate the noise features first while keeping the signal features.
+Where Lasso really helps is when you have many features but only a few are relevant. Below we simulate a dataset with 8 features, of which 3 are truly useful with known non-zero weights and 5 are pure noise features whose values have no relation to the target, and Lasso is solved via coordinate descent. As you increase $$\lambda$$, the L1 dead zone widens and Lasso eliminates the noise features first while preserving the signal features for longer, eventually leaving only the relevant ones with non-zero weights.
 
 <div class="interactive-demo" id="demo-feature-select">
   <canvas id="canvas-feature-select"></canvas>
@@ -1589,6 +1518,7 @@ Where Lasso really shines is when you have many features but only a few are rele
     <button id="btn-feat-new">New Data</button>
   </div>
   <div class="demo-info" id="info-feature-select"></div>
+  <div class="demo-caption">Settings: 50 samples, 8 standard-normal features (3 signal with true weights 2.5, &minus;1.8, 1.2 and 5 noise with weight 0), Lasso fit by coordinate descent.</div>
 </div>
 
 <script>
@@ -1791,25 +1721,15 @@ Where Lasso really shines is when you have many features but only a few are rele
 })();
 </script>
 
-<div class="demo-hint">Increase lambda gradually. Noise features (red) go to zero first; signal features (green) survive longer.</div>
+--- -->
 
----
+## 5. Elastic Net: The Best of Both Worlds
 
-## 6. Elastic Net: The Best of Both Worlds
-
-Elastic Net<sup class="cite"><a class="cite-ref" href="#ref-3" data-cite-preview="Zou &amp; Hastie (2005), Regularization and Variable Selection via the Elastic Net. Journal of the Royal Statistical Society, Series B, 67(2), 301-320.">3</a></sup> combines L1 and L2 penalties using a mixing parameter $$\alpha \in [0, 1]$$:
+Elastic Net combines L1 and L2 penalties using a mixing parameter $$\alpha \in [0, 1]$$:
 
 $$J_{\text{ElasticNet}}(\mathbf{w}) = \frac{1}{n}\|\mathbf{y} - \mathbf{X}\mathbf{w}\|^2 + \lambda \left[\alpha \sum_{j=1}^{d}|w_j| + (1-\alpha)\sum_{j=1}^{d}w_j^2\right]$$
 
-- $$\alpha = 1$$: Pure Lasso (L1)
-- $$\alpha = 0$$: Pure Ridge (L2)
-- $$0 < \alpha < 1$$: Blend of both
-
-Why combine them? Pure Lasso has a limitation: when features are highly correlated, it tends to pick one and ignore the rest. Elastic Net's L2 component encourages correlated features to have similar weights, while the L1 component still drives some to zero.
-
-### Constraint Region Morphing
-
-Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lasso) as $$\alpha$$ changes. The Elastic Net region has rounded corners at intermediate values. It can still produce sparsity but is smoother than pure Lasso.
+Setting $$\alpha = 1$$ recovers pure Lasso, $$\alpha = 0$$ recovers pure Ridge, and any value in between blends the two. The reason to combine them is that pure Lasso has a limitation when features are highly correlated, since it tends to pick one and ignore the rest, whereas the L2 component of Elastic Net encourages correlated features to share the weight more evenly while the L1 component still drives some weights to zero. The demo below shows this geometrically: as $$\alpha$$ changes, the constraint region morphs from a circle (Ridge) to a diamond (Lasso), passing through rounded-diamond shapes at intermediate values that can still produce sparsity but are smoother than pure Lasso.
 
 <div class="interactive-demo" id="demo-elastic-shape">
   <canvas id="canvas-elastic-shape"></canvas>
@@ -1818,6 +1738,7 @@ Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lass
     <span class="demo-value" id="val-elastic-alpha">0.50</span></label>
   </div>
   <div class="demo-info" id="info-elastic-shape"></div>
+  <div class="demo-caption">Settings: 2D weight space, Elastic Net constraint &alpha;(|w&#8321;|+|w&#8322;|) + (1&minus;&alpha;)(w&#8321;&sup2;+w&#8322;&sup2;) &le; t at fixed budget t, with the Ridge circle and Lasso diamond drawn faintly behind.</div>
 </div>
 
 <script>
@@ -1959,8 +1880,6 @@ Watch the constraint region shape morph from a circle (Ridge) to a diamond (Lass
   draw();
 })();
 </script>
-
-<div class="demo-hint">Drag the &alpha; slider slowly from 0 to 1. At &alpha;=0 you see a circle (Ridge). At &alpha;=1, a sharp diamond (Lasso). In between, the shape has rounded corners but still has pointed tips on the axes, this means Elastic Net can still produce sparsity, just less aggressively than pure Lasso.</div>
 
 <!-- ### Elastic Net Coefficient Paths
 
@@ -2109,9 +2028,9 @@ Now see how the coefficient paths change as you blend between Ridge and Lasso.
 
 --- -->
 
-## 7. Putting It All Together: Ridge vs Lasso vs Elastic Net
+<!-- ## 6. Putting It All Together
 
-Now let us see all three regularizers side by side on the same data. We fit a degree-12 polynomial (solved via the Ridge closed-form or coordinate descent depending on the method). It has plenty of capacity to overfit, making the differences between methods easy to spot. Toggle between Ridge, Lasso, and Elastic Net, and use the $$\lambda$$ slider to control regularization strength. These same techniques apply to any model with learned weights.
+The final demo brings all three regularizers side by side on the same data, fitting a degree-12 polynomial that has plenty of capacity to overfit so the differences between methods are easy to spot. Ridge is solved with its closed form, while Lasso and Elastic Net are solved with coordinate descent. Toggle between the three modes and adjust $$\lambda$$ (and $$\alpha$$ for Elastic Net) to compare how each one handles the same data. The faded grey curve in the background is always the unregularized fit so you can see what the regularizer is undoing.
 
 <div class="interactive-demo" id="demo-combined">
   <canvas id="canvas-combined"></canvas>
@@ -2126,6 +2045,7 @@ Now let us see all three regularizers side by side on the same data. We fit a de
     <button id="btn-comb-new">New Data</button>
   </div>
   <div class="demo-info" id="info-combined"></div>
+  <div class="demo-caption">Settings: 25 noisy points from y = sin(1.2x) + 0.4x &minus; 1 with &sigma;=0.5, degree-12 polynomial, Ridge via closed form and Lasso/Elastic Net via coordinate descent.</div>
 </div>
 
 <script>
@@ -2248,9 +2168,11 @@ Now let us see all three regularizers side by side on the same data. We fit a de
 })();
 </script>
 
----
+--- -->
 
-## 8. Summary: Ridge vs Lasso vs Elastic Net
+## 6. Summary
+
+Regularization penalises complexity by adding a term to the loss function that discourages large weights, with a hyperparameter $$\lambda$$ that controls the penalty strength. Ridge (L2) shrinks all coefficients smoothly toward zero but never eliminates any, which makes it a good default when every feature is likely to contribute and you just want to prevent overfitting. Lasso (L1) can drive coefficients to exactly zero and therefore performs automatic feature selection, which is explained geometrically by the diamond-shaped constraint region having corners on the coordinate axes. Elastic Net combines both penalties with a mixing parameter $$\alpha$$, inheriting sparsity from L1 and the grouping effect from L2, which makes it a strong choice when features are correlated. Choosing $$\lambda$$ in practice is typically done with cross-validation by sweeping a range of values on a log scale and picking the one with the lowest validation error.
 
 <table class="summary-table">
   <thead>
@@ -2292,12 +2214,12 @@ Now let us see all three regularizers side by side on the same data. We fit a de
       <td>Picks one, ignores the rest</td>
       <td>Groups correlated features together</td>
     </tr>
-    <tr>
+    <!-- <tr>
       <td><strong>Closed-form solution</strong></td>
       <td>Yes: $$(\mathbf{X}^T\mathbf{X}+\lambda\mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}$$</td>
       <td>No, requires iterative methods</td>
       <td>No, requires iterative methods</td>
-    </tr>
+    </tr> -->
     <tr>
       <td><strong>When to use</strong></td>
       <td>All features likely relevant; prevent overfitting</td>
@@ -2307,25 +2229,9 @@ Now let us see all three regularizers side by side on the same data. We fit a de
   </tbody>
 </table>
 
-### Key Takeaways
+#### Continue the ML Series
 
-1. **Regularization penalises complexity** by adding a term to the loss function that discourages large weights. The hyperparameter $$\lambda$$ controls the penalty strength.
-
-2. **Ridge (L2)** shrinks all coefficients smoothly toward zero but never eliminates any. It has a nice closed-form solution and works well when all features contribute.
-
-3. **Lasso (L1)** can drive coefficients to exactly zero, performing automatic feature selection. This is explained geometrically by the diamond-shaped constraint region having corners on the axes.
-
-4. **Elastic Net** combines both penalties with a mixing parameter $$\alpha$$. It inherits sparsity from L1 and the grouping effect from L2, making it ideal when features are correlated.
-
-5. **Choosing $$\lambda$$** is typically done via cross-validation: try a range of values on a log scale and pick the one with the lowest validation error.
-
-#### References
-
-<ol class="references">
-  <li id="ref-1">Hoerl, A. E., &amp; Kennard, R. W. (1970). <em>Ridge Regression: Biased Estimation for Nonorthogonal Problems</em>. Technometrics, 12(1), 55-67. <a href="https://doi.org/10.1080/00401706.1970.10488634" target="_blank" rel="noopener">https://doi.org/10.1080/00401706.1970.10488634</a></li>
-  <li id="ref-2">Tibshirani, R. (1996). <em>Regression Shrinkage and Selection via the Lasso</em>. Journal of the Royal Statistical Society, Series B, 58(1), 267-288.</li>
-  <li id="ref-3">Zou, H., &amp; Hastie, T. (2005). <em>Regularization and Variable Selection via the Elastic Net</em>. Journal of the Royal Statistical Society, Series B, 67(2), 301-320. <a href="https://doi.org/10.1111/j.1467-9868.2005.00503.x" target="_blank" rel="noopener">https://doi.org/10.1111/j.1467-9868.2005.00503.x</a></li>
-</ol>
+This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
 
 <script>
 // Force redraw on page load (handles late theme detection)

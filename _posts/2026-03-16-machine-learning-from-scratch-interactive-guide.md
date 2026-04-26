@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Machine Learning from Scratch: An Interactive Guide"
+title: "Machine Learning from Scratch"
 author: bharathikannan
 categories: [Machine learning]
 description: "Learn machine learning from scratch with interactive visualizations. Drag data points, tune hyperparameters, watch algorithms train in real-time - all in your browser with math and code."

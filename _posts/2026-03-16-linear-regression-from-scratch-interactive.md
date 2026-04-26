@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Linear Regression: An Interactive Guide"
+title: "Linear Regression"
 author: bharathikannan
 categories: [Machine learning]
 series: true
@@ -270,23 +270,7 @@ window.LR = (function() {
     return trained;
   }
 
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      grid: dark ? '#292e42' : '#e5e7eb',
-      point: dark ? '#7aa2f7' : '#2563eb',
-      pointStroke: dark ? '#3d59a1' : '#1d4ed8',
-      line: dark ? '#ff9e64' : '#e63946',
-      error: dark ? 'rgba(247,118,142,0.35)' : 'rgba(230,57,70,0.2)',
-      errorStroke: dark ? '#f7768e' : '#e63946',
-      accent: dark ? '#9ece6a' : '#16a34a',
-      path: dark ? '#9ece6a' : '#16a34a',
-      btnBg: dark ? '#292e42' : '#f3f4f6'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -433,16 +417,14 @@ window.LR = (function() {
 })();
 </script>
 
-Linear regression is one of the most important starting points in machine learning. It is simple enough to understand deeply, but powerful enough to teach ideas used in larger models: defining a model, measuring error, and improving parameters with optimization.
+Linear regression is one of the most important starting points in machine learning. It is simple enough to understand deeply, but powerful enough to teach ideas used in larger models: defining a model, measuring error, and improving parameters with optimization. In this interactive guide, we will build linear regression from scratch using one concrete problem of predicting house prices from area, asking whether we can learn a formula that predicts price for a new house given area and price data for past houses.
 
-In this interactive guide, we will build linear regression from scratch using one concrete problem: predicting house prices from area. If we know area and price for past houses, can we learn a formula that predicts price for a new house?
+**In this guide, you will:**
 
-By the end of this post, you will understand:
-- Hypothesis function: the prediction formula
-- Cost function: how prediction error is measured
-- Gradient descent: how parameters are optimized
-- Learning rate: why step size matters during training
-- Prediction: how to use trained parameters on new inputs
+- Understand the hypothesis function as the prediction formula
+- See how the cost function measures prediction error
+- Use gradient descent to optimize parameters and learn why the learning rate matters
+- Apply trained parameters to make predictions on new inputs
 
 ---
 
@@ -477,16 +459,13 @@ The goal is simple: given data points $$(x, y)$$, find $$w$$ and $$b$$ so that $
 
 Every machine learning model starts with data. Below, we have 10 houses with area (sq ft) and price (in $1000s). This is our training dataset: labeled examples the model uses to learn a pattern. It is only a simplified example and does not represent real market prices, but it is sufficient for understanding linear regression.
 
-<div class="demo-hint">
-Click to add points, drag to move, double-click to remove. All demos below share this dataset. Adding outliers here will visibly affect the fit in later sections.
-</div>
-
 <div class="interactive-demo">
 <canvas id="demo1-canvas"></canvas>
 <div class="demo-controls">
   <button onclick="LR.resetData(); demo1Draw(); LR.notifyDataChange();">Reset Data</button>
   <span class="demo-info" id="demo1-info">10 points</span>
 </div>
+<div class="demo-caption">Settings: 10 starter points (area in sq ft vs price in $1000s). Click to add a point, drag to move, double-click to remove. All demos below share this dataset.</div>
 </div>
 
 <script>
@@ -593,16 +572,7 @@ In machine learning, the hypothesis function is the model's prediction formula. 
 
 $$h(x) = w \cdot x + b$$
 
-This is a straight line. The two parameters $$w$$ and $$b$$ completely determine the line:
-
-- Weight ($$w$$) controls the slope. Larger $$w$$ means price rises faster with area. If $$w = 0$$, the line is flat. If $$w < 0$$, price decreases as area increases.
-- Bias ($$b$$) controls the y-intercept. It shifts the line up or down without changing slope. You can think of it as a base level before area contributes through $$w$$.
-
-Together, $$w$$ and $$b$$ are the model's parameters. Training means finding the values that produce the best fit.
-
-<div class="demo-hint">
-Drag the weight and bias sliders. Setting weight to 0 produces a flat line; a negative weight flips the slope.
-</div>
+This is a straight line and the two parameters $$w$$ and $$b$$ completely determine it. The weight $$w$$ controls the slope, so a larger $$w$$ means price rises faster with area, $$w = 0$$ produces a flat line, and a negative $$w$$ flips the slope so price decreases as area increases. The bias $$b$$ controls the y-intercept and shifts the line up or down without changing slope, which you can think of as a base level before area contributes through $$w$$. Together, $$w$$ and $$b$$ are the model's parameters, and training means finding the values that produce the best fit.
 
 <div class="interactive-demo">
 <canvas id="demo2-canvas"></canvas>
@@ -611,6 +581,7 @@ Drag the weight and bias sliders. Setting weight to 0 produces a flat line; a ne
   <label>Bias (b): <input type="range" id="demo2-b" min="-100" max="300" step="2" value="30"> <span class="demo-value" id="demo2-b-val">30</span></label>
 </div>
 <div class="demo-info" id="demo2-eq">h(x) = 0.150 * x + 30</div>
+<div class="demo-caption">Settings: w in [-0.1, 0.4], b in [-100, 300], starting at w = 0.15, b = 30. w controls slope; b shifts the line vertically.</div>
 </div>
 
 <script>
@@ -670,10 +641,6 @@ Let us break this down:
 
 4. $$\frac{1}{2m}$$ averages over the dataset. The extra $$\frac{1}{2}$$ is a convenience that simplifies derivatives.
 
-<div class="demo-hint">
-Red dashed lines show residuals. Semi-transparent red squares visualize squared error; bigger squares mean bigger penalties. The MSE value updates as you drag.
-</div>
-
 <div class="interactive-demo">
 <canvas id="demo3-canvas"></canvas>
 <div class="demo-controls">
@@ -681,6 +648,7 @@ Red dashed lines show residuals. Semi-transparent red squares visualize squared 
   <label>b: <input type="range" id="demo3-b" min="-100" max="300" step="2" value="80"> <span class="demo-value" id="demo3-b-val">80</span></label>
 </div>
 <div class="demo-info" id="demo3-cost">Cost J(w,b) = 0.00</div>
+<div class="demo-caption">Settings: starting at w = 0.10, b = 80, MSE cost. Red squares show squared error per point; cost J updates live.</div>
 </div>
 
 <script>
@@ -741,10 +709,6 @@ Red dashed lines show residuals. Semi-transparent red squares visualize squared 
 })();
 </script>
 
-<!-- <div class="demo-try">
-<strong>Try this:</strong> Set <code>w = 0</code>, then tune only <code>b</code> to reduce cost. Next freeze <code>b</code> and tune <code>w</code>. Compare the best cost from each step vs tuning both together.
-</div> -->
-
 Try finding the minimum manually with sliders. It is harder than it looks, because changing $$w$$ affects the best value of $$b$$, and vice versa. This is why we need an automated optimizer. First, let us visualize the full cost landscape.
 
 ---
@@ -756,10 +720,6 @@ Every pair $$(w, b)$$ gives a different cost $$J(w,b)$$. If we evaluate many pai
 ### Contour Plot View
 
 A contour plot is a top-down view of this surface, like a topographic map. Each band represents a cost level. Moving toward lighter center regions means lower cost.
-
-<div class="demo-hint">
-Drag the green dot on the contour plot. The right panel shows the corresponding fitted line. Lighter regions mean lower cost.
-</div>
 
 <div class="interactive-demo">
 <div class="demo-split">
@@ -773,6 +733,7 @@ Drag the green dot on the contour plot. The right panel shows the corresponding 
   </div>
 </div>
 <div class="demo-info" id="demo4-info">w = 0.15, b = 50, Cost = 0.00</div>
+<div class="demo-caption">Settings: drag the green dot on the contour to set (w, b); the right panel shows the corresponding fitted line. Lighter regions mean lower cost.</div>
 </div>
 
 <script>
@@ -879,7 +840,7 @@ Here is the same cost function visualized as a 3D surface. You can see the bowl 
   <label>Rotate: <input type="range" id="demo4b-angle" min="0" max="360" step="1" value="35"> <span class="demo-value" id="demo4b-angle-val">35 deg</span></label>
   <label>Tilt: <input type="range" id="demo4b-tilt" min="15" max="75" step="1" value="30"> <span class="demo-value" id="demo4b-tilt-val">30 deg</span></label>
 </div>
-<div class="demo-caption">Cost surface J(w, b)</div>
+<div class="demo-caption">Settings: cost surface J(w, b) over w in [-0.05, 0.35] and b in [-100, 300]. Drag the sliders to rotate and tilt the view.</div>
 </div>
 
 <script>
@@ -1023,21 +984,13 @@ $$\frac{\partial J}{\partial w} = \frac{1}{m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^
 
 $$\frac{\partial J}{\partial b} = \frac{1}{m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^{(i)}\right)$$
 
-These derivatives tell us local sensitivity:
-- $$\frac{\partial J}{\partial w}$$: how cost changes if we increase $$w$$ slightly
-- $$\frac{\partial J}{\partial b}$$: same idea for $$b$$
-
-The update rules are:
+These derivatives tell us local sensitivity, where $$\frac{\partial J}{\partial w}$$ tells us how cost changes if we increase $$w$$ slightly, and $$\frac{\partial J}{\partial b}$$ does the same for $$b$$. The update rules are:
 
 $$w := w - \alpha \cdot \frac{\partial J}{\partial w}$$
 
 $$b := b - \alpha \cdot \frac{\partial J}{\partial b}$$
 
 The minus sign makes the update move against the gradient, which reduces cost, and the learning rate $$\alpha$$ sets step size. If a gradient component is positive, subtracting it decreases that parameter; if it is negative, subtracting it increases that parameter, so one rule handles both directions automatically.
-
-<div class="demo-hint">
-Step runs one iteration. Run button animates continuously. The green path traces the optimization trajectory on the contour; the chart below shows cost decreasing over iterations.
-</div>
 
 <div class="interactive-demo">
 <div class="demo-split">
@@ -1059,6 +1012,7 @@ Step runs one iteration. Run button animates continuously. The green path traces
   <button id="demo5-reset">Reset</button>
 </div>
 <div class="demo-info" id="demo5-info">Iteration: 0 | w = 0.0000, b = 0.0, Cost = -</div>
+<div class="demo-caption">Settings: starts at w = 0, b = 0, default alpha = 1e-7. Step runs one iteration; Run animates continuously; the green path traces the optimization trajectory.</div>
 </div>
 
 <script>
@@ -1227,34 +1181,15 @@ Step runs one iteration. Run button animates continuously. The green path traces
 })();
 </script>
 
-<!-- <div class="demo-try">
-<strong>Try this:</strong> Start with <code>w=0, b=0</code>, click <strong>Step</strong> 10 times, then switch to <strong>Run</strong>. Observe how the path moves quickly first and then takes smaller effective improvements near the minimum.
-</div> -->
-
 After enough iterations, the green dot settles near the bottom of the bowl and the fitted line stabilizes. Cost usually drops quickly early on, then flattens near convergence.
 
 ---
 
 ## 7. The Learning Rate
 
-The learning rate $$\alpha$$ is a crucial hyperparameter. You choose it before training. It controls step size in each gradient descent update.
+The learning rate $$\alpha$$ is a crucial hyperparameter that you choose before training. It controls the step size in each gradient descent update. Choosing it well is important: too small a value makes steps tiny and convergence very slow, a reasonable value gives smooth and stable convergence, and too large a value causes updates to overshoot, with cost oscillating or even diverging. There is no universal best value, so in practice you try a few values and watch the cost curve.
 
-Choosing it well is important:
-
-- Too small: steps are tiny, convergence is very slow.
-- Reasonable: smooth, stable convergence.
-- Too large: updates overshoot, cost oscillates or increases, and training can diverge.
-
-There is no universal best value. In practice, try a few values and watch the cost curve.
-
-A quick rule of thumb:
-- If cost explodes or oscillates, decrease $$\alpha$$.
-- If cost decreases but very slowly, increase $$\alpha$$.
-- Keep the largest value that still gives stable, smooth convergence.
-
-<div class="demo-hint">
-Run All starts three learning rates simultaneously. Edit the rate values to compare convergence speeds. In each mini chart, x-axis is iteration count and y-axis is cost.
-</div>
+A quick rule of thumb is to decrease $$\alpha$$ if the cost explodes or oscillates, increase it if the cost decreases very slowly, and keep the largest value that still gives stable, smooth convergence.
 
 <div class="interactive-demo">
 <div class="lr-trio">
@@ -1278,6 +1213,7 @@ Run All starts three learning rates simultaneously. Edit the rate values to comp
   <button id="demo6-run">Run All</button>
   <button id="demo6-reset">Reset</button>
 </div>
+<div class="demo-caption">Settings: same dataset and starting point (w = 0, b = 0) across all three runs; only alpha differs. Edit the rate values to compare convergence speeds.</div>
 </div>
 
 <script>
@@ -1370,10 +1306,6 @@ Run All starts three learning rates simultaneously. Edit the rate values to comp
 })();
 </script>
 
-<!-- <div class="demo-try">
-<strong>Try this:</strong> Keep the same dataset and compare final cost after 1000+ iterations for the three alpha values. Then increase noise in the dataset (top demo) and repeat to see sensitivity.
-</div> -->
-
 ---
 
 ## 8. Implementing from Scratch
@@ -1419,7 +1351,7 @@ Walk through this code step by step and watch each line update live values and t
 @media(max-width:640px){.cw-top{grid-template-columns:1fr}}
 .cw-code{font-family:'JetBrains Mono',monospace;font-size:0.7rem;line-height:1.6;padding:0.5rem 0;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border);overflow-x:auto;min-height:280px}
 .cw-line{white-space:pre;padding:1px 0.5rem}
-.cw-line.cw-hl{background:rgba(37,99,235,0.15);border-left:3px solid #2563eb;padding-left:calc(0.5rem - 3px)}
+.cw-line.cw-hl{background:rgba(37,99,235,0.15);border-left:3px solid var(--accent);padding-left:calc(0.5rem - 3px)}
 .cw-ln{display:inline-block;width:1.6em;color:var(--text-secondary);text-align:right;margin-right:0.5em;user-select:none;opacity:0.5}
 .cw-bottom{display:grid;grid-template-columns:1fr 210px;gap:0.75rem;height:160px}
 @media(max-width:640px){.cw-bottom{grid-template-columns:1fr}}
@@ -1457,6 +1389,7 @@ Walk through this code step by step and watch each line update live values and t
   <button id="cw-next">Next &#8594;</button>
   <button id="cw-play">&#9654; Auto-Play</button>
 </div>
+<div class="demo-caption">Settings: 5 sample points, lr = 1e-7, 5000 iterations. Step through each line of the algorithm or auto-play to watch the line fit the data.</div>
 </div>
 
 <script>
@@ -1711,10 +1644,6 @@ Walk through this code step by step and watch each line update live values and t
 })();
 </script>
 
-<div class="demo-hint">
-Edit the parameters below and click Run. Trained parameters are saved and used automatically by the Prediction section.
-</div>
-
 <div class="interactive-demo">
 <textarea class="code-runner-area" id="demo7-code">// Edit these values and click Run
 var learning_rate = 0.0000001;
@@ -1727,6 +1656,7 @@ var w = 0, b = 0;
 </div>
 <div class="code-runner-output" id="demo7-output">Click "Run" to train the model...</div>
 <canvas id="demo7-canvas"></canvas>
+<div class="demo-caption">Settings: edit the parameters above (default lr = 1e-7, 5000 iterations, w = 0, b = 0) and click Run. Trained parameters are saved and used automatically by the Prediction section.</div>
 </div>
 
 <script>
@@ -1805,11 +1735,7 @@ For example, if training gives $$w = 0.151$$ and $$b = 42.2$$, then for a 2800 s
 
 $$\hat{y} = 0.151 \times 2800 + 42.2 = 465.0$$
 
-So the predicted price is approximately $465,000. This value is in thousands of dollars, so `465.0` means about $465,000. The model did not use hand-written pricing rules. It learned a pattern from data. One important caveat: predictions are usually more reliable within the training range than far outside it. Predicting a 12,000 sq ft house from data mostly between 800 and 3,800 sq ft is extrapolation, and can be inaccurate.
-
-<div class="demo-hint">
-Uses trained parameters from above. Click Auto-Train first if needed, then enter an area and click Predict.
-</div>
+So the predicted price is approximately $465,000. This value is in thousands of dollars, so `465.0` means about $465,000. The model did not use hand-written pricing rules and instead learned a pattern from data. One important caveat is that predictions are usually more reliable within the training range than far outside it. Predicting a 12,000 sq ft house from data mostly between 800 and 3,800 sq ft is extrapolation, and can be inaccurate.
 
 <div class="interactive-demo">
 <canvas id="demo8-canvas"></canvas>
@@ -1819,6 +1745,7 @@ Uses trained parameters from above. Click Auto-Train first if needed, then enter
   <button id="demo8-predict">Predict</button>
 </div>
 <div class="demo-info" id="demo8-info">Enter an area and click Predict (or Auto-Train first if needed)</div>
+<div class="demo-caption">Settings: uses trained parameters from above. Click Auto-Train first if needed, then enter an area and click Predict.</div>
 </div>
 
 <script>

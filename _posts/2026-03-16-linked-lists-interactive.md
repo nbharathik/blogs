@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Linked Lists from Scratch: An Interactive Guide"
+title: "Linked Lists from Scratch"
 author: bharathikannan
 categories: [Data Structures]
 description: "Build and manipulate linked lists visually. Insert, delete, reverse, merge  - all animated with pointer re-routing, step by step."
@@ -99,24 +99,7 @@ hidden: true
 
 <script>
 window.DSA_LL = (function() {
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      node: dark ? '#7aa2f7' : '#2563eb',
-      nodeHighlight: dark ? '#ff9e64' : '#f59e0b',
-      nodeFound: dark ? '#9ece6a' : '#16a34a',
-      nodeNew: dark ? '#bb9af7' : '#7c3aed',
-      nodeDelete: dark ? '#f7768e' : '#e63946',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textOnNode: '#ffffff',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      arrow: dark ? '#565f89' : '#9ca3af',
-      arrowHighlight: dark ? '#ff9e64' : '#f59e0b',
-      pointer: dark ? '#9ece6a' : '#16a34a',
-      null: dark ? '#f7768e' : '#e63946'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -266,34 +249,15 @@ window.DSA_LL = (function() {
 })();
 </script>
 
-A linked list is a linear data structure where elements are stored in **nodes**, and each node contains a **pointer** (reference) to the next node. Unlike arrays, linked list elements are not stored in contiguous memory  - they can be scattered anywhere, connected only by pointers.
+A linked list is a linear data structure where elements are stored in nodes, and each node contains a pointer (reference) to the next node. Unlike arrays, linked list elements are not stored in contiguous memory, they can be scattered anywhere, connected only by pointers. This gives linked lists a unique advantage: inserting and deleting elements is O(1) once you have a reference to the correct position, compared to O(n) for arrays (which must shift elements).
 
-This gives linked lists a unique advantage: **inserting and deleting elements is O(1)** once you have a reference to the correct position, compared to O(n) for arrays (which must shift elements).
-
-By the end of this guide you will understand:
-- **Singly linked list** - nodes with a `next` pointer
-- **Doubly linked list** - nodes with `next` and `prev` pointers
-- **Core operations** - insert, delete, search, traverse
-- **Reversal** - flipping a linked list in-place
-- **Merging** - combining two sorted lists
-
-<div class="demo-hint">
-<strong>How to use the demos:</strong> Each demo has controls to manipulate the linked list. Watch the nodes and arrows update in real time as you perform operations.
-</div>
+This guide covers the singly linked list (nodes with a `next` pointer) and the doubly linked list (nodes with both `next` and `prev` pointers), walks through the core operations of insert, delete, search, and traverse, and finishes with two classic algorithms: reversing a linked list in place, and merging two sorted lists.
 
 ---
 
 ## What is a Linked List?
 
-An array stores elements in a contiguous block of memory. To insert an element in the middle, you must shift all subsequent elements. A linked list avoids this by storing each element in a separate **node** that points to the next one.
-
-Each node has two parts:
-- **Data** - the value stored in the node
-- **Next** - a pointer/reference to the next node (or `null` if it is the last node)
-
-The list is accessed through a **head** pointer that points to the first node.
-
-### Python Node Class
+An array stores elements in a contiguous block of memory. To insert an element in the middle, you must shift all subsequent elements. A linked list avoids this by storing each element in a separate node that points to the next one. Each node has two parts: data, the value stored in the node, and next, a pointer or reference to the next node (or `null` if it is the last node). The list is accessed through a head pointer that points to the first node.
 
 A node is the atomic unit of a linked list. It stores payload data and one pointer to the next node. This tiny structure is enough to build chains of any length, and it explains why insertion near a known node is cheap: you only rewire pointers instead of shifting a full array.
 
@@ -313,16 +277,7 @@ class LinkedList:
 
 ## Basic Operations
 
-### Insert, Delete, and Search
-
-The fundamental operations on a linked list are:
-- **Insert at head** - O(1) - create a new node, point it to old head, update head
-- **Insert at tail** - O(n) - traverse to the end, then append
-- **Insert at position** - O(n) - traverse to the position, then splice in
-- **Delete** - O(n) - find the node, re-route pointers around it
-- **Search** - O(n) - traverse from head until found
-
-### Python Implementation
+The fundamental operations on a linked list are insert at head (O(1), create a new node, point it to the old head, update the head pointer), insert at tail (O(n), traverse to the end and then append), insert at a position (O(n), traverse to the position and splice in), delete (O(n), find the node and re-route pointers around it), and search (O(n), traverse from head until the target is found).
 
 ```python
 class LinkedList:
@@ -368,11 +323,7 @@ class LinkedList:
         return -1
 ```
 
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Enter a value and click the operation buttons to manipulate the linked list. Watch nodes appear, disappear, and pointers re-route in real time.
-</div>
+Enter a value and click the operation buttons to manipulate the linked list, and watch nodes appear, disappear, and pointers re-route in real time.
 
 <div class="interactive-demo">
   <canvas id="ll-ops-canvas" width="680" height="120"></canvas>
@@ -385,6 +336,7 @@ class LinkedList:
     <button id="ll-reset">Reset</button>
   </div>
   <div class="demo-info" id="ll-ops-info">List: 10 -> 20 -> 30 -> 40 -> null</div>
+  <div class="demo-caption">Settings: list initialized with 10 -> 20 -> 30 -> 40; operations animate at the targeted node.</div>
 </div>
 
 <script>
@@ -473,8 +425,6 @@ class LinkedList:
 
 Reversing a linked list is a classic interview question. The key insight is to use three pointers: `prev`, `current`, and `after`. At each step, we reverse the direction of the `next` pointer, then advance all three pointers.
 
-### Python Implementation
-
 ```python
 def reverse(self):
     prev = None
@@ -489,13 +439,7 @@ def reverse(self):
     self.head = prev
 ```
 
-**Time complexity:** $$O(n)$$  - we visit each node exactly once. **Space:** $$O(1)$$  - only three pointers.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Step through the reversal algorithm. Watch the <code>prev</code>, <code>current</code>, and <code>after</code> pointers move, and see arrows flip direction one at a time.
-</div>
+Time complexity is $$O(n)$$ since we visit each node exactly once, and space is $$O(1)$$ since we only use three pointers. Step through the reversal algorithm to see the `prev`, `current`, and `after` pointers move, with arrows flipping direction one at a time.
 
 <div class="interactive-demo">
   <canvas id="ll-reverse-canvas" width="680" height="140"></canvas>
@@ -506,6 +450,7 @@ def reverse(self):
     <label>Speed: <input type="range" id="reverse-speed" min="1" max="10" value="3"> <span class="demo-value" id="reverse-speed-val">3</span></label>
   </div>
   <div class="demo-info" id="reverse-info">Ready  - click Step to begin</div>
+  <div class="demo-caption">Settings: list 10 -> 20 -> 30 -> 40 -> 50; speed default 3; step or run to advance the algorithm.</div>
 </div>
 
 <script>
@@ -616,9 +561,7 @@ def reverse(self):
 
 ## Doubly Linked List
 
-A doubly linked list extends the singly linked list by adding a **prev** pointer to each node. This allows traversal in both directions and makes deletion O(1) when you have a reference to the node (no need to find the previous node).
-
-### Python Implementation
+A doubly linked list extends the singly linked list by adding a prev pointer to each node. This allows traversal in both directions and makes deletion O(1) when you have a reference to the node (no need to find the previous node).
 
 ```python
 class DNode:
@@ -648,9 +591,7 @@ class DoublyLinkedList:
             node.next.prev = node.prev
 ```
 
-**Trade-off:** Each node uses more memory (two pointers instead of one), but operations like "delete this node" and "insert before this node" become O(1).
-
-### Interactive Visualization
+The trade-off is that each node uses more memory (two pointers instead of one), but operations like "delete this node" and "insert before this node" become O(1).
 
 <div class="interactive-demo">
   <canvas id="dll-canvas" width="680" height="130"></canvas>
@@ -662,6 +603,7 @@ class DoublyLinkedList:
     <button id="dll-reset">Reset</button>
   </div>
   <div class="demo-info" id="dll-info">null <-> 10 <-> 20 <-> 30 <-> null</div>
+  <div class="demo-caption">Settings: doubly linked list initialized with 10 <-> 20 <-> 30; arrows shown in both directions.</div>
 </div>
 
 <script>
@@ -778,11 +720,7 @@ class DoublyLinkedList:
 
 ## Merge Two Sorted Lists
 
-Given two sorted linked lists, we can merge them into one sorted list in O(n + m) time. This is the same merge step used in merge sort.
-
-The important idea is local choice with global correctness. At each step, pick the smaller head node and advance only that list. Because both inputs are already sorted, this greedy rule always preserves sorted order in the final merged list.
-
-### Python Implementation
+Given two sorted linked lists, we can merge them into one sorted list in O(n + m) time. This is the same merge step used in merge sort. The important idea is local choice with global correctness. At each step, pick the smaller head node and advance only that list. Because both inputs are already sorted, this greedy rule always preserves sorted order in the final merged list.
 
 ```python
 def merge_sorted_lists(l1, l2):
@@ -802,8 +740,6 @@ def merge_sorted_lists(l1, l2):
     return dummy.next
 ```
 
-### Interactive Visualization
-
 <div class="interactive-demo">
   <canvas id="merge-ll-canvas" width="680" height="200"></canvas>
   <div class="demo-controls">
@@ -813,6 +749,7 @@ def merge_sorted_lists(l1, l2):
     <label>Speed: <input type="range" id="merge-ll-speed" min="1" max="10" value="3"> <span class="demo-value" id="merge-ll-speed-val">3</span></label>
   </div>
   <div class="demo-info" id="merge-ll-info">List 1: 5 -> 15 -> 25 | List 2: 10 -> 20 -> 30</div>
+  <div class="demo-caption">Settings: List 1 = 5 -> 15 -> 25, List 2 = 10 -> 20 -> 30; speed default 3.</div>
 </div>
 
 <script>
@@ -961,24 +898,25 @@ def merge_sorted_lists(l1, l2):
 
 *\*Amortized with dynamic array. \*\*If you have a reference to the node.*
 
-**Use arrays when** you need fast random access and your data does not change much. **Use linked lists when** you need frequent insertions and deletions, especially at the front.
+Use arrays when you need fast random access and your data does not change much. Use linked lists when you need frequent insertions and deletions, especially at the front.
 
 ---
 
 ## Key Takeaways
 
-1. **Linked lists** trade random access for efficient insertion/deletion. They are the foundation for stacks, queues, and more complex data structures.
-
-2. **Singly linked lists** use one pointer per node (next). **Doubly linked lists** use two (next + prev) for bidirectional traversal.
-
-3. **Reversal** uses three pointers (prev, current, after) and runs in O(n) time with O(1) space.
-
-4. **Merging sorted lists** is a key building block  - it is exactly the merge step in merge sort.
+| Concept | Key Idea |
+|---|---|
+| Trade-off | Linked lists trade random access for efficient insertion and deletion. |
+| Singly Linked | One `next` pointer per node, traversed in a single direction. |
+| Doubly Linked | Adds a `prev` pointer for bidirectional traversal at the cost of extra memory. |
+| Reversal | Uses three pointers (`prev`, `current`, `after`) in O(n) time and O(1) space. |
+| Merge Sorted Lists | The same merge step used in merge sort, runs in O(n + m). |
+| Foundations | Form the building blocks for stacks, queues, and more complex structures. |
 
 ---
 
 ## What's Next?
 
-Two of the most important data structures built on linked lists are **stacks** and **queues**. Continue to the [Stacks and Queues Interactive Guide]({{ site.baseurl }}/stacks-and-queues/) to see LIFO and FIFO in action.
+Two of the most important data structures built on linked lists are stacks and queues. Continue to the [Stacks and Queues Interactive Guide]({{ site.baseurl }}/stacks-and-queues/) to see LIFO and FIFO in action.
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

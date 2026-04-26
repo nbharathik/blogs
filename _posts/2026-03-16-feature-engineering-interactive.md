@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Feature Engineering & Data Preprocessing - An Interactive Guide"
+title: "Feature Engineering & Data Preprocessing"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -125,7 +125,7 @@ date: 2026-03-17
   background: var(--bg-primary);
 }
 .fe-table .missing {
-  color: #e63946;
+  color: var(--viz-red);
   font-style: italic;
 }
 .encoding-table-wrap {
@@ -158,33 +158,7 @@ window.FE = (function() {
   'use strict';
   var F = {};
 
-  F.getColors = function() {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (!document.documentElement.getAttribute('data-theme') &&
-       window.matchMedia('(prefers-color-scheme: dark)').matches);
-    return {
-      bg: isDark ? '#1a1b26' : '#ffffff',
-      bgSecondary: isDark ? '#24283b' : '#f1f5f9',
-      text: isDark ? '#c0caf5' : '#1e293b',
-      textMuted: isDark ? '#565f89' : '#94a3b8',
-      grid: isDark ? '#292e42' : '#e2e8f0',
-      border: isDark ? '#3b4261' : '#cbd5e1',
-      accent: isDark ? '#7aa2f7' : '#2563eb',
-      point: isDark ? '#7aa2f7' : '#2563eb',
-      pointAlt: isDark ? '#f7768e' : '#e63946',
-      green: isDark ? '#9ece6a' : '#16a34a',
-      orange: isDark ? '#ff9e64' : '#ea580c',
-      purple: isDark ? '#bb9af7' : '#7c3aed',
-      yellow: isDark ? '#e0af68' : '#d97706',
-      pink: isDark ? '#f7768e' : '#e63946',
-      cyan: isDark ? '#7dcfff' : '#0891b2',
-      heatLow: isDark ? '#1a1b26' : '#ffffff',
-      heatMid: isDark ? '#3b4261' : '#cbd5e1',
-      heatPos: isDark ? '#7aa2f7' : '#2563eb',
-      heatNeg: isDark ? '#f7768e' : '#e63946',
-      isDark: isDark
-    };
-  };
+  F.getColors = function() { return window.Viz.colors(); };
 
   F.setupCanvas = function(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -298,17 +272,13 @@ window.FE = (function() {
 })();
 </script>
 
-Real-world data is messy. Features come in different units, categories need numerical representation, and missing values lurk everywhere. **Feature engineering and preprocessing** are the critical steps that transform raw data into a form that machine learning algorithms can learn from effectively.
-
-In this chapter, we will interactively explore the most important preprocessing techniques and see exactly how they change your data and model performance.
+Real-world data is messy. Features come in different units, categories need numerical representation, and missing values lurk everywhere. Feature engineering and preprocessing are the critical steps that transform raw data into a form that machine learning algorithms can learn from effectively. In this chapter, we will interactively explore the most important preprocessing techniques and see exactly how they change your data and model performance.
 
 ---
 
 ## 1. Why Preprocessing Matters
 
-Before we dive into individual techniques, let us see the dramatic effect that simple feature scaling can have on gradient descent.
-
-Imagine fitting a model with two features: one ranging from 0 to 1, and another from 0 to 1000. The loss surface becomes a narrow, elongated valley, and gradient descent takes many tiny zigzag steps to reach the minimum. After scaling, the contours become circular, and gradient descent converges in a straight path.
+Before we dive into individual techniques, let us see the dramatic effect that simple feature scaling can have on gradient descent. Imagine fitting a model with two features: one ranging from 0 to 1, and another from 0 to 1000. The loss surface becomes a narrow, elongated valley, and gradient descent takes many tiny zigzag steps to reach the minimum. After scaling, the contours become circular, and gradient descent converges in a straight path.
 
 <div class="interactive-demo">
   <h4>Unscaled vs Scaled: Gradient Descent Convergence</h4>
@@ -327,6 +297,7 @@ Imagine fitting a model with two features: one ranging from 0 to 1, and another 
     <button id="btnGdReset">Reset</button>
     <span class="demo-value" id="gdInfo">Click Run to start</span>
   </div>
+  <div class="demo-caption">Settings: f = 50x^2 + 0.5y^2 (unscaled) vs f = x^2 + y^2 (scaled), starting point (-2.5, 2.5).</div>
 </div>
 
 <script>
@@ -480,25 +451,25 @@ Notice the zigzag path on the unscaled surface versus the direct path on the sca
 
 ## 2. Feature Scaling Comparison
 
-The three most common scaling methods are **Standardization (Z-score)**, **Min-Max Normalization**, and **Robust Scaling**. Each transforms data differently.
+The three most common scaling methods are Standardization (Z-score), Min-Max Normalization, and Robust Scaling. Each transforms data differently.
 
 **Standardization (Z-score):**
 
 $$x_{\text{scaled}} = \frac{x - \mu}{\sigma}$$
 
-Centers data to mean 0, standard deviation 1.
+Standardization centers data to mean 0 and standard deviation 1.
 
 **Min-Max Normalization:**
 
 $$x_{\text{scaled}} = \frac{x - x_{\min}}{x_{\max} - x_{\min}}$$
 
-Squeezes data into the [0, 1] range.
+Min-Max normalization squeezes data into the [0, 1] range.
 
 **Robust Scaling:**
 
 $$x_{\text{scaled}} = \frac{x - \text{median}}{\text{IQR}}$$
 
-Uses median and interquartile range, making it robust to outliers.
+Robust scaling uses median and interquartile range, making it robust to outliers. In the demo below, click Add Outlier and observe how Min-Max scaling gets compressed because the outlier stretches the range, while Robust scaling stays relatively stable. This is why robust scaling is preferred when outliers are present.
 
 <div class="interactive-demo">
   <h4>Interactive Feature Scaling: Click to Add Points</h4>
@@ -525,6 +496,7 @@ Uses median and interquartile range, making it robust to outliers.
     <button id="btnScaleOutlier">Add Outlier</button>
     <span class="demo-value" id="scaleInfo">Click the Raw canvas to add points</span>
   </div>
+  <div class="demo-caption">Settings: 20 points generated with mean (20, 150) and small spread. Click on the Raw canvas to add more.</div>
 </div>
 
 <script>
@@ -669,10 +641,6 @@ Uses median and interquartile range, making it robust to outliers.
 })();
 </script>
 
-<div class="demo-hint">
-Click <strong>Add Outlier</strong> and observe how Min-Max scaling gets compressed (the outlier stretches the range), while Robust scaling stays relatively stable. This is why robust scaling is preferred when outliers are present.
-</div>
-
 ---
 
 ## 3. Effect on Gradient Descent
@@ -689,6 +657,7 @@ Let us see the convergence speed difference more precisely. The animation below 
     <button id="btnGdRestart">Restart</button>
   </div>
   <div class="demo-info" id="gdCompInfo">Step 0 | Unscaled loss:, | Scaled loss: --</div>
+  <div class="demo-caption">Settings: same starting point on both surfaces, learning rate slider controls step size.</div>
 </div>
 
 <script>
@@ -813,13 +782,13 @@ Let us see the convergence speed difference more precisely. The animation below 
 })();
 </script>
 
-The scaled version converges in just a handful of steps, while the unscaled version zigzags across the elongated valley. This is precisely why **scaling features before training** is critical for gradient-based algorithms like linear regression, logistic regression, and neural networks.
+The scaled version converges in just a handful of steps, while the unscaled version zigzags across the elongated valley. This is precisely why scaling features before training is critical for gradient-based algorithms like linear regression, logistic regression, and neural networks.
 
 ---
 
 ## 4. One-Hot Encoding
 
-Machine learning models need numbers, not categories. **One-hot encoding** converts each unique category into a binary column: 1 if present, 0 otherwise.
+Machine learning models need numbers, not categories. One-hot encoding converts each unique category into a binary column: 1 if present, 0 otherwise. There is one important catch known as the dummy variable trap: if you have k categories, you only need k-1 binary columns, because using all k creates perfect multicollinearity where the last column is always determined by the others (if all are 0, the item must be that category). Toggle the checkbox in the demo below to see the difference.
 
 <div class="interactive-demo">
   <h4>One-Hot Encoding: Categorical to Binary</h4>
@@ -833,6 +802,7 @@ Machine learning models need numbers, not categories. **One-hot encoding** conve
     <div class="encoding-table-wrap" id="oneHotTableWrap"></div>
   </div>
   <div class="demo-info" id="oneHotInfo">3 categories = 3 binary columns (or 2 with dummy trap avoidance)</div>
+  <div class="demo-caption">Settings: 3 categories (Red, Blue, Green) and 6 random rows by default.</div>
 </div>
 
 <script>
@@ -899,15 +869,11 @@ Machine learning models need numbers, not categories. **One-hot encoding** conve
 })();
 </script>
 
-<div class="demo-hint">
-<strong>The Dummy Variable Trap:</strong> If you have <em>k</em> categories, you only need <em>k-1</em> binary columns. Using all <em>k</em> creates perfect multicollinearity: the last column is always determined by the others (if all are 0, the item must be that category). Toggle the checkbox above to see the difference.
-</div>
-
 ---
 
 ## 5. Ordinal Encoding
 
-When categories have a natural **order** (like Low < Medium < High), one-hot encoding throws away that information. **Ordinal encoding** preserves the ordering by mapping categories to integers.
+When categories have a natural order (like Low < Medium < High), one-hot encoding throws away that information. Ordinal encoding preserves the ordering by mapping categories to integers.
 
 <div class="interactive-demo">
   <h4>Ordinal vs One-Hot: When Order Matters</h4>
@@ -926,6 +892,7 @@ When categories have a natural **order** (like Low < Medium < High), one-hot enc
     <button id="btnOrdToggle2">Toggle: T-shirt Size</button>
   </div>
   <div class="demo-info" id="ordInfo">Ordinal encoding preserves: High School < Bachelor's < Master's < PhD</div>
+  <div class="demo-caption">Settings: Education preset by default (4 ordered levels). Switch to T-shirt Size for a 5-level example.</div>
 </div>
 
 <script>
@@ -993,7 +960,7 @@ When categories have a natural **order** (like Low < Medium < High), one-hot enc
 
 ## 6. Missing Value Strategies
 
-Real datasets almost always have missing values. The strategy you choose for handling them can significantly change your data distribution and model performance.
+Real datasets almost always have missing values, and the strategy you choose for handling them can significantly change your data distribution and model performance.
 
 <div class="interactive-demo">
   <h4>Missing Value Imputation: Effect on Distribution</h4>
@@ -1006,6 +973,7 @@ Real datasets almost always have missing values. The strategy you choose for han
     <button id="btnImpRegen">New Data</button>
   </div>
   <div class="demo-info" id="missingInfo">Strategy: Mean | 5 missing values imputed</div>
+  <div class="demo-caption">Settings: 50 right-skewed samples with 5 to 9 random missing values, Mean strategy by default.</div>
 </div>
 
 <script>
@@ -1188,7 +1156,7 @@ Real datasets almost always have missing values. The strategy you choose for han
 
 ## 7. Feature Correlation Heatmap
 
-Highly correlated features provide redundant information. A **correlation heatmap** helps you spot these relationships at a glance. Click any cell below to see the scatter plot for that feature pair.
+Highly correlated features provide redundant information, and a correlation heatmap helps you spot these relationships at a glance. Click any cell below to see the scatter plot for that feature pair.
 
 <div class="interactive-demo">
   <h4>Interactive Correlation Matrix</h4>
@@ -1206,6 +1174,7 @@ Highly correlated features provide redundant information. A **correlation heatma
     <button id="btnHeatRegen">New Dataset</button>
   </div>
   <div class="demo-info" id="heatInfo">5 features, 60 samples | Click any cell in the heatmap</div>
+  <div class="demo-caption">Settings: 5 features (Age, Income, Spend, Score, Visits) and 60 synthetic samples with built-in correlations.</div>
 </div>
 
 <script>
@@ -1403,7 +1372,7 @@ Highly correlated features (|r| > 0.8) are candidates for removal, as they carry
 
 ## 8. Polynomial Feature Generation
 
-**Polynomial features** let linear models capture non-linear relationships by creating new features from combinations and powers of existing ones. Starting with features $$x_1$$ and $$x_2$$, degree-2 polynomial expansion produces:
+Polynomial features let linear models capture non-linear relationships by creating new features from combinations and powers of existing ones. Starting with features $$x_1$$ and $$x_2$$, degree-2 polynomial expansion produces:
 
 $$[x_1, x_2] \rightarrow [x_1, x_2, x_1^2, x_1 x_2, x_2^2]$$
 
@@ -1415,6 +1384,7 @@ $$[x_1, x_2] \rightarrow [x_1, x_2, x_1^2, x_1 x_2, x_2^2]$$
     <button id="btnPolyRegen">New Data</button>
   </div>
   <div class="demo-info" id="polyFeatInfo">Degree 2: 2 features expanded to 5</div>
+  <div class="demo-caption">Settings: 8 random samples of two features, degree 2 by default.</div>
 </div>
 
 <script>
@@ -1560,7 +1530,7 @@ $$[x_1, x_2] \rightarrow [x_1, x_2, x_1^2, x_1 x_2, x_2^2]$$
 })();
 </script>
 
-**Feature count grows fast!** With $$n$$ features and degree $$d$$:
+The feature count grows fast. With $$n$$ features and degree $$d$$:
 
 $$\text{Number of features} = \binom{n + d}{d}$$
 
@@ -1583,6 +1553,7 @@ In practice, you chain these steps together. The demo below shows how each prepr
     <button id="btnPipeRegen">New Data</button>
   </div>
   <div class="demo-info" id="pipeInfo">Toggle preprocessing steps to see their effect on model performance</div>
+  <div class="demo-caption">Settings: imputation, encoding, and scaling enabled by default; polynomial features off. Toggle each to compare.</div>
 </div>
 
 <script>
@@ -1927,7 +1898,7 @@ Toggle each preprocessing step on and off to see how the R-squared score changes
 ### Common Pitfalls
 
 - **Data leakage**: Fitting the scaler on the entire dataset (including test data). Always fit on training data only, then transform both train and test.
-- **Scaling after splitting**: Scale features *after* the train/test split to avoid leakage.
+- **Scaling after splitting**: Scale features after the train/test split to avoid leakage.
 - **Dummy variable trap**: Using all k one-hot columns instead of k-1. Drop one column to avoid perfect multicollinearity.
 - **Ignoring feature distributions**: Applying standardization to heavily skewed data. Consider log transforms or robust scaling instead.
 - **Over-engineering features**: Adding too many polynomial features without regularization leads to overfitting.
@@ -1943,8 +1914,8 @@ Toggle each preprocessing step on and off to see how the R-squared score changes
 
 ### What is Next
 
-In the next chapter, we will explore **Principal Component Analysis (PCA)** - a powerful dimensionality reduction technique that transforms correlated features into a smaller set of uncorrelated components, building directly on the scaling and correlation concepts we learned here.
+In the next chapter, we will explore Principal Component Analysis (PCA), a powerful dimensionality reduction technique that transforms correlated features into a smaller set of uncorrelated components, building directly on the scaling and correlation concepts we learned here.
 
 ---
 
-*This is part of the [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. You can explore topics in any order, though they build naturally on each other.*
+This is part of the [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. You can explore topics in any order, though they build naturally on each other.

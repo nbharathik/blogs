@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Hash Tables from Scratch: An Interactive Guide"
+title: "Hash Tables from Scratch"
 author: bharathikannan
 categories: [Data Structures]
 description: "Understand hash tables visually. Hash functions, collisions, separate chaining, and rehashing  - all animated step by step in your browser."
@@ -100,31 +100,7 @@ hidden: true
 
 <script>
 window.DSA_Hash = (function() {
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      bucket: dark ? '#7aa2f7' : '#2563eb',
-      bucketEmpty: dark ? '#292e42' : '#e5e7eb',
-      bucketHighlight: dark ? '#ff9e64' : '#f59e0b',
-      node: dark ? '#7aa2f7' : '#2563eb',
-      nodeNew: dark ? '#9ece6a' : '#16a34a',
-      nodeHighlight: dark ? '#ff9e64' : '#f59e0b',
-      nodeFound: dark ? '#9ece6a' : '#16a34a',
-      nodeDelete: dark ? '#f7768e' : '#e63946',
-      nodeCollision: dark ? '#bb9af7' : '#7c3aed',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textOnNode: '#ffffff',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      arrow: dark ? '#565f89' : '#9ca3af',
-      arrowHighlight: dark ? '#ff9e64' : '#f59e0b',
-      border: dark ? '#292e42' : '#e5e7eb',
-      accent: dark ? '#7aa2f7' : '#2563eb',
-      asciiChar: dark ? '#ff9e64' : '#f59e0b',
-      asciiVal: dark ? '#9ece6a' : '#16a34a',
-      modResult: dark ? '#bb9af7' : '#7c3aed'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -384,42 +360,21 @@ window.DSA_Hash = (function() {
 })();
 </script>
 
-A **hash table** (also called a hash map) is one of the most important data structures in computer science. It provides **average-case $$O(1)$$ time** for insertion, lookup, and deletion  - far faster than the $$O(n)$$ of arrays or $$O(\log n)$$ of balanced trees for search operations.
+A hash table (also called a hash map) is one of the most important data structures in computer science. It provides average-case $$O(1)$$ time for insertion, lookup, and deletion, far faster than the $$O(n)$$ of arrays or $$O(\log n)$$ of balanced trees for search operations. The core idea is simple: instead of searching through a collection to find a key, we compute exactly where the key should live using a hash function. The hash function converts a key (like a string) into an array index, giving us direct access to the value.
 
-The core idea is simple: instead of searching through a collection to find a key, we **compute** exactly where the key should live using a **hash function**. The hash function converts a key (like a string) into an array index, giving us direct access to the value.
+Hash tables power some of the most common constructs in programming, including Python dictionaries (`dict`), JavaScript objects and `Map`, database indexes, caches and memoization layers, and symbol tables in compilers.
 
-Hash tables power some of the most common constructs in programming:
-- Python **dictionaries** (`dict`)
-- JavaScript **objects** and `Map`
-- Database **indexes**
-- **Caches** and **memoization**
-- **Symbol tables** in compilers
-
-By the end of this guide you will understand:
-- **Hash functions**  - how keys are converted to array indices
-- **Collisions**  - what happens when two keys map to the same index
-- **Separate chaining**  - resolving collisions with linked lists
-- **Load factor and rehashing**  - keeping the table efficient
-
-<div class="demo-hint">
-<strong>How to use the demos:</strong> Each demo has input fields and buttons. Type a key, click an action, and watch the hash table respond visually  - buckets light up, chains grow, and collisions are resolved before your eyes.
-</div>
+This guide walks through how hash functions convert keys into array indices, why collisions happen when two keys map to the same index, how separate chaining resolves those collisions with linked lists, and how the load factor and rehashing keep the table efficient as it fills up.
 
 ---
 
 ## How Hash Functions Work
 
-A hash function takes a key of arbitrary size and maps it to a **fixed-size integer**  - the index into our bucket array. A good hash function should:
+A hash function takes a key of arbitrary size and maps it to a fixed-size integer, the index into our bucket array. A good hash function should be deterministic so the same key always produces the same hash, distribute keys uniformly across all buckets, and be fast to compute since speed is the whole point.
 
-1. **Be deterministic**  - the same key always produces the same hash
-2. **Distribute uniformly**  - keys spread evenly across all buckets
-3. **Be fast to compute**  - the whole point is speed
-
-The simplest approach for strings is to sum the ASCII values of each character, then take the result **modulo** the table size:
+The simplest approach for strings is to sum the ASCII values of each character, then take the result modulo the table size:
 
 $$h(\text{key}) = \left(\sum_{i=0}^{n-1} \text{ord}(\text{key}[i])\right) \mod \text{table\_size}$$
-
-### Python Implementation
 
 ```python
 def simple_hash(key, table_size):
@@ -440,17 +395,7 @@ index = simple_hash(key, size)
 print(f"'{key}' hashes to index {index}")  # 'cat' hashes to index 4
 ```
 
-The `ord()` function returns the ASCII (Unicode code point) value of a character. Summing these values and taking the modulo ensures the result always falls within our array bounds $$[0, \text{table\_size})$$.
-
-<div class="demo-hint">
-<strong>Note:</strong> This simple hash function is fine for learning, but real-world hash tables use more sophisticated functions (like Python's built-in <code>hash()</code>) that reduce collisions through techniques like polynomial rolling hashes and bit mixing.
-</div>
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Type a key string and click <strong>Hash It</strong> to see the ASCII calculation step by step. Each character's code is shown, summed together, then the mod operation maps it to a bucket index. The target bucket lights up in the array below.
-</div>
+The `ord()` function returns the ASCII (Unicode code point) value of a character. Summing these values and taking the modulo ensures the result always falls within our array bounds $$[0, \text{table\_size})$$. This simple hash function is fine for learning, but real-world hash tables use more sophisticated functions (like Python's built-in `hash()`) that reduce collisions through techniques like polynomial rolling hashes and bit mixing.
 
 <div class="interactive-demo">
   <canvas id="hash-fn-canvas" width="680" height="250"></canvas>
@@ -461,6 +406,7 @@ The `ord()` function returns the ASCII (Unicode code point) value of a character
     <button id="hash-fn-reset">Reset</button>
   </div>
   <div class="demo-info" id="hash-fn-info">Enter a key and click "Hash It"</div>
+  <div class="demo-caption">Settings: default key "cat", table size 7. Each character's ASCII code is shown, summed, then the mod operation maps it to a bucket index, and the target bucket lights up.</div>
 </div>
 
 <script>
@@ -716,29 +662,15 @@ The `ord()` function returns the ASCII (Unicode code point) value of a character
 
 ## Collisions and Why They Happen
 
-What happens when two different keys produce the **same hash value**? This is called a **collision**.
+What happens when two different keys produce the same hash value? This is called a collision. Consider a table of size 7: `"cat"` gives ord('c') + ord('a') + ord('t') = 99 + 97 + 116 = 312, and 312 % 7 = 4, while `"act"` gives ord('a') + ord('c') + ord('t') = 97 + 99 + 116 = 312, and 312 % 7 = 4 as well. Both `"cat"` and `"act"` hash to index 4. This is inevitable: with more keys than buckets (the pigeonhole principle), collisions must occur. The question is how we handle them. The two main strategies are separate chaining, where each bucket holds a linked list of entries, and open addressing, where we probe for the next available bucket.
 
-Consider a table of size 7:
-- `"cat"`: ord('c') + ord('a') + ord('t') = 99 + 97 + 116 = 312, and 312 % 7 = **4**
-- `"act"`: ord('a') + ord('c') + ord('t') = 97 + 99 + 116 = 312, and 312 % 7 = **4**
-
-Both `"cat"` and `"act"` hash to index 4. This is inevitable  - with more keys than buckets (the **pigeonhole principle**), collisions **must** occur. The question is how we handle them.
-
-The two main strategies are:
-1. **Separate chaining**  - each bucket holds a linked list of entries
-2. **Open addressing**  - probe for the next available bucket
-
-We will focus on **separate chaining**, which is the most intuitive approach and the one used by Python's `dict` (in a highly optimized form).
+We will focus on separate chaining, which is the most intuitive approach and the one used by Python's `dict` (in a highly optimized form).
 
 ---
 
 ## Separate Chaining
 
-With separate chaining, each bucket stores a **linked list** (or any dynamic collection). When a collision occurs, we simply append the new entry to the chain at that bucket index.
-
-To **look up** a key, we hash it to find the bucket, then walk the chain comparing keys until we find a match (or reach the end).
-
-### Python Implementation
+With separate chaining, each bucket stores a linked list (or any dynamic collection). When a collision occurs, we simply append the new entry to the chain at that bucket index. To look up a key, we hash it to find the bucket, then walk the chain comparing keys until we find a match (or reach the end).
 
 ```python
 class HashTable:
@@ -799,8 +731,6 @@ class HashTable:
         return "\n".join(lines)
 ```
 
-### Using the Hash Table
-
 ```python
 ht = HashTable(size=7)
 
@@ -838,13 +768,7 @@ Notice how `"cat"` and `"act"` share bucket [4] as a chain. The `get()` method w
 | Get       | $$O(1)$$ | $$O(n)$$  |
 | Delete    | $$O(1)$$ | $$O(n)$$  |
 
-**Average case** is $$O(1)$$ because a good hash function distributes keys evenly, keeping chains short. **Worst case** is $$O(n)$$ when all keys collide into a single bucket (forming one long chain). This is why hash function quality and table resizing matter.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Insert key-value pairs into the hash table. When two keys hash to the same bucket, you will see a chain form. Use <strong>Get</strong> to search and <strong>Delete</strong> to remove entries. The table uses separate chaining to handle collisions.
-</div>
+Average case is $$O(1)$$ because a good hash function distributes keys evenly, keeping chains short. Worst case is $$O(n)$$ when all keys collide into a single bucket (forming one long chain). This is why hash function quality and table resizing matter.
 
 <div class="interactive-demo">
   <canvas id="chain-canvas" width="680" height="300"></canvas>
@@ -857,6 +781,7 @@ Notice how `"cat"` and `"act"` share bucket [4] as a chain. The `get()` method w
     <button id="chain-reset">Reset</button>
   </div>
   <div class="demo-info" id="chain-info">Insert key-value pairs to build the hash table</div>
+  <div class="demo-caption">Settings: empty table of size 7 with separate chaining. Try inserting cat:10 then act:30 to watch a chain form (anagrams with the same ASCII sum), then Get for act to see the search walk the chain.</div>
 </div>
 
 <script>
@@ -1046,15 +971,11 @@ Notice how `"cat"` and `"act"` share bucket [4] as a chain. The `get()` method w
 })();
 </script>
 
-<div class="demo-hint">
-<strong>Try this:</strong> Insert <code>cat:10</code>, then <code>act:30</code>. Both hash to the same bucket (they are anagrams with the same ASCII sum), so you will see a chain form. Then try <strong>Get</strong> for <code>act</code>  - watch the search walk the chain.
-</div>
-
 ---
 
 ## Collision Patterns
 
-Why do some keys collide more than others? Our simple sum-of-ASCII hash treats anagrams identically  - `"cat"`, `"act"`, and `"tac"` all produce the same sum (312). A better hash function would incorporate **positional information**:
+Why do some keys collide more than others? Our simple sum-of-ASCII hash treats anagrams identically: `"cat"`, `"act"`, and `"tac"` all produce the same sum (312). A better hash function would incorporate positional information.
 
 ### Improved Hash: Polynomial Rolling Hash
 
@@ -1073,7 +994,7 @@ print(better_hash("cat", 7))  # different from
 print(better_hash("act", 7))  # this!
 ```
 
-By multiplying each character's code by an increasing power of a prime base, the hash becomes **position-sensitive**. The character `'c'` at index 0 contributes differently than `'c'` at index 1. This dramatically reduces collisions for real-world data.
+By multiplying each character's code by an increasing power of a prime base, the hash becomes position-sensitive. The character `'c'` at index 0 contributes differently than `'c'` at index 1. This dramatically reduces collisions for real-world data.
 
 Python's built-in `hash()` uses an even more sophisticated algorithm (SipHash) that provides both good distribution and protection against hash collision attacks.
 
@@ -1081,7 +1002,7 @@ Python's built-in `hash()` uses an even more sophisticated algorithm (SipHash) t
 
 ## Load Factor and Rehashing
 
-The **load factor** of a hash table is the ratio of stored entries to table size:
+The load factor of a hash table is the ratio of stored entries to table size:
 
 $$\alpha = \frac{n}{\text{table\_size}}$$
 
@@ -1094,9 +1015,7 @@ where $$n$$ is the number of entries. The load factor directly affects performan
 | $$\alpha > 1.0$$ | More entries than buckets, chains are guaranteed |
 | $$\alpha \gg 1$$ | Long chains, performance degrades toward $$O(n)$$ |
 
-When the load factor exceeds a threshold (commonly 0.7 or 0.75), the table triggers a **rehash**: it creates a new, larger array (typically 2x the size), then re-inserts every entry using the new table size for the mod operation.
-
-### Python Implementation
+When the load factor exceeds a threshold (commonly 0.7 or 0.75), the table triggers a rehash: it creates a new, larger array (typically 2x the size), then re-inserts every entry using the new table size for the mod operation.
 
 ```python
 class HashTable:
@@ -1143,13 +1062,7 @@ class HashTable:
         self.count += 1
 ```
 
-Rehashing is an $$O(n)$$ operation, but it happens infrequently. Because the table doubles in size each time, the **amortized** cost of insertion remains $$O(1)$$  - the same principle behind dynamic arrays (like Python lists).
-
-### Visualizing Load Factor
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Insert keys and watch the load factor grow. When it reaches the threshold (0.70), the table automatically rehashes  - doubling in size and redistributing all entries. Notice how entries may land in different buckets after rehashing because the table size changes the mod operation.
-</div>
+Rehashing is an $$O(n)$$ operation, but it happens infrequently. Because the table doubles in size each time, the amortized cost of insertion remains $$O(1)$$, the same principle behind dynamic arrays (like Python lists).
 
 <div class="interactive-demo">
   <canvas id="rehash-canvas" width="680" height="300"></canvas>
@@ -1160,6 +1073,7 @@ Rehashing is an $$O(n)$$ operation, but it happens infrequently. Because the tab
     <button id="rehash-reset">Reset</button>
   </div>
   <div class="demo-info" id="rehash-info">Size: 7 | Items: 0 | Load factor: 0.00 / 0.70</div>
+  <div class="demo-caption">Settings: starting size 7, threshold 0.70. Click Auto-Fill to watch keys insert one by one; when the load factor hits 0.70 the table doubles to 14 buckets and entries get new positions because the mod divisor changed.</div>
 </div>
 
 <script>
@@ -1320,17 +1234,11 @@ Rehashing is an $$O(n)$$ operation, but it happens infrequently. Because the tab
 })();
 </script>
 
-<div class="demo-hint">
-<strong>Try this:</strong> Click <strong>Auto-Fill</strong> to watch keys being inserted one by one. When the load factor hits 0.70, the table doubles from 7 to 14 buckets. Notice how all entries get new positions because the mod divisor changed.
-</div>
-
 ---
 
 ## Open Addressing (Brief Overview)
 
-An alternative to separate chaining is **open addressing**, where all entries live directly in the bucket array (no linked lists). When a collision occurs, we probe for the next empty slot using a probing sequence.
-
-The most common probing strategies are:
+An alternative to separate chaining is open addressing, where all entries live directly in the bucket array (no linked lists). When a collision occurs, we probe for the next empty slot using a probing sequence. The most common probing strategies are:
 
 **Linear probing**  - check the next slot, then the next, and so on:
 
@@ -1379,7 +1287,7 @@ print("Alice" in phonebook)   # True
 del phonebook["Charlie"]
 ```
 
-Python also provides `set`, which is a hash table that stores only keys (no values)  - perfect for membership testing:
+Python also provides `set`, which is a hash table that stores only keys (no values), perfect for membership testing:
 
 ```python
 visited = set()
@@ -1440,26 +1348,26 @@ def has_duplicates(lst):
 | Rehash | $$O(n)$$ | $$O(n)$$ | Amortized $$O(1)$$ per insert |
 | Space  | $$O(n)$$ | $$O(n)$$ | Proportional to entries stored |
 
-The $$O(1)$$ average case assumes a **good hash function** and a **reasonable load factor**. In practice, well-implemented hash tables (like Python's `dict`) maintain these properties automatically through rehashing and sophisticated hash functions.
+The $$O(1)$$ average case assumes a good hash function and a reasonable load factor. In practice, well-implemented hash tables (like Python's `dict`) maintain these properties automatically through rehashing and sophisticated hash functions.
 
 ---
 
 ## Key Takeaways
 
-1. **Hash tables** provide $$O(1)$$ average-case insert, lookup, and delete by converting keys into array indices via a hash function.
-
-2. **Collisions are inevitable** (pigeonhole principle). The two main resolution strategies are **separate chaining** (linked lists per bucket) and **open addressing** (probing for empty slots).
-
-3. **Load factor** (entries / table size) determines performance. When it exceeds a threshold, the table **rehashes**  - doubling in size and re-inserting all entries. This keeps chains short and lookups fast.
-
-4. **Hash function quality** is critical. A poor hash function causes clustering and long chains. Good hash functions distribute keys uniformly and are position-sensitive.
-
-5. **Python's `dict` and `set`** are production-grade hash tables. Use them freely  - they handle hashing, collision resolution, and rehashing automatically.
+| Concept | Key Idea |
+|---|---|
+| Hash Function | Converts keys into array indices to give O(1) average-case access. |
+| Collisions | Inevitable by the pigeonhole principle whenever keys outnumber buckets. |
+| Separate Chaining | Stores a linked list per bucket so colliding keys coexist. |
+| Open Addressing | Probes for the next empty slot instead of using chains. |
+| Load Factor | Entries divided by table size; once past threshold, the table rehashes. |
+| Hash Quality | Good functions distribute keys uniformly and are position-sensitive. |
+| Python `dict` / `set` | Production-grade hash tables that handle resizing automatically. |
 
 ---
 
 ## What's Next?
 
-Hash tables are the foundation for many advanced data structures: **Bloom filters** for probabilistic membership testing, **consistent hashing** for distributed systems, and **cuckoo hashing** for worst-case $$O(1)$$ lookups. They also appear in nearly every coding interview  - mastering them is essential.
+Hash tables are the foundation for many advanced data structures: Bloom filters for probabilistic membership testing, consistent hashing for distributed systems, and cuckoo hashing for worst-case $$O(1)$$ lookups. They also appear in nearly every coding interview, mastering them is essential.
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Tries (Prefix Trees): An Interactive Guide"
+title: "Tries (Prefix Trees)"
 author: bharathikannan
 categories: [Data Structures]
 description: "Build and explore tries interactively. Insert words, search prefixes, visualize autocomplete  - all animated step by step on a canvas."
@@ -119,27 +119,7 @@ hidden: true
 
 <script>
 window.DSA_Trie = (function() {
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      node: dark ? '#7aa2f7' : '#2563eb',
-      nodeEnd: dark ? '#9ece6a' : '#16a34a',
-      nodeCurrent: dark ? '#ff9e64' : '#f59e0b',
-      nodeMatch: dark ? '#bb9af7' : '#7c3aed',
-      nodeNew: dark ? '#bb9af7' : '#7c3aed',
-      nodeDelete: dark ? '#f7768e' : '#e63946',
-      nodeMuted: dark ? '#565f89' : '#9ca3af',
-      edge: dark ? '#565f89' : '#9ca3af',
-      edgeHighlight: dark ? '#ff9e64' : '#f59e0b',
-      edgeMatch: dark ? '#bb9af7' : '#7c3aed',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textOnNode: '#ffffff',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      rootBg: dark ? '#414868' : '#e2e8f0',
-      rootBorder: dark ? '#7aa2f7' : '#2563eb'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -496,18 +476,9 @@ window.DSA_Trie = (function() {
 
 A **trie** (pronounced "try"), also called a **prefix tree**, is a tree-like data structure used for efficiently storing and searching strings. Unlike a hash table which stores entire keys, a trie breaks each key into individual characters and stores them along branching paths from a shared root.
 
-This makes tries ideal for problems involving **prefix-based lookups**: autocomplete systems, spell checkers, IP routing tables, and dictionary implementations. If you have ever started typing a word into a search bar and seen suggestions appear instantly, there is likely a trie (or a similar structure) working behind the scenes.
+This makes tries ideal for problems involving prefix-based lookups: autocomplete systems, spell checkers, IP routing tables, and dictionary implementations. If you have ever started typing a word into a search bar and seen suggestions appear instantly, there is likely a trie (or a similar structure) working behind the scenes.
 
-By the end of this guide you will understand:
-
-- **Trie structure**  - how nodes, edges, and the end-of-word flag work
-- **Insertion**  - adding words character by character
-- **Search and prefix matching**  - finding words and autocomplete suggestions
-- **Deletion**  - removing words while preserving shared prefixes
-
-<div class="demo-hint">
-<strong>How to use the demos:</strong> Type words into the input fields and watch the trie grow on the canvas. Nodes with a green dot below them mark the end of a complete word. The root node has no letter  - it is the shared starting point for all words.
-</div>
+By the end of this guide you will understand the trie structure (how nodes, edges, and the end-of-word flag work), insertion (adding words character by character), search and prefix matching for finding words and autocomplete suggestions, and deletion that removes words while preserving shared prefixes.
 
 ---
 
@@ -515,32 +486,15 @@ By the end of this guide you will understand:
 
 Consider storing these words: `cat`, `car`, `card`, `care`, `do`, `dog`.
 
-In a hash map, each word is stored independently. In a trie, words that share prefixes share the same path from the root:
+In a hash map, each word is stored independently. In a trie, words that share prefixes share the same path from the root: `cat`, `car`, `card`, `care` all share the path `c → a`, and `do`, `dog` share the path `d → o`. This prefix sharing is what gives tries their power. Searching for all words starting with `"car"` requires only 3 steps down the tree, regardless of how many total words exist.
 
-- `cat`, `car`, `card`, `care` all share the path `c → a`
-- `do`, `dog` share the path `d → o`
-
-This prefix sharing is what gives tries their power. Searching for all words starting with `"car"` requires only 3 steps down the tree, regardless of how many total words exist.
-
-**Key properties:**
-
-- **Search time** is $$O(m)$$ where $$m$$ is the length of the key  - independent of how many keys are stored
-- **Prefix queries** are natural  - just walk to the prefix node and collect all descendants
-- **Space** can be large due to pointer overhead, but shared prefixes reduce storage for similar keys
-- Each **edge** represents a character, and each **path** from root to a marked node represents a stored word
+The key properties to keep in mind: search time is $$O(m)$$ where $$m$$ is the length of the key, independent of how many keys are stored; prefix queries are natural since you simply walk to the prefix node and collect all descendants; space can be large due to pointer overhead, but shared prefixes reduce storage for similar keys; and each edge represents a character, while each path from root to a marked node represents a stored word.
 
 ---
 
 ## Trie Structure
 
-A trie is built from **TrieNode** objects. Each node has:
-
-1. **children**  - a dictionary mapping characters to child nodes
-2. **is_end**  - a boolean flag indicating if this node marks the end of a complete word
-
-The root node represents the empty string. It has no character of its own but branches out to all first characters of stored words.
-
-### Python Implementation
+A trie is built from TrieNode objects. Each node has a `children` dictionary mapping characters to child nodes, and an `is_end` boolean flag indicating whether the node marks the end of a complete word. The root node represents the empty string. It has no character of its own but branches out to all first characters of stored words.
 
 ```python
 class TrieNode:
@@ -553,19 +507,13 @@ class Trie:
         self.root = TrieNode()
 ```
 
-The `children` dictionary is the branching factor  - each entry maps a single character to the next node in the path. For the English alphabet, each node can have at most 26 children (for lowercase letters), but typically far fewer are present.
-
-<div class="demo-hint">
-<strong>Visualization key:</strong> Blue nodes are internal (not end-of-word). Green nodes mark the end of a stored word (shown with a small green dot beneath). The root node is labeled "root" and drawn larger.
-</div>
+The `children` dictionary is the branching factor: each entry maps a single character to the next node in the path. For the English alphabet, each node can have at most 26 children (for lowercase letters), but typically far fewer are present. Throughout the visualizations below, blue nodes are internal (not end-of-word), green nodes mark the end of a stored word (shown with a small green dot beneath), and the root node is labeled "root" and drawn larger.
 
 ---
 
 ## Trie Insertion
 
 Inserting a word into a trie means walking the tree character by character, creating new nodes as needed, and marking the final node as the end of a word.
-
-### Python Implementation
 
 ```python
 def insert(self, word):
@@ -578,21 +526,9 @@ def insert(self, word):
     node.is_end = True
 ```
 
-**How it works:**
+The algorithm starts at the root, then for each character in the word it either follows an existing child node or creates a new one and follows it; after processing the last character, it marks the current node as `is_end = True`.
 
-1. Start at the root
-2. For each character in the word:
-   - If a child node for that character exists, follow it
-   - If not, create a new child node, then follow it
-3. After the last character, mark the current node as `is_end = True`
-
-**Time complexity:** $$O(m)$$ where $$m$$ is the length of the word being inserted. Each character requires at most one dictionary lookup and possibly one node creation.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Type a word in the input field and click <strong>Insert</strong> to watch the trie grow. Each letter is added one at a time. New nodes appear in purple, and the final node gets a green end-of-word marker. The trie comes pre-loaded with a few words.
-</div>
+The time complexity is $$O(m)$$ where $$m$$ is the length of the word being inserted. Each character requires at most one dictionary lookup and possibly one node creation. In the demo below, type a word and click Insert to watch the trie grow letter by letter; new nodes appear in purple, and the final node gets a green end-of-word marker.
 
 <div class="interactive-demo">
   <canvas id="insert-canvas" width="680" height="350"></canvas>
@@ -604,6 +540,7 @@ def insert(self, word):
   </div>
   <div class="demo-info" id="insert-info">Words in trie: cat, car, card, care, do, dog</div>
   <div class="demo-word-list" id="insert-words"></div>
+  <div class="demo-caption">Settings: trie pre-loaded with cat, car, card, care, do, dog. Default insert word: cape.</div>
 </div>
 
 <script>
@@ -732,15 +669,13 @@ def insert(self, word):
 })();
 </script>
 
-**Notice how shared prefixes are reused.** Inserting `"cape"` after `"car"` and `"cat"` reuses the existing `c → a` path and only creates a new branch at `p → e`. This prefix sharing is the fundamental advantage of tries over hash-based structures for string data.
+Notice how shared prefixes are reused. Inserting `"cape"` after `"car"` and `"cat"` reuses the existing `c → a` path and only creates a new branch at `p → e`. This prefix sharing is the fundamental advantage of tries over hash-based structures for string data.
 
 ---
 
 ## Trie Search
 
 Searching a trie is straightforward: walk the tree character by character. If at any point the required child does not exist, the word is not in the trie. If we reach the end of the word, we check the `is_end` flag.
-
-### Python Implementation
 
 ```python
 def search(self, word):
@@ -762,16 +697,11 @@ def starts_with(self, prefix):
     return True
 ```
 
-Two types of search:
-
-1. **Exact search**  - does the trie contain this exact word? Check `is_end` at the final node.
-2. **Prefix search**  - does any word start with this prefix? Just verify the path exists.
-
-**Time complexity:** Both operations run in $$O(m)$$ where $$m$$ is the length of the search string.
+There are two types of search: exact search asks whether the trie contains a specific word and is answered by checking `is_end` at the final node, while prefix search asks whether any word starts with a given prefix and is answered by simply verifying the path exists. Both operations run in $$O(m)$$ time where $$m$$ is the length of the search string.
 
 ### Autocomplete with Prefix Search
 
-The real power of tries shows when implementing **autocomplete**. Given a prefix, we can find all stored words that start with it:
+The real power of tries shows when implementing autocomplete. Given a prefix, we can find all stored words that start with it:
 
 ```python
 def autocomplete(self, prefix):
@@ -795,13 +725,7 @@ def _collect(self, node, prefix, results):
         self._collect(node.children[char], prefix + char, results)
 ```
 
-**Time complexity:** $$O(m + k)$$ where $$m$$ is the prefix length and $$k$$ is the total number of characters in all matching words. This is optimal  - you cannot do better than visiting every character you need to return.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Type a prefix in the input and click <strong>Search</strong>. The path through the trie highlights in yellow as each character is matched. The subtree of matching words highlights in purple, and autocomplete results appear below. Try prefixes like "ca", "do", or "c".
-</div>
+The time complexity is $$O(m + k)$$ where $$m$$ is the prefix length and $$k$$ is the total number of characters in all matching words. This is optimal because you cannot do better than visiting every character you need to return. The demo below visualizes both stages: as each character of the prefix is matched, the path highlights in yellow; once the prefix is found, the subtree of matching words highlights in purple and autocomplete results appear below. Try prefixes like "ca", "do", or "c".
 
 <div class="interactive-demo">
   <canvas id="search-canvas" width="680" height="350"></canvas>
@@ -814,6 +738,7 @@ def _collect(self, node, prefix, results):
   </div>
   <div class="demo-info" id="search-info">Type a prefix and search. Words: cat, car, card, care, do, dog, cape, can</div>
   <div class="demo-word-list" id="search-results"></div>
+  <div class="demo-caption">Settings: trie loaded with cat, car, card, care, do, dog, cape, can. Default prefix: ca.</div>
 </div>
 
 <script>
@@ -974,19 +899,13 @@ def _collect(self, node, prefix, results):
 })();
 </script>
 
-**Observe the prefix sharing in action.** Searching for `"ca"` immediately narrows down to `cat`, `car`, `card`, `care`, `can`, and `cape`  - all reachable from the `c → a` path. The trie does not need to scan every stored word; it follows pointers directly to the relevant subtree.
+Observe the prefix sharing in action. Searching for `"ca"` immediately narrows down to `cat`, `car`, `card`, `care`, `can`, and `cape`, all reachable from the `c → a` path. The trie does not need to scan every stored word; it follows pointers directly to the relevant subtree.
 
 ---
 
 ## Building a Complete Trie
 
-Let us put insertion and search together into a complete interactive demo where you can build a trie from scratch, insert words, and search for prefixes  - all in one place.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Use the input to add words or search for prefixes. Toggle between <strong>Insert</strong> and <strong>Search</strong> mode. The trie updates live. Try building a trie of related words to see how prefixes are shared.
-</div>
+Let us put insertion and search together into a complete interactive demo where you can build a trie from scratch, insert words, and search for prefixes all in one place. Toggle between Insert and Search modes, and try building a trie of related words to see how prefixes are shared.
 
 <div class="interactive-demo">
   <canvas id="full-canvas" width="680" height="380"></canvas>
@@ -1000,6 +919,7 @@ Let us put insertion and search together into a complete interactive demo where 
   </div>
   <div class="demo-info" id="full-info">Insert mode  - type a word and click Go</div>
   <div class="demo-word-list" id="full-words"></div>
+  <div class="demo-caption">Settings: empty trie by default, Insert mode active. Default input: bat.</div>
 </div>
 
 <script>
@@ -1177,19 +1097,9 @@ Let us put insertion and search together into a complete interactive demo where 
 
 ## Trie Deletion
 
-Deleting a word from a trie is more nuanced than insertion. We cannot simply remove the end-of-word marker  - we also need to clean up any nodes that are no longer part of another word's path.
+Deleting a word from a trie is more nuanced than insertion. We cannot simply remove the end-of-word marker; we also need to clean up any nodes that are no longer part of another word's path.
 
-### The Algorithm
-
-1. Walk the trie to find the word
-2. If the word exists (the final node has `is_end = True`), set `is_end = False`
-3. **Clean up:** working backwards from the last character, remove nodes that:
-   - Are not the end of another word (`is_end = False`)
-   - Have no other children
-
-This ensures we do not accidentally remove nodes that are shared with other words.
-
-### Python Implementation
+The algorithm first walks the trie to find the word. If the word exists (the final node has `is_end = True`), it sets `is_end = False`. Then it cleans up by working backwards from the last character, removing nodes that are not the end of another word (`is_end = False`) and have no other children. This ensures we do not accidentally remove nodes that are shared with other words.
 
 ```python
 def delete(self, word):
@@ -1223,24 +1133,9 @@ def _delete(self, node, word, depth):
     return False
 ```
 
-**Time complexity:** $$O(m)$$ where $$m$$ is the length of the word to delete.
+The time complexity is $$O(m)$$ where $$m$$ is the length of the word to delete.
 
-### Example Walkthrough
-
-Consider deleting `"card"` from a trie containing `"car"`, `"card"`, `"care"`:
-
-1. Walk to `c → a → r → d`  - the node `d` has `is_end = True`
-2. Set `d.is_end = False`
-3. Node `d` has no children, so remove it from `r`'s children
-4. Node `r` still has `is_end = True` (for "car") and has child `e` (for "care"), so we stop here
-
-The shared prefix `c → a → r` remains intact because it is used by other words.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Select a word from the trie and click <strong>Delete</strong>. Watch the algorithm walk to the word, unmark the end-of-word flag, and clean up any orphaned nodes (shown in red before removal).
-</div>
+Consider deleting `"card"` from a trie containing `"car"`, `"card"`, `"care"`. We walk to `c → a → r → d` where the node `d` has `is_end = True`, set `d.is_end = False`, and since node `d` has no children we remove it from `r`'s children. Node `r` still has `is_end = True` (for "car") and has child `e` (for "care"), so we stop here. The shared prefix `c → a → r` remains intact because it is used by other words. The demo below visualizes this: the algorithm walks to the word, unmarks the end-of-word flag, and cleans up any orphaned nodes (shown in red before removal).
 
 <div class="interactive-demo">
   <canvas id="delete-canvas" width="680" height="350"></canvas>
@@ -1252,6 +1147,7 @@ The shared prefix `c → a → r` remains intact because it is used by other wor
   </div>
   <div class="demo-info" id="delete-info">Words: cat, car, card, care, can, cape, do, dog</div>
   <div class="demo-word-list" id="delete-words"></div>
+  <div class="demo-caption">Settings: trie pre-loaded with cat, car, card, care, can, cape, do, dog. Default word to delete: card.</div>
 </div>
 
 <script>
@@ -1421,16 +1317,7 @@ When should you use a trie instead of a hash table?
 | **Space** | Can be large (pointer overhead) | Generally more compact |
 | **Worst-case search** | Always $$O(m)$$ | $$O(n)$$ with hash collisions |
 
-**Use a trie when:**
-- You need prefix-based lookups (autocomplete, spell checking)
-- You need sorted iteration over keys
-- Keys share common prefixes (tries compress shared structure)
-- Worst-case guarantees matter (no hash collision issues)
-
-**Use a hash table when:**
-- You only need exact key lookups
-- Memory is constrained
-- Keys are not strings (tries work best with character sequences)
+Use a trie when you need prefix-based lookups (autocomplete, spell checking), sorted iteration over keys, when keys share common prefixes so the trie can compress shared structure, or when worst-case guarantees matter and you cannot tolerate hash collision issues. Use a hash table instead when you only need exact key lookups, when memory is constrained, or when keys are not strings (tries work best with character sequences).
 
 ---
 
@@ -1446,7 +1333,7 @@ A spell checker stores a dictionary in a trie. To check if a word is valid, sear
 
 ### 3. IP Routing (Longest Prefix Match)
 
-Network routers use a specialized trie (often a **Patricia trie** or **radix tree**) to find the longest matching prefix for an IP address. This determines which network interface to forward a packet to.
+Network routers use a specialized trie (often a Patricia trie or radix tree) to find the longest matching prefix for an IP address. This determines which network interface to forward a packet to.
 
 ### 4. Word Games
 
@@ -1456,9 +1343,7 @@ Games like Scrabble and Boggle use tries to quickly verify whether a sequence of
 
 ## Space Optimization: Compressed Tries
 
-A standard trie can waste space when chains of single-child nodes exist. For example, if the only word starting with `"u"` is `"unique"`, the trie stores five single-child nodes: `u → n → i → q → u → e`.
-
-A **compressed trie** (also called a **radix tree** or **Patricia trie**) merges these single-child chains into single nodes with multi-character labels:
+A standard trie can waste space when chains of single-child nodes exist. For example, if the only word starting with `"u"` is `"unique"`, the trie stores five single-child nodes: `u → n → i → q → u → e`. A compressed trie (also called a radix tree or Patricia trie) merges these single-child chains into single nodes with multi-character labels:
 
 ```
 Standard trie:     root → u → n → i → q → u → e
@@ -1466,8 +1351,6 @@ Compressed trie:   root → "unique"
 ```
 
 This reduces the number of nodes significantly while preserving $$O(m)$$ search time.
-
-### Python Implementation (Compressed Trie Concept)
 
 ```python
 class CompressedTrieNode:
@@ -1642,26 +1525,19 @@ print(len(trie))              # 5
 
 ## Key Takeaways
 
-1. **Tries are prefix trees** where each path from the root to a marked node represents a stored word. Characters are stored on edges (or in child nodes), and an `is_end` flag marks complete words.
-
-2. **All core operations are $$O(m)$$** where $$m$$ is the key length  - independent of how many keys the trie contains. This is a significant advantage over hash tables for prefix-based workloads.
-
-3. **Prefix search is the killer feature.** Finding all words with a given prefix takes $$O(m + k)$$ time, where $$k$$ is the total characters in matching words. Hash tables cannot match this without scanning every key.
-
-4. **Deletion must clean up orphaned nodes** to prevent memory waste. The recursive approach walks backward, removing nodes that are no longer part of any word's path.
-
-5. **Space-time tradeoff:** Tries use more memory than hash tables due to pointer overhead, but compressed variants (radix trees) mitigate this. For applications requiring prefix operations, the space cost is worthwhile.
-
-6. **Real-world applications** include autocomplete, spell checking, IP routing, and word games  - anywhere fast prefix matching is needed.
+| Concept | Key Idea |
+|---|---|
+| Structure | Each path from root to a marked node represents a stored word, with characters on edges and an `is_end` flag for completeness. |
+| $$O(m)$$ Operations | Insert, search, and delete run in $$O(m)$$ time, independent of how many keys the trie contains. |
+| Prefix Power | Autocomplete via prefix search runs in $$O(m + k)$$ time, something hash tables cannot match without scanning every key. |
+| Deletion | Must walk backward and prune orphaned nodes that are no longer part of any word's path. |
+| Space Tradeoff | Tries use more memory than hash tables; compressed variants like radix trees reduce the overhead. |
+| Applications | Autocomplete, spell checking, IP routing, and word games, anywhere fast prefix matching is needed. |
 
 ---
 
 ## What's Next?
 
-Tries are the foundation for more advanced string data structures:
-
-- **Radix trees (Patricia tries)** compress single-child chains for better space efficiency
-- **Suffix trees** store all suffixes of a string, enabling powerful substring operations
-- **Ternary search trees** combine trie-like prefix matching with BST-like space efficiency
+Tries are the foundation for more advanced string data structures: radix trees (Patricia tries) compress single-child chains for better space efficiency, suffix trees store all suffixes of a string and enable powerful substring operations, and ternary search trees combine trie-like prefix matching with BST-like space efficiency.
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

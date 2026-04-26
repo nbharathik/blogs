@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Balanced Trees: An Interactive Guide to AVL and Red-Black Trees"
+title: "Balanced Trees: AVL and Red-Black Trees"
 author: bharathikannan
 categories: [Data Structures]
 description: "Understand self-balancing BSTs through interactive visualizations. AVL rotations, Red-Black recoloring  - all animated step by step."
@@ -31,26 +31,7 @@ hidden: true
 
 <script>
 window.DSA_Bal = (function() {
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      node: dark ? '#7aa2f7' : '#2563eb',
-      nodeHighlight: dark ? '#ff9e64' : '#f59e0b',
-      nodeImbalanced: dark ? '#f7768e' : '#e63946',
-      nodeNew: dark ? '#bb9af7' : '#7c3aed',
-      nodeBalanced: dark ? '#9ece6a' : '#16a34a',
-      nodeRed: dark ? '#f7768e' : '#dc2626',
-      nodeBlack: dark ? '#414868' : '#1e293b',
-      edge: dark ? '#565f89' : '#9ca3af',
-      edgeHighlight: dark ? '#ff9e64' : '#f59e0b',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textOnNode: '#ffffff',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      balanceFactor: dark ? '#ff9e64' : '#ea580c',
-      balanceOk: dark ? '#9ece6a' : '#16a34a'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -470,22 +451,9 @@ window.DSA_Bal = (function() {
 })();
 </script>
 
-In the [Binary Trees and BST guide]({{ site.baseurl }}/binary-trees-and-bst/), we saw that BST operations run in $$O(h)$$ time where $$h$$ is the height. In the best case $$h = O(\log n)$$, but if we insert values in sorted order we get a degenerate "linked list" tree with $$h = O(n)$$.
+In the [Binary Trees and BST guide]({{ site.baseurl }}/binary-trees-and-bst/), we saw that BST operations run in $$O(h)$$ time where $$h$$ is the height. In the best case $$h = O(\log n)$$, but if we insert values in sorted order we get a degenerate "linked list" tree with $$h = O(n)$$. Self-balancing BSTs solve this by automatically restructuring after every insertion (and deletion), guaranteeing $$h = O(\log n)$$ regardless of insertion order. The two most important self-balancing BSTs are AVL trees, which are strictly balanced with at most one height difference between subtrees, and Red-Black trees, which use a relaxed balance based on node coloring and are the variant used in most standard libraries.
 
-**Self-balancing BSTs** solve this by automatically restructuring after every insertion (and deletion), guaranteeing $$h = O(\log n)$$ regardless of insertion order. The two most important self-balancing BSTs are:
-
-- **AVL trees**  - strictly balanced, at most 1 height difference between subtrees
-- **Red-Black trees**  - relaxed balance using node coloring, used in most standard libraries
-
-By the end of this guide you will understand:
-- **Balance factor** and why height balance matters
-- **AVL rotations**  - LL, RR, LR, RL
-- **Red-Black properties**  - coloring rules and fix-up procedures
-- When to choose AVL vs Red-Black in practice
-
-<div class="demo-hint">
-<strong>How to use the demos:</strong> Insert values one at a time and watch the tree rebalance. Step through to see each rotation or recoloring as it happens.
-</div>
+By the end of this guide you will understand the balance factor and why height balance matters, the AVL rotations LL, RR, LR, and RL, the Red-Black properties with their coloring rules and fix-up procedures, and when to choose AVL versus Red-Black in practice.
 
 ---
 
@@ -505,7 +473,7 @@ Consider inserting the values 1, 2, 3, 4, 5 into a plain BST:
         5
 ```
 
-This "right-skewed" tree has height 5. Searching for 5 requires visiting every node  - $$O(n)$$.
+This "right-skewed" tree has height 5. Searching for 5 requires visiting every node at $$O(n)$$.
 
 A balanced tree holding the same values:
 
@@ -525,19 +493,13 @@ Self-balancing BSTs enforce balance invariants after every modification, guarant
 
 ## AVL Trees
 
-**AVL trees** (named after inventors **A**delson-**V**elsky and **L**andis, 1962) are the oldest self-balancing BST. They maintain a strict balance invariant:
-
-> For every node, the **balance factor** (height of left subtree minus height of right subtree) must be $$-1$$, $$0$$, or $$+1$$.
+AVL trees (named after inventors Adelson-Velsky and Landis, 1962) are the oldest self-balancing BST. They maintain a strict balance invariant: for every node, the balance factor (height of left subtree minus height of right subtree) must be $$-1$$, $$0$$, or $$+1$$.
 
 $$
 \text{Balance Factor}(n) = \text{height}(n.\text{left}) - \text{height}(n.\text{right})
 $$
 
-When an insertion violates this invariant, we restore balance using **rotations**.
-
-### AVL Heights and Balance Factors
-
-Each node stores its **height** (longest path to a leaf). A leaf has height 1, a null child has height 0.
+When an insertion violates this invariant, we restore balance using rotations. Each node stores its height (longest path to a leaf). A leaf has height 1, a null child has height 0.
 
 ```python
 class AVLNode:
@@ -560,7 +522,7 @@ When an insertion causes a node's balance factor to become $$+2$$ or $$-2$$, we 
 
 #### 1. Right Rotation (LL case)
 
-The imbalance is in the **left subtree of the left child**. We perform a **right rotation** at the imbalanced node.
+The imbalance is in the left subtree of the left child. We perform a right rotation at the imbalanced node.
 
 ```
 Before:            After:
@@ -589,7 +551,7 @@ def rotate_right(z):
 
 #### 2. Left Rotation (RR case)
 
-The imbalance is in the **right subtree of the right child**. We perform a **left rotation**.
+The imbalance is in the right subtree of the right child. We perform a left rotation.
 
 ```
 Before:            After:
@@ -618,7 +580,7 @@ def rotate_left(z):
 
 #### 3. Left-Right Rotation (LR case)
 
-The imbalance is in the **right subtree of the left child**. We first left-rotate the left child, then right-rotate the root.
+The imbalance is in the right subtree of the left child. We first left-rotate the left child, then right-rotate the root.
 
 ```
 Before:           Step 1:           After:
@@ -633,7 +595,7 @@ T1  x            y   T3         T1 T2 T3 T4
 
 #### 4. Right-Left Rotation (RL case)
 
-The imbalance is in the **left subtree of the right child**. We first right-rotate the right child, then left-rotate the root.
+The imbalance is in the left subtree of the right child. We first right-rotate the right child, then left-rotate the root.
 
 ```
 Before:           Step 1:           After:
@@ -646,7 +608,7 @@ T1  y              T1  x            z     y
 T2 T3                  T3 T4
 ```
 
-### Complete AVL Insert in Python
+The complete AVL insert combines a standard BST insert with the height update and rotation logic above:
 
 ```python
 class AVLTree:
@@ -699,13 +661,7 @@ class AVLTree:
         return node
 ```
 
-**Time complexity:** $$O(\log n)$$ for insert, search, and delete  - guaranteed, since the tree height is always $$O(\log n)$$.
-
-### Interactive AVL Demo
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Insert values one at a time. The <span style="color:#ea580c;font-weight:bold;">balance factor</span> is shown next to each node. When a node becomes imbalanced (|BF| > 1), it turns <span style="color:#e63946;font-weight:bold;">red</span> and the rotation is animated. Use <strong>Step</strong> to insert one value from the queue, or <strong>Run</strong> to insert all automatically.
-</div>
+The time complexity is $$O(\log n)$$ for insert, search, and delete, since the tree height is always $$O(\log n)$$. In the demo below, insert values one at a time and the balance factor is shown next to each node; when a node becomes imbalanced (|BF| > 1) it turns red and the rotation is animated. Use Step to insert one value from the queue, or Run to insert all automatically.
 
 <div class="interactive-demo">
   <canvas id="avl-canvas" width="680" height="350"></canvas>
@@ -721,6 +677,7 @@ class AVLTree:
     <label>Speed: <input type="range" id="avl-speed" min="1" max="10" value="4"> <span class="demo-value" id="avl-speed-val">4</span></label>
   </div>
   <div class="demo-info" id="avl-info">AVL Tree: empty | Insert values to begin</div>
+  <div class="demo-caption">Settings: empty AVL tree, default queue 30,20,10 (an LL case). Try 10,20,30 (RR), 30,10,20 (LR), 10,30,20 (RL).</div>
 </div>
 
 <script>
@@ -997,14 +954,6 @@ class AVLTree:
 })();
 </script>
 
-<div class="demo-hint">
-<strong>Try these sequences</strong> to see each rotation type:
-<br>- <strong>LL:</strong> Reset, then queue <code>30,20,10</code>  - right rotation at 30
-<br>- <strong>RR:</strong> Reset, then queue <code>10,20,30</code>  - left rotation at 10
-<br>- <strong>LR:</strong> Reset, then queue <code>30,10,20</code>  - left-right rotation at 30
-<br>- <strong>RL:</strong> Reset, then queue <code>10,30,20</code>  - right-left rotation at 10
-</div>
-
 ---
 
 ## AVL Rotation Diagrams
@@ -1071,37 +1020,23 @@ First right-rotate the right child, then left-rotate the root.
 
 ## Red-Black Trees
 
-**Red-Black trees** are a self-balancing BST used in many production systems: Java's `TreeMap`, C++ `std::map`, Linux kernel schedulers, and more.
-
-Instead of maintaining strict height balance like AVL, Red-Black trees use **node coloring** to maintain a relaxed balance.
+Red-Black trees are a self-balancing BST used in many production systems: Java's `TreeMap`, C++ `std::map`, Linux kernel schedulers, and more. Instead of maintaining strict height balance like AVL, Red-Black trees use node coloring to maintain a relaxed balance.
 
 ### Red-Black Properties
 
-A Red-Black tree is a BST where every node is colored either **red** or **black**, and the following five properties hold:
-
-1. **Every node is either red or black.**
-2. **The root is always black.**
-3. **Every null leaf (NIL) is black.** (We treat null pointers as black sentinel nodes.)
-4. **Red rule:** If a node is red, both its children must be black. (No two consecutive red nodes on any path.)
-5. **Black-height rule:** Every path from a node to any of its descendant NIL leaves contains the **same number of black nodes.**
-
-These properties guarantee that the longest path is at most **twice** the shortest path, ensuring $$h = O(\log n)$$.
+A Red-Black tree is a BST where every node is colored either red or black, and five properties hold. Every node is either red or black, the root is always black, and every null leaf (NIL) is treated as a black sentinel node. The red rule says that if a node is red, both its children must be black, so no two consecutive red nodes ever appear on a path. The black-height rule says that every path from a node to any of its descendant NIL leaves contains the same number of black nodes. Together these properties guarantee that the longest path is at most twice the shortest path, ensuring $$h = O(\log n)$$.
 
 ### Why These Properties Work
 
-The black-height rule is the key insight. If every path from root to leaf has the same number of black nodes (say $$b$$), and red nodes cannot be consecutive, then:
-
-- The **shortest** path has $$b$$ nodes (all black)
-- The **longest** path has $$2b$$ nodes (alternating red-black)
-- Therefore $$h \leq 2b = O(\log n)$$
+The black-height rule is the key insight. If every path from root to leaf has the same number of black nodes (say $$b$$), and red nodes cannot be consecutive, then the shortest path has $$b$$ nodes (all black), the longest path has $$2b$$ nodes (alternating red-black), and therefore $$h \leq 2b = O(\log n)$$.
 
 ### Red-Black Insert
 
-When we insert a new node, it is always colored **red** (to preserve black-height). This may violate the red rule (red parent with red child). We fix this using **recoloring** and **rotations**.
+When we insert a new node, it is always colored red (to preserve black-height). This may violate the red rule (red parent with red child). We fix this using recoloring and rotations.
 
 There are three cases to fix (when the parent is red):
 
-**Case 1: Uncle is red**  - Recolor parent, uncle to black; grandparent to red. Move the problem up.
+**Case 1: Uncle is red.** Recolor parent and uncle to black; grandparent to red. Move the problem up.
 
 ```
        G(B)                G(R)
@@ -1111,9 +1046,9 @@ There are three cases to fix (when the parent is red):
   N(R)                N(R)
 ```
 
-**Case 2: Uncle is black, node is inner child**  - Rotate to convert to Case 3.
+**Case 2: Uncle is black, node is inner child.** Rotate to convert to Case 3.
 
-**Case 3: Uncle is black, node is outer child**  - Rotate grandparent, recolor.
+**Case 3: Uncle is black, node is outer child.** Rotate grandparent, recolor.
 
 ```
        G(B)                P(B)
@@ -1122,8 +1057,6 @@ There are three cases to fix (when the parent is red):
     /                           \
   N(R)                          U(B)
 ```
-
-### Python Implementation
 
 ```python
 class RBNode:
@@ -1239,11 +1172,7 @@ class RedBlackTree:
         y.parent = x
 ```
 
-### Interactive Red-Black Tree Demo
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Insert values one at a time into the Red-Black tree. Nodes are colored <span style="color:#dc2626;font-weight:bold;">red</span> or <span style="color:#1e293b;font-weight:bold;">black</span>. Watch recoloring and rotations preserve the Red-Black properties after each insert. The letter below each node shows its color (R/B).
-</div>
+Now we can see Red-Black insertion in action. Insert values one at a time and watch recoloring and rotations preserve the Red-Black properties after each insert; the letter below each node shows its color (R/B).
 
 <div class="interactive-demo">
   <canvas id="rb-canvas" width="680" height="350"></canvas>
@@ -1259,6 +1188,7 @@ class RedBlackTree:
     <label>Speed: <input type="range" id="rb-speed" min="1" max="10" value="4"> <span class="demo-value" id="rb-speed-val">4</span></label>
   </div>
   <div class="demo-info" id="rb-info">Red-Black Tree: empty | Insert values to begin</div>
+  <div class="demo-caption">Settings: empty Red-Black tree, default queue 7,3,18,10,22,8,11,26 exercises all fix-up cases.</div>
 </div>
 
 <script>
@@ -1550,10 +1480,6 @@ class RedBlackTree:
 })();
 </script>
 
-<div class="demo-hint">
-<strong>Try this sequence</strong> to see all fix-up cases: Reset, then run the default queue <code>7,3,18,10,22,8,11,26</code>. Watch how recoloring and rotations maintain the Red-Black properties as the tree grows.
-</div>
-
 ---
 
 ## AVL vs Red-Black Tree Comparison
@@ -1624,19 +1550,13 @@ Both AVL and Red-Black trees guarantee $$O(\log n)$$ operations, but they make d
 
 ### When to Choose Which?
 
-- **Choose AVL** when your workload is **read-heavy** (many searches, few insertions/deletions). The stricter balance means shorter trees and faster lookups.
-
-- **Choose Red-Black** when your workload involves **frequent insertions and deletions**. The relaxed balance means fewer structural changes per modification. This is why most standard library implementations choose Red-Black trees.
-
-- In practice, the difference is small for most workloads. Both guarantee $$O(\log n)$$ for all operations.
+Choose AVL when your workload is read-heavy (many searches, few insertions and deletions); the stricter balance means shorter trees and faster lookups. Choose Red-Black when your workload involves frequent insertions and deletions, because the relaxed balance means fewer structural changes per modification, which is why most standard library implementations use Red-Black trees. In practice, the difference is small for most workloads, since both guarantee $$O(\log n)$$ for all operations.
 
 ---
 
 ## Side-by-Side Comparison Demo
 
-<div class="demo-hint">
-<strong>Interactive:</strong> Insert the same sequence into both an AVL tree and a Red-Black tree simultaneously. Compare how each tree structures itself and count the rotations performed.
-</div>
+To compare the two structures directly, the demo below inserts the same sequence into both an AVL tree and a Red-Black tree simultaneously, so you can compare how each tree structures itself.
 
 <div class="interactive-demo">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
@@ -1655,6 +1575,7 @@ Both AVL and Red-Black trees guarantee $$O(\log n)$$ operations, but they make d
     <label>Speed: <input type="range" id="cmp-speed" min="1" max="10" value="4"> <span class="demo-value" id="cmp-speed-val">4</span></label>
   </div>
   <div class="demo-info" id="cmp-info">Insert the same values into both trees to compare | AVL height: 0, RB height: 0</div>
+  <div class="demo-caption">Settings: both trees empty, default queue 10,20,30,15,25,5,35. Try sorted input like 1,2,3,4,5,6,7 (the worst case for plain BSTs) to see the AVL tree stay shorter.</div>
 </div>
 
 <script>
@@ -1769,10 +1690,6 @@ Both AVL and Red-Black trees guarantee $$O(\log n)$$ operations, but they make d
 })();
 </script>
 
-<div class="demo-hint">
-<strong>Try inserting sorted values</strong> like <code>1,2,3,4,5,6,7</code>  - the worst case for a plain BST. Both AVL and Red-Black trees keep the height logarithmic, but notice the AVL tree is shorter.
-</div>
-
 ---
 
 ## Complexity Summary
@@ -1792,20 +1709,20 @@ The key difference: plain BSTs have $$O(n)$$ worst case, while balanced trees gu
 
 ## Key Takeaways
 
-1. **Self-balancing BSTs** prevent the $$O(n)$$ worst case of plain BSTs by automatically restructuring after modifications, guaranteeing $$O(\log n)$$ for all operations.
-
-2. **AVL trees** use a strict balance factor ($$-1, 0, +1$$) and four rotation types (LL, RR, LR, RL) to maintain balance. They produce shorter trees and faster lookups but require more rotations during modifications.
-
-3. **Red-Black trees** use a relaxed color-based balance: red nodes cannot have red children, and all root-to-leaf paths must have equal black height. They require fewer structural changes per operation, making them better for write-heavy workloads.
-
-4. **AVL trees are better for read-heavy workloads** (databases, in-memory lookups) where search speed matters most. **Red-Black trees are better for write-heavy workloads** (standard library maps, OS schedulers) where insert/delete frequency is high.
-
-5. In practice, both are $$O(\log n)$$ and the constant-factor differences are small. Understanding the theory helps you reason about performance, but most of the time you can trust your language's standard library (which almost always uses Red-Black trees).
+| Concept | Key Idea |
+|---|---|
+| Self-Balancing | Automatic restructuring after modifications guarantees $$O(\log n)$$ for all operations. |
+| AVL Balance | Strict balance factor of $$-1, 0, +1$$ uses four rotations (LL, RR, LR, RL) to keep trees short. |
+| Red-Black Balance | Relaxed color rules ensure no two consecutive red nodes and equal black height on every path. |
+| Rotations vs Recoloring | AVL prefers rotations for tight balance; Red-Black prefers recoloring for fewer structural changes. |
+| Read-Heavy Workloads | AVL trees give shorter heights and faster lookups, ideal for databases and in-memory indexes. |
+| Write-Heavy Workloads | Red-Black trees update faster, which is why most standard libraries (Java TreeMap, C++ std::map) use them. |
+| Practical Choice | Both are $$O(\log n)$$ with small constant-factor differences; trust your language's standard library. |
 
 ---
 
 ## What's Next?
 
-Self-balancing trees ensure efficient dictionary operations, but what about priority-based access? **Heaps** give us $$O(1)$$ access to the minimum (or maximum) element and $$O(\log n)$$ insertion. Continue to the [Heaps Interactive Guide]({{ site.baseurl }}/heaps/).
+Self-balancing trees ensure efficient dictionary operations, but what about priority-based access? Heaps give us $$O(1)$$ access to the minimum (or maximum) element and $$O(\log n)$$ insertion. Continue to the [Heaps Interactive Guide]({{ site.baseurl }}/heaps/).
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

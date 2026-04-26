@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Polynomial Regression & the Bias-Variance Tradeoff: An Interactive Guide"
+title: "Polynomial Regression & the Bias-Variance Tradeoff"
 author: bharathikannan
 categories: [Machine learning]
 series: true
@@ -95,14 +95,6 @@ date: 2026-03-17
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
-sup.cite { font-size: 0.72em; vertical-align: super; line-height: 0; }
-sup.cite .cite-ref { color: var(--accent); text-decoration: none; border-bottom: 1px dotted transparent; position: relative; padding: 0 1px; }
-sup.cite .cite-ref:hover, sup.cite .cite-ref:focus { border-bottom-color: var(--accent); outline: none; }
-sup.cite .cite-ref::after { content: attr(data-cite-preview); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%) translateY(6px); min-width: 220px; max-width: 320px; width: max-content; padding: 0.45rem 0.55rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.78rem; line-height: 1.35; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28); opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 30; white-space: normal; }
-sup.cite .cite-ref:hover::after, sup.cite .cite-ref:focus::after { opacity: 1; transform: translateX(-50%) translateY(0); }
-.references { margin: 0.75rem 0 0; padding-left: 1.2rem; }
-.references li { margin: 0.55rem 0; line-height: 1.5; }
-.references a { word-break: break-word; }
 .code-runner-area {
   width: 100%;
   min-height: 220px;
@@ -159,28 +151,7 @@ window.PR = (function() {
   'use strict';
 
   // ---- Theme colours ----
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg:          dark ? '#1a1b26' : '#ffffff',
-      text:        dark ? '#c0caf5' : '#1a1b26',
-      textMuted:   dark ? '#565f89' : '#6b7280',
-      grid:        dark ? '#292e42' : '#e5e7eb',
-      point:       dark ? '#7aa2f7' : '#2563eb',
-      pointStroke: dark ? '#3d59a1' : '#1d4ed8',
-      line:        dark ? '#ff9e64' : '#e63946',
-      error:       dark ? 'rgba(247,118,142,0.35)' : 'rgba(230,57,70,0.2)',
-      errorStroke: dark ? '#f7768e' : '#e63946',
-      accent:      dark ? '#9ece6a' : '#16a34a',
-      path:        dark ? '#9ece6a' : '#16a34a',
-      trueFunc:    dark ? '#bb9af7' : '#7c3aed',
-      valid:       dark ? '#e0af68' : '#d97706',
-      curve1:      dark ? '#7aa2f7' : '#2563eb',
-      curve2:      dark ? '#ff9e64' : '#e63946',
-      curve3:      dark ? '#9ece6a' : '#16a34a',
-      btnBg:       dark ? '#292e42' : '#f3f4f6'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   // ---- DPR-aware canvas setup ----
   function setupCanvas(canvas, w, h) {
@@ -486,49 +457,22 @@ window.PR = (function() {
 })();
 </script>
 
-## 1. Introduction: From Lines to Curves
+In the [Linear Regression]({{ site.baseurl }}/linear-regression/) guide, we built linear regression from scratch and saw how a straight line can capture the trend in data. But the real world is rarely so simple. When the underlying relationship between input and output is nonlinear, forcing a straight line through the data leaves systematic patterns in the residuals and the model is too simple for the data, which is what we call underfitting. The natural next step is to let our model learn curves and that is exactly what polynomial regression does. But with greater flexibility the model can bend so aggressively that it memorises noise rather than capturing the true pattern, which is overfitting. The tension between these two extremes is the bias-variance tradeoff that sits at the heart of machine learning.
 
-In the [Linear Regression]({{ site.baseurl }}/linear-regression/) guide, we built linear regression from scratch and saw how a straight line can capture the trend in data. But the real world is rarely so cooperative. Think about how fuel efficiency changes with engine RPM, it rises, peaks, and then drops. Or how a patient's risk changes with age, it follows a curve, not a line. When the underlying relationship between input and output is nonlinear, forcing a straight line through the data leaves systematic patterns in the residuals. The model is too simple for the data. We call this underfitting.
-
-The natural next step: let our model learn curves. That is exactly what polynomial regression does. But with greater flexibility the model can bend so aggressively that it memorises noise rather than capturing the true pattern. This is overfitting, and the tension between underfitting and overfitting is the bias-variance tradeoff which is one of the most important concepts in all of machine learning.
-
-In this chapter you will:
-- Extend linear regression to polynomial features
-- See the bias-variance tradeoff through multiple random datasets
-- Understand the classic U-shaped validation curve
-- Build polynomial regression from scratch in code
-
-Let's dive in.
-
+In this guide, you will:
+- Extend linear regression to polynomial features and fit smooth curves through noisy data
+- Visualize the bias-variance tradeoff by training the same model on many random samples
+- Build intuition for how model complexity impacts bias and variance, and how regularization can help
+  
 ---
 
-## 2. From Linear to Polynomial
+## 1. Polynomial Regression 
 
-### The idea
-
-Linear regression fits:
-
-$$h(x) = w_0 + w_1 x$$
-
-Polynomial regression simply adds powers of $$x$$ as extra features:
-
-$$h(x) = w_0 + w_1 x + w_2 x^2 + \ldots + w_d x^d$$
-
-where $$d$$ is the degree of the polynomial. A degree-1 polynomial is a line. Degree 2 is a parabola. Degree 3 can have one inflection point, and so on.
-
-### It is still "linear" regression
-
-Despite the nonlinear features, this is still a linear model in the parameters $$w_0, w_1, \ldots, w_d$$. We simply construct a new feature matrix:
+Linear regression fits a straight line $$h(x) = w_0 + w_1 x$$. Polynomial regression simply adds powers of $$x$$ as extra features so that $$h(x) = w_0 + w_1 x + w_2 x^2 + \ldots + w_d x^d$$, where $$d$$ is the degree of the polynomial. A degree-1 polynomial is a line, degree 2 is a parabola, degree 3 can have one inflection point, and so on. Despite the nonlinear features, this is still a linear model in the parameters $$w_0, w_1, \ldots, w_d$$, and we simply construct a new feature matrix:
 
 $$\mathbf{X} = \begin{bmatrix} 1 & x_1 & x_1^2 & \cdots & x_1^d \\ 1 & x_2 & x_2^2 & \cdots & x_2^d \\ \vdots & \vdots & \vdots & \ddots & \vdots \\ 1 & x_n & x_n^2 & \cdots & x_n^d \end{bmatrix}$$
 
-<!-- and solve the same normal equation from the multivariate chapter:
-
-$$\mathbf{w} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$$ -->
-
-### Try it: Compare Degrees 1, 3, and 5
-
-Click on the canvas to add data points, then see polynomial fits of degree 1 (line), degree 3, and degree 5 overlaid.
+The demo below fits three polynomials at degrees 1, 3, and 5 to a small noisy dataset. Click on the canvas to add your own points or use the sample data button to draw a fresh batch and watch how each curve responds. The polynomial coefficients are found via the closed-form normal equation with a small ridge term for stability. This is used purely for demonstration purposes and in practice, you would typically use an iterative optimizer like [gradient descent]({{ site.baseurl }}/gradient-descent/) or a library function that is numerically stable and efficient for higher degrees.
 
 <div class="interactive-demo" id="demo-compare">
   <canvas id="canvas-compare"></canvas>
@@ -537,6 +481,7 @@ Click on the canvas to add data points, then see polynomial fits of degree 1 (li
     <button id="btn-compare-sample">Sample Data</button>
   </div>
   <div class="demo-info" id="info-compare">Click to add points. Minimum 2 required.</div>
+  <div class="demo-caption">Settings: 15 sampled points from a noisy sinusoid, polynomial fit via the closed-form solution with a small ridge term for stability.</div>
 </div>
 
 <script>
@@ -623,25 +568,23 @@ Click on the canvas to add data points, then see polynomial fits of degree 1 (li
 })();
 </script>
 
-<div class="demo-hint">Each degree is solved via the normal equation (closed-form). In larger systems, gradient descent is preferred for scalability.</div>
-
 ---
 
-## 3. The Degree Slider: From Underfitting to Overfitting
-This is the core intuition builder. Below, 25 noisy points are sampled from a hidden true function (shown as a dashed purple line). Use the degree slider to control the polynomial degree from 1 to 15 and watch the fitted curve evolve:
+## 2. Underfitting, Overfitting, and the Bias-Variance Tradeoff
 
-- Degree 1-2: The curve is too rigid. It cannot capture the true shape. This is underfitting.
-- Degree 3-5: The curve follows the true function nicely. The sweet spot.
-- Degree 10+: The curve oscillates wildly between points, chasing noise. This is overfitting.
+The bias-variance tradeoff is a fundamental concept that describes the tension between underfitting and overfitting. A model with low complexity (like a degree-1 polynomial) has high bias because it cannot capture the true pattern in the data, leading to systematic errors. A model with high complexity (like a degree-10 polynomial) has high variance because it can fit the training data perfectly, including the noise, but will perform poorly on new data. The sweet spot is somewhere in between, where the model is flexible enough to capture the underlying pattern but not so flexible that it chases noise. The demo below lets you explore this tradeoff by fitting polynomials of varying degrees to the same underlying function with different random samples. 
 
-<div class="interactive-demo" id="demo-degree">
-  <canvas id="canvas-degree"></canvas>
+Twenty-five noisy points are sampled from a hidden true function shown as a dashed purple line, and the slider controls the polynomial degree from 1 to 15. At degree 1 to 2 the curve is too rigid to capture the true shape and sits systematically off the data, which is the underfitting regime. Around degree 3 to 5 the curve tracks the true function closely, the sweet spot. By degree 10 and above the curve oscillates wildly between points and chases the noise rather than the signal, which is the overfitting regime. 
+
+<div class="interactive-demo" id="demo-bv">
+  <canvas id="canvas-bv"></canvas>
   <div class="demo-controls">
-    <label>Degree: <input type="range" id="slider-degree" min="1" max="15" value="3" step="1">
-    <span class="demo-value" id="val-degree">3</span></label>
-    <button id="btn-degree-new">New Data</button>
+    <label>Degree: <input type="range" id="slider-bv-deg" min="1" max="15" value="3" step="1">
+    <span class="demo-value" id="val-bv-deg">3</span></label>
+    <button id="btn-bv-resample">New Data</button>
   </div>
-  <div class="demo-info" id="info-degree"></div>
+  <div class="demo-info" id="info-bv"></div>
+  <div class="demo-caption">Settings: 25 points sampled from y = sin(1.5x) + 0.5x + noise (sigma 0.5), polynomial fit via the closed-form solution. Dashed purple is the true function.</div>
 </div>
 
 <script>
@@ -649,28 +592,28 @@ This is the core intuition builder. Below, 25 noisy points are sampled from a hi
   var W = 680, H = 400;
   var pL = 50, pR = 20, pT = 20, pB = 40;
   var pW = W - pL - pR, pH = H - pT - pB;
-  var canvas = document.getElementById('canvas-degree');
+  var canvas = document.getElementById('canvas-bv');
   var ctx = PR.setupCanvas(canvas, W, H);
-  var slider = document.getElementById('slider-degree');
-  var valSpan = document.getElementById('val-degree');
-  var info = document.getElementById('info-degree');
+  var slider = document.getElementById('slider-bv-deg');
+  var valSpan = document.getElementById('val-bv-deg');
+  var info = document.getElementById('info-bv');
 
   var xMin = -0.5, xMax = 6.5, yMin = -3.5, yMax = 5.5;
+  var N_POINTS = 25;
+  var SIGMA = 0.5;
   var pts = [];
-  var fits = {}; // cached fits per degree
+  var fits = {};
 
-  function regenerate() {
-    pts = PR.generateData(25, 0, 6, 0.5);
-    precomputeFits();
+  function resample() {
+    pts = PR.generateData(N_POINTS, 0, 6, SIGMA);
+    precompute();
     draw();
   }
 
-  function precomputeFits() {
+  function precompute() {
     fits = {};
     for (var d = 1; d <= 15; d++) {
-      if (pts.length > d) {
-        fits[d] = PR.polyFit(pts, d);
-      }
+      if (pts.length > d) fits[d] = PR.polyFit(pts, d);
     }
   }
 
@@ -688,9 +631,7 @@ This is the core intuition builder. Below, 25 noisy points are sampled from a hi
 
     // Fitted curve
     var w = fits[deg];
-    if (w) {
-      PR.drawCurve(ctx, w, xMin, xMax, yMin, yMax, pL, pW, pT, pH, c.line, 3);
-    }
+    if (w) PR.drawCurve(ctx, w, xMin, xMax, yMin, yMax, pL, pW, pT, pH, c.line, 3);
 
     // Data points
     PR.drawPoints(ctx, pts, xMin, xMax, yMin, yMax, pL, pW, pT, pH);
@@ -706,21 +647,19 @@ This is the core intuition builder. Below, 25 noisy points are sampled from a hi
     ctx.beginPath(); ctx.moveTo(pL + 10, pT + 36); ctx.lineTo(pL + 34, pT + 36); ctx.stroke();
     ctx.fillStyle = c.text; ctx.fillText('Degree ' + deg + ' fit', pL + 40, pT + 40);
 
-    // Info
     var label = deg <= 2 ? 'UNDERFITTING' : (deg >= 10 ? 'OVERFITTING' : 'GOOD FIT');
     var mse = w ? PR.polyMSE(w, pts).toFixed(4) : '-';
-    info.textContent = 'Training MSE: ' + mse + '   |   ' + label;
+    info.textContent = 'Degree ' + deg + '   |   Training MSE: ' + mse + '   |   ' + label;
   }
 
   slider.addEventListener('input', draw);
-  document.getElementById('btn-degree-new').addEventListener('click', regenerate);
+  document.getElementById('btn-bv-resample').addEventListener('click', resample);
   PR.onThemeChange(draw);
-  regenerate();
+  resample();
 })();
 </script>
 
-
-### Underfitting vs Overfitting
+A side-by-side comparison of the two failure modes makes the contrast concrete:
 
 | | Underfitting | Overfitting |
 |---|---|---|
@@ -731,185 +670,13 @@ This is the core intuition builder. Below, 25 noisy points are sampled from a hi
 | Bias | High | Low |
 | Variance | Low | High |
 
----
-
-## 4. The Bias-Variance Tradeoff
-
-### The Decomposition
-
-For any model, the expected prediction error on new data decomposes as<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Geman, Bienenstock &amp; Doursat (1992), Neural Networks and the Bias/Variance Dilemma. Neural Computation, 4(1), 1-58.">1</a></sup>:
-
-$$E\left[(y - \hat{f}(x))^2\right] = \underbrace{\text{Bias}(\hat{f}(x))^2}_{\text{systematic error}} + \underbrace{\text{Var}(\hat{f}(x))}_{\text{sensitivity to training data}} + \underbrace{\sigma^2}_{\text{irreducible noise}}$$
-
-- Bias measures how far the average prediction is from the truth. A line fit to curved data will always be off in the same way, no matter how much data you collect.
-- Variance measures how much the prediction changes when you train on a different random sample. A degree-15 polynomial produces wildly different curves for each sample.
-- Irreducible noise is the noise floor, randomness in the data that no model can remove.
-
-The tradeoff: increasing model complexity decreases bias but increases variance. The optimal complexity balances the two.
-
-### See It: Multiple Training Sets
-
-Below, we generate 10 different random training sets from the same true function and fit a polynomial to each. All 10 fitted curves are overlaid.
-
-- Low degree: All curves are similar (low variance) but systematically wrong (high bias).
-- High degree: Curves are all over the place (high variance) even though each one fits its own data well (low bias).
-
-<div class="interactive-demo" id="demo-bv">
-  <canvas id="canvas-bv"></canvas>
-  <div class="demo-controls">
-    <label>Degree: <input type="range" id="slider-bv-deg" min="1" max="12" value="2" step="1">
-    <span class="demo-value" id="val-bv-deg">2</span></label>
-    <button id="btn-bv-resample">Resample All</button>
-  </div>
-  <div class="demo-info" id="info-bv"></div>
-</div>
-
-<script>
-(function() {
-  var W = 680, H = 400;
-  var pL = 50, pR = 20, pT = 20, pB = 40;
-  var pW = W - pL - pR, pH = H - pT - pB;
-  var canvas = document.getElementById('canvas-bv');
-  var ctx = PR.setupCanvas(canvas, W, H);
-  var slider = document.getElementById('slider-bv-deg');
-  var valSpan = document.getElementById('val-bv-deg');
-  var info = document.getElementById('info-bv');
-
-  var xMin = -0.5, xMax = 6.5, yMin = -3.5, yMax = 5.5;
-  var NUM_SETS = 10;
-  var N_PER_SET = 20;
-  var SIGMA = 0.5;
-  var datasets = [];
-  var allFits = {}; // degree -> array of weight vectors
-
-  var curveColors = [
-    '#7aa2f7', '#ff9e64', '#9ece6a', '#f7768e', '#e0af68',
-    '#bb9af7', '#73daca', '#2ac3de', '#c0caf5', '#ff7a93'
-  ];
-
-  function resample() {
-    datasets = [];
-    for (var s = 0; s < NUM_SETS; s++) {
-      datasets.push(PR.generateData(N_PER_SET, 0, 6, SIGMA));
-    }
-    precompute();
-    draw();
-  }
-
-  function precompute() {
-    allFits = {};
-    for (var d = 1; d <= 12; d++) {
-      allFits[d] = [];
-      for (var s = 0; s < NUM_SETS; s++) {
-        var w = PR.polyFit(datasets[s], d);
-        allFits[d].push(w);
-      }
-    }
-  }
-
-  function draw() {
-    var c = PR.getColors();
-    var deg = parseInt(slider.value);
-    valSpan.textContent = deg;
-
-    ctx.fillStyle = c.bg;
-    ctx.fillRect(0, 0, W, H);
-    PR.drawGrid(ctx, W, H, pL, pR, pT, pB, xMin, xMax, yMin, yMax, 'x', 'y');
-
-    // True function
-    PR.drawTrueFunc(ctx, xMin, xMax, yMin, yMax, pL, pW, pT, pH);
-
-    // All fitted curves
-    var fits = allFits[deg];
-    if (fits) {
-      for (var s = 0; s < fits.length; s++) {
-        if (fits[s]) {
-          var col = curveColors[s % curveColors.length];
-          PR.drawCurve(ctx, fits[s], xMin, xMax, yMin, yMax, pL, pW, pT, pH, col, 1.8);
-        }
-      }
-    }
-
-    // Show one sampled training set as faint points to make random data generation visible
-    if (datasets.length > 0) {
-      PR.drawPoints(
-        ctx,
-        datasets[0],
-        xMin,
-        xMax,
-        yMin,
-        yMax,
-        pL,
-        pW,
-        pT,
-        pH,
-        'rgba(107,114,128,0.30)',
-        'rgba(107,114,128,0.50)',
-        3
-      );
-    }
-
-    // Compute average bias^2 and variance at sampled x points
-    var testXs = [];
-    for (var i = 0; i <= 50; i++) testXs.push(0 + 6 * i / 50);
-    var avgBias2 = 0, avgVar = 0;
-    for (var i = 0; i < testXs.length; i++) {
-      var tx = testXs[i];
-      var trueY = PR.trueFunc(tx);
-      var preds = [];
-      for (var s = 0; s < fits.length; s++) {
-        if (fits[s]) preds.push(PR.polyEval(fits[s], tx));
-      }
-      if (preds.length === 0) continue;
-      var mean = preds.reduce(function(a, b) { return a + b; }, 0) / preds.length;
-      avgBias2 += (mean - trueY) * (mean - trueY);
-      var v = 0;
-      for (var j = 0; j < preds.length; j++) v += (preds[j] - mean) * (preds[j] - mean);
-      avgVar += v / preds.length;
-    }
-    avgBias2 /= testXs.length;
-    avgVar /= testXs.length;
-
-    // Legend
-    ctx.font = '12px Inter, sans-serif'; ctx.textAlign = 'left';
-    ctx.strokeStyle = c.trueFunc; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
-    ctx.beginPath(); ctx.moveTo(pL + 10, pT + 16); ctx.lineTo(pL + 34, pT + 16); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = c.text; ctx.fillText('True function', pL + 40, pT + 20);
-    ctx.fillText('10 fits (degree ' + deg + ')', pL + 40, pT + 40);
-
-    ctx.fillStyle = 'rgba(107,114,128,0.30)';
-    ctx.strokeStyle = 'rgba(107,114,128,0.50)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(pL + 21, pT + 56, 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = c.text;
-    ctx.fillText('One random sampled training set (20 points)', pL + 40, pT + 60);
-
-    info.textContent = 'Avg Bias\u00b2: ' + avgBias2.toFixed(4) + '   Avg Variance: ' + avgVar.toFixed(4) + '   Sum: ' + (avgBias2 + avgVar).toFixed(4) + '   |   Data sampled from y = sin(1.5x) + 0.5x + noise';
-  }
-
-  slider.addEventListener('input', draw);
-  document.getElementById('btn-bv-resample').addEventListener('click', resample);
-  PR.onThemeChange(draw);
-  resample();
-})();
-</script>
-
-<div class="demo-hint">Data sampled from y = sin(1.5x) + 0.5x + noise. Dashed purple line is the true noise-free function. Each curve is a polynomial fit on one random sample.</div>
+Increasing model complexity decreases bias but increases variance, so the optimal complexity is the one that balances the two against each other.
 
 ---
 
-## 5. Training vs Validation Error
+## 3. Training vs Validation Error
 
-The practical way to detect overfitting is to split data into training and validation sets, then plot error vs model complexity.
-
-- Training error always decreases as degree increases (a more flexible model can always fit training data better).
-- Validation error first decreases (less underfitting), then increases (overfitting). This produces the classic U-shaped curve.
-
-The optimal degree is where validation error is lowest.
+The practical way to detect overfitting is to split your data into training and validation sets and then plot error against model complexity. Training error almost always decreases (under optimal conditions) as the degree increases because a more flexible model can fit its own training data better. Validation error tells a different story, dropping at first as the model stops underfitting and then rising again once it starts overfitting. The optimal degree is the one where validation error is lowest, and the gap between the two lines is the cleanest indicator of overfitting. The noise level in the data also shifts that optimum, since cleaner data lets you afford a higher-degree polynomial while noisier data calls for a simpler model that refuses to chase the random fluctuations.
 
 <div class="interactive-demo" id="demo-trainval">
   <div class="demo-split">
@@ -928,6 +695,7 @@ The optimal degree is where validation error is lowest.
     <button id="btn-tv-new">New Split</button>
   </div>
   <div class="demo-info" id="info-tv"></div>
+  <div class="demo-caption">Settings: 40 points sampled from y = sin(1.5x) + 0.5x + noise (sigma 0.5), shuffled and split 25 train / 15 validation, polynomial fit via the closed-form solution.</div>
 </div>
 
 <script>
@@ -1085,118 +853,15 @@ The optimal degree is where validation error is lowest.
 })();
 </script>
 
-<div class="demo-hint">In the right panel, training error (blue) usually goes down with degree, while validation error (yellow) follows a U-shape and rises after the sweet spot. This gap is the indicator of overfitting.</div>
-
 ---
 
-## 6. Noise Level and Model Complexity
+## 4. Polynomial Feature Magnitudes
 
-The amount of noise in your data affects which model complexity is optimal. With low noise, you can afford a higher-degree polynomial because the true pattern is clearer. With high noise, simpler models generalise better.
-
-<div class="interactive-demo" id="demo-noise">
-  <canvas id="canvas-noise"></canvas>
-  <div class="demo-caption" id="cap-noise">Single-plot noise effect (one dataset at a time)</div>
-  <div class="demo-controls">
-    <label>Degree: <input type="range" id="slider-noise-deg" min="1" max="12" value="4" step="1">
-    <span class="demo-value" id="val-noise-deg">4</span></label>
-    <label>Noise sigma: <input type="range" id="slider-noise-sigma" min="0.10" max="0.65" value="0.25" step="0.05">
-    <span class="demo-value" id="val-noise-sigma">0.25</span></label>
-    <button id="btn-noise-new">Regenerate</button>
-  </div>
-  <div class="demo-info" id="info-noise"></div>
-</div>
-
-<script>
-(function() {
-  var W = 680, H = 400;
-  var pL = 50, pR = 20, pT = 20, pB = 40;
-  var pW = W - pL - pR, pH = H - pT - pB;
-
-  var canvas = document.getElementById('canvas-noise');
-  var ctx = PR.setupCanvas(canvas, W, H);
-  var cap = document.getElementById('cap-noise');
-
-  var sliderDeg = document.getElementById('slider-noise-deg');
-  var valDeg = document.getElementById('val-noise-deg');
-  var sliderSigma = document.getElementById('slider-noise-sigma');
-  var valSigma = document.getElementById('val-noise-sigma');
-  var infoEl = document.getElementById('info-noise');
-
-  var xMin = -0.5, xMax = 6.5, yMin = -4, yMax = 6;
-  var pts = [];
-
-  function regenerate() {
-    var sigma = parseFloat(sliderSigma.value);
-    pts = PR.generateData(25, 0, 6, sigma);
-    draw();
-  }
-
-  function draw() {
-    var c = PR.getColors();
-    var deg = parseInt(sliderDeg.value);
-    valDeg.textContent = deg;
-    var sigma = parseFloat(sliderSigma.value);
-    valSigma.textContent = sigma.toFixed(2);
-
-    cap.textContent = 'Single plot: sampled points and polynomial fit at \u03c3 = ' + sigma.toFixed(2);
-
-    ctx.fillStyle = c.bg;
-    ctx.fillRect(0, 0, W, H);
-    PR.drawGrid(ctx, W, H, pL, pR, pT, pB, xMin, xMax, yMin, yMax, 'x', 'y');
-    PR.drawTrueFunc(ctx, xMin, xMax, yMin, yMax, pL, pW, pT, pH);
-
-    var w = PR.polyFit(pts, deg);
-
-    // Data and fit for current sigma
-    PR.drawPoints(ctx, pts, xMin, xMax, yMin, yMax, pL, pW, pT, pH, c.curve1, c.curve1, 3.5);
-    if (w) PR.drawCurve(ctx, w, xMin, xMax, yMin, yMax, pL, pW, pT, pH, c.curve1, 2.5);
-
-    // Legend
-    ctx.font = '12px Inter, sans-serif';
-    ctx.textAlign = 'left';
-
-    ctx.strokeStyle = c.trueFunc;
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 4]);
-    ctx.beginPath(); ctx.moveTo(pL + 8, pT + 16); ctx.lineTo(pL + 28, pT + 16); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = c.text;
-    ctx.fillText('True function', pL + 34, pT + 20);
-
-    ctx.strokeStyle = c.curve1;
-    ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.moveTo(pL + 8, pT + 34); ctx.lineTo(pL + 28, pT + 34); ctx.stroke();
-    ctx.fillStyle = c.text;
-    ctx.fillText('Sampled points + fit', pL + 34, pT + 38);
-
-    var mse = w ? PR.polyMSE(w, pts) : 0;
-
-    infoEl.textContent = 'Degree ' + deg + '  |  \u03c3: ' + sigma.toFixed(2) + '  |  MSE: ' + mse.toFixed(4) + '  |  Increase \u03c3 to see stronger noise and a rougher fit';
-  }
-
-  sliderDeg.addEventListener('input', draw);
-  sliderSigma.addEventListener('input', function() { regenerate(); });
-  document.getElementById('btn-noise-new').addEventListener('click', regenerate);
-  PR.onThemeChange(draw);
-  regenerate();
-})();
-</script>
-
-<div class="demo-hint"> Use the single sigma slider to move from low noise to high noise. At small sigma, points stay close to the true function. At larger sigma, points spread out and the fitted curve becomes less stable, especially at higher degrees.</div>
-
----
-
-## 7. Polynomial Feature Visualization
-
-In polynomial regression with degree $$d$$, each input is expanded into features $$[1, x, x^2, \ldots, x^d]$$<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Hastie, Tibshirani &amp; Friedman (2009), The Elements of Statistical Learning, 2nd ed. Springer.">2</a></sup>. This expansion increases model flexibility, but it also creates large differences in feature magnitudes as the degree increases. If you train with gradient descent, feature scaling is essential for stable and efficient optimization.
-
-### Feature Magnitude Growth
-
-For a single input value $$x=5$$, polynomial features become:
+In polynomial regression with degree $$d$$, each input is expanded into features $$[1, x, x^2, \ldots, x^d]$$. This expansion is what gives the model its flexibility, but it also creates very large differences in feature magnitudes as the degree grows. If you train with gradient descent rather than the closed-form solution, feature scaling becomes essential for stable and efficient optimization. For a single input value $$x = 5$$, the polynomial features grow quickly:
 
 $$[1, x, x^2, x^3, \ldots, x^8] = [1, 5, 25, 125, 625, 3125, 15625, 78125, 390625]$$
 
-All terms come from the same input, yet their scales differ by several orders of magnitude. The largest feature is close to $$4\times 10^5$$, while the bias term remains $$1$$.
+All terms come from the same input, yet their scales differ by several orders of magnitude. The largest feature is close to $$4\times 10^5$$, while the bias term stays at $$1$$. The same effect shows up across different input values.
 
 | $$x$$ | $$x^1$$ | $$x^4$$ | $$x^8$$ |
 |---|---:|---:|---:|
@@ -1205,18 +870,7 @@ All terms come from the same input, yet their scales differ by several orders of
 | 2.0 | 2.0 | 16.0 | 256.0 |
 | 5.0 | 5.0 | 625.0 | 390625.0 |
 
-This scale spread creates two practical issues during gradient-descent training:
-
-1. Uneven gradient magnitudes, where high-order features dominate updates and low-order features change too slowly.
-2. Learning-rate sensitivity, where a step size that works for one feature scale can be too aggressive or too small for others.
-
-### Recommended Scaling Workflow
-
-1. Center and scale the raw input first: $$x' = \frac{x - \mu}{\sigma}$$, then build $$x'^2, x'^3, \ldots$$.
-2. A common alternative is min-max scaling to $$[-1, 1]$$ before polynomial expansion.
-3. Keep a small ridge term to further improve conditioning.
-
-<div class="demo-hint"> Always apply feature scaling before training. It improves convergence speed, makes learning-rate tuning easier, and produces more stable optimization behavior.</div>
+This scale spread creates two practical issues during gradient-descent training. The first is uneven gradient magnitudes, where high-order features dominate the updates and low-order features barely move. The second is learning-rate sensitivity, where a step size that works well for one feature scale is far too aggressive or far too small for others. The standard fix is to center and scale the raw input first as $$x' = (x - \mu)/\sigma$$ and then build $$x'^2, x'^3, \ldots$$ from the normalised value, or alternatively to min-max scale into $$[-1, 1]$$ before the polynomial expansion. A small ridge term on top of either choice further improves conditioning and keeps the matrix inversion stable. We will cover [regularization]({{ site.baseurl }}/regularization-ridge-lasso/) in more detail in the next guide, but the key takeaway is that polynomial regression is very sensitive to feature magnitudes and scaling is a must for gradient-based training.
 
 ---
 
@@ -1322,33 +976,20 @@ print("\nPrediction at x=" + xNew + ": " + yPred.toFixed(4) + "  (true: " + yTru
 
 --- -->
 
-## 8. Summary
+## 5. Summary
 
-We have covered a lot of ground in this chapter. Here is a recap:
-
-| Concept | Key Insight |
+| Concept | Key Idea |
 |---|---|
-| Polynomial features | Add $$x^2, x^3, \ldots, x^d$$ to turn nonlinear regression into multivariate linear regression |
-| Degree = model complexity | Higher degree = more flexible, more parameters |
-| Underfitting | Model too simple, high bias, high training error |
-| Overfitting | Model too complex, high variance, low training error but high test error |
-| Bias-variance tradeoff | Total error = Bias^2 + Variance + Noise. Increasing complexity trades bias for variance |
-| Validation curve | Training error always decreases; validation error has a U-shape. Pick the minimum |
-| Feature scaling | Polynomial features grow exponentially; normalisation is essential for stability |
+| Polynomial features | Add $$x^2, x^3, \ldots, x^d$$ to turn nonlinear regression into linear regression on expanded features. |
+| Degree as complexity | Higher degree means a more flexible model with more parameters and more capacity to overfit. |
+| Underfitting | Model too simple to capture the pattern, high bias and high training error. |
+| Overfitting | Model too flexible, fits noise as if it were signal, low training error but poor test error. |
+| Bias-variance tradeoff | Total error decomposes into bias squared, variance, and irreducible noise; complexity trades one for another. |
+| Validation curve | Training error keeps falling with degree while validation error follows a U-shape, so the minimum picks the best degree. |
+| Feature scaling | Polynomial features grow rapidly with degree, so normalisation is essential for stable optimisation. |
 
-### The Big Picture
+Polynomial regression is a clean demonstration of a universal principle in machine learning: model complexity must be matched to the signal-to-noise ratio in the data. Too simple and you miss the pattern, too complex and you memorise the noise. Manually choosing the right degree is fragile though, especially as the input dimension grows or the noise level shifts. The principled alternative is to use a flexible model and then control its complexity through regularisation, which adds a penalty term that shrinks the weights and smooths the curve even when the degree is high.
 
-Polynomial regression is a powerful demonstration of a universal principle: model complexity must be matched to the signal-to-noise ratio in your data. Too simple and you miss the pattern. Too complex and you memorise the noise.
+#### Continue the ML Series
 
-But manually choosing the right degree is fragile. In the next chapter, we will learn a principled way to control complexity without choosing a degree by hand: regularisation. Ridge regression (L2) and Lasso (L1) add penalty terms that shrink the weights, effectively smoothing the curve even when the degree is high. This lets us use flexible models without the overfitting penalty.
-
-### What's Next
-
-Next up: [Regularization, Ridge, Lasso & Elastic Net]({{ site.baseurl }}/regularization-ridge-lasso/), Add a penalty term to tame overfitting, explore the L1/L2 landscape interactively, and see how regularisation connects to the bias-variance tradeoff.
-
-#### References
-
-<ol class="references">
-  <li id="ref-1">Geman, S., Bienenstock, E., &amp; Doursat, R. (1992). <em>Neural Networks and the Bias/Variance Dilemma</em>. Neural Computation, 4(1), 1-58. <a href="https://doi.org/10.1162/neco.1992.4.1.1" target="_blank" rel="noopener">https://doi.org/10.1162/neco.1992.4.1.1</a></li>
-  <li id="ref-2">Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). <em>The Elements of Statistical Learning</em>, 2nd ed. Springer. <a href="https://hastie.su.domains/ElemStatLearn/" target="_blank" rel="noopener">https://hastie.su.domains/ElemStatLearn/</a></li>
-</ol>
+This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. Next up is [Regularization, Ridge, Lasso & Elastic Net]({{ site.baseurl }}/regularization-ridge-lasso/), where we will add a penalty term to prevent overfitting, explore the L1 and L2 landscapes interactively, and see how regularisation connects directly to the bias-variance tradeoff we built up here.

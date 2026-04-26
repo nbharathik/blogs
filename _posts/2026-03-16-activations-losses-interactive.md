@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Activation Functions - An Interactive Guide"
+title: "Activation Functions"
 author: bharathikannan
 categories: [Machine learning]
 series: true
@@ -137,13 +137,13 @@ date: 2026-03-17
 .gt-matrix-panel .gt-layer-label {
   font-weight: 700;
   min-width: 4.5rem;
-  color: var(--accent, #2563eb);
+  color: var(--accent);
 }
 .gt-matrix-panel .gt-layer-vals {
   color: var(--text-secondary);
 }
 .gt-matrix-panel .gt-relu-tag {
-  color: #9ece6a;
+  color: var(--viz-green);
   font-weight: 600;
   margin-left: 0.3rem;
 }
@@ -241,29 +241,7 @@ sup.cite .cite-ref:focus::after {
 <script>
 // Shared utilities for all activation & loss demos
 window.AL = (function() {
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      grid: dark ? '#292e42' : '#e5e7eb',
-      axis: dark ? '#414868' : '#9ca3af',
-      accent: dark ? '#7aa2f7' : '#2563eb',
-      sigmoid: '#f7768e',
-      tanh: '#7aa2f7',
-      relu: '#9ece6a',
-      leaky: '#ff9e64',
-      elu: '#bb9af7',
-      swish: '#73daca',
-      gelu: '#e0af68',
-      positive: '#9ece6a',
-      negative: '#f7768e',
-      warn: '#e0af68',
-      btnBg: dark ? '#292e42' : '#f3f4f6',
-      crosshair: dark ? 'rgba(192,202,245,0.5)' : 'rgba(26,27,38,0.3)',
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -426,33 +404,57 @@ window.AL = (function() {
 })();
 </script>
 
-Activation functions are one of the most important design choices in neural networks. They control what patterns a model can represent and how gradients flow during learning. This chapter explains them from the ground up, with interactive visualizations to build deep intuition.
+Activation functions are one of the most important design choices in neural networks. They determine what kinds of patterns a model can represent and how gradients flow during training. This chapter explains activation functions from the ground up, with interactive visualizations designed to build strong intuition.
 
 In this guide, you will:
 
 - See why activation functions are necessary for deep learning
-- Explore every major activation function (Sigmoid, Tanh, ReLU, Leaky ReLU, ELU, Swish, GELU) with their derivatives
-- Understand saturation, vanishing gradients, and how modern activations solve these problems
+- Explore the most widely used activation functions (Sigmoid, Tanh, ReLU, Leaky ReLU, ELU, Swish, GELU) together with their derivatives
+- Understand saturation, vanishing gradients, and how modern activation functions help address these problems
 
 ---
 
 ## 1. Why Activation Functions?
 
-Without activation functions, every layer in a neural network performs a linear transformation: multiply by weights, add bias. The composition of linear functions is still linear:
+Without activation functions, every layer in a neural network performs only a linear transformation: multiply by weights, then add a bias. The composition of linear functions is still linear:
 
-$$f(\mathbf{x}) = W_2(W_1 \mathbf{x} + b_1) + b_2 = (W_2 W_1)\mathbf{x} + (W_2 b_1 + b_2) = W'\mathbf{x} + b'$$
+$$
+f(\mathbf{x}) = W_2(W_1 \mathbf{x} + b_1) + b_2
+= (W_2 W_1)\mathbf{x} + (W_2 b_1 + b_2)
+= W'\mathbf{x} + b'
+$$
 
-No matter how many layers you stack, the entire network collapses to a single linear transformation. Adding a nonlinear activation function between layers breaks this collapse and gives depth its power.
+No matter how many layers you stack, the entire network collapses to a single linear transformation. Adding a nonlinear activation function between layers prevents this collapse and gives depth its expressive power. Each layer in a neural network computes a transformation of its input:
 
-Each layer in a neural network computes a 2D transformation on its input:
+$$
+\mathbf{h} = W\mathbf{x} + \mathbf{b}
+=
+\begin{bmatrix}
+w_{11} & w_{12} \\
+w_{21} & w_{22}
+\end{bmatrix}
+\begin{bmatrix}
+x_1 \\
+x_2
+\end{bmatrix}
++
+\begin{bmatrix}
+b_1 \\
+b_2
+\end{bmatrix}
+$$
 
-$$\mathbf{h} = W\mathbf{x} + \mathbf{b} = \begin{bmatrix} w_{11} & w_{12} \\ w_{21} & w_{22} \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} + \begin{bmatrix} b_1 \\ b_2 \end{bmatrix}$$
+This is a linear transformation: a combination of rotation, scaling, shearing, and translation. Composing multiple such layers still produces another linear transformation, equivalent to multiplying the matrices together. But when we insert ReLU between layers, it makes the transformation nonlinear by clipping all negative values to zero.
 
-This is a linear transformation: a combination of rotation, scaling, and shearing. When you compose multiple linear layers, the result is always another linear transformation (just multiplying the matrices together). But when you insert ReLU between layers, it clips all negative values to zero:
+$$
+\text{ReLU}(\mathbf{h}) =
+\begin{bmatrix}
+\max(0,\, h_1) \\
+\max(0,\, h_2)
+\end{bmatrix}
+$$
 
-$$\text{ReLU}(\mathbf{h}) = \begin{bmatrix} \max(0,\, h_1) \\ \max(0,\, h_2) \end{bmatrix}$$
-
-This clipping is nonlinear. It folds parts of the space onto the axes, creating bends that no single matrix can undo. The visualization below shows this in action. A 2D grid of points is passed through neural network layers. On the left, no activation function is applied, so every layer is just a matrix multiply plus bias. On the right, ReLU is applied after each layer. Watch what happens to the grid:
+This clipping introduces nonlinearity. It folds parts of the space onto coordinate axes and creates bends that a single matrix transformation cannot reproduce. The visualization below shows this effect. A 2D grid of points is passed through several neural network layers. On the left, no activation function is applied, so each layer remains linear. On the right, ReLU is applied after every layer, progressively bending the grid and creating more complex structure.
 
 <div class="interactive-demo" id="demo-grid-transform">
   <div class="demo-split">
@@ -478,7 +480,7 @@ This clipping is nonlinear. It folds parts of the space onto the axes, creating 
 
 ## 2. Activation Function Explorer
 
-The choice of activation function has a huge impact on training dynamics and final performance. This explorer lets you visualize the most popular activations and their derivatives. The derivative is crucial because it controls how much the weights update during backpropagation. If the derivative is too small (vanishing gradients) or zero (dead neurons), learning can stall.
+The choice of activation function has a major impact on both training dynamics and final model performance. This explorer lets you visualize several of the most widely used activation functions together with their derivatives. The derivative is especially important because it determines how strongly weights are updated during backpropagation. If the derivative becomes very small (vanishing gradients) or exactly zero, learning can slow down or even stop.
 
 $$\text{Sigmoid: } \sigma(x) = \frac{1}{1+e^{-x}} \qquad \sigma'(x) = \sigma(x)(1 - \sigma(x))$$
 
@@ -521,7 +523,7 @@ $$\text{GELU: } f(x) = x \cdot \Phi(x) \approx 0.5x\left(1 + \tanh\left(\sqrt{\f
 
 ## 3. Sigmoid & Tanh Deep Dive
 
-Sigmoid and Tanh were commonly used in early neural networks. They are smooth and differentiable everywhere, but they share a critical flaw: saturation. When the input is very large or very small, the output plateaus and the gradient approaches zero.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Glorot &amp; Bengio (2010), Understanding the difficulty of training deep feedforward neural networks. AISTATS.">2</a></sup>. This is the vanishing gradient problem. During backpropagation, gradients are multiplied through each layer. If every layer has a near-zero gradient, the product vanishes exponentially, and early layers learn almost nothing.
+Sigmoid and tanh were widely used in early neural networks. They are smooth and differentiable everywhere, but they share an important limitation: saturation. When the input becomes very large or very small, the output flattens and the gradient approaches zero.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Glorot &amp; Bengio (2010), Understanding the difficulty of training deep feedforward neural networks. AISTATS.">2</a></sup> This leads to the vanishing gradient problem. During backpropagation, gradients are multiplied across layers, so if each layer contributes a small factor, the overall gradient shrinks exponentially. As a result, early layers receive almost no learning signal and update very slowly. 
 
 <div class="interactive-demo" id="demo-saturation">
   <canvas id="canvas-saturation" width="680" height="320"></canvas>
@@ -536,7 +538,27 @@ Sigmoid and Tanh were commonly used in early neural networks. They are smooth an
 
 ## 4. ReLU Family
 
-ReLU (Rectified Linear Unit) solved the vanishing gradient problem with a very simple idea: output zero for negative inputs, pass positive inputs through unchanged.<sup class="cite"><a class="cite-ref" href="#ref-4" data-cite-preview="Nair &amp; Hinton (2010), Rectified Linear Units Improve Restricted Boltzmann Machines. ICML.">4</a></sup> The gradient is either 0 or 1, no saturation. But ReLU has its own problem: dead neurons. If a neuron's input is always negative (due to improper initialization or a large gradient update), its output is always 0, its gradient is always 0, and it can never recover. The ReLU family offers several fixes:
+ReLU (Rectified Linear Unit) addresses the vanishing gradient problem with a simple rule: output zero for negative inputs and pass positive inputs through unchanged.<sup class="cite"><a class="cite-ref" href="#ref-4" data-cite-preview="Nair &amp; Hinton (2010), Rectified Linear Units Improve Restricted Boltzmann Machines. ICML.">4</a></sup> This matters because during backpropagation gradients are multiplied at each layer by the local activation derivative. For sigmoid, if the input is large, the output is close to 1 and the derivative is close to 0; if the input is small, the output is close to 0 and the derivative is also close to 0. The maximum derivative of sigmoid is 0.25 at x=0, so stacking five sigmoid layers can shrink the gradient by a factor of at most $$0.25^5 \approx 0.001$$, effectively stalling learning in early layers. <sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Glorot &amp; Bengio (2010), Understanding the difficulty of training deep feedforward neural networks. AISTATS.">2</a></sup>
+
+$$\frac{\partial L}{\partial w_1} = \underbrace{\sigma'(z_5) \cdot \sigma'(z_4) \cdot \sigma'(z_3) \cdot \sigma'(z_2) \cdot \sigma'(z_1)}_{\text{each} \leq 0.25 \implies \text{product} \leq 0.001} \cdot \ldots$$
+
+In contrast, the derivative of ReLU is either 0 or 1, so gradients along active paths can pass through many layers without shrinking. The bar chart below shows the average gradient magnitude per layer in a deep MLP. Increase the number of layers with sigmoid selected and the early-layer gradients quickly disappear; switch to ReLU and they remain much larger.
+
+<div class="interactive-demo" id="demo-vanishing">
+  <canvas id="canvas-vanish" width="680" height="360"></canvas>
+  <div class="demo-controls">
+    <label>Activation:
+      <button id="van-sigmoid" class="active">Sigmoid</button>
+      <button id="van-relu">ReLU</button>
+    </label>
+    <label>Layers <input type="range" id="van-layers" min="3" max="10" step="1" value="6"><span class="demo-value" id="val-van-layers">6</span></label>
+    <button id="btn-van-run">Recompute</button>
+  </div>
+  <div class="demo-info" id="info-vanishing">Bars show average |gradient| per layer (log scale). Layer 1 = first hidden layer (closest to input).</div>
+  <div class="demo-caption">Settings: deep MLP, He initialization, single forward+backward pass on random input. Early-layer bars shrink with sigmoid as depth grows; ReLU keeps them comparable.</div>
+</div>
+
+But ReLU has its own limitation: dead neurons. If a neuron's input becomes consistently negative (for example due to initialization or a large gradient update), its output remains 0 and its gradient also remains 0, so the neuron stops learning and may never recover. Several variants in the ReLU family address this problem by allowing a small gradient even when the input is negative:
 
 <div class="interactive-demo" id="demo-relu-family">
   <canvas id="canvas-relu-family" width="680" height="320"></canvas>
@@ -553,13 +575,13 @@ ReLU (Rectified Linear Unit) solved the vanishing gradient problem with a very s
 
 ## 5. Modern Activations: Swish & GELU
 
-Modern architectures (EfficientNet, BERT, GPT) use smoother activation functions that are not monotonic, they allow small negative values through:
+Modern architectures such as EfficientNet, BERT, and GPT often use smoother activation functions that are not strictly monotonic and allow small negative values to pass through.
 
-**Swish** $$f(x) = x \cdot \sigma(x)$$ was discovered by neural architecture search at Google.<sup class="cite"><a class="cite-ref" href="#ref-5" data-cite-preview="Ramachandran, Zoph &amp; Le (2017), Searching for Activation Functions. arXiv:1710.05941.">5</a></sup> It is smooth, non-monotonic, and self-gated.
+**Swish** $$f(x) = x \cdot \sigma(x)$$.<sup class="cite"><a class="cite-ref" href="#ref-5" data-cite-preview="Ramachandran, Zoph &amp; Le (2017), Searching for Activation Functions. arXiv:1710.05941.">5</a></sup> It is smooth, non-monotonic, and self-gated, meaning the input modulates its own output through the sigmoid term.
 
-**GELU** $$f(x) = x \cdot \Phi(x)$$ (Gaussian Error Linear Unit) uses the CDF of the standard normal distribution.<sup class="cite"><a class="cite-ref" href="#ref-6" data-cite-preview="Hendrycks &amp; Gimpel (2016), Gaussian Error Linear Units (GELUs). arXiv:1606.08415.">6</a></sup> It is the default activation in Transformers (BERT, GPT).
+**GELU** $$f(x) = x \cdot \Phi(x)$$ (Gaussian Error Linear Unit) uses the cumulative distribution function of the standard normal distribution.<sup class="cite"><a class="cite-ref" href="#ref-6" data-cite-preview="Hendrycks &amp; Gimpel (2016), Gaussian Error Linear Units (GELUs). arXiv:1606.08415.">6</a></sup> It is the default activation in Transformer models such as BERT and GPT.
 
-Both functions look similar to ReLU for large positive inputs but curve smoothly near zero, allowing a small "dip" into negative values. This can help optimization by providing a non-zero gradient for mildly negative inputs, unlike ReLU which is exactly 0.
+Both functions behave similarly to ReLU for large positive inputs but transition smoothly near zero and allow small negative outputs. This helps optimization by preserving nonzero gradients for mildly negative inputs, unlike ReLU, which outputs exactly zero in that region.
 
 <div class="interactive-demo" id="demo-modern">
   <canvas id="canvas-modern" width="680" height="320"></canvas>
@@ -659,11 +681,12 @@ Bharathi Kannan N. (2026). Activation Functions - An Interactive Guide. https://
   }
 
   function generateDefaultLayers() {
+    // Biases held at 0 so the origin stays fixed at canvas center as layers stack.
     return [
-      makeLayer(0.52, 0.9, 0.85, 0.15, 0.0, 0.0),   // ~30deg rotation + slight shear
-      makeLayer(-0.35, 0.85, 0.95, -0.2, 0.1, -0.05), // counter-rotate + shear
-      makeLayer(0.25, 0.95, 0.8, 0.1, -0.05, 0.1),    // mild rotation + scale
-      makeLayer(-0.15, 0.9, 0.9, -0.15, 0.05, -0.05)  // gentle counter
+      makeLayer(0.52, 0.9, 0.85, 0.15, 0, 0),
+      makeLayer(-0.35, 0.85, 0.95, -0.2, 0, 0),
+      makeLayer(0.25, 0.95, 0.8, 0.1, 0, 0),
+      makeLayer(-0.15, 0.9, 0.9, -0.15, 0, 0)
     ];
   }
 
@@ -674,9 +697,7 @@ Bharathi Kannan N. (2026). Activation Functions - An Interactive Guide. https://
       var sx = 0.7 + Math.random() * 0.4;
       var sy = 0.7 + Math.random() * 0.4;
       var sh = (Math.random() - 0.5) * 0.4;
-      var bx = (Math.random() - 0.5) * 0.2;
-      var by = (Math.random() - 0.5) * 0.2;
-      layers.push(makeLayer(angle, sx, sy, sh, bx, by));
+      layers.push(makeLayer(angle, sx, sy, sh, 0, 0));
     }
     return layers;
   }
@@ -1398,6 +1419,184 @@ Bharathi Kannan N. (2026). Activation Functions - An Interactive Guide. https://
 
   AL.onThemeChange(draw);
   draw();
+})();
+
+// ==================== DEMO 6: Vanishing Gradient Bar Chart ====================
+(function() {
+  var canvas = document.getElementById('canvas-vanish');
+  if (!canvas) return;
+  var ctx = AL.setupCanvas(canvas, 680, 360);
+  var W = 680, H = 360;
+  var btnSig = document.getElementById('van-sigmoid');
+  var btnRelu = document.getElementById('van-relu');
+  var slLayers = document.getElementById('van-layers');
+  var valLayers = document.getElementById('val-van-layers');
+  var btnRun = document.getElementById('btn-van-run');
+
+  var act = 'sigmoid';
+  var layerGrads = [];
+
+  // Minimal MLP: forward + backward, returns average |dW| per weight matrix.
+  function buildAndRun(L, actName) {
+    var sizes = [2];
+    for (var i = 0; i < L; i++) sizes.push(8);
+    sizes.push(1);
+    var Lw = sizes.length - 1;
+    // He init
+    var W = [], B = [];
+    for (var l = 0; l < Lw; l++) {
+      var rows = sizes[l + 1], cols = sizes[l], scale = Math.sqrt(2.0 / cols);
+      var w = [], b = [];
+      for (var i = 0; i < rows; i++) {
+        var row = [];
+        for (var j = 0; j < cols; j++) row.push((Math.random() * 2 - 1) * scale);
+        w.push(row); b.push(0);
+      }
+      W.push(w); B.push(b);
+    }
+    var actFn = actName === 'relu' ? AL.relu : AL.sigmoid;
+    var actDerivFromA = actName === 'relu'
+      ? function(a) { return a > 0 ? 1 : 0; }
+      : function(a) { return a * (1 - a); };
+    // Forward
+    var x = [Math.random() * 2 - 1, Math.random() * 2 - 1];
+    var as = [x.slice()], zs = [];
+    var a = x.slice();
+    for (var l = 0; l < Lw; l++) {
+      var z = [], na = [];
+      for (var i = 0; i < W[l].length; i++) {
+        var s = B[l][i];
+        for (var j = 0; j < W[l][i].length; j++) s += W[l][i][j] * a[j];
+        z.push(s);
+        if (l === Lw - 1) na.push(AL.sigmoid(s));
+        else na.push(actFn(s));
+      }
+      zs.push(z); a = na; as.push(a.slice());
+    }
+    // Backward (BCE on random target)
+    var target = Math.random() > 0.5 ? 1 : 0;
+    var deltas = new Array(Lw);
+    var dOut = [as[Lw][0] - target];
+    deltas[Lw - 1] = dOut;
+    for (var l = Lw - 2; l >= 0; l--) {
+      var Wnext = W[l + 1], dnext = deltas[l + 1], delta = [];
+      for (var i = 0; i < as[l + 1].length; i++) {
+        var err = 0;
+        for (var j = 0; j < dnext.length; j++) err += Wnext[j][i] * dnext[j];
+        delta.push(err * actDerivFromA(as[l + 1][i]));
+      }
+      deltas[l] = delta;
+    }
+    // dW = delta_out * a_in, average |dW| per layer
+    var avgs = [];
+    for (var l = 0; l < Lw; l++) {
+      var d = deltas[l], aIn = as[l], sum = 0, count = 0;
+      for (var i = 0; i < d.length; i++) {
+        for (var j = 0; j < aIn.length; j++) {
+          sum += Math.abs(d[i] * aIn[j]);
+          count++;
+        }
+      }
+      avgs.push(count > 0 ? sum / count : 0);
+    }
+    return avgs;
+  }
+
+  function compute() {
+    var L = parseInt(slLayers.value);
+    layerGrads = buildAndRun(L, act);
+    draw();
+  }
+
+  function draw() {
+    var c = AL.getColors();
+    ctx.fillStyle = c.bg;
+    ctx.fillRect(0, 0, W, H);
+    if (layerGrads.length === 0) return;
+
+    var padL = 70, padR = 30, padT = 40, padB = 60;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var logVals = layerGrads.map(function(g) { return Math.log10(Math.max(g, 1e-6)); });
+    var minLog = -6;
+    var maxLog = Math.max(0, Math.ceil(Math.max.apply(null, logVals)));
+    if (maxLog === minLog) maxLog = minLog + 1;
+
+    ctx.strokeStyle = c.border || c.axis;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padL, padT);
+    ctx.lineTo(padL, padT + plotH);
+    ctx.lineTo(padL + plotW, padT + plotH);
+    ctx.stroke();
+
+    ctx.fillStyle = c.textSec || c.text;
+    ctx.font = '11px JetBrains Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    for (var k = minLog; k <= maxLog; k++) {
+      var y = padT + plotH - (k - minLog) / (maxLog - minLog) * plotH;
+      ctx.fillText('10^' + k, padL - 6, y);
+      ctx.strokeStyle = c.border || c.axis;
+      ctx.globalAlpha = 0.25;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    var n = layerGrads.length;
+    var barW = plotW / n * 0.7;
+    var gap = plotW / n * 0.3;
+    var color = act === 'relu' ? (c.relu || c.green || '#7bd88f') : (c.sigmoid || c.backward || '#f7768e');
+    for (var i = 0; i < n; i++) {
+      var bx = padL + (plotW / n) * i + gap / 2;
+      var bh = (logVals[i] - minLog) / (maxLog - minLog) * plotH;
+      ctx.fillStyle = color + 'cc';
+      ctx.fillRect(bx, padT + plotH - bh, barW, bh);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(bx, padT + plotH - bh, barW, bh);
+
+      ctx.fillStyle = c.textSec || c.text;
+      ctx.font = '11px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText('L' + (i + 1), bx + barW / 2, padT + plotH + 6);
+
+      if (barW >= 36) {
+        ctx.fillStyle = c.text;
+        ctx.font = '10px JetBrains Mono, monospace';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(layerGrads[i].toExponential(1), bx + barW / 2, padT + plotH - bh - 3);
+      }
+    }
+
+    ctx.fillStyle = c.text;
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('Average |gradient| per layer (' + (act === 'relu' ? 'ReLU' : 'Sigmoid') + ')', W / 2, 12);
+
+    ctx.fillStyle = c.textSec || c.text;
+    ctx.font = '11px sans-serif';
+    ctx.fillText('Layer (L1 = closest to input)', W / 2, H - 18);
+  }
+
+  function setAct(name) {
+    act = name;
+    btnSig.classList.toggle('active', name === 'sigmoid');
+    btnRelu.classList.toggle('active', name === 'relu');
+    compute();
+  }
+
+  btnSig.addEventListener('click', function() { setAct('sigmoid'); });
+  btnRelu.addEventListener('click', function() { setAct('relu'); });
+  btnRun.addEventListener('click', compute);
+  slLayers.addEventListener('input', function() {
+    valLayers.textContent = slLayers.value;
+    compute();
+  });
+
+  compute();
+  AL.onThemeChange(draw);
 })();
 
 </script>

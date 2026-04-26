@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Loss Functions - An Interactive Guide"
+title: "Loss Functions"
 author: bharathikannan
 categories: [Bin]
 hidden: true

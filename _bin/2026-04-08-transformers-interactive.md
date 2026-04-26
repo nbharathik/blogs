@@ -8,7 +8,7 @@ hidden: true
 archived: false
 description: "A visualization-first guide to Transformers with interactive architecture flow, Q/K/V matrix projection, attention matrix multiplication, multi-head patterns, decoder cross-attention, and generation mechanics."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
-permalink: /transformers/
+permalink: /transformers_v1/
 date: 2026-04-08
 ---
 

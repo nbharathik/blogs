@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Random Forests & Bagging from Scratch - An Interactive Guide"
+title: "Random Forests & Bagging from Scratch"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -124,32 +124,7 @@ date: 2026-03-17
 window.RF = (function() {
   var R = {};
 
-  R.getColors = function() {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (!document.documentElement.getAttribute('data-theme') &&
-       window.matchMedia('(prefers-color-scheme: dark)').matches);
-    return {
-      bg: isDark ? '#1a1b26' : '#ffffff',
-      bgSecondary: isDark ? '#24283b' : '#f1f5f9',
-      text: isDark ? '#c0caf5' : '#1e293b',
-      textMuted: isDark ? '#565f89' : '#94a3b8',
-      grid: isDark ? '#292e42' : '#e2e8f0',
-      border: isDark ? '#3b4261' : '#cbd5e1',
-      accent: isDark ? '#7aa2f7' : '#2563eb',
-      class0: isDark ? '#7aa2f7' : '#2563eb',
-      class0Light: isDark ? 'rgba(122,162,247,0.15)' : 'rgba(37,99,235,0.12)',
-      class0Mid: isDark ? 'rgba(122,162,247,0.4)' : 'rgba(37,99,235,0.3)',
-      class1: isDark ? '#f7768e' : '#e63946',
-      class1Light: isDark ? 'rgba(247,118,142,0.15)' : 'rgba(230,57,70,0.12)',
-      class1Mid: isDark ? 'rgba(247,118,142,0.4)' : 'rgba(230,57,70,0.3)',
-      highlight: isDark ? '#e0af68' : '#d97706',
-      success: isDark ? '#9ece6a' : '#16a34a',
-      treeColors: isDark
-        ? ['#7aa2f7','#f7768e','#9ece6a','#ff9e64','#bb9af7','#2ac3de','#e0af68','#73daca']
-        : ['#2563eb','#e63946','#16a34a','#ea580c','#7c3aed','#0891b2','#ca8a04','#059669'],
-      isDark: isDark
-    };
-  };
+  R.getColors = function() { return window.Viz.colors(); };
 
   R.setupCanvas = function(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -567,31 +542,17 @@ window.RF = (function() {
 })();
 </script>
 
-A single decision tree is fast, interpretable, and intuitive. But it has a fatal flaw: it **overfits**. A fully grown decision tree memorizes every quirk and noise pattern in the training data, producing jagged, unstable decision boundaries that fall apart on new data.
-
-What if, instead of trusting one opinionated tree, we consulted a whole **forest** of diverse trees and let them vote? That is the core insight behind **Random Forests**, one of the most successful and widely used machine learning algorithms.
-
-In this chapter, we will build Random Forests from scratch, starting with the **bagging** (bootstrap aggregating) principle, and see how combining many weak, overfitting trees produces a strong, smooth classifier.
+A single decision tree is fast, interpretable, and intuitive. But it has a fatal flaw: it overfits. A fully grown decision tree memorizes every quirk and noise pattern in the training data, producing jagged, unstable decision boundaries that fall apart on new data. What if, instead of trusting one opinionated tree, we consulted a whole forest of diverse trees and let them vote? That is the core insight behind Random Forests, one of the most successful and widely used machine learning algorithms. In this chapter, we will build Random Forests from scratch, starting with the bagging (bootstrap aggregating) principle, and see how combining many weak, overfitting trees produces a strong, smooth classifier.
 
 ---
 
 ## 1. Why Ensembles? The Problem with a Single Tree
 
-A single deep decision tree creates very complex, jagged decision boundaries. It perfectly fits the training data, but small changes in the data can produce completely different trees. This is **high variance**.
-
-The ensemble idea is simple: if individual trees are noisy but on average correct, combining many of them cancels out the noise. This is the **wisdom of crowds** applied to machine learning.
-
-Mathematically, if we have $$B$$ independent estimators each with variance $$\sigma^2$$, the variance of their average is:
+A single deep decision tree creates very complex, jagged decision boundaries. It perfectly fits the training data, but small changes in the data can produce completely different trees. This is high variance. The ensemble idea is simple: if individual trees are noisy but on average correct, combining many of them cancels out the noise. This is the wisdom of crowds applied to machine learning. Mathematically, if we have $$B$$ independent estimators each with variance $$\sigma^2$$, the variance of their average is:
 
 $$\text{Var}\left(\frac{1}{B}\sum_{b=1}^{B} f_b(x)\right) = \frac{\sigma^2}{B}$$
 
-More trees means lower variance. Let us see this in action.
-
-### Try It: Single Tree vs Ensemble
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Compare a single decision tree (left) against a 20-tree ensemble (right) on the same dataset. Click <strong>Regenerate</strong> to see how unstable the single tree is, while the ensemble remains stable. Use the dataset selector to try different shapes.
-</div>
+More trees means lower variance. The demo below compares a single decision tree against a 20-tree ensemble on the same dataset. Click Regenerate to see how unstable the single tree is, while the ensemble remains stable.
 
 <div class="interactive-demo">
   <div class="demo-controls">
@@ -615,6 +576,7 @@ More trees means lower variance. Let us see this in action.
     </div>
   </div>
   <div class="demo-info" id="why-info">Click Regenerate to compare stability</div>
+  <div class="demo-caption">Settings: 120 moons-shaped points, single tree at depth 8 vs 20-tree ensemble.</div>
 </div>
 
 <script>
@@ -683,19 +645,11 @@ Notice how the single tree's boundary is jagged and changes dramatically each ti
 
 ## 2. Bootstrap Sampling
 
-The foundation of bagging is **bootstrap sampling**: creating new training sets by sampling **with replacement** from the original data. Each bootstrap sample has the same size as the original, but some points appear multiple times and others are left out entirely.
-
-On average, each bootstrap sample includes about **63.2%** of the unique original data points. The remaining **36.8%** are called **out-of-bag (OOB)** samples, these serve as a free validation set.
-
-Why 63.2%? The probability that a specific point is **not** chosen in any of $$n$$ draws is:
+The foundation of bagging is bootstrap sampling: creating new training sets by sampling with replacement from the original data. Each bootstrap sample has the same size as the original, but some points appear multiple times and others are left out entirely. On average, each bootstrap sample includes about 63.2% of the unique original data points. The remaining 36.8% are called out-of-bag (OOB) samples, these serve as a free validation set. Why 63.2%? The probability that a specific point is not chosen in any of $$n$$ draws is:
 
 $$P(\text{not chosen}) = \left(1 - \frac{1}{n}\right)^n \xrightarrow{n \to \infty} \frac{1}{e} \approx 0.368$$
 
-### Try It: Bootstrap Sampling Visualized
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>New Sample</strong> to draw a bootstrap sample. Blue highlighted points are included; faded points are out-of-bag. Watch the inclusion rate converge to ~63.2% as you draw more samples. Click <strong>Auto</strong> to draw many samples automatically.
-</div>
+In the demo below, click New Sample to draw a bootstrap sample. Highlighted points are included; faded points are out-of-bag. Watch the inclusion rate converge to roughly 63.2% as you draw more samples.
 
 <div class="interactive-demo">
   <canvas id="bootstrap-canvas"></canvas>
@@ -705,6 +659,7 @@ $$P(\text{not chosen}) = \left(1 - \frac{1}{n}\right)^n \xrightarrow{n \to \inft
     <button id="bootstrap-reset">Reset</button>
   </div>
   <div class="demo-info" id="bootstrap-info">Click "New Sample" to begin</div>
+  <div class="demo-caption">Settings: 40 moons-shaped points; each click draws one bootstrap sample of size 40 with replacement.</div>
 </div>
 
 <script>
@@ -855,23 +810,11 @@ After many bootstrap samples, the average inclusion rate converges to approximat
 
 ## 3. Bagging: Bootstrap Aggregating
 
-**Bagging** (Bootstrap AGGregatING) is Leo Breiman's 1996 insight: train multiple models on different bootstrap samples and **aggregate** their predictions. For classification, we use majority vote; for regression, we average.
-
-The algorithm:
-
-1. Draw $$B$$ bootstrap samples from the training data
-2. Train one decision tree on each sample (fully grown, no pruning)
-3. For a new point, each tree votes and the majority wins
+Bagging (Bootstrap AGGregatING) is Leo Breiman's 1996 insight: train multiple models on different bootstrap samples and aggregate their predictions. For classification, we use majority vote; for regression, we average. The algorithm draws $$B$$ bootstrap samples from the training data, trains one decision tree on each sample (fully grown, no pruning), and for a new point each tree votes with the majority winning.
 
 $$\hat{y}(x) = \text{mode}\left\{f_1(x), f_2(x), \ldots, f_B(x)\right\}$$
 
-Each tree overfits to its bootstrap sample, but they overfit in **different ways**. The aggregated prediction smooths out individual errors.
-
-### Try It: Bagging in Action
-
-<div class="demo-hint">
-<strong>Interactive:</strong> See 6 individual trees trained on different bootstrap samples (top) and the aggregated ensemble prediction (bottom). Click <strong>Retrain</strong> to see different bootstrap samples produce different trees, but the ensemble remains stable.
-</div>
+Each tree overfits to its bootstrap sample, but they overfit in different ways. The aggregated prediction smooths out individual errors. The demo below shows 6 individual trees trained on different bootstrap samples and the aggregated ensemble prediction.
 
 <div class="interactive-demo">
   <div class="demo-controls">
@@ -897,6 +840,7 @@ Each tree overfits to its bootstrap sample, but they overfit in **different ways
     <div class="demo-caption">Ensemble (majority vote of all 6 trees)</div>
   </div>
   <div class="demo-info" id="bag-info"></div>
+  <div class="demo-caption">Settings: 100 moons-shaped points, 6 trees at depth 8, each on its own bootstrap sample, majority-vote ensemble.</div>
 </div>
 
 <script>
@@ -988,13 +932,7 @@ Each individual tree has a different jagged boundary because each one trained on
 
 ## 4. Forest Growth: Adding Trees One by One
 
-This is the key insight of Random Forests: as you add more trees, the decision boundary progressively smooths out and accuracy stabilizes. There is no overfitting from adding more trees, only diminishing returns.
-
-### Try It: Grow the Forest
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Drag the slider to add trees from 1 to 50. Watch the decision boundary smooth out as the forest grows. The accuracy curve on the right shows how performance improves and stabilizes.
-</div>
+This is the key insight of Random Forests: as you add more trees, the decision boundary progressively smooths out and accuracy stabilizes. There is no overfitting from adding more trees, only diminishing returns. Drag the slider in the demo below to add trees from 1 to 50 and watch the decision boundary smooth out, while the accuracy curve on the right shows how performance improves and stabilizes.
 
 <div class="interactive-demo">
   <div class="demo-controls">
@@ -1020,6 +958,7 @@ This is the key insight of Random Forests: as you add more trees, the decision b
     </div>
   </div>
   <div class="demo-info" id="grow-info"></div>
+  <div class="demo-caption">Settings: 120 moons-shaped points, slider grows from 1 to 50 trees at depth 8.</div>
 </div>
 
 <script>
@@ -1154,19 +1093,13 @@ This is the key insight of Random Forests: as you add more trees, the decision b
 })();
 </script>
 
-With just one tree, the boundary is jagged and noisy. By 5-10 trees, major improvements appear. By 20-30 trees, the boundary has largely converged. Adding more trees beyond that provides diminishing returns but **never hurts**, a key advantage of Random Forests.
+With just one tree, the boundary is jagged and noisy. By 5-10 trees, major improvements appear. By 20-30 trees, the boundary has largely converged. Adding more trees beyond that provides diminishing returns but never hurts, a key advantage of Random Forests.
 
 ---
 
 ## 5. Individual vs Ensemble Boundaries
 
-One of the most illuminating views is to see all individual tree boundaries overlaid, versus the clean ensemble result.
-
-### Try It: Individual Trees vs Ensemble
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Toggle between viewing all individual tree boundaries and the ensemble boundary. Each individual tree is colored differently. Together they are diverse and noisy, but their vote is smooth.
-</div>
+One of the most illuminating views is to see all individual tree boundaries overlaid, versus the clean ensemble result. Toggle between viewing all individual tree boundaries and the ensemble boundary. Each individual tree is colored differently; together they are diverse and noisy, but their vote is smooth.
 
 <div class="interactive-demo">
   <div class="demo-controls">
@@ -1177,6 +1110,7 @@ One of the most illuminating views is to see all individual tree boundaries over
   </div>
   <canvas id="vs-canvas"></canvas>
   <div class="demo-info" id="vs-info"></div>
+  <div class="demo-caption">Settings: 100 moons-shaped points, individual view, 8 trees out of a 20-tree forest at depth 8.</div>
 </div>
 
 <script>
@@ -1282,27 +1216,17 @@ One of the most illuminating views is to see all individual tree boundaries over
 })();
 </script>
 
-In the **Individual** view, you can see the colored contour lines of each tree's decision boundary. They are all different, that is diversity, and it is essential. When you switch to **Ensemble** view, those diverse opinions merge into a smooth, confident boundary.
+In the Individual view, you can see the colored contour lines of each tree's decision boundary. They are all different, that is diversity, and it is essential. When you switch to Ensemble view, those diverse opinions merge into a smooth, confident boundary.
 
 ---
 
 ## 6. Random Feature Selection
 
-Bagging alone helps, but the trees can still be **correlated**, if one feature is very strong, all trees will split on it first, making them similar. Random Forests add a second source of randomness: at each split, only a random subset of features is considered.
-
-For classification, the default is $$\sqrt{p}$$ features per split (where $$p$$ is the total number of features). This forces trees to explore different features and produces more **decorrelated** trees, which further reduces ensemble variance.
-
-With $$B$$ trees that have pairwise correlation $$\rho$$, the ensemble variance is:
+Bagging alone helps, but the trees can still be correlated: if one feature is very strong, all trees will split on it first, making them similar. Random Forests add a second source of randomness: at each split, only a random subset of features is considered. For classification, the default is $$\sqrt{p}$$ features per split (where $$p$$ is the total number of features). This forces trees to explore different features and produces more decorrelated trees, which further reduces ensemble variance. With $$B$$ trees that have pairwise correlation $$\rho$$, the ensemble variance is:
 
 $$\text{Var} = \rho \sigma^2 + \frac{1 - \rho}{B}\sigma^2$$
 
-Reducing $$\rho$$ (correlation between trees) reduces the first term, which does not shrink with $$B$$. This is why random feature selection matters.
-
-### Try It: Feature Selection Per Split
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Toggle between using all features per split (bagging) vs random feature subset (Random Forest). With only 2 features in 2D, the difference is subtle, but the principle is demonstrated. In high dimensions with many features, this decorrelation is critical.
-</div>
+Reducing $$\rho$$ (correlation between trees) reduces the first term, which does not shrink with $$B$$. This is why random feature selection matters. The demo below toggles between using all features per split (bagging) and a random feature subset (Random Forest). With only 2 features in 2D, the difference is subtle, but in high dimensions with many features, this decorrelation is critical.
 
 <div class="interactive-demo">
   <div class="demo-controls">
@@ -1321,6 +1245,7 @@ Reducing $$\rho$$ (correlation between trees) reduces the first term, which does
     </div>
   </div>
   <div class="demo-info" id="feat-info"></div>
+  <div class="demo-caption">Settings: 100 moons-shaped points, comparing all-features bagging against random-subset Random Forest.</div>
 </div>
 
 <script>
@@ -1408,17 +1333,11 @@ When all features are considered at every split (bagging), both trees tend to us
 
 ## 7. Feature Importance
 
-Random Forests provide a natural measure of **feature importance**: the total reduction in Gini impurity that a feature contributes across all trees and all splits, averaged over the forest.
+Random Forests provide a natural measure of feature importance: the total reduction in Gini impurity that a feature contributes across all trees and all splits, averaged over the forest.
 
 $$\text{Importance}(f) = \frac{1}{B}\sum_{b=1}^{B}\sum_{\text{splits on } f \text{ in tree } b} n_{\text{node}} \cdot \Delta\text{Gini}$$
 
-This is one of the most practical benefits of Random Forests, you get feature ranking for free.
-
-### Try It: Feature Importance by Forest Size
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Drag the slider to add trees and watch the feature importance bars stabilize. With few trees, importance estimates are noisy. With many trees, they converge to a stable ranking.
-</div>
+This is one of the most practical benefits of Random Forests, you get feature ranking for free. Drag the slider in the demo below to add trees and watch the feature importance bars stabilize. With few trees, importance estimates are noisy; with many trees, they converge to a stable ranking.
 
 <div class="interactive-demo">
   <div class="demo-controls">
@@ -1427,6 +1346,7 @@ This is one of the most practical benefits of Random Forests, you get feature ra
   </div>
   <canvas id="imp-canvas"></canvas>
   <div class="demo-info" id="imp-info"></div>
+  <div class="demo-caption">Settings: 120 moons-shaped points, slider grows from 1 to 50 trees in a depth-8 forest.</div>
 </div>
 
 <script>
@@ -1558,19 +1478,11 @@ With a single tree, importance estimates are unreliable, they depend heavily on 
 
 ## 8. Out-of-Bag Error Estimation
 
-One of the most elegant properties of Random Forests is **free cross-validation** through **Out-of-Bag (OOB) error**.
-
-Since each tree only sees about 63.2% of the data, the remaining 36.8% (OOB samples) can be used as a validation set. For each data point, we aggregate the predictions of **only the trees that did not see it** during training:
+One of the most elegant properties of Random Forests is free cross-validation through Out-of-Bag (OOB) error. Since each tree only sees about 63.2% of the data, the remaining 36.8% (OOB samples) can be used as a validation set. For each data point, we aggregate the predictions of only the trees that did not see it during training:
 
 $$\hat{y}_{\text{OOB}}(x_i) = \text{mode}\left\{f_b(x_i) : i \notin \text{bootstrap}_b\right\}$$
 
-The OOB error is an unbiased estimate of the test error, requiring no separate validation set.
-
-### Try It: OOB Error Convergence
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Watch the OOB error (red) and training accuracy (blue) as trees are added. The OOB error gives an honest estimate of generalization performance without needing a holdout set.
-</div>
+The OOB error is an unbiased estimate of the test error, requiring no separate validation set. The demo below shows the OOB error (red) and training accuracy (blue) as trees are added. The OOB error gives an honest estimate of generalization performance without needing a holdout set.
 
 <div class="interactive-demo">
   <div class="demo-controls">
@@ -1586,6 +1498,7 @@ The OOB error is an unbiased estimate of the test error, requiring no separate v
   </div>
   <canvas id="oob-canvas"></canvas>
   <div class="demo-info" id="oob-info"></div>
+  <div class="demo-caption">Settings: moons dataset, slider grows from 1 to 50 trees with OOB and training error tracked.</div>
 </div>
 
 <script>
@@ -1734,13 +1647,7 @@ The training error (blue) is typically very low because each tree memorizes its 
 
 ## 9. Random Forest vs Single Tree
 
-Let us do a comprehensive comparison. A single tree is fast and interpretable, but prone to overfitting. A Random Forest trades some interpretability for dramatically better generalization.
-
-### Try It: Head-to-Head Comparison
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Compare a single tree against a Random Forest across different datasets. The single tree's boundary is jagged and unstable. The forest's boundary is smooth and robust.
-</div>
+Let us do a comprehensive comparison. A single tree is fast and interpretable, but prone to overfitting. A Random Forest trades some interpretability for dramatically better generalization. The demo below compares a single tree against a Random Forest across different datasets: the single tree's boundary is jagged and unstable, while the forest's boundary is smooth and robust.
 
 <div class="interactive-demo">
   <div class="demo-controls">
@@ -1766,6 +1673,7 @@ Let us do a comprehensive comparison. A single tree is fast and interpretable, b
     </div>
   </div>
   <div class="demo-info" id="comp-info"></div>
+  <div class="demo-caption">Settings: 120 moons-shaped points, single depth-10 tree compared against a 30-tree forest at depth 8.</div>
 </div>
 
 <script>
@@ -1841,13 +1749,13 @@ Let us do a comprehensive comparison. A single tree is fast and interpretable, b
 })();
 </script>
 
-Try different datasets and click **Regenerate** multiple times. The single tree changes dramatically each time, while the Random Forest remains remarkably consistent. This stability is the hallmark of ensemble methods.
+Try different datasets and click Regenerate multiple times. The single tree changes dramatically each time, while the Random Forest remains remarkably consistent. This stability is the hallmark of ensemble methods.
 
 ---
 
 ## 10. Summary
 
-Random Forests combine two powerful ideas, **bootstrap sampling** and **random feature selection**, to build ensembles of decorrelated decision trees. The result is one of the most reliable and widely used machine learning algorithms.
+Random Forests combine two powerful ideas, bootstrap sampling and random feature selection, to build ensembles of decorrelated decision trees. The result is one of the most reliable and widely used machine learning algorithms.
 
 ### The Random Forest Algorithm
 
@@ -1892,7 +1800,7 @@ Random Forests combine two powerful ideas, **bootstrap sampling** and **random f
 
 ### When to Use Random Forests
 
-Random Forests are an excellent **first model** to try on almost any tabular dataset. They work well when:
+Random Forests are an excellent first model to try on almost any tabular dataset. They work well when:
 - You want a strong baseline with minimal tuning
 - Feature importance is valuable for understanding the problem
 - You need robust performance on noisy data
@@ -1900,7 +1808,7 @@ Random Forests are an excellent **first model** to try on almost any tabular dat
 
 ### What is Next
 
-Random Forests reduce variance by averaging many independent models. But what if we could do better by training each new model to **correct the mistakes** of the previous ones? That is the idea behind **Boosting** methods like Gradient Boosted Trees and XGBoost, which we will explore in the next chapter.
+Random Forests reduce variance by averaging many independent models. But what if we could do better by training each new model to correct the mistakes of the previous ones? That is the idea behind Boosting methods like Gradient Boosted Trees and XGBoost, which we will explore in the next chapter.
 
 ---
 

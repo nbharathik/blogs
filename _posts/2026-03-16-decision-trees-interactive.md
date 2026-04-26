@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Decision Trees from Scratch - An Interactive Guide"
+title: "Decision Trees from Scratch"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -120,31 +120,7 @@ date: 2026-03-17
 window.DT = (function() {
   var D = {};
 
-  D.getColors = function() {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (!document.documentElement.getAttribute('data-theme') &&
-       window.matchMedia('(prefers-color-scheme: dark)').matches);
-    return {
-      bg: isDark ? '#1a1b26' : '#ffffff',
-      bgSecondary: isDark ? '#24283b' : '#f1f5f9',
-      text: isDark ? '#c0caf5' : '#1e293b',
-      textMuted: isDark ? '#565f89' : '#94a3b8',
-      grid: isDark ? '#292e42' : '#e2e8f0',
-      border: isDark ? '#3b4261' : '#cbd5e1',
-      accent: isDark ? '#7aa2f7' : '#2563eb',
-      class0: isDark ? '#7aa2f7' : '#2563eb',
-      class0Light: isDark ? 'rgba(122,162,247,0.18)' : 'rgba(37,99,235,0.12)',
-      class1: isDark ? '#f7768e' : '#e63946',
-      class1Light: isDark ? 'rgba(247,118,142,0.18)' : 'rgba(230,57,70,0.12)',
-      class2: isDark ? '#9ece6a' : '#16a34a',
-      class2Light: isDark ? 'rgba(158,206,106,0.18)' : 'rgba(22,163,74,0.12)',
-      split: isDark ? '#e0af68' : '#d97706',
-      node: isDark ? '#bb9af7' : '#7c3aed',
-      leaf0: isDark ? '#7aa2f7' : '#2563eb',
-      leaf1: isDark ? '#f7768e' : '#e63946',
-      isDark: isDark
-    };
-  };
+  D.getColors = function() { return window.Viz.colors(); };
 
   D.setupCanvas = function(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -561,15 +537,12 @@ window.DT = (function() {
 
 ## What is a Decision Tree?
 
-A **decision tree** is one of the most intuitive machine learning models. It makes predictions by asking a series of yes/no questions about the features, splitting the data at each step until it arrives at a final prediction. Think of it as a flowchart for classification.
-
-Every internal node tests a condition like "Is feature X <= threshold?". Each branch leads to a child node, and the **leaf nodes** hold the final prediction. The path from root to leaf represents a chain of logical rules that any human can read and understand.
-
-Click the nodes in the tree below to trace a decision path. The highlighted path shows how the tree classifies a data point about whether to go outside today.
+A decision tree is one of the most intuitive machine learning models. It makes predictions by asking a series of yes/no questions about the features, splitting the data at each step until it arrives at a final prediction. Think of it as a flowchart for classification. Every internal node tests a condition like "Is feature X <= threshold?". Each branch leads to a child node, and the leaf nodes hold the final prediction. The path from root to leaf represents a chain of logical rules that any human can read and understand. Click the nodes in the tree below to trace a decision path. The highlighted path shows how the tree classifies a data point about whether to go outside today.
 
 <div class="interactive-demo" id="demo-intro">
   <canvas id="canvas-intro"></canvas>
   <div class="demo-info" id="info-intro">Click any leaf node to highlight the decision path</div>
+  <div class="demo-caption">Settings: pre-built "go outside?" tree with two yes/no questions and four leaf decisions.</div>
 </div>
 
 <script>
@@ -738,25 +711,19 @@ Click the nodes in the tree below to trace a decision path. The highlighted path
 })();
 </script>
 
-The beauty of decision trees is **interpretability**. Unlike a neural network or SVM, you can explain exactly *why* the model made a prediction by reading the path from root to leaf. This makes them popular in regulated industries (finance, healthcare) where model transparency is required.
+The beauty of decision trees is interpretability. Unlike a neural network or SVM, you can explain exactly why the model made a prediction by reading the path from root to leaf. This makes them popular in regulated industries (finance, healthcare) where model transparency is required.
 
 ---
 
 ## Splitting Criteria: Gini Impurity and Entropy
 
-How does a decision tree decide *where* to split? It evaluates every possible feature and threshold, and picks the one that **reduces impurity the most**. The two most common impurity measures are:
+How does a decision tree decide where to split? It evaluates every possible feature and threshold, and picks the one that reduces impurity the most. The two most common impurity measures are Gini Impurity and Entropy.
 
-**Gini Impurity:**
+**Gini**: $$\text{Gini}(S) = 1 - \sum_{k=1}^{K} p_k^2$$
 
-$$\text{Gini}(S) = 1 - \sum_{k=1}^{K} p_k^2$$
+**Entropy**: $$\text{Entropy}(S) = -\sum_{k=1}^{K} p_k \log_2(p_k)$$
 
-**Entropy:**
-
-$$\text{Entropy}(S) = -\sum_{k=1}^{K} p_k \log_2(p_k)$$
-
-where $$p_k$$ is the fraction of samples belonging to class $$k$$.
-
-Both equal **0 for a pure node** (all one class) and reach their maximum for a perfectly balanced split. Drag the threshold below to see how both measures change as you move the split point across a 1D dataset.
+where $$p_k$$ is the fraction of samples belonging to class $$k$$. Both equal 0 for a pure node (all one class) and reach their maximum for a perfectly balanced split. Drag the threshold below to see how both measures change as you move the split point across a 1D dataset.
 
 <div class="interactive-demo" id="demo-split-criteria">
   <canvas id="canvas-split-criteria"></canvas>
@@ -765,6 +732,7 @@ Both equal **0 for a pure node** (all one class) and reach their maximum for a p
     <button id="btn-split-regen">New Data</button>
   </div>
   <div class="demo-info" id="info-split-criteria">Drag the threshold to see how impurity changes</div>
+  <div class="demo-caption">Settings: 40 random 1D points with a noisy mid-range overlap; threshold starts at 0.50.</div>
 </div>
 
 <script>
@@ -909,6 +877,7 @@ Let us plot both functions over the full range of $$p$$ (probability of class 1 
     <label>p = <input type="range" id="slider-p-val" min="0" max="100" value="50"> <span class="demo-value" id="val-p-val">0.50</span></label>
   </div>
   <div class="demo-info" id="info-gini-entropy">Both peak at p=0.5 and equal 0 at the extremes</div>
+  <div class="demo-caption">Settings: both curves shown over p in [0,1] with a movable marker at p=0.50.</div>
 </div>
 
 <script>
@@ -1056,13 +1025,13 @@ Let us plot both functions over the full range of $$p$$ (probability of class 1 
 })();
 </script>
 
-When scaled to the same range, Gini and Entropy have nearly identical shapes. Gini peaks at 0.5, Entropy at 1.0. In practice, they produce the same tree in the vast majority of cases. Scikit-learn uses **Gini by default** because it avoids the logarithm computation and is slightly faster.
+When scaled to the same range, Gini and Entropy have nearly identical shapes. Gini peaks at 0.5, Entropy at 1.0. In practice, they produce the same tree in the vast majority of cases. Scikit-learn uses Gini by default because it avoids the logarithm computation and is slightly faster.
 
 ---
 
 ## Tree Builder Animation
 
-This is the core demo. Press **Play** to watch a decision tree grow split-by-split on 2D data. The left panel shows the tree structure being built, while the right panel shows the feature space being partitioned into rectangles.
+This is the core demo. Press Play to watch a decision tree grow split-by-split on 2D data. The left panel shows the tree structure being built, while the right panel shows the feature space being partitioned into rectangles.
 
 <div class="interactive-demo" id="demo-builder">
   <div class="demo-split">
@@ -1088,6 +1057,7 @@ This is the core demo. Press **Play** to watch a decision tree grow split-by-spl
     </label>
   </div>
   <div class="demo-info" id="info-builder">Press Play to watch the tree grow split-by-split</div>
+  <div class="demo-caption">Settings: two-blob 2D data (80 points), Gini criterion, max 8 splits, animation speed 4.</div>
 </div>
 
 <script>
@@ -1320,15 +1290,13 @@ This is the core demo. Press **Play** to watch a decision tree grow split-by-spl
 })();
 </script>
 
-Watch carefully how each split divides the feature space with an **axis-aligned rectangle**. This is a fundamental property of decision trees, they can only split parallel to the axes, never diagonally. This means diagonal decision boundaries require many small staircase-like splits to approximate.
+Watch carefully how each split divides the feature space with an axis-aligned rectangle. This is a fundamental property of decision trees, they can only split parallel to the axes, never diagonally. This means diagonal decision boundaries require many small staircase-like splits to approximate.
 
 ---
 
 ## Overfitting: The Depth Slider
 
-A decision tree with no depth limit will keep splitting until every leaf is pure. On training data, it reaches 100% accuracy, but it memorizes noise and performs poorly on new data. This is **overfitting**.
-
-Drag the **max depth** slider to see how tree complexity affects the decision boundary. At depth 1, the tree underfits (too simple). At depth 15, it overfits (too complex). The sweet spot is usually somewhere in between.
+A decision tree with no depth limit will keep splitting until every leaf is pure. On training data, it reaches 100% accuracy, but it memorizes noise and performs poorly on new data. This is overfitting. Drag the max depth slider to see how tree complexity affects the decision boundary. At depth 1, the tree underfits (too simple). At depth 15, it overfits (too complex). The sweet spot is usually somewhere in between.
 
 <div class="interactive-demo" id="demo-depth">
   <div class="demo-split">
@@ -1353,6 +1321,7 @@ Drag the **max depth** slider to see how tree complexity affects the decision bo
     <button id="btn-depth-regen">New Data</button>
   </div>
   <div class="demo-info" id="info-depth">Adjust max depth to see underfitting vs overfitting</div>
+  <div class="demo-caption">Settings: two-blob dataset, Gini criterion, max depth 3.</div>
 </div>
 
 <script>
@@ -1488,15 +1457,11 @@ Drag the **max depth** slider to see how tree complexity affects the decision bo
 })();
 </script>
 
-<div class="demo-hint">
-Try the Spiral dataset with depth 1, then slowly increase to 15. Watch how the boundary goes from a single straight line to an intricate staircase pattern that memorizes every point. The optimal depth for moons is typically around 4-6.
-</div>
-
-This is why **pruning** matters. In practice, you control complexity via:
-- **max_depth**, limits how deep the tree can grow
-- **min_samples_split**, minimum samples required to split a node
-- **min_samples_leaf**, minimum samples in a leaf node
-- **Post-pruning** (cost-complexity pruning), grow a full tree, then remove branches that do not improve validation accuracy
+This is why pruning matters. In practice, you control complexity via:
+- **max_depth**: limits how deep the tree can grow
+- **min_samples_split**: minimum samples required to split a node
+- **min_samples_leaf**: minimum samples in a leaf node
+- **Post-pruning** (cost-complexity pruning): grow a full tree, then remove branches that do not improve validation accuracy
 
 ---
 
@@ -1512,6 +1477,7 @@ Click on the canvas below to add data points (left click for class 0, right clic
     <button id="btn-int-sample">Add Sample Data</button>
   </div>
   <div class="demo-info" id="info-interactive">Left-click: class 0 (blue) | Right-click: class 1 (red)</div>
+  <div class="demo-caption">Settings: empty canvas, Gini criterion, max depth 4. Click to add points and the tree updates in real time.</div>
 </div>
 
 <script>
@@ -1614,17 +1580,17 @@ Click on the canvas below to add data points (left click for class 0, right clic
 })();
 </script>
 
-Try creating clusters, then increase the depth to see how the tree captures them. Notice that with enough depth, the tree can perfectly separate **any** configuration of points, but the boundary becomes increasingly jagged and unlikely to generalize.
+Try creating clusters, then increase the depth to see how the tree captures them. Notice that with enough depth, the tree can perfectly separate any configuration of points, but the boundary becomes increasingly jagged and unlikely to generalize.
 
 ---
 
 ## Regression Trees
 
-Decision trees are not limited to classification. A **regression tree** predicts continuous values by assigning the **mean** of training samples in each leaf region. Instead of minimizing Gini or Entropy, it minimizes **variance** (or equivalently, mean squared error).
+Decision trees are not limited to classification. A regression tree predicts continuous values by assigning the mean of training samples in each leaf region. Instead of minimizing Gini or Entropy, it minimizes variance (or equivalently, mean squared error).
 
 $$\text{Variance}(S) = \frac{1}{|S|} \sum_{i \in S} (y_i - \bar{y})^2$$
 
-The result is a **piecewise-constant** step function. Drag the depth slider to see how more splits create a closer approximation to the underlying curve.
+The result is a piecewise-constant step function. Drag the depth slider to see how more splits create a closer approximation to the underlying curve.
 
 <div class="interactive-demo" id="demo-regression">
   <canvas id="canvas-regression"></canvas>
@@ -1633,6 +1599,7 @@ The result is a **piecewise-constant** step function. Drag the depth slider to s
     <button id="btn-reg-regen">New Data</button>
   </div>
   <div class="demo-info" id="info-regression">Drag the depth slider to control how closely the tree fits the data</div>
+  <div class="demo-caption">Settings: noisy 1D regression data with a curved target, max depth 3.</div>
 </div>
 
 <script>
@@ -1764,17 +1731,17 @@ The result is a **piecewise-constant** step function. Drag the depth slider to s
 })();
 </script>
 
-At **depth 1**, the tree makes only one split, a crude two-step approximation. At **depth 10**, it traces every wiggle in the data including noise. The dashed line shows the true underlying function. Notice how the step function converges toward it as depth increases, but eventually starts fitting noise.
+At depth 1, the tree makes only one split, a crude two-step approximation. At depth 10, it traces every wiggle in the data including noise. The dashed line shows the true underlying function. Notice how the step function converges toward it as depth increases, but eventually starts fitting noise.
 
 ---
 
 ## Information Gain Walkthrough
 
-**Information gain** is the difference between the parent impurity and the weighted sum of child impurities. The tree always picks the split with the highest information gain.
+Information gain is the difference between the parent impurity and the weighted sum of child impurities. The tree always picks the split with the highest information gain.
 
 $$\text{IG}(S, A) = \text{Impurity}(S) - \sum_{v \in \text{values}(A)} \frac{|S_v|}{|S|} \cdot \text{Impurity}(S_v)$$
 
-The demo below shows the information gain for **every possible split** on a small dataset. Each bar represents a candidate threshold. The tallest bar is the one the tree picks.
+The demo below shows the information gain for every possible split on a small dataset. Each bar represents a candidate threshold. The tallest bar is the one the tree picks.
 
 <div class="interactive-demo" id="demo-ig">
   <canvas id="canvas-ig"></canvas>
@@ -1788,6 +1755,7 @@ The demo below shows the information gain for **every possible split** on a smal
     <button id="btn-ig-regen">New Data</button>
   </div>
   <div class="demo-info" id="info-ig">Each bar shows the information gain for one candidate split</div>
+  <div class="demo-caption">Settings: 20 noisy 1D points along a single feature, Gini criterion. Highlighted bar is the best split.</div>
 </div>
 
 <script>
@@ -2002,7 +1970,7 @@ The demo below shows the information gain for **every possible split** on a smal
 })();
 </script>
 
-The highlighted bar (golden) is the **best split**, the one the tree selects at the root. Notice how the information gain is highest where the split most cleanly separates the blue and red points. Thresholds at the extreme ends have very low gain because they put almost all points on one side.
+The highlighted bar (golden) is the best split, the one the tree selects at the root. Notice how the information gain is highest where the split most cleanly separates the blue and red points. Thresholds at the extreme ends have very low gain because they put almost all points on one side.
 
 ---
 
@@ -2020,12 +1988,12 @@ The highlighted bar (golden) is the **best split**, the one the tree selects at 
 
 ### Key Takeaways
 
-1. Decision trees are the most **interpretable** ML model, every prediction has a human-readable explanation.
+1. Decision trees are the most interpretable ML model, every prediction has a human-readable explanation.
 2. Gini and Entropy produce nearly identical trees; Gini is faster (no logarithm) and is the default in scikit-learn.
-3. An unpruned tree will **memorize** the training data. Always control complexity via depth limits or pruning.
-4. Regression trees produce **piecewise-constant** predictions, step functions that approximate the target.
-5. Decision boundaries are always **axis-aligned rectangles**, which is both a strength (simplicity) and a limitation (poor on diagonal boundaries).
+3. An unpruned tree will memorize the training data. Always control complexity via depth limits or pruning.
+4. Regression trees produce piecewise-constant predictions, step functions that approximate the target.
+5. Decision boundaries are always axis-aligned rectangles, which is both a strength (simplicity) and a limitation (poor on diagonal boundaries).
 
 ### What's Next
 
-In the next chapter, we will explore **Random Forests and Ensemble Methods**, where we combine many decision trees to create a model that is far more powerful and resistant to overfitting than any single tree. The key idea: a committee of weak learners, each trained on random subsets of data and features, can outperform any individual member.
+In the next chapter, we will explore Random Forests and Ensemble Methods, where we combine many decision trees to create a model that is far more powerful and resistant to overfitting than any single tree. The key idea: a committee of weak learners, each trained on random subsets of data and features, can outperform any individual member.

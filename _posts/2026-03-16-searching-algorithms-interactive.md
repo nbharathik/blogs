@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Searching Algorithms: An Interactive Guide"
+title: "Searching Algorithms"
 author: bharathikannan
 categories: [Data Structures]
 description: "Visualize linear search and binary search step by step. See why O(log n) crushes O(n)  - all in your browser."
@@ -103,23 +103,7 @@ window.DSA_Search = (function() {
   var arr = defaultArr.slice();
   var target = 43;
 
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      cell: dark ? '#7aa2f7' : '#2563eb',
-      cellChecked: dark ? '#565f89' : '#d1d5db',
-      cellCurrent: dark ? '#ff9e64' : '#f59e0b',
-      cellFound: dark ? '#9ece6a' : '#16a34a',
-      cellNotFound: dark ? '#f7768e' : '#e63946',
-      cellMid: dark ? '#bb9af7' : '#7c3aed',
-      cellEliminated: dark ? '#292e42' : '#f3f4f6',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      textOnCell: '#ffffff',
-      pointer: dark ? '#ff9e64' : '#e63946'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -307,26 +291,15 @@ window.DSA_Search = (function() {
 })();
 </script>
 
-Searching is one of the most common operations in computing. Every time you press Ctrl+F, look up a contact, or query a database, a search algorithm runs behind the scenes.
+Searching is one of the most common operations in computing. Every time you press Ctrl+F, look up a contact, or query a database, a search algorithm runs behind the scenes. In this guide, we will build two fundamental search algorithms from scratch and see how they compare.
 
-In this guide, we will build **two fundamental search algorithms from scratch** and see how they compare.
-
-By the end you will understand:
-- **Linear Search** - check every element, one by one (O(n))
-- **Binary Search** - divide and conquer on sorted data (O(log n))
-- Why sorting your data first can make searching exponentially faster
-
-<div class="demo-hint">
-<strong>How to use the demos:</strong> Enter a target value, then step through or auto-play. Watch how each algorithm narrows down the search space differently.
-</div>
+By the end you will understand linear search (which checks every element one by one in O(n)), binary search (which divides and conquers sorted data in O(log n)), and why sorting your data first can make searching exponentially faster.
 
 ---
 
 ## Linear Search
 
-Linear search is the simplest possible search: start from the beginning and check every element until you find the target or reach the end. It works on **any** array - sorted or unsorted.
-
-### Python Implementation
+Linear search is the simplest possible search: start from the beginning and check every element until you find the target or reach the end. It works on any array, sorted or unsorted.
 
 ```python
 def linear_search(arr, target):
@@ -336,13 +309,7 @@ def linear_search(arr, target):
     return -1
 ```
 
-**Time complexity:** $$O(n)$$ - in the worst case, you check every element. On average, you check $$n/2$$ elements.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Enter a target value and step through. The yellow cell is the current element being checked. Gray cells have already been checked. Green means found.
-</div>
+**Time complexity:** $$O(n)$$ in the worst case, you check every element. On average, you check $$n/2$$ elements. The demo below visualizes this on a sorted array. The yellow cell is the current element being checked, gray cells have already been checked, and green means found.
 
 <div class="interactive-demo">
   <canvas id="linear-canvas" width="680" height="130"></canvas>
@@ -354,6 +321,7 @@ def linear_search(arr, target):
     <label>Speed: <input type="range" id="linear-speed" min="1" max="20" value="6"> <span class="demo-value" id="linear-speed-val">6</span></label>
   </div>
   <div class="demo-info" id="linear-info">Steps: 0 | Ready</div>
+  <div class="demo-caption">Settings: 10-element sorted array [3, 9, 10, 17, 27, 38, 43, 52, 64, 82], default target 43.</div>
 </div>
 
 <script>
@@ -430,9 +398,7 @@ def linear_search(arr, target):
 
 ## Binary Search
 
-Binary search is dramatically faster, but it requires the array to be **sorted**. It works by comparing the target to the **middle** element. If the target is smaller, search the left half; if larger, search the right half. Each step eliminates half the remaining elements.
-
-### Python Implementation
+Binary search is dramatically faster, but it requires the array to be sorted. It works by comparing the target to the middle element. If the target is smaller, search the left half; if larger, search the right half. Each step eliminates half the remaining elements.
 
 ```python
 def binary_search(arr, target):
@@ -450,13 +416,7 @@ def binary_search(arr, target):
     return -1
 ```
 
-**Time complexity:** $$O(\log n)$$ - each step halves the search space. For an array of 1,000,000 elements, binary search needs at most 20 comparisons. Linear search would need up to 1,000,000.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> The purple cell is <code>mid</code>. The orange pointers show <code>low</code> and <code>high</code>. Dark cells have been eliminated. Watch how half the array is discarded on every step.
-</div>
+**Time complexity:** $$O(\log n)$$ each step halves the search space. For an array of 1,000,000 elements, binary search needs at most 20 comparisons. Linear search would need up to 1,000,000. In the demo below, the purple cell is mid, the orange pointers show low and high, and dark cells have been eliminated. Watch how half the array is discarded on every step.
 
 <div class="interactive-demo">
   <canvas id="binary-canvas" width="680" height="140"></canvas>
@@ -468,6 +428,7 @@ def binary_search(arr, target):
     <label>Speed: <input type="range" id="binary-speed" min="1" max="20" value="4"> <span class="demo-value" id="binary-speed-val">4</span></label>
   </div>
   <div class="demo-info" id="binary-info">Steps: 0 | Ready</div>
+  <div class="demo-caption">Settings: same 10-element sorted array, default target 43, low and high pointers shown below the cells.</div>
 </div>
 
 <script>
@@ -544,11 +505,7 @@ def binary_search(arr, target):
 
 ## Side-by-Side Comparison
 
-Now let us see both algorithms search for the same target simultaneously. This is the best way to appreciate why $$O(\log n)$$ is so much better than $$O(n)$$.
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Race!</strong> to run both algorithms at the same time on the same sorted array and target. Binary search will almost always finish first.
-</div>
+Now let us see both algorithms search for the same target simultaneously. This is the best way to appreciate why $$O(\log n)$$ is so much better than $$O(n)$$. Click Race! to run both algorithms at the same time on the same sorted array and target, and binary search will almost always finish first.
 
 <div class="interactive-demo">
   <div class="demo-split">
@@ -569,6 +526,7 @@ Now let us see both algorithms search for the same target simultaneously. This i
     <button id="compare-reset">Reset</button>
     <label>Speed: <input type="range" id="compare-speed" min="1" max="20" value="5"> <span class="demo-value" id="compare-speed-val">5</span></label>
   </div>
+  <div class="demo-caption">Settings: 10-element sorted array, default target 64, both algorithms run on the same data simultaneously.</div>
 </div>
 
 <script>
@@ -650,18 +608,18 @@ Now let us see both algorithms search for the same target simultaneously. This i
 
 ## Key Takeaways
 
-1. **Linear search** works on any array but checks every element  - $$O(n)$$. It is fine for small datasets.
-
-2. **Binary search** requires a sorted array but is exponentially faster  - $$O(\log n)$$. For 1 million elements, it needs only ~20 steps instead of 1 million.
-
-3. **The cost of sorting is worth it.** Even though sorting takes $$O(n \log n)$$, if you need to search the same data many times, sorting once and then using binary search saves enormous time.
-
-4. **Try it yourself:** Search for the first element (3) and the last element (82) to see best and worst cases for linear search. Notice that binary search takes roughly the same number of steps regardless of the target's position.
+| Concept | Key Idea |
+|---|---|
+| Linear Search | Checks every element in $$O(n)$$ and works on any array, sorted or not. |
+| Binary Search | Halves the search space each step in $$O(\log n)$$ but requires a sorted array. |
+| Speedup | For 1 million elements, binary search needs about 20 steps versus 1 million for linear. |
+| Sort Then Search | Sorting once at $$O(n \log n)$$ pays off when the same data is searched many times. |
+| Best vs Worst Case | Linear varies with target position; binary stays roughly constant regardless of position. |
 
 ---
 
 ## What's Next?
 
-Now that you understand arrays, searching, and sorting, it is time to explore **linked lists**  - a fundamentally different way to organize data. Continue to the [Linked Lists Interactive Guide]({{ site.baseurl }}/linked-lists/) to see how pointers change everything.
+Now that you understand arrays, searching, and sorting, it is time to explore linked lists, a fundamentally different way to organize data. Continue to the [Linked Lists Interactive Guide]({{ site.baseurl }}/linked-lists/) to see how pointers change everything.
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

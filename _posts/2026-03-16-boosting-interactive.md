@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Boosting: AdaBoost & Gradient Boosting - An Interactive Guide"
+title: "Boosting: AdaBoost & Gradient Boosting"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -120,29 +120,7 @@ date: 2026-03-17
 window.BST = (function() {
   var B = {};
 
-  B.getColors = function() {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (!document.documentElement.getAttribute('data-theme') &&
-       window.matchMedia('(prefers-color-scheme: dark)').matches);
-    return {
-      bg: isDark ? '#1a1b26' : '#ffffff',
-      bgSecondary: isDark ? '#24283b' : '#f1f5f9',
-      text: isDark ? '#c0caf5' : '#1e293b',
-      textMuted: isDark ? '#565f89' : '#94a3b8',
-      grid: isDark ? '#292e42' : '#e2e8f0',
-      border: isDark ? '#3b4261' : '#cbd5e1',
-      accent: isDark ? '#7aa2f7' : '#2563eb',
-      class0: isDark ? '#7aa2f7' : '#2563eb',
-      class0Light: isDark ? 'rgba(122,162,247,0.15)' : 'rgba(37,99,235,0.12)',
-      class1: isDark ? '#f7768e' : '#e63946',
-      class1Light: isDark ? 'rgba(247,118,142,0.15)' : 'rgba(230,57,70,0.12)',
-      green: isDark ? '#9ece6a' : '#16a34a',
-      orange: isDark ? '#e0af68' : '#d97706',
-      purple: isDark ? '#bb9af7' : '#7c3aed',
-      teal: isDark ? '#2ac3de' : '#0891b2',
-      isDark: isDark
-    };
-  };
+  B.getColors = function() { return window.Viz.colors(); };
 
   B.setupCanvas = function(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -432,25 +410,13 @@ window.BST = (function() {
 })();
 </script>
 
-In the [previous chapter on SVMs]({% post_url 2026-03-16-svm-interactive %}), we learned to find a single powerful decision boundary. But what if, instead of building one strong model, we built many **weak models** and combined them strategically?
-
-This is the core insight behind **boosting**: a family of ensemble methods that turn weak learners into a strong learner by training them **sequentially**, where each new learner focuses on correcting the mistakes of its predecessors.
-
-Boosting has produced some of the most successful machine learning algorithms in practice. XGBoost, LightGBM, and CatBoost, all based on gradient boosting, dominate Kaggle competitions and power production systems at scale. Let us build this family of algorithms from scratch.
+In the [previous chapter on SVMs]({% post_url 2026-03-16-svm-interactive %}), we learned to find a single powerful decision boundary. But what if, instead of building one strong model, we built many weak models and combined them strategically? This is the core insight behind boosting: a family of ensemble methods that turn weak learners into a strong learner by training them sequentially, where each new learner focuses on correcting the mistakes of its predecessors. Boosting has produced some of the most successful machine learning algorithms in practice. XGBoost, LightGBM, and CatBoost, all based on gradient boosting, dominate Kaggle competitions and power production systems at scale. Let us build this family of algorithms from scratch.
 
 ---
 
 ## 1. Weak Learners: The Decision Stump
 
-A **weak learner** is a model that is only slightly better than random guessing. The simplest example is a **decision stump**: a one-level decision tree that splits on a single feature with a single threshold.
-
-A stump says: "if feature $$x_j \leq \theta$$, predict +1; otherwise predict -1" (or vice versa). It draws a single axis-aligned line through the data. Alone, it is almost useless. But combined...
-
-### Try It: A Single Decision Stump
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>New Stump</strong> to train a single decision stump on the data. Notice how it gets many points wrong, it can only draw one horizontal or vertical line. The accuracy is barely above 50%. But each stump captures <em>some</em> signal.
-</div>
+A weak learner is a model that is only slightly better than random guessing. The simplest example is a decision stump: a one-level decision tree that splits on a single feature with a single threshold. A stump says: "if feature $$x_j \leq \theta$$, predict +1; otherwise predict -1" (or vice versa). It draws a single axis-aligned line through the data. Alone, it is almost useless. But combined, as we will see, they become a strong learner. Click New Stump in the demo below to train a single decision stump on the data. Notice how it gets many points wrong, it can only draw one horizontal or vertical line, yet each stump still captures some signal.
 
 <div class="interactive-demo">
   <canvas id="stump-canvas"></canvas>
@@ -459,6 +425,7 @@ A stump says: "if feature $$x_j \leq \theta$$, predict +1; otherwise predict -1"
     <button id="stump-data">New Data</button>
     <span class="demo-value" id="stump-info">Click New Stump</span>
   </div>
+  <div class="demo-caption">Settings: 60 moons-shaped points with light noise; each click trains one axis-aligned stump.</div>
 </div>
 
 <script>
@@ -560,29 +527,13 @@ A stump says: "if feature $$x_j \leq \theta$$, predict +1; otherwise predict -1"
 })();
 </script>
 
-As you can see, a single stump gets many points wrong. It can only draw one straight cut through the feature space. But here is the key idea: **what if we could focus the next stump on the mistakes the previous one made?**
+As you can see, a single stump gets many points wrong. It can only draw one straight cut through the feature space. But here is the key idea: what if we could focus the next stump on the mistakes the previous one made?
 
 ---
 
 ## 2. AdaBoost Step-by-Step
 
-**AdaBoost** (Adaptive Boosting) works by maintaining a weight distribution over the training samples. Initially all samples have equal weight. After each round:
-
-1. Train a weak learner (stump) on the weighted data
-2. Compute its weighted error: $$\epsilon_t = \sum_{i: h_t(x_i) \neq y_i} w_i$$
-3. Compute the learner's vote strength: $$\alpha_t = \frac{1}{2}\ln\frac{1 - \epsilon_t}{\epsilon_t}$$
-4. Update weights: $$w_i \leftarrow w_i \cdot \exp(-\alpha_t \cdot y_i \cdot h_t(x_i))$$
-5. Normalize weights to sum to 1
-
-The final prediction combines all stumps: $$H(x) = \text{sign}\left(\sum_{t=1}^{T} \alpha_t \cdot h_t(x)\right)$$
-
-Points that are **misclassified** get larger weights (they grow bigger in the visualization below), so the next stump concentrates on getting those hard cases right.
-
-### Try It: Watch AdaBoost Build an Ensemble
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> to add one stump at a time, or <strong>Play</strong> to animate. Point sizes are proportional to their sample weights, notice how misclassified points grow larger each round, forcing the next stump to focus on them. The decision boundary on the right shows the combined ensemble.
-</div>
+AdaBoost (Adaptive Boosting) works by maintaining a weight distribution over the training samples. Initially all samples have equal weight. After each round it trains a weak learner (stump) on the weighted data, computes its weighted error $$\epsilon_t = \sum_{i: h_t(x_i) \neq y_i} w_i$$, computes the learner's vote strength $$\alpha_t = \frac{1}{2}\ln\frac{1 - \epsilon_t}{\epsilon_t}$$, updates weights via $$w_i \leftarrow w_i \cdot \exp(-\alpha_t \cdot y_i \cdot h_t(x_i))$$, and renormalizes them to sum to 1. The final prediction combines all stumps: $$H(x) = \text{sign}\left(\sum_{t=1}^{T} \alpha_t \cdot h_t(x)\right)$$. Points that are misclassified get larger weights (they grow bigger in the visualization below), so the next stump concentrates on getting those hard cases right. Click Step in the demo below to add one stump at a time, or Play to animate; point sizes are proportional to their sample weights, and the decision boundary on the right shows the combined ensemble.
 
 <div class="interactive-demo" id="demo-adaboost">
   <div class="demo-split">
@@ -602,6 +553,7 @@ Points that are **misclassified** get larger weights (they grow bigger in the vi
     <label>Rounds: <input type="range" id="ada-rounds-slider" min="3" max="20" value="10"><span class="demo-value" id="ada-rounds-val">10</span></label>
   </div>
   <div class="demo-info" id="ada-info">Click Step or Play to begin</div>
+  <div class="demo-caption">Settings: 50 moons-shaped points, 10 AdaBoost rounds with decision stumps.</div>
 </div>
 
 <script>
@@ -800,17 +752,13 @@ Points that are **misclassified** get larger weights (they grow bigger in the vi
 })();
 </script>
 
-Notice how after just a few rounds, the combined boundary becomes highly non-linear even though each individual stump can only draw a single axis-aligned line. This is the power of boosting: **combining many weak learners creates a strong learner**.
+Notice how after just a few rounds, the combined boundary becomes highly non-linear even though each individual stump can only draw a single axis-aligned line. This is the power of boosting: combining many weak learners creates a strong learner.
 
 ---
 
 ## 3. AdaBoost Weight Evolution
 
-Let us look at the sample weights more closely. Below, each bar represents one sample's weight across AdaBoost rounds. Points that are consistently hard to classify accumulate large weights, while easy points shrink toward zero.
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Drag the <strong>Round</strong> slider to see how sample weights evolve. Red bars are Class +1 samples, blue bars are Class -1. The tallest bars are the points the ensemble finds hardest to classify.
-</div>
+Let us look at the sample weights more closely. Below, each bar represents one sample's weight across AdaBoost rounds. Points that are consistently hard to classify accumulate large weights, while easy points shrink toward zero. Drag the Round slider to see how sample weights evolve; red bars are Class +1 samples, blue bars are Class -1, and the tallest bars are the points the ensemble finds hardest to classify.
 
 <div class="interactive-demo">
   <canvas id="weight-evo-canvas"></canvas>
@@ -819,6 +767,7 @@ Let us look at the sample weights more closely. Below, each bar represents one s
     <button id="weight-reset">New Data</button>
   </div>
   <div class="demo-info" id="weight-evo-info">Round 0: uniform weights</div>
+  <div class="demo-caption">Settings: 40 moons-shaped points, 15 AdaBoost rounds; slider scrubs from round 0 to 15.</div>
 </div>
 
 <script>
@@ -927,27 +876,11 @@ After several rounds, you can see that a few "hard" samples have weights many ti
 
 ## 4. Gradient Boosting: Fitting Residuals
 
-While AdaBoost reweights samples, **Gradient Boosting** takes a different approach: each new learner fits the **residuals** (errors) of the current ensemble.
-
-For regression with squared loss:
-1. Start with a constant prediction: $$F_0(x) = \bar{y}$$ (the mean)
-2. Compute residuals: $$r_i = y_i - F_{t-1}(x_i)$$
-3. Fit a new tree $$h_t$$ to the residuals
-4. Update: $$F_t(x) = F_{t-1}(x) + \eta \cdot h_t(x)$$
-
-where $$\eta$$ is the learning rate.
-
-The residuals are actually the **negative gradient** of the loss function:
+While AdaBoost reweights samples, Gradient Boosting takes a different approach: each new learner fits the residuals (errors) of the current ensemble. For regression with squared loss, we start with a constant prediction $$F_0(x) = \bar{y}$$ (the mean), compute residuals $$r_i = y_i - F_{t-1}(x_i)$$, fit a new tree $$h_t$$ to the residuals, and update $$F_t(x) = F_{t-1}(x) + \eta \cdot h_t(x)$$, where $$\eta$$ is the learning rate. The residuals are actually the negative gradient of the loss function:
 
 $$r_i = -\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)} = y_i - F(x_i)$$
 
-This is why it is called **gradient** boosting, we are doing gradient descent in function space.
-
-### Try It: Watch Residuals Shrink
-
-<div class="demo-hint">
-<strong>Interactive:</strong> The top plot shows the true function (green), the data points, and the current ensemble prediction (blue). The bottom plot shows the residuals that the next tree will fit. Click <strong>Step</strong> to add one tree at a time and watch the prediction converge to the true function while residuals shrink toward zero.
-</div>
+This is why it is called gradient boosting, we are doing gradient descent in function space. The top plot in the demo below shows the true function (green), the data points, and the current ensemble prediction (blue), while the bottom plot shows the residuals that the next tree will fit. Click Step to add one tree at a time and watch the prediction converge to the true function while residuals shrink toward zero.
 
 <div class="interactive-demo">
   <canvas id="gb-fit-canvas"></canvas>
@@ -959,6 +892,7 @@ This is why it is called **gradient** boosting, we are doing gradient descent in
     <label>Tree depth: <input type="range" id="gb-depth" min="1" max="4" value="2"><span class="demo-value" id="gb-depth-val">2</span></label>
   </div>
   <div class="demo-info" id="gb-fit-info">Click Step or Play to begin</div>
+  <div class="demo-caption">Settings: 1D regression target with noise, depth-2 trees, gradient boosting added one tree at a time.</div>
 </div>
 
 <script>
@@ -1164,19 +1098,15 @@ Watch how after the first tree (which fits a rough version of the residuals), su
 
 ## 5. Learning Rate and Iterations Tradeoff
 
-The **learning rate** $$\eta$$ (also called shrinkage) controls how much each tree contributes. A smaller learning rate means each tree makes a smaller correction, requiring more trees to achieve the same fit, but generalizing better.
+The learning rate $$\eta$$ (also called shrinkage) controls how much each tree contributes. A smaller learning rate means each tree makes a smaller correction, requiring more trees to achieve the same fit, but generalizing better.
 
 $$F_t(x) = F_{t-1}(x) + \eta \cdot h_t(x)$$
 
 This creates a fundamental tradeoff:
-- **High $$\eta$$ + few trees**: Fast but rough, may overfit to noise
-- **Low $$\eta$$ + many trees**: Smooth convergence, better generalization, but slower
+- **High $$\eta$$ + few trees**: fast but rough, may overfit to noise
+- **Low $$\eta$$ + many trees**: smooth convergence, better generalization, but slower
 
-### Try It: Learning Rate vs Iterations
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Adjust the learning rate and number of iterations. Watch how a low learning rate needs more iterations to converge. The prediction curve shows the ensemble fit; the info panel shows MSE.
-</div>
+Adjust the learning rate and number of iterations in the demo below to watch how a low learning rate needs more iterations to converge. The prediction curve shows the ensemble fit and the info panel shows MSE.
 
 <div class="interactive-demo">
   <canvas id="lr-canvas"></canvas>
@@ -1186,6 +1116,7 @@ This creates a fundamental tradeoff:
     <button id="lr-reset">New Data</button>
   </div>
   <div class="demo-info" id="lr-info"></div>
+  <div class="demo-caption">Settings: 40-point regression dataset, depth-2 trees, learning rate 0.30 and 10 iterations.</div>
 </div>
 
 <script>
@@ -1298,17 +1229,11 @@ Try setting the learning rate to 1.0 with 5 iterations, then compare to 0.1 with
 
 ## 6. Stagewise Additive Model
 
-The gradient boosting prediction is a **stagewise additive model**, a sum of individual weak learner contributions:
+The gradient boosting prediction is a stagewise additive model, a sum of individual weak learner contributions:
 
 $$F(x) = F_0 + \eta \cdot h_1(x) + \eta \cdot h_2(x) + \cdots + \eta \cdot h_T(x)$$
 
-Each term adds a small correction. Below you can toggle individual tree contributions on and off to see what each one is doing.
-
-### Try It: Toggle Individual Tree Contributions
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Each colored line shows an individual tree's contribution (scaled by learning rate). The thick blue line is the sum of all active contributions. Click the checkboxes to toggle individual trees on/off and see how the total changes.
-</div>
+Each term adds a small correction. In the demo below, each colored line shows an individual tree's contribution (scaled by learning rate), and the thick blue line is the sum of all active contributions. Click the checkboxes to toggle individual trees on and off and see how the total changes.
 
 <div class="interactive-demo">
   <canvas id="stage-canvas"></canvas>
@@ -1319,6 +1244,7 @@ Each term adds a small correction. Below you can toggle individual tree contribu
   </div>
   <div id="stage-checks" style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.5rem;font-size:0.8rem;"></div>
   <div class="demo-info" id="stage-info"></div>
+  <div class="demo-caption">Settings: 40-point regression dataset, 8 depth-2 trees at learning rate 0.30, all enabled.</div>
 </div>
 
 <script>
@@ -1461,11 +1387,7 @@ Both boosting and bagging (bootstrap aggregating, used in Random Forests) are en
 | Trees | Full-depth, high-variance trees | Shallow stumps/trees, high-bias learners |
 | Overfitting | Resistant | Can overfit with too many rounds |
 
-### Try It: Bagging vs Boosting Side-by-Side
-
-<div class="demo-hint">
-<strong>Interactive:</strong> The same dataset is shown on both sides. Left: a bagging ensemble (parallel random stumps with equal vote). Right: AdaBoost (sequential, weighted voting). Click <strong>Add Trees</strong> to grow both ensembles. Notice how boosting typically achieves higher accuracy faster.
-</div>
+The same dataset is shown on both sides of the demo below. Left is a bagging ensemble (parallel random stumps with equal vote); right is AdaBoost (sequential, weighted voting). Click Add Trees to grow both ensembles and notice how boosting typically achieves higher accuracy faster.
 
 <div class="interactive-demo">
   <div class="demo-split">
@@ -1483,6 +1405,7 @@ Both boosting and bagging (bootstrap aggregating, used in Random Forests) are en
     <button id="bb-reset">Reset</button>
     <span class="demo-value" id="bb-info">Trees: 0</span>
   </div>
+  <div class="demo-caption">Settings: 60 moons-shaped points; each click adds 5 trees to bagging and retrains AdaBoost from scratch with the same total count.</div>
 </div>
 
 <script>
@@ -1627,15 +1550,7 @@ Boosting typically reaches higher accuracy faster because each new tree specific
 
 ## 8. Overfitting in Boosting
 
-Boosting can overfit if we use too many rounds or too high a learning rate. Unlike bagging, where adding more trees almost never hurts, boosting can start memorizing noise.
-
-The training error will always decrease toward zero. But at some point the test error starts increasing, the classic overfitting signature. **Early stopping** (monitoring validation error and stopping when it starts to rise) is one of the most important regularization techniques for boosting.
-
-### Try It: Overfitting Demo
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Watch the training error (blue) and test error (red) as you increase the number of boosting rounds. With high learning rate, notice the test error eventually rises while training error keeps dropping. This is overfitting. Drag the slider to find the optimal stopping point.
-</div>
+Boosting can overfit if we use too many rounds or too high a learning rate. Unlike bagging, where adding more trees almost never hurts, boosting can start memorizing noise. The training error will always decrease toward zero, but at some point the test error starts increasing, the classic overfitting signature. Early stopping (monitoring validation error and stopping when it starts to rise) is one of the most important regularization techniques for boosting. In the demo below, watch the training error (blue) and test error (red) as you increase the number of boosting rounds. With a high learning rate, the test error eventually rises while training error keeps dropping. Drag the slider to find the optimal stopping point.
 
 <div class="interactive-demo">
   <canvas id="overfit-canvas"></canvas>
@@ -1645,6 +1560,7 @@ The training error will always decrease toward zero. But at some point the test 
     <button id="overfit-reset">New Data</button>
   </div>
   <div class="demo-info" id="overfit-info"></div>
+  <div class="demo-caption">Settings: noisy 1D regression split into train/test, 25 rounds at learning rate 0.50.</div>
 </div>
 
 <script>
@@ -1824,11 +1740,11 @@ With a high learning rate (try 0.8+) and many rounds (40+), you will often see t
 
 We have built three key concepts from scratch:
 
-**AdaBoost** maintains sample weights and trains weak learners sequentially. Misclassified samples get higher weights, forcing subsequent learners to focus on hard cases. The final prediction is a weighted vote.
+**AdaBoost**: maintains sample weights and trains weak learners sequentially. Misclassified samples get higher weights, forcing subsequent learners to focus on hard cases. The final prediction is a weighted vote.
 
-**Gradient Boosting** fits residuals (negative gradients) sequentially. Each new tree corrects the errors of the current ensemble. The learning rate controls how aggressive each correction is.
+**Gradient Boosting**: fits residuals (negative gradients) sequentially. Each new tree corrects the errors of the current ensemble. The learning rate controls how aggressive each correction is.
 
-**Both methods** turn weak learners (decision stumps) into a powerful ensemble through the principle of sequential, adaptive learning.
+**Both methods**: turn weak learners (decision stumps) into a powerful ensemble through the principle of sequential, adaptive learning.
 
 ### Comparison Table
 
@@ -1849,12 +1765,12 @@ We have built three key concepts from scratch:
 
 ### Key Takeaways
 
-1. **Weak + sequential = strong.** A single decision stump is barely better than random. Hundreds of them, trained sequentially to fix each other's mistakes, can match or beat deep neural networks on tabular data.
+1. **Weak + sequential = strong**: A single decision stump is barely better than random. Hundreds of them, trained sequentially to fix each other's mistakes, can match or beat deep neural networks on tabular data.
 
-2. **Learning rate matters.** Small learning rates with more trees almost always generalize better than large learning rates with few trees. This is the "slow learning" principle.
+2. **Learning rate matters**: Small learning rates with more trees almost always generalize better than large learning rates with few trees. This is the "slow learning" principle.
 
-3. **Watch for overfitting.** Unlike random forests, boosting can overfit. Always use early stopping based on a validation set.
+3. **Watch for overfitting**: Unlike random forests, boosting can overfit. Always use early stopping based on a validation set.
 
-4. **Gradient boosting is more flexible.** AdaBoost is elegant but limited to exponential loss. Gradient boosting works with any differentiable loss function, making it the foundation for modern boosting libraries.
+4. **Gradient boosting is more flexible**: AdaBoost is elegant but limited to exponential loss. Gradient boosting works with any differentiable loss function, making it the foundation for modern boosting libraries.
 
-In the next chapter, we will explore **neural networks and the perceptron**, moving from ensemble methods to the building blocks of deep learning.
+In the next chapter, we will explore neural networks and the perceptron, moving from ensemble methods to the building blocks of deep learning.

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "The Perceptron & Multi-Layer Perceptron: An Interactive Guide"
+title: "The Perceptron & Multi-Layer Perceptron"
 author: bharathikannan
 categories: [Machine learning]
 series: true
@@ -116,68 +116,12 @@ date: 2026-03-17
   font-weight: 600;
 }
 .truth-table .wrong {
-  color: #f7768e;
+  color: var(--viz-red);
   font-weight: 700;
 }
 .truth-table .correct {
-  color: #73daca;
+  color: var(--viz-cyan);
   font-weight: 700;
-}
-sup.cite {
-  font-size: 0.72em;
-  margin-left: 0.12rem;
-  vertical-align: super;
-}
-sup.cite .cite-ref {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px dotted transparent;
-  position: relative;
-  padding: 0 1px;
-}
-sup.cite .cite-ref:hover,
-sup.cite .cite-ref:focus {
-  border-bottom-color: var(--accent);
-  outline: none;
-}
-sup.cite .cite-ref::after {
-  content: attr(data-cite-preview);
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 8px);
-  transform: translateX(-50%) translateY(6px);
-  min-width: 220px;
-  max-width: 320px;
-  width: max-content;
-  padding: 0.45rem 0.55rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 0.78rem;
-  line-height: 1.35;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  z-index: 30;
-  white-space: normal;
-}
-sup.cite .cite-ref:hover::after,
-sup.cite .cite-ref:focus::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-.references {
-  margin: 0.75rem 0 0;
-  padding-left: 1.2rem;
-}
-.references li {
-  margin: 0.55rem 0;
-  line-height: 1.5;
-}
-.references a {
-  word-break: break-word;
 }
 </style>
 
@@ -185,13 +129,13 @@ sup.cite .cite-ref:focus::after {
 
 A perceptron is one of the simplest models for binary classification: it computes a weighted sum of inputs, adds a bias, and applies an activation function. If you want background on the closely related linear classifier, see [Logistic Regression from Scratch]({% post_url 2026-03-16-logistic-regression-from-scratch-interactive %}). This chapter is fully self-contained, so you can continue directly from here.
 
-The perceptron at its core is the same computation as logistic regression: a weighted sum of inputs passed through an activation function. The difference is not in the math of a single neuron, it is in what happens when you stack them.
+The perceptron at its core is the same computation as logistic regression: a weighted sum of inputs passed through an activation function. The key difference is how this output is interpreted and how multiple neurons can be combined. When we stack neurons into layers, this simple computation becomes the foundation of neural networks.
 
 ---
 
 ## 1. The Single Neuron
 
-A perceptron takes inputs, multiplies each by a weight, adds a bias, and passes the result through an activation function:
+A single neuron takes inputs, multiplies each by a weight, adds a bias, and passes the result through an activation function:
 
 $$z = w_1 x_1 + w_2 x_2 + b = \mathbf{w} \cdot \mathbf{x} + b$$
 
@@ -199,7 +143,7 @@ $$a = \sigma(z)$$
 
 where $$\sigma$$ is an activation function (we will use the sigmoid $$\sigma(z) = \frac{1}{1+e^{-z}}$$ for now). If $$a \geq 0.5$$ we predict class 1, otherwise class 0.
 
-This is identical to logistic regression, and that is the point. A single neuron is logistic regression. The neural network framing is when we start stacking neurons into layers, allowing us to learn much more complex functions.
+With this choice of activation function, a single neuron is mathematically identical to logistic regression. The neural network perspective begins when we stack many such neurons into layers and allowing the model to learn more complex functions.
 
 <div class="interactive-demo" id="demo-neuron">
   <canvas id="canvas-neuron" width="680" height="340"></canvas>
@@ -214,7 +158,7 @@ This is identical to logistic regression, and that is the point. A single neuron
 
 ## 2. Learning Logic Gates
 
-Boolean logic gates are the simplest classification problems. Each has four data points with two binary inputs and one binary output. AND gate: output is 1 only when both inputs are 1. OR gate: output is 1 when at least one input is 1. Both are linearly separable, a single line can separate the 1s from the 0s. A perceptron can learn them easily.
+Boolean logic gates are among the simplest classification problems. Each gate defines a dataset with four points: two binary inputs and one binary output. For the AND gate, the output is 1 only when both inputs are 1. For the OR gate, the output is 1 when at least one input is 1. Both problems are linearly separable, meaning a single straight line can separate the class-1 points from the class-0 points. Because of this, a single perceptron can learn both gates easily.
 
 <div class="interactive-demo" id="demo-gates">
   <canvas id="canvas-gates" width="680" height="340"></canvas>
@@ -234,14 +178,14 @@ Boolean logic gates are the simplest classification problems. Each has four data
       <tr><td>1</td><td>1</td><td id="gt-11">-</td><td id="gp-11">-</td></tr>
     </tbody>
   </table>
-</div>
 <div class="demo-caption">Default: sigmoid activations, SGD.</div>
+</div>
 
 ---
 
 ## 3. The XOR Problem, Where Single Neurons Fail
 
-Now try XOR: output is 1 when the inputs are different.
+Now consider the XOR gate: the output is 1 when the two inputs are different.
 
 | x₁ | x₂ | XOR |
 |---|---|---|
@@ -250,9 +194,7 @@ Now try XOR: output is 1 when the inputs are different.
 | 1 | 0 | 1 |
 | 1 | 1 | 0 |
 
-Look at these four points on a 2D plane. The 1s are at (0,1) and (1,0), diagonally opposite corners. The 0s are at (0,0) and (1,1). No single straight line can separate them.
-
-This is not a matter of finding the right weights. It is mathematically impossible. A single neuron computes a linear boundary, and XOR requires a nonlinear one.
+If we plot these four points on a 2D plane, the class-1 points lie at (0,1) and (1,0), which are diagonally opposite corners. The class-0 points lie at (0,0) and (1,1). Unlike the AND and OR gates, no single straight line can separate these two classes. This is not a matter of choosing better weights. It is mathematically impossible. A single neuron can only produce a linear decision boundary, but the XOR problem requires a nonlinear one. This limitation motivates the need for multiple neurons arranged in layers.
 
 <div class="interactive-demo" id="demo-xor-fail">
   <canvas id="canvas-xor-fail" width="680" height="340"></canvas>
@@ -271,31 +213,45 @@ This is not a matter of finding the right weights. It is mathematically impossib
       <tr><td>1</td><td>1</td><td>0</td><td id="xf-11">-</td></tr>
     </tbody>
   </table>
+  <div class="demo-caption">Default: sigmoid activations, SGD.</div>
 </div>
-<div class="demo-caption">Perceptron on XOR: no convergence.</div>
 
-In 1969, Marvin Minsky and Seymour Papert published *Perceptrons*, proving rigorously that single-layer networks cannot solve XOR or any non-linearly-separable problem.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Minsky and Papert (1969), Perceptrons: An Introduction to Computational Geometry. Web: mitpress.mit.edu/9780262631112/perceptrons/">2</a></sup> This contributed to the first "AI Winter", a decade-long decline in neural network research funding.<sup class="cite"><a class="cite-ref" href="#ref-6" data-cite-preview="Schmidhuber (2015), Deep Learning in Neural Networks: An Overview.">6</a></sup> The fix, as we will see, was hiding in plain sight.
 
+<!-- In 1969, Marvin Minsky and Seymour Papert published "Perceptrons", where they showed rigorously that single-layer perceptrons cannot solve XOR or, more generally, any problem that is not linearly separable.
+
+This limitation was widely interpreted as a fundamental weakness of neural networks and contributed to the first “AI Winter”, a period of reduced interest and funding for neural network research.
+
+The solution, as we will see next, was already known: combine multiple neurons into layers. -->
 ---
 
 ## 4. The Solution: Hidden Layers
 
-The key insight: if one neuron draws one line, two neurons draw two lines, and a third neuron can combine them. Stack neurons into layers, and you can carve up the input space into arbitrarily complex regions.
+The key insight is simple: if one neuron can draw one line, two neurons can draw two lines, and another neuron can combine them. By stacking neurons into layers, we can adjust the input space into increasingly complex regions.
 
-A Multi-Layer Perceptron (MLP) adds one or more hidden layers between input and output:
+A Multi-Layer Perceptron (MLP) adds one or more hidden layers between the input and the output:
 
 Layer 1 (hidden):
 
-$$\mathbf{h} = \sigma(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1)$$
+$$
+\mathbf{h} = \sigma(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1)
+$$
 
 Layer 2 (output):
 
-$$\hat{y} = \sigma(\mathbf{W}_2 \mathbf{h} + \mathbf{b}_2)$$
+$$
+\hat{y} = \sigma(\mathbf{W}_2 \mathbf{h} + \mathbf{b}_2)
+$$
 
-For XOR, we need just 2 hidden neurons. The first hidden neuron can learn one diagonal boundary, the second learns the other, and the output neuron combines them.
+Each hidden neuron creates its own linear boundary in the input space. The output neuron then combines these intermediate features into a nonlinear decision rule.
+
+For XOR, we need only two hidden neurons. One hidden neuron can learn one diagonal separation, the second learns the other, and the output neuron combines them to correctly classify all four points. We will refer to this architecture as `2-2-1`. The three numbers are the size of each layer in order, so two inputs, two hidden units, one output. 
 
 <div class="interactive-demo" id="demo-xor-mlp">
   <div class="demo-split">
+    <div>
+      <canvas id="canvas-xor-network" width="320" height="320"></canvas>
+      <div class="demo-caption">Network (numbers are current weights)</div>
+    </div>
     <div>
       <canvas id="canvas-xor-boundary" width="320" height="320"></canvas>
       <div class="demo-caption">Decision boundary</div>
@@ -303,6 +259,18 @@ For XOR, we need just 2 hidden neurons. The first hidden neuron can learn one di
     <div>
       <canvas id="canvas-xor-loss" width="320" height="320"></canvas>
       <div class="demo-caption">Training loss</div>
+    </div>
+    <div>
+      <table class="truth-table" id="xor-mlp-table" style="margin-top:50px;">
+        <thead><tr><th>x₁</th><th>x₂</th><th>Target</th><th>Prediction</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>0</td><td>0</td><td id="xm-00">-</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td><td id="xm-01">-</td></tr>
+          <tr><td>1</td><td>0</td><td>1</td><td id="xm-10">-</td></tr>
+          <tr><td>1</td><td>1</td><td>0</td><td id="xm-11">-</td></tr>
+        </tbody>
+      </table>
+      <div class="demo-caption">Predictions vs targets</div>
     </div>
   </div>
   <div class="demo-controls">
@@ -312,25 +280,13 @@ For XOR, we need just 2 hidden neurons. The first hidden neuron can learn one di
     <span class="demo-value" id="xor-mlp-epoch">Epoch: 0</span>
   </div>
   <div class="demo-info" id="info-xor-mlp">Click "Train MLP" and watch the network solve what the single perceptron could not.</div>
-  <table class="truth-table" id="xor-mlp-table">
-    <thead><tr><th>x₁</th><th>x₂</th><th>Target</th><th>Prediction</th></tr></thead>
-    <tbody>
-      <tr><td>0</td><td>0</td><td>0</td><td id="xm-00">-</td></tr>
-      <tr><td>0</td><td>1</td><td>1</td><td id="xm-01">-</td></tr>
-      <tr><td>1</td><td>0</td><td>1</td><td id="xm-10">-</td></tr>
-      <tr><td>1</td><td>1</td><td>0</td><td id="xm-11">-</td></tr>
-    </tbody>
-  </table>
+  <div class="demo-caption">Default: sigmoid activations, SGD. If it gets stuck, click Reset to initialize different weights and try again.</div>
 </div>
-<div class="demo-caption">MLP solves XOR.</div>
-
-<div class="demo-hint">If the network gets stuck (it happens, neural networks have local minima!), click Reset and try again. Different random initializations lead to different learning trajectories.</div>
 
 ---
 
 ## 5. Network Architecture Playground
-
-Now let us explore how network architecture affects what a network can learn. Choose a dataset, configure the hidden layers, and watch the decision boundary evolve during training.
+Now let us explore how network architecture affects what a model can learn. Choose a dataset, adjust the number of hidden layers and neurons and watch how the decision boundary changes as the network trains. This makes it easier to see how deeper or wider networks can represent more complex patterns.
 
 <div class="interactive-demo" id="demo-playground">
   <div class="demo-split">
@@ -367,23 +323,40 @@ Now let us explore how network architecture affects what a network can learn. Ch
     </label>
     <span class="demo-value" id="pg-epoch">Epoch: 0</span>
   </div>
-  <div class="demo-info" id="info-playground">Configure the network and click Train. Try the spiral dataset with 2 layers of 6 neurons.</div>
+  <div class="demo-info" id="info-playground">Configure the network and click Train.</div>
+  <div class="demo-caption">
+Default: sigmoid activations, SGD on binary cross-entropy loss. Weights are initialized with Kaiming (He) initialization and biases with zeros.</div>
 </div>
-<div class="demo-caption">Architecture playground.</div>
-
-<div class="demo-hint">Try 1 hidden neuron on XOR, it cannot solve it. Then increase to 2 and watch it succeed. For the spiral dataset, you may need 2-3 layers with 6-8 neurons each.</div>
 
 ---
 
 ## 6. Activation Functions Compared
 
-The activation function determines the shape of the nonlinearity each neuron introduces. The three most common choices:
+The activation function determines the type of nonlinearity each neuron introduces. Without nonlinear activation functions, stacking layers would still produce only a linear model. The three most common choices are sigmoid, tanh, and ReLU.
 
-Sigmoid: $$\sigma(z) = \frac{1}{1+e^{-z}}$$, squashes output to (0, 1). Smooth gradient but can saturate.
+### Sigmoid
 
-Tanh: $$\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$, squashes to (-1, 1). Zero-centered, often trains faster than sigmoid.
+$$
+\sigma(z) = \frac{1}{1+e^{-z}}
+$$
 
-ReLU: $$f(z) = \max(0, z)$$, simple and fast. The workhorse of modern deep learning.<sup class="cite"><a class="cite-ref" href="#ref-5" data-cite-preview="Nair and Hinton (2010), Rectified Linear Units Improve Restricted Boltzmann Machines. PDF: cs.toronto.edu/~hinton/absps/reluICML.pdf">5</a></sup> Can "die" if inputs are always negative.
+Maps outputs to the range (0, 1). It is smooth and interpretable as a probability, but its gradients become very small for large positive or negative inputs, which can slow learning.
+
+### Tanh
+
+$$
+\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}
+$$
+
+Maps outputs to the range (-1, 1). Because it is zero-centered, optimization is often more stable than with sigmoid.
+
+### ReLU
+
+$$
+f(z) = \max(0, z)
+$$
+
+Simple and computationally efficient. It avoids saturation for positive inputs and is the standard choice in modern deep learning. However, neurons can become inactive if they receive only negative inputs during training.
 
 <div class="interactive-demo" id="demo-activations">
   <canvas id="canvas-activations" width="680" height="300"></canvas>
@@ -393,43 +366,43 @@ ReLU: $$f(z) = \max(0, z)$$, simple and fast. The workhorse of modern deep learn
     <button id="act-relu">ReLU</button>
     <button id="act-all">Show All</button>
   </div>
-  <div class="demo-info" id="info-activations">Each activation and its derivative are shown. Sigmoid and Tanh saturate at extremes; ReLU has constant gradient for positive inputs.</div>
-</div>
 <div class="demo-caption">Activation comparison.</div>
+</div>
 
 ---
 
 ## 7. How Backpropagation Works (Intuition)
 
-Training a neural network means finding weights that minimize the loss. We use gradient descent, but the challenge is: how do you compute the gradient of the loss with respect to a weight buried deep in the network?
+Training a neural network means finding weights that minimize the loss. We use gradient descent for this, but the challenge is how do we compute the gradient of the loss with respect to a weight that is deep inside the network? The key idea is the chain rule. The loss depends on the output, the output depends on intermediate activations, and those activations depend on earlier weights. By applying the chain rule, we can trace how a small change in a weight affects the final loss:
 
-The answer is the chain rule. If the loss depends on the output, which depends on the hidden layer, which depends on the weights:
+$$
+\frac{\partial L}{\partial w}
+=
+\frac{\partial L}{\partial a}
+\cdot
+\frac{\partial a}{\partial z}
+\cdot
+\frac{\partial z}{\partial w}
+$$
 
-$$\frac{\partial L}{\partial w} = \frac{\partial L}{\partial a} \cdot \frac{\partial a}{\partial z} \cdot \frac{\partial z}{\partial w}$$
-
-We compute gradients layer by layer, starting from the output and propagating backward, hence "backpropagation."<sup class="cite"><a class="cite-ref" href="#ref-4" data-cite-preview="Rumelhart, Hinton, and Williams (1986), Learning representations by back-propagating errors.">4</a></sup> Each layer passes its gradient to the previous layer, scaled by the local derivative.
+Backpropagation computes these gradients layer by layer, starting from the output and moving backward through the network. Each layer receives a gradient from the next layer and passes it backward after scaling it by its local derivative. In this way, every weight in the network learns how it contributed to the final error and how it should change to reduce it.
 
 <div class="interactive-demo" id="demo-backprop">
-  <canvas id="canvas-backprop" width="680" height="380"></canvas>
+  <canvas id="canvas-backprop" width="680" height="460"></canvas>
   <div class="demo-controls">
-    <button id="btn-bp-forward">Forward Pass</button>
-    <button id="btn-bp-backward">Backward Pass</button>
+    <button id="btn-bp-prev">Previous</button>
+    <button id="btn-bp-next">Next step</button>
     <button id="btn-bp-reset">Reset</button>
-    <span class="demo-value" id="bp-step">Step: Ready</span>
+    <span class="demo-value" id="bp-step">1 / 9</span>
   </div>
-  <div class="demo-info" id="info-backprop">Click "Forward Pass" to see data flow through the network, then "Backward Pass" to see gradients flow back.</div>
 </div>
-<div class="demo-caption">Forward and backward pass.</div>
 
-<div class="demo-hint">We will derive backpropagation fully in the [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/) guide. For now, focus on the intuition: each weight's gradient tells it how much it contributed to the error, via the chain rule.</div>
+<div class="demo-hint">A short note: <code>z</code> is the pre-activation (weighted sum + bias), <code>a</code> is the activation (sigmoid of z), <code>ŷ</code> is the network's prediction, <code>L</code> is the loss, <code>δ</code> is the gradient of the loss with respect to <code>z</code> at that neuron, and <code>η</code> is the learning rate. We derive backprop fully in the <a href="{{ site.baseurl }}/backpropagation/">Backpropagation Visualized</a> guide.</div>
 
 ---
 
 ## 8. Universal Approximation
-
-One of the most powerful results in neural network theory is the Universal Approximation Theorem: a neural network with a single hidden layer containing enough neurons can approximate any continuous function to arbitrary accuracy.<sup class="cite"><a class="cite-ref" href="#ref-3" data-cite-preview="Cybenko (1989), Approximation by superpositions of a sigmoidal function.">3</a></sup>
-
-The practical question is: how many neurons do you need?
+One of the most important theoretical results in neural network research is the Universal Approximation Theorem: a neural network with a single hidden layer containing enough neurons can approximate any continuous function on a bounded domain to arbitrary accuracy. In other words, even a shallow network is expressive enough to represent very complex functions. The practical question, however, is not whether a network can represent a function, but how many neurons are needed and whether such a network can be trained efficiently in practice.
 
 <div class="interactive-demo" id="demo-universal">
   <canvas id="canvas-universal" width="680" height="340"></canvas>
@@ -439,63 +412,33 @@ The practical question is: how many neurons do you need?
     <button id="btn-ua-reset">Reset</button>
     <span class="demo-value" id="ua-epoch">Epoch: 0</span>
   </div>
-  <div class="demo-info" id="info-universal">Target: sin(x). Increase hidden neurons and retrain to see the approximation improve.</div>
+  <div class="demo-caption" id="info-universal">Target: sin(x). Universal Approximation.</div>
 </div>
-<div class="demo-caption">Universal approximation of sin(x).</div>
-
 ---
 
 ## 9. Summary
 
 | Concept | Key Idea |
 |---|---|
-| Perceptron | A single neuron: weighted sum + activation. Equivalent to logistic regression. |
-| Linear separability | A perceptron can only learn linearly separable patterns (AND, OR) but not XOR. |
+| Perceptron | A single neuron: weighted sum + activation. With sigmoid activation, it is equivalent to logistic regression. |
+| Linear separability | A single perceptron can learn linearly separable patterns (AND, OR) but not XOR. |
 | Multi-Layer Perceptron | Adding hidden layers enables nonlinear decision boundaries. |
-| Backpropagation | Chain rule applied layer-by-layer to compute gradients for all weights. |
-| Activation functions | Sigmoid, Tanh, ReLU, each introduces nonlinearity with different trade-offs. |
-| Universal Approximation | One hidden layer with enough neurons can approximate any continuous function. |
+| Backpropagation | Applies the chain rule layer by layer to compute gradients for all weights. |
+| Activation functions | Sigmoid, tanh, and ReLU introduce nonlinearity with different training behavior. |
 
-What's next: In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/), we will visualize backpropagation in detail and understanding why deep networks can be hard to train.
+**What’s next:** In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/), we will explore how backpropagation works step by step and why deep networks can be difficult to train.
 
----
+#### Continue the ML Series
 
-## References
+This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
 
-<ol class="references">
-  <li id="ref-1">Rosenblatt, F. (1958). <em>The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain</em>. Psychological Review, 65(6), 386-408. <a href="https://doi.org/10.1037/h0042519" target="_blank" rel="noopener">https://doi.org/10.1037/h0042519</a></li>
-  <li id="ref-2">Minsky, M., &amp; Papert, S. (1969). <em>Perceptrons: An Introduction to Computational Geometry</em>. MIT Press. <a href="https://mitpress.mit.edu/9780262631112/perceptrons/" target="_blank" rel="noopener">https://mitpress.mit.edu/9780262631112/perceptrons/</a></li>
-  <li id="ref-3">Cybenko, G. (1989). <em>Approximation by superpositions of a sigmoidal function</em>. Mathematics of Control, Signals, and Systems, 2, 303-314. <a href="https://doi.org/10.1007/BF02551274" target="_blank" rel="noopener">https://doi.org/10.1007/BF02551274</a></li>
-  <li id="ref-4">Rumelhart, D. E., Hinton, G. E., &amp; Williams, R. J. (1986). <em>Learning representations by back-propagating errors</em>. Nature, 323, 533-536. <a href="https://doi.org/10.1038/323533a0" target="_blank" rel="noopener">https://doi.org/10.1038/323533a0</a></li>
-  <li id="ref-5">Nair, V., &amp; Hinton, G. E. (2010). <em>Rectified Linear Units Improve Restricted Boltzmann Machines</em>. ICML. <a href="https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf" target="_blank" rel="noopener">https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf</a></li>
-  <li id="ref-6">Schmidhuber, J. (2015). <em>Deep Learning in Neural Networks: An Overview</em>. Neural Networks, 61, 85-117. <a href="https://doi.org/10.1016/j.neunet.2014.09.003" target="_blank" rel="noopener">https://doi.org/10.1016/j.neunet.2014.09.003</a></li>
-</ol>
-
----
 
 <script>
 (function(){
   // ==================== SHARED UTILITIES ====================
   window.NN = window.NN || {};
 
-  function getColors(){
-    var s = getComputedStyle(document.documentElement);
-    return {
-      bg: s.getPropertyValue('--bg-primary').trim() || '#1a1b26',
-      bgSec: s.getPropertyValue('--bg-secondary').trim() || '#24283b',
-      border: s.getPropertyValue('--border').trim() || '#414868',
-      accent: s.getPropertyValue('--accent').trim() || '#7aa2f7',
-      text: s.getPropertyValue('--text-primary').trim() || '#c0caf5',
-      textSec: s.getPropertyValue('--text-secondary').trim() || '#565f89',
-      class0: '#7aa2f7',
-      class1: '#f7768e',
-      class0bg: 'rgba(122,162,247,0.18)',
-      class1bg: 'rgba(247,118,142,0.18)',
-      positive: '#7aa2f7',
-      negative: '#f7768e',
-      green: '#73daca',
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
   NN.getColors = getColors;
 
   function setupCanvas(canvas){
@@ -1131,8 +1074,10 @@ What's next: In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/
 (function(){
   var canvasB=document.getElementById('canvas-xor-boundary');
   var canvasL=document.getElementById('canvas-xor-loss');
+  var canvasN=document.getElementById('canvas-xor-network');
   var ctxB=NN.setupCanvas(canvasB);
   var ctxL=NN.setupCanvas(canvasL);
+  var ctxN=NN.setupCanvas(canvasN);
   var bw=320,bh=320;
   var btnTrain=document.getElementById('btn-xor-mlp-train');
   var btnReset=document.getElementById('btn-xor-mlp-reset');
@@ -1144,7 +1089,25 @@ What's next: In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/
   var X=[[0,0],[0,1],[1,0],[1,1]], Y=[0,1,1,0];
   var net=null, losses=[], epoch=0, animId=null;
 
-  function initNet(){ net=new NN.MLP([2,2,1],'sigmoid'); losses=[]; epoch=0; }
+  function initNet(){
+    net=new NN.MLP([2,2,1],'sigmoid');
+    // The shared MLP class uses He init + zero biases. For a 2-2-1 sigmoid
+    // network on XOR this leaves the two hidden neurons nearly symmetric,
+    // and SGD often converges to a 3/4 local minimum where one input pattern
+    // stays misclassified. Override with Xavier (Glorot) init + small random
+    // biases to break symmetry and converge reliably.
+    for(var l=0;l<net.L;l++){
+      var rows=net.sizes[l+1], cols=net.sizes[l];
+      var scale=Math.sqrt(6.0/(cols+rows));
+      for(var i=0;i<rows;i++){
+        for(var j=0;j<cols;j++){
+          net.W[l][i][j]=(Math.random()*2-1)*scale;
+        }
+        net.b[l][i]=(Math.random()*2-1)*0.1;
+      }
+    }
+    losses=[]; epoch=0;
+  }
   initNet();
 
   function updateTable(){
@@ -1161,27 +1124,121 @@ What's next: In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/
     var c=NN.getColors();
     // Boundary
     ctxB.fillStyle=c.bg; ctxB.fillRect(0,0,bw,bh);
-    var pad=30,pw=bw-pad-10,ph=bh-pad-10;
+    var padL=34, padR=10, padT=10, padB=24;
+    var pw=bw-padL-padR, ph=bh-padT-padB;
+    ctxB.save();
+    ctxB.translate(padL, padT);
     NN.drawDecisionBoundary(ctxB,net,pw,ph,3);
-    // Shift image
-    var imgData=ctxB.getImageData(0,0,bw,bh);
-    ctxB.fillStyle=c.bg; ctxB.fillRect(0,0,bw,bh);
-    ctxB.putImageData(imgData,pad,10);
+    ctxB.restore();
     // Border
-    ctxB.strokeStyle=c.border; ctxB.lineWidth=1; ctxB.strokeRect(pad,10,pw,ph);
+    ctxB.strokeStyle=c.border; ctxB.lineWidth=1; ctxB.strokeRect(padL,padT,pw,ph);
     // Points
     for(var i=0;i<4;i++){
-      var px=pad+X[i][0]*pw, py=10+(1-X[i][1])*ph;
+      var px=padL+X[i][0]*pw, py=padT+(1-X[i][1])*ph;
       ctxB.beginPath(); ctxB.arc(px,py,7,0,Math.PI*2);
       ctxB.fillStyle=Y[i]===1?c.class1:c.class0;
       ctxB.fill(); ctxB.strokeStyle=c.text; ctxB.lineWidth=2; ctxB.stroke();
     }
-    ctxB.fillStyle=c.textSec; ctxB.font='11px sans-serif'; ctxB.textAlign='center';
-    ctxB.fillText('x\u2081',pad+pw/2,bh-5);
+    // Axis labels
+    ctxB.fillStyle=c.textSec; ctxB.font='11px sans-serif';
+    ctxB.textAlign='center';
+    ctxB.fillText('x\u2081', padL+pw/2, bh-6);
+    ctxB.save();
+    ctxB.translate(12, padT+ph/2);
+    ctxB.rotate(-Math.PI/2);
+    ctxB.fillText('x\u2082', 0, 0);
+    ctxB.restore();
     // Loss
     NN.drawLossCurve(ctxL,losses,bw,bh);
+    // Network diagram
+    drawNetwork();
     updateTable();
     epochEl.textContent='Epoch: '+epoch;
+  }
+
+  function drawNetwork(){
+    var c=NN.getColors();
+    var nw=ctxN._w, nh=ctxN._h;
+    ctxN.fillStyle=c.bg; ctxN.fillRect(0,0,nw,nh);
+    var r=18;
+    var xIn=50, xH=nw/2, xOut=nw-50;
+    var yTop=nh/2-60, yBot=nh/2+60, yMid=nh/2;
+    var inputs=[{label:'x\u2081',y:yTop},{label:'x\u2082',y:yBot}];
+    var hidden=[{y:yTop},{y:yBot}];
+    var output={y:yMid};
+    // Layer headers
+    ctxN.fillStyle=c.textSec; ctxN.font='10px JetBrains Mono, monospace'; ctxN.textAlign='center';
+    ctxN.fillText('Input', xIn, 16);
+    ctxN.fillText('Hidden', xH, 16);
+    ctxN.fillText('Output', xOut, 16);
+
+    function fmt(v){ return (v>=0?'+':'')+v.toFixed(2); }
+
+    // Input -> Hidden (W1[j][i] = weight from input i to hidden j)
+    ctxN.font='10px JetBrains Mono, monospace';
+    for(var i=0;i<2;i++){
+      for(var j=0;j<2;j++){
+        var w_=net?net.W[0][j][i]:0;
+        var lw=Math.min(4, Math.abs(w_)*1.0+0.4);
+        ctxN.strokeStyle=w_>=0?c.positive:c.negative;
+        ctxN.lineWidth=lw;
+        ctxN.beginPath();
+        ctxN.moveTo(xIn+r, inputs[i].y);
+        ctxN.lineTo(xH-r, hidden[j].y);
+        ctxN.stroke();
+        // Label position: 35% along line for top input, 65% for bottom input
+        // so crossing diagonals do not overlap at center
+        var t=(i===0?0.32:0.68);
+        var lx=(xIn+r)+t*((xH-r)-(xIn+r));
+        var ly=inputs[i].y+t*(hidden[j].y-inputs[i].y);
+        var dy=(hidden[j].y>inputs[i].y)?-7:9;
+        ctxN.fillStyle=w_>=0?c.positive:c.negative;
+        ctxN.fillText(fmt(w_), lx, ly+dy);
+      }
+    }
+    // Hidden -> Output (W2[0][j] = weight from hidden j to output)
+    for(var j=0;j<2;j++){
+      var w_=net?net.W[1][0][j]:0;
+      var lw=Math.min(4, Math.abs(w_)*1.0+0.4);
+      ctxN.strokeStyle=w_>=0?c.positive:c.negative;
+      ctxN.lineWidth=lw;
+      ctxN.beginPath();
+      ctxN.moveTo(xH+r, hidden[j].y);
+      ctxN.lineTo(xOut-r, output.y);
+      ctxN.stroke();
+      var t=0.45;
+      var lx=(xH+r)+t*((xOut-r)-(xH+r));
+      var ly=hidden[j].y+t*(output.y-hidden[j].y);
+      var dy=(j===0)?-7:11;
+      ctxN.fillStyle=w_>=0?c.positive:c.negative;
+      ctxN.fillText(fmt(w_), lx, ly+dy);
+    }
+
+    function drawNode(x,y,label,fillCol,strokeCol){
+      ctxN.beginPath(); ctxN.arc(x,y,r,0,Math.PI*2);
+      ctxN.fillStyle=fillCol; ctxN.fill();
+      ctxN.strokeStyle=strokeCol; ctxN.lineWidth=2; ctxN.stroke();
+      ctxN.fillStyle=c.text; ctxN.font='12px sans-serif'; ctxN.textAlign='center';
+      ctxN.fillText(label, x, y+4);
+    }
+    for(var i=0;i<2;i++) drawNode(xIn, inputs[i].y, inputs[i].label, c.bgSec, c.border);
+    for(var j=0;j<2;j++) drawNode(xH, hidden[j].y, '\u03c3', c.accent+'33', c.accent);
+    drawNode(xOut, output.y, '\u03c3', c.accent+'33', c.accent);
+
+    // Biases under each non-input node
+    ctxN.fillStyle=c.textSec; ctxN.font='10px JetBrains Mono, monospace'; ctxN.textAlign='center';
+    for(var j=0;j<2;j++){
+      var b_=net?net.b[0][j]:0;
+      ctxN.fillText('b='+fmt(b_), xH, hidden[j].y+r+12);
+    }
+    var bo=net?net.b[1][0]:0;
+    ctxN.fillText('b='+fmt(bo), xOut, output.y+r+12);
+
+    // Output arrow and label
+    ctxN.strokeStyle=c.accent; ctxN.lineWidth=1.5;
+    ctxN.beginPath(); ctxN.moveTo(xOut+r, output.y); ctxN.lineTo(xOut+r+18, output.y); ctxN.stroke();
+    ctxN.fillStyle=c.text; ctxN.font='11px sans-serif'; ctxN.textAlign='left';
+    ctxN.fillText('\u0177', xOut+r+22, output.y+4);
   }
 
   btnTrain.addEventListener('click',function(){
@@ -1412,217 +1469,340 @@ What's next: In [Backpropagation Visualized]({{ site.baseurl }}/backpropagation/
 (function(){
   var canvas=document.getElementById('canvas-backprop');
   var ctx=NN.setupCanvas(canvas);
-  var w=680,h=380;
-  var btnFwd=document.getElementById('btn-bp-forward');
-  var btnBwd=document.getElementById('btn-bp-backward');
+  var w=680, h=460;
+  var btnPrev=document.getElementById('btn-bp-prev');
+  var btnNext=document.getElementById('btn-bp-next');
   var btnReset=document.getElementById('btn-bp-reset');
-  var stepEl=document.getElementById('bp-step');
-  var infoEl=document.getElementById('info-backprop');
+  var stepLabelEl=document.getElementById('bp-step');
 
-  // Fixed small network: 2 -> 3 -> 1
-  var layerSizes=[2,3,1];
-  var layerLabels=[['x\u2081','x\u2082'],['h\u2081','h\u2082','h\u2083'],['out']];
-  var state='ready'; // ready, forward, backward
-  var animProgress=0, animId=null;
-  var inputVals=[0.6,0.4];
-  // Fixed weights for visualization
-  var weights=[
-    [[0.5,-0.3],[0.8,0.2],[-0.4,0.7]],
-    [[0.6,-0.5,0.3]]
+  // Fixed example so the math is identical every run
+  var x1=0.5, x2=1.0, y=1.0, lr=0.5;
+  var W1=[[0.4,-0.2],[-0.5,0.3]]; // W1[hidden_idx][input_idx]
+  var b1=[0.1, 0.0];
+  var W2=[0.6, -0.4];             // W2[hidden_idx]
+  var b2=0.2;
+
+  function sig(z){ return 1/(1+Math.exp(-z)); }
+
+  // Forward pass
+  var z_h=[ W1[0][0]*x1+W1[0][1]*x2+b1[0], W1[1][0]*x1+W1[1][1]*x2+b1[1] ];
+  var a_h=[ sig(z_h[0]), sig(z_h[1]) ];
+  var z_o = W2[0]*a_h[0]+W2[1]*a_h[1]+b2;
+  var yhat = sig(z_o);
+  var loss = -y*Math.log(yhat) - (1-y)*Math.log(1-yhat);
+
+  // Backward pass (sigmoid + binary cross-entropy gives a clean output delta)
+  var d_o = yhat - y;
+  var d_h = [
+    W2[0]*d_o*a_h[0]*(1-a_h[0]),
+    W2[1]*d_o*a_h[1]*(1-a_h[1])
   ];
-  var biases=[[0.1,-0.2,0.05],[0.1]];
-  var activations=[], zvals=[], gradients=[];
-  var target=1;
 
-  function computeForward(){
-    activations=[inputVals.slice()];
-    zvals=[[]];
-    for(var l=0;l<weights.length;l++){
-      var W=weights[l],b=biases[l];
-      var z=[],a=[];
-      for(var i=0;i<W.length;i++){
-        var s=b[i];
-        for(var j=0;j<W[i].length;j++) s+=W[i][j]*activations[l][j];
-        z.push(s);
-        a.push(NN.sigmoid(s));
-      }
-      zvals.push(z);
-      activations.push(a);
+  // Weight gradients
+  var dW2=[d_o*a_h[0], d_o*a_h[1]];
+  var db2=d_o;
+  var dW1=[
+    [d_h[0]*x1, d_h[0]*x2],
+    [d_h[1]*x1, d_h[1]*x2]
+  ];
+  var db1=[d_h[0], d_h[1]];
+
+  // Updated weights after one SGD step
+  var W2_new=[W2[0]-lr*dW2[0], W2[1]-lr*dW2[1]];
+  var b2_new=b2-lr*db2;
+  var W1_new=[
+    [W1[0][0]-lr*dW1[0][0], W1[0][1]-lr*dW1[0][1]],
+    [W1[1][0]-lr*dW1[1][0], W1[1][1]-lr*dW1[1][1]]
+  ];
+  var b1_new=[b1[0]-lr*db1[0], b1[1]-lr*db1[1]];
+
+  // Forward again with the new weights, same input
+  var z_h_n=[W1_new[0][0]*x1+W1_new[0][1]*x2+b1_new[0], W1_new[1][0]*x1+W1_new[1][1]*x2+b1_new[1]];
+  var a_h_n=[sig(z_h_n[0]), sig(z_h_n[1])];
+  var z_o_n=W2_new[0]*a_h_n[0]+W2_new[1]*a_h_n[1]+b2_new;
+  var yhat_n=sig(z_o_n);
+  var loss_n=-y*Math.log(yhat_n)-(1-y)*Math.log(1-yhat_n);
+
+  function p(v){ return (v<0?'(':'')+v.toFixed(3)+(v<0?')':''); }
+
+  var steps = [
+    {
+      title: "Step 1 of 9: Setup",
+      caption: "Pick a fixed input, target, and learning rate for one update step.",
+      math: [
+        "Inputs:  x\u2081 = 0.50,  x\u2082 = 1.00",
+        "Target:  y  = 1.00",
+        "Learning rate \u03b7 = 0.50"
+      ],
+      show: { inputs:true }
+    },
+    {
+      title: "Step 2 of 9: Forward to h\u2081",
+      caption: "Hidden neuron h\u2081: weighted sum of inputs, plus bias, then sigmoid.",
+      math: [
+        "z = w\u2081\u00b7x\u2081 + w\u2082\u00b7x\u2082 + b",
+        "  = 0.40\u00d70.50 + (-0.20)\u00d71.00 + 0.10",
+        "  = "+z_h[0].toFixed(3),
+        "a = \u03c3(z) = "+a_h[0].toFixed(3)
+      ],
+      show: { inputs:true, h1:true }, highlight: ['x1-h1','x2-h1','h1']
+    },
+    {
+      title: "Step 3 of 9: Forward to h\u2082",
+      caption: "Same idea for the second hidden neuron, with its own weights and bias.",
+      math: [
+        "z = (-0.50)\u00d70.50 + 0.30\u00d71.00 + 0.00",
+        "  = "+z_h[1].toFixed(3),
+        "a = \u03c3(z) = "+a_h[1].toFixed(3)
+      ],
+      show: { inputs:true, h1:true, h2:true }, highlight: ['x1-h2','x2-h2','h2']
+    },
+    {
+      title: "Step 4 of 9: Forward to \u0177",
+      caption: "Output: weighted sum of hidden activations, plus bias, then sigmoid.",
+      math: [
+        "z = 0.60\u00d7"+a_h[0].toFixed(3)+" + (-0.40)\u00d7"+a_h[1].toFixed(3)+" + 0.20",
+        "  = "+z_o.toFixed(3),
+        "\u0177 = \u03c3(z) = "+yhat.toFixed(3)
+      ],
+      show: { inputs:true, h1:true, h2:true, out:true }, highlight: ['h1-out','h2-out','out']
+    },
+    {
+      title: "Step 5 of 9: Loss",
+      caption: "Binary cross-entropy: small when \u0177 matches y, large otherwise.",
+      math: [
+        "L = -y\u00b7log(\u0177) - (1-y)\u00b7log(1-\u0177)",
+        "  = -1.00\u00b7log("+yhat.toFixed(3)+") - 0",
+        "  = "+loss.toFixed(3)
+      ],
+      show: { inputs:true, h1:true, h2:true, out:true, loss:true }, highlight: ['out']
+    },
+    {
+      title: "Step 6 of 9: Output gradient",
+      caption: "For sigmoid + cross-entropy, the output's gradient is just (prediction - target).",
+      math: [
+        "\u03b4_out = \u0177 - y",
+        "      = "+yhat.toFixed(3)+" - 1.000",
+        "      = "+d_o.toFixed(3)
+      ],
+      show: { inputs:true, h1:true, h2:true, out:true, loss:true, d_out:true }, highlight: ['out']
+    },
+    {
+      title: "Step 7 of 9: Hidden gradients (chain rule)",
+      caption: "Each hidden \u03b4 = next-layer \u03b4, scaled by the connecting weight, times \u03c3'(z) = a(1-a).",
+      math: [
+        "\u03b4_h\u2081 = 0.60 \u00d7 "+p(d_o)+" \u00d7 "+(a_h[0]*(1-a_h[0])).toFixed(3)+" = "+d_h[0].toFixed(3),
+        "\u03b4_h\u2082 = (-0.40) \u00d7 "+p(d_o)+" \u00d7 "+(a_h[1]*(1-a_h[1])).toFixed(3)+" = "+d_h[1].toFixed(3)
+      ],
+      show: { inputs:true, h1:true, h2:true, out:true, loss:true, d_out:true, d_h:true }, highlight: ['h1-out','h2-out','h1','h2']
+    },
+    {
+      title: "Step 8 of 9: Weight updates",
+      caption: "For each weight: new = old - \u03b7 \u00d7 (\u03b4 at receiver \u00d7 activation at sender).",
+      math: [
+        "\u2202L/\u2202w_h\u2081\u2192out = \u03b4_out \u00d7 a_h\u2081 = "+dW2[0].toFixed(3),
+        "  new w_h\u2081\u2192out = 0.60 - 0.50\u00d7"+p(dW2[0])+" = "+W2_new[0].toFixed(3),
+        "",
+        "\u2202L/\u2202w_x\u2081\u2192h\u2081 = \u03b4_h\u2081 \u00d7 x\u2081 = "+dW1[0][0].toFixed(3),
+        "  new w_x\u2081\u2192h\u2081 = 0.40 - 0.50\u00d7"+p(dW1[0][0])+" = "+W1_new[0][0].toFixed(3),
+        "",
+        "(every other weight and bias updates the same way.)"
+      ],
+      show: { inputs:true, h1:true, h2:true, out:true, loss:true, d_out:true, d_h:true, weights_new:true }
+    },
+    {
+      title: "Step 9 of 9: One step complete",
+      caption: "Same input, new weights: loss has dropped. Repeat for thousands of inputs.",
+      math: [
+        "Loss before update: "+loss.toFixed(3),
+        "Loss after update:  "+loss_n.toFixed(3),
+        "Change:             "+(loss_n-loss).toFixed(3)
+      ],
+      show: { inputs:true, h1:true, h2:true, out:true, loss:true, weights_new:true, yhat_new:true }
+    }
+  ];
+
+  var step = 0;
+  var N = steps.length;
+
+  // Node positions (network area: y 36 to y 268)
+  var rNode = 22;
+  var posX1 = {x:70, y:90}, posX2 = {x:70, y:210};
+  var posH1 = {x:320, y:90}, posH2 = {x:320, y:210};
+  var posO  = {x:560, y:150};
+
+  // Layout constants for the on-canvas panels
+  var TITLE_Y = 22;           // step title baseline
+  var DIVIDER_Y = 32;         // line separating title from network
+  var CAPTION_Y = 290;        // single-line caption baseline
+  var MATH_BOX = {x:20, y:308, w:w-40, h:h-318};
+
+  function isHL(id){ var hl=steps[step].highlight||[]; return hl.indexOf(id)>=0; }
+
+  function drawEdge(from, to, wOld, wNew, hl, showNew, labelT, labelDy){
+    var c = NN.getColors();
+    var wt = showNew ? wNew : wOld;
+    var lw = Math.min(4, Math.abs(wt)*1.2+0.4);
+    ctx.strokeStyle = wt>=0 ? c.positive : c.negative;
+    ctx.globalAlpha = hl ? 1.0 : 0.55;
+    ctx.lineWidth = hl ? lw+1.5 : lw;
+    ctx.beginPath();
+    ctx.moveTo(from.x+rNode, from.y);
+    ctx.lineTo(to.x-rNode, to.y);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    var lx = (from.x+rNode) + labelT*((to.x-rNode) - (from.x+rNode));
+    var ly = from.y + labelT*(to.y - from.y);
+    ctx.font='10px JetBrains Mono, monospace'; ctx.textAlign='center';
+    if(showNew && Math.abs(wOld - wNew) > 0.001){
+      ctx.fillStyle = c.green;
+      ctx.fillText(wOld.toFixed(2)+' \u2192 '+wNew.toFixed(2), lx, ly+labelDy);
+    } else {
+      ctx.fillStyle = wt>=0 ? c.positive : c.negative;
+      ctx.fillText((wt>=0?'+':'')+wt.toFixed(2), lx, ly+labelDy);
     }
   }
 
-  function computeBackward(){
-    gradients=[];
-    for(var l=0;l<layerSizes.length;l++) gradients.push(new Array(layerSizes[l]).fill(0));
-    // Output gradient
-    var out=activations[2][0];
-    gradients[2][0]=out-target;
-    // Hidden gradients
-    for(var i=0;i<3;i++){
-      var err=weights[1][0][i]*gradients[2][0];
-      gradients[1][i]=err*activations[1][i]*(1-activations[1][i]);
-    }
-    // Input gradients
-    for(var i=0;i<2;i++){
-      var err=0;
-      for(var j=0;j<3;j++) err+=weights[0][j][i]*gradients[1][j];
-      gradients[0][i]=err;
-    }
+  function drawNode(pos, label, glow){
+    var c = NN.getColors();
+    ctx.beginPath(); ctx.arc(pos.x, pos.y, rNode, 0, Math.PI*2);
+    ctx.fillStyle = glow ? (c.accent+'66') : (c.accent+'22');
+    ctx.fill();
+    ctx.strokeStyle = c.accent;
+    ctx.lineWidth = glow ? 3 : 2;
+    ctx.stroke();
+    ctx.fillStyle = c.text; ctx.font='13px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(label, pos.x, pos.y+4);
   }
 
-  computeForward();
-  computeBackward();
-
-  function getNodePos(l,i){
-    var layers=layerSizes.length;
-    var xGap=w/(layers+1);
-    var x=xGap*(l+1);
-    var n=layerSizes[l];
-    var yGap=Math.min(80,h/(n+1));
-    var y=h/2-(n-1)*yGap/2+i*yGap;
-    return {x:x,y:y};
+  function drawInputNode(pos, label, val){
+    var c = NN.getColors();
+    ctx.beginPath(); ctx.arc(pos.x, pos.y, rNode, 0, Math.PI*2);
+    ctx.fillStyle = c.bgSec; ctx.fill();
+    ctx.strokeStyle = c.border; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = c.text; ctx.font='13px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(label, pos.x, pos.y+4);
+    ctx.fillStyle = c.textSec; ctx.font='11px JetBrains Mono, monospace'; ctx.textAlign='right';
+    ctx.fillText(val.toFixed(2), pos.x-rNode-8, pos.y+4);
   }
 
   function draw(){
-    var c=NN.getColors();
+    var c = NN.getColors();
     ctx.fillStyle=c.bg; ctx.fillRect(0,0,w,h);
+    var s = steps[step];
+    var showNew = !!(s.show && s.show.weights_new);
 
-    // Draw connections
-    for(var l=0;l<weights.length;l++){
-      for(var i=0;i<weights[l].length;i++){
-        for(var j=0;j<weights[l][i].length;j++){
-          var from=getNodePos(l,j), to=getNodePos(l+1,i);
-          var wt=weights[l][i][j];
-          var lw=Math.abs(wt)*4+0.5;
-          ctx.strokeStyle=wt>=0?c.positive:c.negative;
-          ctx.globalAlpha=0.4;
-          ctx.lineWidth=lw;
-          ctx.beginPath(); ctx.moveTo(from.x,from.y); ctx.lineTo(to.x,to.y); ctx.stroke();
-          ctx.globalAlpha=1;
-        }
-      }
+    // Title bar
+    ctx.fillStyle = c.text;
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(s.title, 20, TITLE_Y);
+    ctx.fillStyle = c.textSec;
+    ctx.font = '12px JetBrains Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('('+(step+1)+' / '+N+')', w-20, TITLE_Y);
+    ctx.strokeStyle = c.border;
+    ctx.globalAlpha = 0.4;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(20, DIVIDER_Y); ctx.lineTo(w-20, DIVIDER_Y); ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // Edges (input -> hidden). t=0.32 for top input, 0.68 for bottom input to keep
+    // crossing diagonal labels apart.
+    drawEdge(posX1, posH1, W1[0][0], W1_new[0][0], isHL('x1-h1'), showNew, 0.32, 9);
+    drawEdge(posX1, posH2, W1[1][0], W1_new[1][0], isHL('x1-h2'), showNew, 0.32, -8);
+    drawEdge(posX2, posH1, W1[0][1], W1_new[0][1], isHL('x2-h1'), showNew, 0.68, -8);
+    drawEdge(posX2, posH2, W1[1][1], W1_new[1][1], isHL('x2-h2'), showNew, 0.68, 9);
+    // Edges (hidden -> output)
+    drawEdge(posH1, posO, W2[0], W2_new[0], isHL('h1-out'), showNew, 0.45, -8);
+    drawEdge(posH2, posO, W2[1], W2_new[1], isHL('h2-out'), showNew, 0.45, 11);
+
+    // Nodes
+    drawInputNode(posX1, 'x\u2081', x1);
+    drawInputNode(posX2, 'x\u2082', x2);
+    drawNode(posH1, '\u03c3', isHL('h1'));
+    drawNode(posH2, '\u03c3', isHL('h2'));
+    drawNode(posO,  '\u03c3', isHL('out'));
+
+    // Bias labels under non-input nodes
+    var biasW1 = showNew ? b1_new : b1;
+    var biasW2 = showNew ? b2_new : b2;
+    ctx.font='10px JetBrains Mono, monospace'; ctx.textAlign='center';
+    ctx.fillStyle = c.textSec;
+    ctx.fillText('b='+(biasW1[0]>=0?'+':'')+biasW1[0].toFixed(2), posH1.x, posH1.y-rNode-6);
+    ctx.fillText('b='+(biasW1[1]>=0?'+':'')+biasW1[1].toFixed(2), posH2.x, posH2.y-rNode-6);
+    ctx.fillText('b='+(biasW2>=0?'+':'')+biasW2.toFixed(2),       posO.x,  posO.y-rNode-6);
+
+    // Activation values below each computed neuron
+    function actLabel(pos, val){
+      ctx.fillStyle = c.text;
+      ctx.font='10px JetBrains Mono, monospace';
+      ctx.textAlign='center';
+      ctx.fillText('a='+val.toFixed(3), pos.x, pos.y+rNode+14);
+    }
+    if(s.show && s.show.h1) actLabel(posH1, showNew && s.show.yhat_new ? a_h_n[0] : a_h[0]);
+    if(s.show && s.show.h2) actLabel(posH2, showNew && s.show.yhat_new ? a_h_n[1] : a_h[1]);
+    if(s.show && s.show.out){
+      ctx.fillStyle = c.text;
+      ctx.font='10px JetBrains Mono, monospace';
+      ctx.textAlign='center';
+      var yv = (showNew && s.show.yhat_new) ? yhat_n : yhat;
+      ctx.fillText('\u0177='+yv.toFixed(3), posO.x, posO.y+rNode+14);
     }
 
-    // Animate flow
-    if(state==='forward' && animProgress>0){
-      for(var l=0;l<weights.length;l++){
-        var layerP=l/(weights.length);
-        var layerP2=(l+1)/(weights.length);
-        if(animProgress>layerP){
-          var t=Math.min(1,(animProgress-layerP)/(1/weights.length));
-          for(var i=0;i<weights[l].length;i++){
-            for(var j=0;j<weights[l][i].length;j++){
-              var from=getNodePos(l,j), to=getNodePos(l+1,i);
-              var mx=from.x+(to.x-from.x)*t;
-              var my=from.y+(to.y-from.y)*t;
-              ctx.beginPath(); ctx.arc(mx,my,4,0,Math.PI*2);
-              ctx.fillStyle=c.green; ctx.fill();
-            }
-          }
-        }
-      }
+    // Delta values under activations (red)
+    function dLabel(pos, val){
+      ctx.fillStyle = c.class1;
+      ctx.font='10px JetBrains Mono, monospace';
+      ctx.textAlign='center';
+      ctx.fillText('\u03b4='+val.toFixed(3), pos.x, pos.y+rNode+30);
     }
-    if(state==='backward' && animProgress>0){
-      for(var l=weights.length-1;l>=0;l--){
-        var layerP=(weights.length-1-l)/(weights.length);
-        if(animProgress>layerP){
-          var t=Math.min(1,(animProgress-layerP)/(1/weights.length));
-          for(var i=0;i<weights[l].length;i++){
-            for(var j=0;j<weights[l][i].length;j++){
-              var from=getNodePos(l+1,i), to=getNodePos(l,j);
-              var mx=from.x+(to.x-from.x)*t;
-              var my=from.y+(to.y-from.y)*t;
-              ctx.beginPath(); ctx.arc(mx,my,4,0,Math.PI*2);
-              ctx.fillStyle=c.class1; ctx.fill();
-            }
-          }
-        }
-      }
+    if(s.show && s.show.d_h){
+      dLabel(posH1, d_h[0]);
+      dLabel(posH2, d_h[1]);
+    }
+    if(s.show && s.show.d_out) dLabel(posO, d_o);
+
+    // Loss / target panel near output
+    if(s.show && s.show.loss){
+      ctx.fillStyle = c.text;
+      ctx.font='11px JetBrains Mono, monospace'; ctx.textAlign='left';
+      var ll = (showNew && s.show.yhat_new) ? loss_n : loss;
+      ctx.fillText('y = 1.00',       posO.x+rNode+12, posO.y-4);
+      ctx.fillText('L = '+ll.toFixed(3), posO.x+rNode+12, posO.y+12);
     }
 
-    // Draw nodes
-    for(var l=0;l<layerSizes.length;l++){
-      for(var i=0;i<layerSizes[l];i++){
-        var pos=getNodePos(l,i);
-        var radius=22;
-        ctx.beginPath(); ctx.arc(pos.x,pos.y,radius,0,Math.PI*2);
-        // Glow based on activation
-        var bright=0;
-        if(state!=='ready') bright=Math.abs(activations[l][i]);
-        var glowAlpha=0.15+bright*0.35;
-        if(state==='backward'){
-          var gAbs=Math.min(1,Math.abs(gradients[l][i])*3);
-          ctx.fillStyle='rgba(247,118,142,'+gAbs.toFixed(2)+')';
-        } else {
-          ctx.fillStyle='rgba(122,162,247,'+glowAlpha.toFixed(2)+')';
-        }
-        ctx.fill();
-        ctx.strokeStyle=c.accent; ctx.lineWidth=2; ctx.stroke();
-        // Label
-        ctx.fillStyle=c.text; ctx.font='11px JetBrains Mono, monospace'; ctx.textAlign='center';
-        ctx.fillText(layerLabels[l][i],pos.x,pos.y-6);
-        if(state!=='ready'){
-          ctx.fillStyle=c.textSec; ctx.font='10px JetBrains Mono, monospace';
-          ctx.fillText(activations[l][i].toFixed(2),pos.x,pos.y+10);
-          if(state==='backward'){
-            ctx.fillStyle=c.class1; ctx.font='10px JetBrains Mono, monospace';
-            ctx.fillText('\u2207='+gradients[l][i].toFixed(3),pos.x,pos.y+radius+14);
-          }
-        }
-      }
-    }
-    // Layer labels
-    ctx.fillStyle=c.textSec; ctx.font='12px sans-serif'; ctx.textAlign='center';
-    ctx.fillText('Input',getNodePos(0,0).x,h-10);
-    ctx.fillText('Hidden',getNodePos(1,0).x,h-10);
-    ctx.fillText('Output',getNodePos(2,0).x,h-10);
-    // Target
-    if(state!=='ready'){
-      var oPos=getNodePos(2,0);
-      ctx.fillStyle=c.textSec; ctx.font='11px JetBrains Mono, monospace'; ctx.textAlign='left';
-      ctx.fillText('target = '+target,oPos.x+34,oPos.y-6);
-      ctx.fillText('loss = '+Math.pow((activations[2][0]-target), 2).toFixed(4),oPos.x+34,oPos.y+10);
+    // One-line caption between network and math panel
+    ctx.fillStyle = c.text;
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.caption, w/2, CAPTION_Y);
+
+    // Math panel at the bottom of the canvas
+    ctx.fillStyle = c.bgSec;
+    ctx.fillRect(MATH_BOX.x, MATH_BOX.y, MATH_BOX.w, MATH_BOX.h);
+    ctx.fillStyle = c.accent;
+    ctx.fillRect(MATH_BOX.x, MATH_BOX.y, 3, MATH_BOX.h);
+    ctx.fillStyle = c.text;
+    ctx.font = '12px JetBrains Mono, monospace';
+    ctx.textAlign = 'left';
+    for(var li=0; li<s.math.length; li++){
+      ctx.fillText(s.math[li], MATH_BOX.x+14, MATH_BOX.y+22+li*18);
     }
   }
 
-  btnFwd.addEventListener('click',function(){
-    if(animId) cancelAnimationFrame(animId);
-    computeForward();
-    state='forward'; animProgress=0;
-    stepEl.textContent='Step: Forward Pass';
-    infoEl.textContent='Data flows from input through hidden layer to output. Each neuron computes weighted sum + activation.';
-    function step(){
-      animProgress+=0.015;
-      draw();
-      if(animProgress<1.2) animId=requestAnimationFrame(step);
-      else { animId=null; stepEl.textContent='Step: Forward Done'; }
-    }
-    step();
-  });
+  function update(){
+    draw();
+    stepLabelEl.textContent = (step+1)+' / '+N;
+    btnPrev.disabled = (step===0);
+    btnNext.disabled = (step===N-1);
+  }
 
-  btnBwd.addEventListener('click',function(){
-    if(animId) cancelAnimationFrame(animId);
-    computeForward(); computeBackward();
-    state='backward'; animProgress=0;
-    stepEl.textContent='Step: Backward Pass';
-    infoEl.textContent='Gradients flow backward from output to input. Each weight learns how much it contributed to the error.';
-    function step(){
-      animProgress+=0.015;
-      draw();
-      if(animProgress<1.2) animId=requestAnimationFrame(step);
-      else { animId=null; stepEl.textContent='Step: Backward Done'; }
-    }
-    step();
-  });
+  btnNext.addEventListener('click', function(){ if(step<N-1){ step++; update(); } });
+  btnPrev.addEventListener('click', function(){ if(step>0){ step--; update(); } });
+  btnReset.addEventListener('click', function(){ step=0; update(); });
 
-  btnReset.addEventListener('click',function(){
-    if(animId) cancelAnimationFrame(animId); animId=null;
-    state='ready'; animProgress=0; draw();
-    stepEl.textContent='Step: Ready';
-    infoEl.textContent='Click "Forward Pass" to see data flow through the network, then "Backward Pass" to see gradients flow back.';
-  });
-
-  draw();
+  update();
 })();
 </script>
 

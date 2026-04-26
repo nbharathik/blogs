@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Stacks and Queues: An Interactive Guide"
+title: "Stacks and Queues"
 author: bharathikannan
 categories: [Data Structures]
 description: "Visualize LIFO and FIFO in action. Push, pop, enqueue, dequeue  - all animated step by step in your browser."
@@ -26,23 +26,7 @@ hidden: true
 
 <script>
 window.DSA_SQ = (function() {
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      box: dark ? '#7aa2f7' : '#2563eb',
-      boxNew: dark ? '#9ece6a' : '#16a34a',
-      boxPop: dark ? '#f7768e' : '#e63946',
-      boxPeek: dark ? '#ff9e64' : '#f59e0b',
-      boxMatch: dark ? '#9ece6a' : '#16a34a',
-      boxMismatch: dark ? '#f7768e' : '#e63946',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textOnBox: '#ffffff',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      pointer: dark ? '#9ece6a' : '#16a34a',
-      border: dark ? '#292e42' : '#e5e7eb'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -197,30 +181,15 @@ window.DSA_SQ = (function() {
 })();
 </script>
 
-Stacks and queues are two of the most fundamental abstract data types in computer science. They can be implemented with arrays or linked lists, but what defines them is their **access pattern**:
+Stacks and queues are two of the most fundamental abstract data types in computer science. They can be implemented with arrays or linked lists, but what defines them is their access pattern: a stack is Last In, First Out (LIFO), like a stack of plates, while a queue is First In, First Out (FIFO), like a line at a store.
 
-- **Stack:** Last In, First Out (**LIFO**)  - like a stack of plates
-- **Queue:** First In, First Out (**FIFO**)  - like a line at a store
-
-By the end of this guide you will understand:
-- **Stack** operations: push, pop, peek
-- **Queue** operations: enqueue, dequeue
-- How LIFO vs FIFO affects program behavior
-- A practical application: **balanced parentheses checking**
-
-<div class="demo-hint">
-<strong>How to use the demos:</strong> Enter a value and click the operation buttons to see elements animate in and out of the stack or queue.
-</div>
+This guide walks through the core stack operations (push, pop, peek) and the core queue operations (enqueue, dequeue), shows how LIFO versus FIFO changes program behavior, and finishes with a practical application: balanced parentheses checking.
 
 ---
 
 ## Stack
 
-A stack follows the **LIFO** principle: the last element added is the first one removed. Think of it like a stack of plates  - you can only add or remove from the top.
-
-In practice, stacks are used when you need to reverse recent actions quickly. Undo systems, browser history, function call management, and depth first search all rely on this pattern. The key intuition is that the most recent context is usually the most relevant next context.
-
-### Python Implementation
+A stack follows the LIFO principle: the last element added is the first one removed. Think of it like a stack of plates, you can only add or remove from the top. In practice, stacks are used when you need to reverse recent actions quickly. Undo systems, browser history, function call management, and depth first search all rely on this pattern. The key intuition is that the most recent context is usually the most relevant next context.
 
 ```python
 class Stack:
@@ -247,13 +216,7 @@ class Stack:
         return len(self.items)
 ```
 
-All operations are **O(1)**  - push, pop, and peek all happen at the top of the stack.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Enter a value and <strong>Push</strong> to add it to the top. <strong>Pop</strong> removes the top element. <strong>Peek</strong> highlights the top without removing it.
-</div>
+All operations are O(1) since push, pop, and peek all happen at the top of the stack. Enter a value and push to add it to the top, pop removes the top element, and peek highlights the top without removing it.
 
 <div class="interactive-demo">
   <canvas id="stack-canvas" width="300" height="320"></canvas>
@@ -265,6 +228,7 @@ All operations are **O(1)**  - push, pop, and peek all happen at the top of the 
     <button id="stack-reset">Reset</button>
   </div>
   <div class="demo-info" id="stack-info">Stack: [10, 20, 30] | Size: 3 | Top: 30</div>
+  <div class="demo-caption">Settings: stack initialized with [10, 20, 30]; top element shown at the visual top.</div>
 </div>
 
 <script>
@@ -316,11 +280,7 @@ All operations are **O(1)**  - push, pop, and peek all happen at the top of the 
 
 ## Queue
 
-A queue follows the **FIFO** principle: the first element added is the first one removed. Think of it like waiting in line  - the person who arrives first gets served first.
-
-Queues are useful when fairness and order matter. Task schedulers, request pipelines, message brokers, and breadth first search all benefit from FIFO behavior. If your system must process work in arrival order, a queue is usually the default choice.
-
-### Python Implementation
+A queue follows the FIFO principle: the first element added is the first one removed. Think of it like waiting in line, the person who arrives first gets served first. Queues are useful when fairness and order matter. Task schedulers, request pipelines, message brokers, and breadth first search all benefit from FIFO behavior. If your system must process work in arrival order, a queue is usually the default choice.
 
 ```python
 class Queue:
@@ -342,13 +302,7 @@ class Queue:
         return len(self.items)
 ```
 
-Enqueue is O(1), dequeue is O(n) with a list (O(1) with `collections.deque`).
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> <strong>Enqueue</strong> adds to the rear. <strong>Dequeue</strong> removes from the front. Watch how elements flow left to right.
-</div>
+Enqueue is O(1), dequeue is O(n) with a list (O(1) with `collections.deque`). Enqueue adds to the rear, dequeue removes from the front, and elements flow left to right.
 
 <div class="interactive-demo">
   <canvas id="queue-canvas" width="680" height="120"></canvas>
@@ -359,6 +313,7 @@ Enqueue is O(1), dequeue is O(n) with a list (O(1) with `collections.deque`).
     <button id="queue-reset">Reset</button>
   </div>
   <div class="demo-info" id="queue-info">Queue: [10, 20, 30] | Front: 10 | Rear: 30</div>
+  <div class="demo-caption">Settings: queue initialized with [10, 20, 30]; front on the left, rear on the right.</div>
 </div>
 
 <script>
@@ -426,6 +381,7 @@ The same sequence of operations produces completely different results depending 
     <button id="compare-remove">Remove from Both</button>
     <button id="compare-reset">Reset</button>
   </div>
+  <div class="demo-caption">Settings: both structures initialized with [10, 20, 30]; same operations applied to each.</div>
 </div>
 
 <script>
@@ -473,8 +429,6 @@ The same sequence of operations produces completely different results depending 
 
 A classic use of stacks is checking whether parentheses in a string are balanced. For every opening bracket, we push it onto the stack. For every closing bracket, we pop and check if it matches.
 
-### Python Implementation
-
 ```python
 def is_balanced(s):
     stack = []
@@ -490,11 +444,7 @@ def is_balanced(s):
     return len(stack) == 0
 ```
 
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Enter a string with parentheses and step through. Watch the stack grow on opening brackets and shrink on closing ones. Green means match, red means mismatch.
-</div>
+Enter a string with parentheses and step through it. The stack grows on opening brackets and shrinks on closing ones, with green indicating a match and red a mismatch.
 
 <div class="interactive-demo">
   <canvas id="paren-canvas" width="680" height="200"></canvas>
@@ -505,6 +455,7 @@ def is_balanced(s):
     <button id="paren-reset">Reset</button>
   </div>
   <div class="demo-info" id="paren-info">Ready  - enter a string and click Step</div>
+  <div class="demo-caption">Settings: input "{[()]}" by default; step or run to walk through stack updates.</div>
 </div>
 
 <script>
@@ -664,18 +615,18 @@ def is_balanced(s):
 
 ## Key Takeaways
 
-1. **Stack (LIFO):** Last in, first out. Used in function call stacks, undo operations, expression evaluation, and backtracking algorithms (DFS).
-
-2. **Queue (FIFO):** First in, first out. Used in BFS, task scheduling, print queues, and buffering.
-
-3. Both have **O(1)** push/pop or enqueue/dequeue when implemented properly.
-
-4. **Balanced parentheses** is the canonical stack application  - try entering `((()))`, `([)]`, and `{[()]}` in the demo above to see balanced and unbalanced examples.
+| Concept | Key Idea |
+|---|---|
+| Stack (LIFO) | Last in, first out; natural fit for undo, function calls, and DFS. |
+| Queue (FIFO) | First in, first out; used in BFS, task scheduling, and buffering. |
+| Time Complexity | Both achieve O(1) push/pop or enqueue/dequeue when implemented properly. |
+| Implementation | Stacks use array append/pop; queues prefer `collections.deque` for O(1) dequeue. |
+| Balanced Parentheses | The canonical stack application, matching openers and closers in order. |
 
 ---
 
 ## What's Next?
 
-With arrays, linked lists, stacks, and queues under your belt, it is time to explore **trees**  - hierarchical data structures that power everything from file systems to databases. Continue to the [Binary Trees and BST Interactive Guide]({{ site.baseurl }}/binary-trees-and-bst/).
+With arrays, linked lists, stacks, and queues under your belt, it is time to explore trees, hierarchical data structures that power everything from file systems to databases. Continue to the [Binary Trees and BST Interactive Guide]({{ site.baseurl }}/binary-trees-and-bst/).
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

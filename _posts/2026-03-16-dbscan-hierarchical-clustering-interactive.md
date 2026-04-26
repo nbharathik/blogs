@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "DBSCAN & Hierarchical Clustering - An Interactive Guide"
+title: "DBSCAN & Hierarchical Clustering"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -171,7 +171,7 @@ window.HC = (function() {
       (window.getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim().match(/^#[0-3]/) !== null);
   }
 
-  function getColors() { return isDark() ? darkColors : lightColors; }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -554,14 +554,13 @@ window.HC = (function() {
 
 In the [previous chapter](/k-means-clustering), we built K-Means from scratch. It is fast, simple, and works well on compact, globular clusters. But K-Means has fundamental limitations:
 
-- It **requires specifying K** in advance
-- It assumes clusters are **convex and roughly equal-sized**
-- It is **sensitive to outliers**
-- It **cannot discover arbitrarily-shaped clusters**
+- **Requires specifying K** in advance
+- **Assumes convex, roughly equal-sized clusters**
+- **Sensitive to outliers**
+- **Cannot discover arbitrarily-shaped clusters**
 
-What happens when your data looks like two interlocking crescents? Or concentric rings? K-Means will fail badly, it will draw straight-line boundaries through structures that clearly belong together.
+What happens when your data looks like two interlocking crescents? Or concentric rings? K-Means will fail badly, it will draw straight-line boundaries through structures that clearly belong together. This chapter introduces two powerful alternatives:
 
-This chapter introduces two powerful alternatives:
 - **DBSCAN**: a density-based method that discovers clusters of arbitrary shape and automatically identifies noise
 - **Hierarchical Clustering**: a method that builds a tree of nested clusters, letting you choose the number of clusters after the fact
 
@@ -571,7 +570,7 @@ Let us see the problem first, then build the solutions.
 
 ## Where K-Means Fails
 
-K-Means assigns each point to the nearest centroid, which means it always produces **convex (Voronoi-shaped) clusters**. When the true structure is non-convex, this is a disaster. Compare K-Means (left) with DBSCAN (right) on the same data.
+K-Means assigns each point to the nearest centroid, which means it always produces convex Voronoi-shaped clusters. When the true structure is non-convex, this is a disaster. Compare K-Means (left) with DBSCAN (right) on the same data.
 
 <div class="interactive-demo" id="demo-failure">
   <div class="demo-split">
@@ -596,9 +595,8 @@ K-Means assigns each point to the nearest centroid, which means it always produc
     <button id="btn-fail-regen">Regenerate</button>
   </div>
   <div class="demo-info" id="info-fail">Select a dataset to compare clustering methods</div>
+  <div class="demo-caption">Settings: K=2 K-Means vs DBSCAN with auto epsilon (per-dataset preset) and MinPts=4.</div>
 </div>
-
-<div class="demo-hint">Try each dataset. Notice how K-Means splits the moons and circles incorrectly, while DBSCAN recovers the true structure every time. On blobs with noise, DBSCAN also identifies the outliers (gray points).</div>
 
 <script>
 (function() {
@@ -671,9 +669,7 @@ The failure is structural. K-Means minimizes within-cluster variance, which alwa
 
 ## DBSCAN: Density-Based Spatial Clustering
 
-**DBSCAN** (Density-Based Spatial Clustering of Applications with Noise) takes a completely different approach. Instead of starting from centroids, it starts from **density**. The key idea: a cluster is a dense region of points separated from other dense regions by sparse regions.
-
-DBSCAN has two parameters:
+DBSCAN (Density-Based Spatial Clustering of Applications with Noise) takes a completely different approach. Instead of starting from centroids, it starts from density. The key idea: a cluster is a dense region of points separated from other dense regions by sparse regions. DBSCAN has two parameters:
 
 - **$$\varepsilon$$ (epsilon)**: the radius of the neighborhood around each point
 - **MinPts**: the minimum number of points within $$\varepsilon$$-distance to qualify as a dense region
@@ -686,18 +682,13 @@ These give us three types of points:
 
 ### The Algorithm
 
-1. Pick any unvisited point
-2. If it is a core point, start a new cluster and add all its $$\varepsilon$$-neighbors
-3. For each newly added core point, recursively add its $$\varepsilon$$-neighbors
-4. Continue until the cluster cannot expand further
-5. Pick the next unvisited point and repeat
-6. Any remaining unvisited points are noise
+The procedure picks any unvisited point. If it is a core point, it starts a new cluster and adds all its $$\varepsilon$$-neighbors. For each newly added core point, the algorithm recursively adds its $$\varepsilon$$-neighbors and continues until the cluster cannot expand further. It then picks the next unvisited point and repeats. Any remaining unvisited points are labeled as noise.
 
 ---
 
 ## Core, Border, and Noise Points
 
-Click to place points on the canvas. Adjust $$\varepsilon$$ to see the neighborhood circles. Points are colored by their type: **green** = core (enough neighbors), **gold** = border (near a core), **gray** = noise (isolated).
+Click to place points on the canvas. Adjust $$\varepsilon$$ to see the neighborhood circles. Points are colored by their type: green for core (enough neighbors), gold for border (near a core), and gray for noise (isolated).
 
 <div class="interactive-demo" id="demo-concepts">
   <canvas id="canvas-concepts"></canvas>
@@ -708,9 +699,8 @@ Click to place points on the canvas. Adjust $$\varepsilon$$ to see the neighborh
     <button id="btn-concept-sample">Sample Data</button>
   </div>
   <div class="demo-info" id="info-concepts">Click on the canvas to place points</div>
+  <div class="demo-caption">Settings: empty canvas, eps=40, MinPts=3. Use Sample Data for tight clusters with noise.</div>
 </div>
-
-<div class="demo-hint">Place a few tight clusters and some scattered points. Increase $$\varepsilon$$ and watch isolated points become border or core points. Decrease MinPts and watch border points become core points.</div>
 
 <script>
 (function() {
@@ -871,9 +861,8 @@ This is the core interactive. Adjust $$\varepsilon$$ and MinPts and watch cluste
     <button id="btn-param-regen">Regenerate</button>
   </div>
   <div class="demo-info" id="info-params">Adjust parameters to explore clustering</div>
+  <div class="demo-caption">Settings: eps=30, MinPts=4 on Two Moons by default. Lines connect core points in the same cluster.</div>
 </div>
-
-<div class="demo-hint">Start with $$\varepsilon$$ very small (everything is noise), then slowly increase it. Watch clusters nucleate around dense regions and grow outward. If $$\varepsilon$$ is too large, everything merges into one cluster. The sweet spot captures the natural structure.</div>
 
 <script>
 (function() {
@@ -956,7 +945,7 @@ The parameter sensitivity is important to understand:
 - **MinPts too small**: noise gets absorbed into clusters
 - **MinPts too large**: small clusters vanish into noise
 
-A common heuristic: set MinPts $$\geq d + 1$$ where $$d$$ is the dimensionality of the data (so MinPts $$\geq 3$$ for 2D data). For $$\varepsilon$$, plot the k-distance graph (distance to k-th nearest neighbor, sorted) and look for an elbow.
+A common heuristic is to set MinPts $$\geq d + 1$$ where $$d$$ is the dimensionality of the data (so MinPts $$\geq 3$$ for 2D data). For $$\varepsilon$$, plot the k-distance graph (distance to k-th nearest neighbor, sorted) and look for an elbow.
 
 ---
 
@@ -982,6 +971,7 @@ Side-by-side comparison on four preset datasets. DBSCAN succeeds where K-Means f
     <button id="btn-nc-blobs">Blobs+Noise</button>
   </div>
   <div class="demo-info" id="info-nc">Comparing clustering approaches</div>
+  <div class="demo-caption">Settings: K-Means (left) vs DBSCAN (right) with per-dataset epsilon presets.</div>
 </div>
 
 <script>
@@ -1056,7 +1046,7 @@ Side-by-side comparison on four preset datasets. DBSCAN succeeds where K-Means f
 
 ## DBSCAN Step-by-Step
 
-Watch the algorithm unfold. It picks an unvisited core point, starts a new cluster, then recursively expands by absorbing neighbors. Use **Step** to advance one expansion at a time, or **Play** to animate.
+Watch the algorithm unfold. It picks an unvisited core point, starts a new cluster, then recursively expands by absorbing neighbors. Use Step to advance one expansion at a time, or Play to animate.
 
 <div class="interactive-demo" id="demo-stepwise">
   <canvas id="canvas-step"></canvas>
@@ -1067,6 +1057,7 @@ Watch the algorithm unfold. It picks an unvisited core point, starts a new clust
     <label>Speed: <input type="range" id="slider-step-speed" min="1" max="10" value="5"><span class="demo-value" id="val-step-speed">5</span></label>
   </div>
   <div class="demo-info" id="info-step">Click Play or Step to begin</div>
+  <div class="demo-caption">Settings: two moons with light noise, eps=24, MinPts=4, animated cluster expansion.</div>
 </div>
 
 <script>
@@ -1194,16 +1185,7 @@ Notice the recursive expansion: when DBSCAN encounters a new core point within t
 
 ## Hierarchical Clustering: Agglomerative
 
-Hierarchical clustering takes yet another approach. Instead of requiring K or density parameters upfront, it builds a **complete hierarchy** of clusters, from N individual points down to one big cluster. You decide how many clusters to keep afterward.
-
-**Agglomerative** (bottom-up) hierarchical clustering works like this:
-
-1. Start with each point as its own cluster
-2. Find the two closest clusters
-3. Merge them into one
-4. Repeat until only one cluster remains
-
-The key question is: how do we measure the distance between two clusters? This is the **linkage** criterion:
+Hierarchical clustering takes yet another approach. Instead of requiring K or density parameters upfront, it builds a complete hierarchy of clusters, from N individual points down to one big cluster. You decide how many clusters to keep afterward. Agglomerative (bottom-up) hierarchical clustering starts with each point as its own cluster, finds the two closest clusters, merges them into one, and repeats until only one cluster remains. The key question is: how do we measure the distance between two clusters? This is the linkage criterion:
 
 $$d_{\text{single}}(A, B) = \min_{a \in A, b \in B} \|a - b\|$$
 
@@ -1237,6 +1219,7 @@ Watch the bottom-up merging process. Each step finds and merges the two closest 
     </label>
   </div>
   <div class="demo-info" id="info-agglo">Click Play or Step to begin merging</div>
+  <div class="demo-caption">Settings: 30 points across 4 blobs, Ward linkage, animated merges with dashed line connecting joining clusters.</div>
 </div>
 
 <script>
@@ -1363,7 +1346,7 @@ Watch the bottom-up merging process. Each step finds and merges the two closest 
 
 ## Dendrogram Builder
 
-A **dendrogram** is the tree diagram that records the entire merge history. The y-axis shows the merge distance, the height at which two clusters were joined. Watch it grow from the bottom up as clusters merge.
+A dendrogram is the tree diagram that records the entire merge history. The y-axis shows the merge distance, the height at which two clusters were joined. Watch it grow from the bottom up as clusters merge.
 
 <div class="interactive-demo" id="demo-dendro">
   <div class="demo-split">
@@ -1389,6 +1372,7 @@ A **dendrogram** is the tree diagram that records the entire merge history. The 
     </label>
   </div>
   <div class="demo-info" id="info-dendro">Click Play to build the dendrogram</div>
+  <div class="demo-caption">Settings: 24 points across 3 blobs, Ward linkage, scatter recolors as the tree grows from the bottom up.</div>
 </div>
 
 <script>
@@ -1560,7 +1544,7 @@ A **dendrogram** is the tree diagram that records the entire merge history. The 
 })();
 </script>
 
-The dendrogram encodes the **entire clustering hierarchy**. Tall vertical bars indicate large jumps in merge distance, these are natural cluster boundaries. The next demo makes this actionable.
+The dendrogram encodes the entire clustering hierarchy. Tall vertical bars indicate large jumps in merge distance, these are natural cluster boundaries. The next demo makes this actionable.
 
 ---
 
@@ -1592,9 +1576,8 @@ Drag the cut line up and down on the dendrogram. Every horizontal cut defines a 
     <button id="btn-cut-regen">Regenerate</button>
   </div>
   <div class="demo-info" id="info-cut">Drag the slider to change the cut height</div>
+  <div class="demo-caption">Settings: 30 points across 4 blobs, Ward linkage, slider sets a horizontal cut on the dendrogram.</div>
 </div>
-
-<div class="demo-hint">Move the cut line low to get many small clusters. Move it high to get fewer, larger clusters. The "right" cut is where there is a big gap in the dendrogram, a natural separation between merge distances.</div>
 
 <script>
 (function() {
@@ -1750,7 +1733,7 @@ This is the great advantage of hierarchical clustering: you do not need to choos
 
 ## Linkage Comparison
 
-The choice of linkage dramatically affects the result. Here are four linkage methods applied to the same data. Notice how **single linkage** creates elongated "chain" clusters, **complete linkage** prefers compact clusters, **average** is a compromise, and **Ward** minimizes total variance (similar to K-Means).
+The choice of linkage dramatically affects the result. Here are four linkage methods applied to the same data. Notice how single linkage creates elongated chain clusters, complete linkage prefers compact clusters, average is a compromise, and Ward minimizes total variance (similar to K-Means).
 
 <div class="interactive-demo" id="demo-linkage">
   <div class="demo-quad">
@@ -1776,6 +1759,7 @@ The choice of linkage dramatically affects the result. Here are four linkage met
     <button id="btn-link-regen">Regenerate</button>
   </div>
   <div class="demo-info" id="info-linkage">Comparing four linkage methods on identical data</div>
+  <div class="demo-caption">Settings: 40 points across 4 blobs, 3 clusters, single/complete/average/Ward shown side-by-side.</div>
 </div>
 
 <script>
@@ -1843,8 +1827,6 @@ The choice of linkage dramatically affects the result. Here are four linkage met
 })();
 </script>
 
-<div class="demo-hint">Try 2 clusters. Single linkage will often "chain" disparate groups together, while Ward gives balanced, round clusters. Try 4 clusters on data with 4 natural groups, Ward and complete usually agree, but single linkage may isolate individual outliers as their own cluster.</div>
-
 ---
 
 ## Summary: When to Use What
@@ -1906,7 +1888,7 @@ Each clustering method has its strengths. Here is a practical guide:
 </tbody>
 </table>
 
-**Rules of thumb:**
+Rules of thumb:
 
 - **Start with K-Means** if your clusters are likely round and you have a rough idea of K. It is fast and often good enough.
 - **Use DBSCAN** when you suspect non-convex clusters, have noise/outliers, or do not know K. You need to tune $$\varepsilon$$ and MinPts.
@@ -1918,14 +1900,8 @@ Each clustering method has its strengths. Here is a practical guide:
 
 ## Key Takeaways
 
-1. **K-Means fails on non-convex shapes** because it uses distance to centroids, which always produces convex boundaries.
+K-Means fails on non-convex shapes because it uses distance to centroids, which always produces convex boundaries. DBSCAN defines clusters as dense regions separated by sparse regions. It requires no K, handles arbitrary shapes, and identifies noise. The tradeoff is sensitivity to $$\varepsilon$$ and MinPts. Hierarchical clustering builds a complete merge tree, and you choose the number of clusters afterward by cutting the dendrogram. It is flexible but $$O(n^3)$$ for naive implementations.
 
-2. **DBSCAN** defines clusters as dense regions separated by sparse regions. It requires no K, handles arbitrary shapes, and identifies noise. The tradeoff is sensitivity to $$\varepsilon$$ and MinPts.
+Linkage matters too. Single linkage follows chains; complete and Ward linkage prefer compact clusters, and the choice significantly affects results. There is no universally best method. The right choice depends on your data shape, size, noise level, and whether you need to specify K in advance.
 
-3. **Hierarchical clustering** builds a complete merge tree. You choose the number of clusters afterward by cutting the dendrogram. It is flexible but $$O(n^3)$$ for naive implementations.
-
-4. **Linkage matters**. Single linkage follows chains; complete and Ward linkage prefer compact clusters. The choice significantly affects results.
-
-5. **There is no universally best method.** The right choice depends on your data shape, size, noise level, and whether you need to specify K in advance.
-
-In the next chapter, we will shift from unsupervised learning to **dimensionality reduction**, techniques like PCA that let us visualize and compress high-dimensional data.
+In the next chapter, we will shift from unsupervised learning to dimensionality reduction, techniques like PCA that let us visualize and compress high-dimensional data.

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Dynamic Programming: An Interactive Guide"
+title: "Dynamic Programming"
 author: bharathikannan
 categories: [Data Structures]
 description: "Master dynamic programming visually. Step through Fibonacci, Knapsack, LCS, and Edit Distance  - watch DP tables fill cell by cell, all in your browser."
@@ -146,37 +146,37 @@ hidden: true
   font-weight: 700;
 }
 .dp-table td.dp-match {
-  background: #16a34a;
+  background: var(--viz-green);
   color: #fff;
   font-weight: 700;
 }
 .dp-table td.dp-path {
-  background: #f59e0b;
+  background: var(--viz-orange);
   color: #1a1b26;
   font-weight: 700;
 }
 .dp-table td.dp-include {
-  background: #16a34a;
+  background: var(--viz-green);
   color: #fff;
   font-weight: 700;
 }
 .dp-table td.dp-exclude {
-  background: #e63946;
+  background: var(--viz-red);
   color: #fff;
   font-weight: 700;
 }
 .dp-table td.dp-replace {
-  background: #f59e0b;
+  background: var(--viz-orange);
   color: #1a1b26;
   font-weight: 700;
 }
 .dp-table td.dp-insert {
-  background: #2563eb;
+  background: var(--accent);
   color: #fff;
   font-weight: 700;
 }
 .dp-table td.dp-delete {
-  background: #e63946;
+  background: var(--viz-red);
   color: #fff;
   font-weight: 700;
 }
@@ -207,33 +207,7 @@ hidden: true
 <script>
 // Shared utilities for all DP demos
 window.DSA_DP = (function() {
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      cell: dark ? '#7aa2f7' : '#2563eb',
-      cellActive: dark ? '#ff9e64' : '#f59e0b',
-      cellFilled: dark ? '#292e42' : '#f1f5f9',
-      cellMatch: dark ? '#9ece6a' : '#16a34a',
-      cellPath: dark ? '#ff9e64' : '#f59e0b',
-      cellInclude: dark ? '#9ece6a' : '#16a34a',
-      cellExclude: dark ? '#f7768e' : '#e63946',
-      cellReplace: dark ? '#ff9e64' : '#f59e0b',
-      cellInsert: dark ? '#7aa2f7' : '#2563eb',
-      cellDelete: dark ? '#f7768e' : '#e63946',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      textOnColor: '#ffffff',
-      grid: dark ? '#292e42' : '#e5e7eb',
-      treeLine: dark ? '#565f89' : '#9ca3af',
-      treeNode: dark ? '#7aa2f7' : '#2563eb',
-      treeNodeActive: dark ? '#ff9e64' : '#f59e0b',
-      treeNodeCached: dark ? '#9ece6a' : '#16a34a',
-      treeNodeDuplicate: dark ? '#f7768e' : '#e63946',
-      dpBar: dark ? '#9ece6a' : '#16a34a',
-      dpBarActive: dark ? '#ff9e64' : '#f59e0b'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -261,40 +235,27 @@ window.DSA_DP = (function() {
 })();
 </script>
 
-Dynamic programming (DP) is one of the most powerful algorithmic techniques in computer science. It transforms problems that would take exponential time into elegant polynomial-time solutions by recognizing and reusing repeated work.
+Dynamic programming (DP) is one of the most powerful algorithmic techniques in computer science. It transforms problems that would take exponential time into elegant polynomial-time solutions by recognizing and reusing repeated work. In this interactive guide, we will build four classic DP algorithms from scratch in Python. You will watch DP tables fill cell by cell, see recursion trees explode in size, and understand exactly why DP is so efficient.
 
-In this interactive guide, we will build **four classic DP algorithms from scratch** in Python. You will watch DP tables fill cell by cell, see recursion trees explode in size, and understand exactly *why* DP is so efficient.
-
-By the end of this post you will understand:
-- **The core idea** - overlapping subproblems and optimal substructure
-- **Fibonacci** - the "hello world" of DP, recursion vs memoization vs tabulation
-- **0/1 Knapsack** - choosing items to maximize value under a weight limit
-- **Longest Common Subsequence** - finding the longest shared subsequence of two strings
-- **Edit Distance** - the minimum operations to transform one string into another
-
-<div class="demo-hint">
-<strong>How to use the interactive demos:</strong> Each section has a hands-on visualization. Click <strong>Step</strong> to advance one cell at a time, or <strong>Run</strong> to auto-play. Click <strong>Reset</strong> to start over. You can modify inputs and watch the algorithm adapt.
-</div>
+By the end of this post you will understand the core idea of overlapping subproblems and optimal substructure, work through Fibonacci as the "hello world" of DP that contrasts plain recursion, memoization, and tabulation, then tackle the 0/1 Knapsack problem of choosing items to maximize value under a weight limit, the Longest Common Subsequence problem of finding the longest shared subsequence of two strings, and Edit Distance, which counts the minimum operations to transform one string into another.
 
 ---
 
 ## What Is Dynamic Programming?
 
-Dynamic programming is not really about "programming" in the coding sense. The name comes from Richard Bellman, who coined it in the 1950s. It is a method for solving complex problems by breaking them into simpler **overlapping subproblems**.
+Dynamic programming is not really about "programming" in the coding sense. The name comes from Richard Bellman, who coined it in the 1950s. It is a method for solving complex problems by breaking them into simpler overlapping subproblems. Two conditions must hold for a problem to be solvable with DP.
 
-Two conditions must hold for a problem to be solvable with DP:
+**Overlapping Subproblems**: the same subproblem is solved multiple times. Instead of recomputing the answer each time, we store it and look it up.
 
-**1. Overlapping Subproblems**  - The same subproblem is solved multiple times. Instead of recomputing the answer each time, we store it and look it up.
-
-**2. Optimal Substructure**  - The optimal solution to the problem can be constructed from optimal solutions of its subproblems.
+**Optimal Substructure**: the optimal solution to the problem can be constructed from optimal solutions of its subproblems.
 
 ### Memoization vs Tabulation
 
-There are two main approaches to implementing DP:
+There are two main approaches to implementing DP.
 
-- **Memoization (Top-Down):** Start from the original problem and recursively break it down. Cache results of subproblems as you go. This is like adding a "memory" to recursion.
+**Memoization (Top-Down)** starts from the original problem and recursively breaks it down, caching results of subproblems as you go. This is like adding a "memory" to recursion.
 
-- **Tabulation (Bottom-Up):** Build a table starting from the smallest subproblems and iteratively fill in larger ones. No recursion needed.
+**Tabulation (Bottom-Up)** builds a table starting from the smallest subproblems and iteratively fills in larger ones, with no recursion needed.
 
 Both approaches yield the same time complexity, but tabulation avoids recursion overhead and is generally preferred for production code.
 
@@ -319,9 +280,7 @@ def fib_recursive(n):
     return fib_recursive(n - 1) + fib_recursive(n - 2)
 ```
 
-This is clean and readable, but it has a fatal flaw: it recomputes the same values over and over. To compute `fib(5)`, it computes `fib(3)` twice, `fib(2)` three times, and so on. The time complexity is $$O(2^n)$$  - exponential. For `fib(40)`, that is over a billion function calls.
-
-Let us count the exact calls for small values of $$n$$:
+This is clean and readable, but it has a fatal flaw: it recomputes the same values over and over. To compute `fib(5)`, it computes `fib(3)` twice, `fib(2)` three times, and so on. The time complexity is $$O(2^n)$$, exponential. For `fib(40)`, that is over a billion function calls. Let us count the exact calls for small values of $$n$$:
 
 | $$n$$ | Recursive Calls | DP Steps | Speedup |
 |-------|----------------|----------|---------|
@@ -331,7 +290,7 @@ Let us count the exact calls for small values of $$n$$:
 | 20    | 21,891         | 21       | 1,042x  |
 | 30    | 2,692,537      | 31       | 86,856x |
 
-The gap grows *exponentially* because the recursive approach has $$O(2^n)$$ calls while the DP approach always takes exactly $$n + 1$$ steps.
+The gap grows exponentially because the recursive approach has $$O(2^n)$$ calls while the DP approach always takes exactly $$n + 1$$ steps.
 
 ### The Memoization Approach (Top-Down)
 
@@ -349,9 +308,7 @@ def fib_memo(n, cache=None):
     return cache[n]
 ```
 
-This brings the time complexity down to $$O(n)$$  - each value is computed only once and then looked up from the cache. The space complexity is $$O(n)$$ for the cache plus $$O(n)$$ for the recursion stack.
-
-Memoization is often the easiest way to convert a recursive solution into a DP solution because the code structure stays almost identical. You just add a cache. However, for very large $$n$$, the recursion stack depth can cause a stack overflow. That is where tabulation shines.
+This brings the time complexity down to $$O(n)$$, since each value is computed only once and then looked up from the cache. The space complexity is $$O(n)$$ for the cache plus $$O(n)$$ for the recursion stack. Memoization is often the easiest way to convert a recursive solution into a DP solution because the code structure stays almost identical. You just add a cache. However, for very large $$n$$, the recursion stack depth can cause a stack overflow. That is where tabulation shines.
 
 ### The DP Approach (Tabulation)
 
@@ -383,13 +340,7 @@ def fib_optimized(n):
     return prev1
 ```
 
-### Interactive Visualization: Recursion Tree vs DP Table
-
-The left side shows the recursion tree for the naive approach  - notice how it branches exponentially and repeats the same subproblems (shown in red). The right side shows the DP table filling linearly, computing each value exactly once.
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Use the <strong>n</strong> slider to change the Fibonacci number being computed. Click <strong>Step</strong> to advance one operation at a time. Watch the call count explode on the left while the right side stays linear.
-</div>
+The left side shows the recursion tree for the naive approach. Notice how it branches exponentially and repeats the same subproblems (shown in red). The right side shows the DP table filling linearly, computing each value exactly once. Use the n slider to change the Fibonacci number being computed and click Step to advance one operation at a time, and watch the call count explode on the left while the right side stays linear.
 
 <div class="interactive-demo">
   <canvas id="fib-canvas" width="680" height="300"></canvas>
@@ -401,6 +352,7 @@ The left side shows the recursion tree for the naive approach  - notice how it b
     <label>n: <input type="range" id="fib-n" min="2" max="8" value="5"> <span class="demo-value" id="fib-n-val">5</span></label>
   </div>
   <div class="demo-info" id="fib-info">Recursive calls: 0 | DP lookups: 0 | Ready</div>
+  <div class="demo-caption">Settings: n = 5, side-by-side recursion tree vs DP table. Increase n to see the recursive call count grow exponentially.</div>
 </div>
 
 <script>
@@ -767,7 +719,7 @@ The left side shows the recursion tree for the naive approach  - notice how it b
 })();
 </script>
 
-Notice how the recursion tree for $$F(5)$$ requires 15 calls, but the DP table needs only 6 steps. As $$n$$ grows, this gap becomes catastrophic: $$F(8)$$ needs 67 recursive calls vs just 9 DP steps. This is the power of dynamic programming  - it trades a small amount of memory for a massive reduction in computation.
+Notice how the recursion tree for $$F(5)$$ requires 15 calls, but the DP table needs only 6 steps. As $$n$$ grows, this gap becomes catastrophic: $$F(8)$$ needs 67 recursive calls vs just 9 DP steps. This is the power of dynamic programming, it trades a small amount of memory for a massive reduction in computation.
 
 ---
 
@@ -778,8 +730,6 @@ Before tackling the heavyweight problems, let us solidify the DP mindset with a 
 This is essentially Fibonacci in disguise. To reach step $$n$$, you either came from step $$n-1$$ (one step) or step $$n-2$$ (two steps). The number of ways to reach step $$n$$ is the sum of the ways to reach those two:
 
 $$dp[i] = dp[i-1] + dp[i-2], \quad dp[1] = 1, \quad dp[2] = 2$$
-
-### Python Implementation
 
 ```python
 def climb_stairs(n):
@@ -812,15 +762,7 @@ def climb_stairs_k(n, k=3):
     return dp[n]
 ```
 
-This generalization shows how the Fibonacci recurrence is a special case of a broader class of linear DP problems. The transition function simply sums over all valid previous states.
-
-### Interactive Visualization: Climbing Stairs
-
-This visualization shows the DP table being filled for the Climbing Stairs problem. Each cell represents the number of ways to reach that step. The value is always the sum of the previous two cells.
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Use the <strong>n</strong> slider to change the number of steps. Click <strong>Step</strong> to fill one cell at a time and see how each value is computed from the previous two.
-</div>
+This generalization shows how the Fibonacci recurrence is a special case of a broader class of linear DP problems. The transition function simply sums over all valid previous states. The visualization below shows the DP table being filled for the Climbing Stairs problem. Each cell represents the number of ways to reach that step, and the value is always the sum of the previous two cells.
 
 <div class="interactive-demo">
   <canvas id="stairs-canvas" width="680" height="200"></canvas>
@@ -832,6 +774,7 @@ This visualization shows the DP table being filled for the Climbing Stairs probl
     <label>Steps: <input type="range" id="stairs-n" min="3" max="12" value="6"> <span class="demo-value" id="stairs-n-val">6</span></label>
   </div>
   <div class="demo-info" id="stairs-info">Stairs: 6 | Ready</div>
+  <div class="demo-caption">Settings: 6 stairs, dp[1]=1 and dp[2]=2 base cases, fills left to right.</div>
 </div>
 
 <script>
@@ -1037,13 +980,13 @@ This visualization shows the DP table being filled for the Climbing Stairs probl
 })();
 </script>
 
-The Climbing Stairs problem reinforces a critical DP pattern: the current state depends only on a small number of previous states. This "sliding window" over previous states is the basis for many DP optimizations, including reducing space from $$O(n)$$ to $$O(1)$$.
+The Climbing Stairs problem reinforces a critical DP pattern: the current state depends only on a small number of previous states. This sliding window over previous states is the basis for many DP optimizations, including reducing space from $$O(n)$$ to $$O(1)$$.
 
 ---
 
 ## 0/1 Knapsack Problem
 
-The 0/1 Knapsack is one of the most important problems in combinatorial optimization. You have a knapsack with a weight capacity, and a set of items each with a weight and a value. You must choose which items to include to maximize total value without exceeding the capacity. Each item can either be taken (1) or left (0)  - no partial items.
+The 0/1 Knapsack is one of the most important problems in combinatorial optimization. You have a knapsack with a weight capacity, and a set of items each with a weight and a value. You must choose which items to include to maximize total value without exceeding the capacity. Each item can either be taken (1) or left (0), no partial items.
 
 ### Problem Setup
 
@@ -1053,16 +996,9 @@ $$\text{maximize} \sum_{i} v_i x_i \quad \text{subject to} \quad \sum_{i} w_i x_
 
 ### Recurrence Relation
 
-For each item $$i$$ and capacity $$w$$, we have two choices:
-
-- **Exclude** item $$i$$: $$dp[i][w] = dp[i-1][w]$$
-- **Include** item $$i$$ (if $$w_i \leq w$$): $$dp[i][w] = dp[i-1][w - w_i] + v_i$$
-
-We take the maximum of the two:
+For each item $$i$$ and capacity $$w$$, we have two choices: exclude item $$i$$, giving $$dp[i][w] = dp[i-1][w]$$, or include item $$i$$ (when $$w_i \leq w$$), giving $$dp[i][w] = dp[i-1][w - w_i] + v_i$$. We take the maximum of the two:
 
 $$dp[i][w] = \max(dp[i-1][w], \; dp[i-1][w - w_i] + v_i)$$
-
-### Python Implementation
 
 ```python
 def knapsack_01(weights, values, capacity):
@@ -1083,13 +1019,7 @@ def knapsack_01(weights, values, capacity):
 
 Time complexity: $$O(n \cdot W)$$ where $$n$$ is the number of items and $$W$$ is the capacity. Space complexity: $$O(n \cdot W)$$.
 
-### Interactive Visualization
-
-The table below shows the DP grid being filled. Rows represent items (starting from "no items"), columns represent capacities from 0 to $$W$$. Green cells indicate the item was **included** at that decision point. Red cells indicate it was **excluded**. The highlighted cell is the one currently being computed.
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> to fill one cell at a time. Modify the items using the input fields and click <strong>Apply</strong> to rebuild the table. Watch how at each cell, the algorithm decides whether to include or exclude the current item.
-</div>
+The table below shows the DP grid being filled. Rows represent items (starting from "no items"), columns represent capacities from 0 to $$W$$. Green cells indicate the item was included at that decision point and red cells indicate it was excluded, while the highlighted cell is the one currently being computed. Click Step to fill one cell at a time, modify the items using the input fields, and click Apply to rebuild the table.
 
 <div class="interactive-demo">
   <div class="dp-table-wrapper" id="knapsack-table-wrapper">
@@ -1107,12 +1037,13 @@ The table below shows the DP grid being filled. Rows represent items (starting f
     <button id="knapsack-apply">Apply</button>
   </div>
   <div class="dp-legend">
-    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:#16a34a"></span> Include</div>
-    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:#e63946"></span> Exclude</div>
-    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:#f59e0b"></span> Current cell</div>
-    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:#2563eb"></span> Optimal path</div>
+    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--viz-green)"></span> Include</div>
+    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--viz-red)"></span> Exclude</div>
+    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--viz-orange)"></span> Current cell</div>
+    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--accent)"></span> Optimal path</div>
   </div>
   <div class="demo-info" id="knapsack-info">Items: 4 | Capacity: 8 | Ready</div>
+  <div class="demo-caption">Settings: 4 items with (weight,value) pairs (2,3) (3,4) (4,5) (5,6), capacity 8.</div>
 </div>
 
 <script>
@@ -1374,7 +1305,7 @@ The key insight of the 0/1 Knapsack is that each cell encodes the best decision 
 
 ### Tracing the Optimal Solution
 
-Building the DP table gives us the *value* of the optimal solution, but often we also need to know *which items* to include. To reconstruct the solution, we backtrack from $$dp[n][W]$$:
+Building the DP table gives us the value of the optimal solution, but often we also need to know which items to include. To reconstruct the solution, we backtrack from $$dp[n][W]$$:
 
 ```python
 def knapsack_items(weights, values, capacity):
@@ -1414,23 +1345,19 @@ def knapsack_optimized(weights, values, capacity):
     return dp[capacity]
 ```
 
-Iterating in reverse ensures that each item is used at most once (the "0/1" constraint). If you iterate forward, you would allow unlimited copies of each item  - that is the Unbounded Knapsack variant.
+Iterating in reverse ensures that each item is used at most once (the "0/1" constraint). If you iterate forward, you would allow unlimited copies of each item, that is the Unbounded Knapsack variant.
 
 ---
 
 ## Longest Common Subsequence (LCS)
 
-The Longest Common Subsequence problem is a classic in bioinformatics (DNA sequence alignment), version control (diff algorithms), and spell checking. Given two strings, find the longest subsequence common to both. A subsequence is a sequence that appears in the same relative order but not necessarily contiguously.
-
-For example, the LCS of **"ABCBDAB"** and **"BDCAB"** is **"BCAB"** (length 4).
+The Longest Common Subsequence problem is a classic in bioinformatics (DNA sequence alignment), version control (diff algorithms), and spell checking. Given two strings, find the longest subsequence common to both. A subsequence is a sequence that appears in the same relative order but not necessarily contiguously. For example, the LCS of "ABCBDAB" and "BDCAB" is "BCAB" (length 4).
 
 ### Recurrence Relation
 
 Let $$X = x_1 x_2 \ldots x_m$$ and $$Y = y_1 y_2 \ldots y_n$$. Define $$dp[i][j]$$ as the length of the LCS of $$X[1..i]$$ and $$Y[1..j]$$.
 
 $$dp[i][j] = \begin{cases} 0 & \text{if } i = 0 \text{ or } j = 0 \\ dp[i-1][j-1] + 1 & \text{if } x_i = y_j \\ \max(dp[i-1][j], \; dp[i][j-1]) & \text{if } x_i \neq y_j \end{cases}$$
-
-### Python Implementation
 
 ```python
 def lcs(X, Y):
@@ -1462,13 +1389,7 @@ def lcs(X, Y):
 
 Time complexity: $$O(m \cdot n)$$. Space complexity: $$O(m \cdot n)$$.
 
-### Interactive Visualization
-
-The DP table fills cell by cell. When characters match, the cell is highlighted in green and the value comes from the diagonal (top-left) + 1. When they differ, the value is the maximum of the cell above and the cell to the left. After filling, the backtrack path is shown in orange, revealing the actual LCS.
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> to fill one cell at a time. Modify the two strings and click <strong>Apply</strong>. Green cells indicate character matches (diagonal moves). The orange path at the end traces the LCS.
-</div>
+The DP table fills cell by cell. When characters match, the cell is highlighted in green and the value comes from the diagonal (top-left) + 1. When they differ, the value is the maximum of the cell above and the cell to the left. After filling, the backtrack path is shown in orange, revealing the actual LCS. Click Step to fill one cell at a time, modify the two strings, and click Apply.
 
 <div class="interactive-demo">
   <div class="dp-table-wrapper" id="lcs-table-wrapper">
@@ -1486,11 +1407,12 @@ The DP table fills cell by cell. When characters match, the cell is highlighted 
     <button id="lcs-apply">Apply</button>
   </div>
   <div class="dp-legend">
-    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:#16a34a"></span> Match (diagonal)</div>
-    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:#f59e0b"></span> Backtrack path</div>
+    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--viz-green)"></span> Match (diagonal)</div>
+    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--viz-orange)"></span> Backtrack path</div>
     <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--bg-secondary, #f1f5f9)"></span> Filled cell</div>
   </div>
   <div class="demo-info" id="lcs-info">Strings: "ABCBDAB" and "BDCAB" | Ready</div>
+  <div class="demo-caption">Settings: String 1 = "ABCBDAB", String 2 = "BDCAB"; backtrack path traced after fill.</div>
 </div>
 
 <script>
@@ -1730,26 +1652,17 @@ The DP table fills cell by cell. When characters match, the cell is highlighted 
 })();
 </script>
 
-The LCS algorithm is the foundation for **diff tools** like `git diff`. When you see green and red lines in a code review, a variant of this algorithm determined which lines were added, removed, or unchanged.
+The LCS algorithm is the foundation for diff tools like `git diff`. When you see green and red lines in a code review, a variant of this algorithm determined which lines were added, removed, or unchanged.
 
 ### Understanding the Backtracking
 
-The backtracking step is where LCS becomes truly useful. The DP table tells us the *length* of the LCS, but we need the actual subsequence. Starting from $$dp[m][n]$$, we trace back:
-
-1. If $$X[i] = Y[j]$$, this character is part of the LCS. Add it and move diagonally to $$dp[i-1][j-1]$$.
-2. Otherwise, move in the direction of the larger value: up ($$dp[i-1][j]$$) or left ($$dp[i][j-1]$$).
+The backtracking step is where LCS becomes truly useful. The DP table tells us the length of the LCS, but we need the actual subsequence. Starting from $$dp[m][n]$$, we trace back: if $$X[i] = Y[j]$$, the character is part of the LCS, so we add it and move diagonally to $$dp[i-1][j-1]$$; otherwise, we move in the direction of the larger value, either up to $$dp[i-1][j]$$ or left to $$dp[i][j-1]$$.
 
 This greedy backtracking always produces a valid LCS, though multiple valid LCS strings may exist if there are ties.
 
 ### Variants and Applications
 
-The LCS problem has several important variants:
-
-- **Longest Common Substring** (contiguous): Use a similar DP table but reset to 0 when characters differ. This finds the longest *contiguous* common sequence.
-
-- **Shortest Common Supersequence**: Given two strings, find the shortest string that contains both as subsequences. Length = $$m + n - \text{LCS length}$$.
-
-- **Diff algorithm**: The classic diff algorithm uses LCS to identify unchanged lines between two file versions, then marks the rest as additions or deletions.
+The LCS problem has several important variants. Longest Common Substring asks for a contiguous match: it uses a similar DP table but resets the value to 0 when characters differ, finding the longest contiguous common sequence. Shortest Common Supersequence asks, given two strings, for the shortest string that contains both as subsequences, with length $$m + n - \text{LCS length}$$. The classic diff algorithm uses LCS to identify unchanged lines between two file versions, then marks the rest as additions or deletions.
 
 ```python
 def shortest_common_supersequence(X, Y):
@@ -1762,13 +1675,7 @@ def shortest_common_supersequence(X, Y):
 
 ## Edit Distance (Levenshtein Distance)
 
-The Edit Distance problem measures the minimum number of single-character operations needed to transform one string into another. The allowed operations are:
-
-- **Insert** a character
-- **Delete** a character
-- **Replace** a character
-
-This is used in spell checkers, DNA alignment, and fuzzy string matching. For example, the edit distance between **"kitten"** and **"sitting"** is 3.
+The Edit Distance problem measures the minimum number of single-character operations needed to transform one string into another. The allowed operations are inserting a character, deleting a character, and replacing a character. This is used in spell checkers, DNA alignment, and fuzzy string matching. For example, the edit distance between "kitten" and "sitting" is 3.
 
 ### Recurrence Relation
 
@@ -1776,12 +1683,7 @@ Let $$X = x_1 x_2 \ldots x_m$$ and $$Y = y_1 y_2 \ldots y_n$$. Define $$dp[i][j]
 
 $$dp[i][j] = \begin{cases} j & \text{if } i = 0 \\ i & \text{if } j = 0 \\ dp[i-1][j-1] & \text{if } x_i = y_j \\ 1 + \min(dp[i-1][j], \; dp[i][j-1], \; dp[i-1][j-1]) & \text{if } x_i \neq y_j \end{cases}$$
 
-Where the three options in the min correspond to:
-- $$dp[i-1][j] + 1$$  - **delete** $$x_i$$
-- $$dp[i][j-1] + 1$$  - **insert** $$y_j$$
-- $$dp[i-1][j-1] + 1$$  - **replace** $$x_i$$ with $$y_j$$
-
-### Python Implementation
+The three options in the min correspond to deleting $$x_i$$ ($$dp[i-1][j] + 1$$), inserting $$y_j$$ ($$dp[i][j-1] + 1$$), or replacing $$x_i$$ with $$y_j$$ ($$dp[i-1][j-1] + 1$$).
 
 ```python
 def edit_distance(X, Y):
@@ -1810,13 +1712,7 @@ def edit_distance(X, Y):
 
 Time complexity: $$O(m \cdot n)$$. Space complexity: $$O(m \cdot n)$$.
 
-### Interactive Visualization
-
-Each cell is color-coded by the operation that was chosen: **green** for character match (no cost), **yellow** for replace, **blue** for insert, and **red** for delete. The backtrack path shows the optimal sequence of operations.
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> to fill one cell at a time. Change the input strings and click <strong>Apply</strong>. Each cell's color tells you which operation was optimal. At the end, the orange path traces the minimum-cost transformation.
-</div>
+Each cell is color-coded by the operation that was chosen: green for character match (no cost), yellow for replace, blue for insert, and red for delete. The backtrack path shows the optimal sequence of operations. Click Step to fill one cell at a time, change the input strings, and click Apply.
 
 <div class="interactive-demo">
   <div class="dp-table-wrapper" id="edit-table-wrapper">
@@ -1834,12 +1730,13 @@ Each cell is color-coded by the operation that was chosen: **green** for charact
     <button id="edit-apply">Apply</button>
   </div>
   <div class="dp-legend">
-    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:#16a34a"></span> Match (free)</div>
-    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:#f59e0b"></span> Replace (+1)</div>
-    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:#2563eb"></span> Insert (+1)</div>
-    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:#e63946"></span> Delete (+1)</div>
+    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--viz-green)"></span> Match (free)</div>
+    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--viz-orange)"></span> Replace (+1)</div>
+    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--accent)"></span> Insert (+1)</div>
+    <div class="dp-legend-item"><span class="dp-legend-swatch" style="background:var(--viz-red)"></span> Delete (+1)</div>
   </div>
   <div class="demo-info" id="edit-info">Transform "kitten" into "sitting" | Ready</div>
+  <div class="demo-caption">Settings: From "kitten" to "sitting"; cells colored by chosen operation, orange path shows minimum-cost transformation.</div>
 </div>
 
 <script>
@@ -2107,12 +2004,7 @@ Edit distance has many practical applications. Spell checkers use it to suggest 
 
 ### Tracing the Operations
 
-The backtrack path through the DP table gives us the exact sequence of operations to transform one string into the other. Starting from $$dp[m][n]$$:
-
-1. **Diagonal move with same value**  - character match, no operation needed
-2. **Diagonal move with value + 1**  - replace operation
-3. **Move up with value + 1**  - delete operation (remove from source string)
-4. **Move left with value + 1**  - insert operation (add from target string)
+The backtrack path through the DP table gives us the exact sequence of operations to transform one string into the other. Starting from $$dp[m][n]$$, a diagonal move with the same value means a character match and no operation is needed; a diagonal move with value + 1 corresponds to a replace operation; a move up with value + 1 corresponds to a delete (removing a character from the source string); and a move left with value + 1 corresponds to an insert (adding a character from the target string).
 
 Here is a helper that reconstructs the full alignment:
 
@@ -2183,37 +2075,17 @@ def weighted_edit_distance(X, Y, insert_cost=1, delete_cost=1,
     return dp[m][n]
 ```
 
-The structure of the DP solution does not change  - only the cost model does. This flexibility is what makes DP so powerful: the framework stays the same while the problem-specific details slot in naturally.
+The structure of the DP solution does not change, only the cost model does. This flexibility is what makes DP so powerful: the framework stays the same while the problem-specific details slot in naturally.
 
 ---
 
 ## Recognizing DP Problems
 
-Not every problem can be solved with DP. Here is a checklist to identify DP-solvable problems:
-
-1. **Can the problem be broken into subproblems?** If the solution depends on solutions to smaller instances of the same problem, DP might apply.
-
-2. **Are there overlapping subproblems?** If the same subproblem is computed multiple times in a naive recursive solution, caching will help.
-
-3. **Does optimal substructure hold?** The optimal solution to the overall problem must be constructible from optimal solutions of subproblems.
-
-4. **Can you define a recurrence?** If you can write $$dp[i] = f(dp[i-1], dp[i-2], \ldots)$$, you have a DP formulation.
+Not every problem can be solved with DP. To identify DP-solvable problems, ask whether the problem can be broken into subproblems (if the solution depends on solutions to smaller instances of the same problem, DP might apply), whether there are overlapping subproblems (if the same subproblem is computed multiple times in a naive recursive solution, caching will help), whether optimal substructure holds (the optimal solution to the overall problem must be constructible from optimal solutions of subproblems), and whether you can define a recurrence (if you can write $$dp[i] = f(dp[i-1], dp[i-2], \ldots)$$, you have a DP formulation).
 
 ### The DP Problem-Solving Framework
 
-When you encounter a new problem, work through these steps:
-
-**Step 1: Define the state.** What parameters uniquely identify a subproblem? For Fibonacci it is $$n$$. For Knapsack it is the item index and remaining capacity. For LCS it is the indices into both strings.
-
-**Step 2: Write the recurrence.** Express the solution to a subproblem in terms of smaller subproblems. This is the core of the DP solution.
-
-**Step 3: Identify the base cases.** What are the trivially solvable subproblems? These anchor your recurrence and prevent infinite recursion.
-
-**Step 4: Determine the fill order.** In tabulation, you must fill smaller subproblems before larger ones. Usually this means iterating indices from small to large.
-
-**Step 5: Extract the answer.** The final answer is typically in $$dp[n]$$, $$dp[n][W]$$, $$dp[m][n]$$, or similar.
-
-**Step 6 (optional): Backtrack.** If you need the actual solution (not just its value), trace back through the table using the decisions recorded at each cell.
+When you encounter a new problem, the first step is to define the state, that is, the parameters that uniquely identify a subproblem (for Fibonacci it is $$n$$, for Knapsack it is the item index and remaining capacity, for LCS it is the indices into both strings). Next, write the recurrence that expresses the solution to a subproblem in terms of smaller subproblems; this is the core of the DP solution. Then identify the base cases, the trivially solvable subproblems that anchor your recurrence and prevent infinite recursion. After that, determine the fill order: in tabulation, you must fill smaller subproblems before larger ones, which usually means iterating indices from small to large. Finally, extract the answer, which is typically in $$dp[n]$$, $$dp[n][W]$$, $$dp[m][n]$$, or similar; and if you need the actual solution rather than just its value, backtrack through the table using the decisions recorded at each cell.
 
 ### Bonus: Coin Change Problem
 
@@ -2236,7 +2108,7 @@ This is a variation of the Unbounded Knapsack: each coin can be used unlimited t
 
 $$dp[i] = \min_{c \in \text{coins}} (dp[i - c] + 1), \quad dp[0] = 0$$
 
-For coins = [1, 5, 10, 25] and amount = 36, the answer is 3 coins (25 + 10 + 1). Notice how this is *not* the greedy solution for all coin sets  - greedy fails for coins = [1, 3, 4] and amount = 6 (greedy gives 4+1+1 = 3 coins, but DP finds 3+3 = 2 coins).
+For coins = [1, 5, 10, 25] and amount = 36, the answer is 3 coins (25 + 10 + 1). Notice how this is not the greedy solution for all coin sets, greedy fails for coins = [1, 3, 4] and amount = 6 (greedy gives 4+1+1 = 3 coins, but DP finds 3+3 = 2 coins).
 
 ### Common DP problem types:
 
@@ -2257,11 +2129,7 @@ For coins = [1, 5, 10, 25] and amount = 36, the answer is 3 coins (25 + 10 + 1).
 
 ### When DP is NOT the answer
 
-DP does not apply when:
-
-- **No overlapping subproblems:** If every subproblem is unique (like in standard merge sort), DP adds overhead without benefit. This is just divide-and-conquer.
-- **No optimal substructure:** Some problems, like finding the longest simple path in a general graph, do not have optimal substructure. Subpath optimality does not guarantee overall path optimality when revisiting nodes is forbidden.
-- **The state space is too large:** If the DP table would require $$O(2^n)$$ cells, the "DP solution" is no better than brute force. Problems like the Traveling Salesman have DP solutions that are better than naive brute force ($$O(2^n \cdot n)$$ vs $$O(n!)$$) but still exponential.
+DP does not apply when there are no overlapping subproblems (if every subproblem is unique, as in standard merge sort, DP adds overhead without benefit and you really have just divide-and-conquer), when there is no optimal substructure (some problems, like finding the longest simple path in a general graph, do not have optimal substructure because subpath optimality does not guarantee overall path optimality when revisiting nodes is forbidden), or when the state space is too large (if the DP table would require $$O(2^n)$$ cells, the "DP solution" is no better than brute force; problems like the Traveling Salesman have DP solutions that are better than naive brute force, $$O(2^n \cdot n)$$ vs $$O(n!)$$, but still exponential).
 
 ---
 
@@ -2287,21 +2155,15 @@ Here is a summary of the DP problems we covered and their complexities:
 
 ## Key Takeaways
 
-1. **Dynamic programming avoids redundant work** by caching solutions to overlapping subproblems. A problem that takes $$O(2^n)$$ with naive recursion can often be solved in $$O(n)$$ or $$O(n^2)$$ with DP.
-
-2. **Tabulation (bottom-up) is generally preferred** over memoization (top-down) because it avoids recursion overhead and stack overflow issues on large inputs. However, memoization is easier to implement when starting from a recursive solution.
-
-3. **The hardest part is defining the recurrence.** Once you identify the state (what changes between subproblems) and the transition (how to compute a state from smaller states), the implementation is straightforward.
-
-4. **The 0/1 Knapsack** teaches the "include or exclude" pattern that appears in many optimization problems. At each step, you make a binary choice and take the best outcome.
-
-5. **LCS and Edit Distance** are foundational string algorithms. LCS powers diff tools and version control. Edit distance powers spell checkers and search engines. Both follow the same 2D table-filling pattern.
-
-6. **Space optimization is often possible.** Since most DP recurrences only look at the previous row (or previous few values), you can reduce space from $$O(n \cdot m)$$ to $$O(m)$$ or even $$O(1)$$.
-
-7. **Practice the framework:** For every new DP problem, follow the steps: define state, write recurrence, identify base cases, determine fill order, extract answer. This systematic approach demystifies even hard problems.
-
-8. **Try experimenting above:** Change the Fibonacci $$n$$ value to see how the recursion tree explodes. Modify the knapsack items to see how different weights and values change the optimal selection. Try different strings in LCS and Edit Distance to build intuition for how the table structure changes.
+| Concept | Key Idea |
+|---|---|
+| Overlapping Subproblems | Cache results of repeated subproblems to turn $$O(2^n)$$ recursion into $$O(n)$$ or $$O(n^2)$$. |
+| Memoization vs Tabulation | Top-down memoization mirrors recursion; bottom-up tabulation avoids stack overflow and is preferred for production. |
+| State and Recurrence | Defining the state (parameters that identify a subproblem) and recurrence (transition rule) is the hardest, most important step. |
+| Include or Exclude | The Knapsack pattern of choosing the best of two options recurs across many optimization problems. |
+| Two-String DP | LCS and Edit Distance share a 2D table-filling structure that powers diff tools, spell checkers, and DNA alignment. |
+| Space Optimization | Recurrences that only depend on the previous row often collapse from $$O(n \cdot m)$$ to $$O(m)$$ or $$O(1)$$. |
+| DP Framework | State, recurrence, base cases, fill order, and answer extraction form a repeatable recipe for new problems. |
 
 ---
 
@@ -2309,11 +2171,6 @@ Here is a summary of the DP problems we covered and their complexities:
 
 Dynamic programming is a technique that becomes easier with practice. The patterns repeat across problems: identify the state, write the recurrence, fill the table. Now that you have built intuition with these classic problems, you are well-equipped to tackle more advanced DP challenges like matrix chain multiplication, longest increasing subsequence, and bitmask DP.
 
-Some recommended next problems to practice:
-- **Longest Increasing Subsequence (LIS)**  - $$O(n^2)$$ DP, $$O(n \log n)$$ with binary search
-- **Matrix Chain Multiplication**  - interval DP with $$O(n^3)$$ complexity
-- **Palindrome Partitioning**  - minimum cuts to partition a string into palindromes
-- **House Robber**  - linear DP with the "take or skip" pattern
-- **Coin Change 2**  - count the number of ways (not minimum coins)
+Some recommended next problems to practice include the Longest Increasing Subsequence ($$O(n^2)$$ DP, or $$O(n \log n)$$ with binary search), Matrix Chain Multiplication (interval DP with $$O(n^3)$$ complexity), Palindrome Partitioning (minimum cuts to partition a string into palindromes), House Robber (linear DP with the "take or skip" pattern), and Coin Change 2 (counting the number of ways rather than the minimum number of coins).
 
 Continue exploring the [DSA Interactive Guide series]({{ site.baseurl }}/) for more hands-on algorithm visualizations, from sorting and searching to trees and graphs.

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "K-Means Clustering from Scratch: An Interactive Guide"
+title: "K-Means Clustering from Scratch"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -118,9 +118,7 @@ window.KM = (function() {
       (window.getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim().match(/^#[0-3]/) !== null);
   }
 
-  function getColors() {
-    return isDark() ? darkColors : lightColors;
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -380,19 +378,15 @@ window.KM = (function() {
 
 ## Introduction: Discovering Structure Without Labels
 
-So far in this series, we have worked with **supervised learning**, we had labeled data and trained models to predict those labels. Linear regression predicted continuous values; logistic regression predicted categories. In both cases, we told the model the right answer during training.
+So far in this series, we have worked with supervised learning, we had labeled data and trained models to predict those labels. Linear regression predicted continuous values; logistic regression predicted categories. In both cases, we told the model the right answer during training. But what if we have no labels at all? What if we just have a pile of data and we want to find structure in it? This is unsupervised learning, and clustering is its most intuitive form. The goal is simple: group similar data points together. No labels needed. The algorithm discovers the groups on its own.
 
-But what if we have no labels at all? What if we just have a pile of data and we want to find **structure** in it?
+K-Means is the most widely used clustering algorithm. It is fast, simple, and often the first thing you should try. Applications include:
 
-This is **unsupervised learning**, and **clustering** is its most intuitive form. The goal is simple: group similar data points together. No labels needed. The algorithm discovers the groups on its own.
-
-**K-Means** is the most widely used clustering algorithm. It is fast, simple, and often the first thing you should try. Applications include:
-
-- **Customer segmentation**, grouping customers by purchasing behavior
-- **Image compression**, reducing colors by clustering pixel values
-- **Document organization**, grouping articles by topic
-- **Anomaly detection**, points far from all cluster centers might be outliers
-- **Feature engineering**, cluster membership as a new feature for supervised models
+- **Customer segmentation**: grouping customers by purchasing behavior
+- **Image compression**: reducing colors by clustering pixel values
+- **Document organization**: grouping articles by topic
+- **Anomaly detection**: points far from all cluster centers might be outliers
+- **Feature engineering**: cluster membership as a new feature for supervised models
 
 Let us build it from scratch.
 
@@ -400,7 +394,7 @@ Let us build it from scratch.
 
 ## The K-Means Algorithm
 
-K-Means partitions N data points into K clusters. Each cluster is defined by its **centroid** (center point). The algorithm alternates between two steps until convergence:
+K-Means partitions N data points into K clusters. Each cluster is defined by its centroid (center point). The algorithm alternates between two steps until convergence.
 
 ### Step 1: Assignment
 
@@ -408,9 +402,7 @@ Assign each point to the nearest centroid:
 
 $$c^{(i)} = \arg\min_k \|x^{(i)} - \mu_k\|^2$$
 
-where $$x^{(i)}$$ is the $$i$$-th data point and $$\mu_k$$ is the $$k$$-th centroid.
-
-Intuition: every centroid claims the points in its neighborhood. If you drew borders between centroids, each point belongs to the region of the closest center. This step creates temporary cluster membership for the current iteration.
+where $$x^{(i)}$$ is the $$i$$-th data point and $$\mu_k$$ is the $$k$$-th centroid. Every centroid claims the points in its neighborhood. If you drew borders between centroids, each point belongs to the region of the closest center. This step creates temporary cluster membership for the current iteration.
 
 ### Step 2: Update
 
@@ -418,32 +410,21 @@ Move each centroid to the mean of all points assigned to it:
 
 $$\mu_k = \frac{1}{|C_k|}\sum_{x \in C_k} x$$
 
-where $$C_k$$ is the set of points assigned to cluster $$k$$.
-
-Intuition: once assignments are fixed, each centroid moves to the geometric center of its own cluster. This reduces average distance to assigned points and improves the objective before the next assignment pass.
+where $$C_k$$ is the set of points assigned to cluster $$k$$. Once assignments are fixed, each centroid moves to the geometric center of its own cluster. This reduces average distance to assigned points and improves the objective before the next assignment pass.
 
 ### The Objective
 
-K-Means minimizes the **inertia** (Within-Cluster Sum of Squares):
+K-Means minimizes the inertia (Within-Cluster Sum of Squares):
 
 $$J = \sum_{k=1}^{K}\sum_{x \in C_k} \|x - \mu_k\|^2$$
 
-Each iteration of assign-then-update is guaranteed to decrease $$J$$ (or leave it unchanged). The algorithm converges when assignments no longer change.
-
-The full procedure:
-
-1. **Initialize** K centroids (randomly or with a smarter strategy)
-2. **Assign** each point to the nearest centroid
-3. **Update** each centroid to the mean of its assigned points
-4. **Repeat** steps 2--3 until convergence
-
-Let us watch this happen live.
+Each iteration of assign-then-update is guaranteed to decrease $$J$$ (or leave it unchanged). The algorithm converges when assignments no longer change. The full procedure is to initialize K centroids (randomly or with a smarter strategy), assign each point to the nearest centroid, update each centroid to the mean of its assigned points, and repeat the assign-update cycle until convergence. Let us watch this happen live.
 
 ---
 
 ## Step-by-Step K-Means
 
-This demo runs K-Means on pre-generated clustered data. Use **Step** to advance one iteration at a time, or **Play** to animate. Watch the centroids (diamond markers) migrate toward the cluster centers while points change color to match their nearest centroid.
+This demo runs K-Means on pre-generated clustered data. Use Step to advance one iteration at a time, or Play to animate. Watch the centroids (diamond markers) migrate toward the cluster centers while points change color to match their nearest centroid.
 
 <div class="interactive-demo" id="demo-stepwise">
   <canvas id="canvas-stepwise"></canvas>
@@ -454,9 +435,8 @@ This demo runs K-Means on pre-generated clustered data. Use **Step** to advance 
     <label>K: <input type="range" id="slider-step-k" min="2" max="6" value="3"><span class="demo-value" id="val-step-k">3</span></label>
   </div>
   <div class="demo-info" id="info-stepwise">Click Play or Step to begin</div>
+  <div class="demo-caption">Settings: 3 natural clusters, K=3, random initialization, animated assign-update steps.</div>
 </div>
-
-<div class="demo-hint">Tip: Try different values of K. With K=2 on 3-cluster data, watch how the algorithm merges two natural groups. With K=5, see how it splits one group into sub-clusters.</div>
 
 <script>
 (function() {
@@ -654,7 +634,7 @@ Notice how each iteration makes progress: points snap to their nearest centroid,
 
 ## K Selection: The Elbow Method
 
-K-Means requires you to choose K in advance. But how? One popular approach is the **Elbow Method**: run K-Means for K = 1, 2, ..., 10, record the inertia (WCSS) for each, and look for an "elbow" in the curve, the point where adding more clusters stops giving significant improvement.
+K-Means requires you to choose K in advance. But how? One popular approach is the Elbow Method: run K-Means for K = 1, 2, ..., 10, record the inertia (WCSS) for each, and look for an "elbow" in the curve, the point where adding more clusters stops giving significant improvement.
 
 <div class="interactive-demo" id="demo-elbow">
   <div class="demo-split">
@@ -671,6 +651,7 @@ K-Means requires you to choose K in advance. But how? One popular approach is th
     <button id="btn-elbow-run">Generate New Data & Run</button>
   </div>
   <div class="demo-info" id="info-elbow">Click "Generate New Data & Run" to begin</div>
+  <div class="demo-caption">Settings: data with 3 natural clusters, K swept 1 to 10, K-Means++ best of 5 trials per K.</div>
 </div>
 
 <script>
@@ -821,9 +802,7 @@ The curve typically drops steeply as K increases from 1, then flattens out. The 
 
 ## Voronoi Regions
 
-Each point in K-Means is assigned to its nearest centroid. If we color every pixel in the space by which centroid is closest, we get **Voronoi regions**, the territory each centroid "owns."
-
-**Drag the centroids** around to see how the Voronoi regions reshape in real-time.
+Each point in K-Means is assigned to its nearest centroid. If we color every pixel in the space by which centroid is closest, we get Voronoi regions, the territory each centroid "owns." Drag the centroids around to see how the Voronoi regions reshape in real-time.
 
 <div class="interactive-demo" id="demo-voronoi">
   <canvas id="canvas-voronoi"></canvas>
@@ -832,6 +811,7 @@ Each point in K-Means is assigned to its nearest centroid. If we color every pix
     <label>K: <input type="range" id="slider-voronoi-k" min="2" max="6" value="3"><span class="demo-value" id="val-voronoi-k">3</span></label>
   </div>
   <div class="demo-info" id="info-voronoi">Drag the diamond markers to reshape Voronoi regions</div>
+  <div class="demo-caption">Settings: K=3 draggable centroids over a 3-cluster point cloud, regions colored by nearest centroid.</div>
 </div>
 
 <script>
@@ -957,9 +937,7 @@ The Voronoi diagram makes the decision boundaries explicit. Each region is a con
 
 ## Initialization Matters
 
-K-Means only finds a **local minimum** of the inertia function. Different random initializations can lead to very different results, sometimes good, sometimes bad.
-
-Run the demo below multiple times. Each run uses a fresh random initialization on the **same data**. Notice how the final inertia varies, and some runs produce clearly worse clusterings.
+K-Means only finds a local minimum of the inertia function. Different random initializations can lead to very different results, sometimes good, sometimes bad. Run the demo below multiple times. Each run uses a fresh random initialization on the same data. Notice how the final inertia varies, and some runs produce clearly worse clusterings.
 
 <div class="interactive-demo" id="demo-init">
   <canvas id="canvas-init"></canvas>
@@ -969,6 +947,7 @@ Run the demo below multiple times. Each run uses a fresh random initialization o
     <button id="btn-init-next">Next &gt;</button>
   </div>
   <div class="demo-info" id="info-init">Click "Run 5 Random Initializations" to compare results</div>
+  <div class="demo-caption">Settings: K=3, 5 random initializations on the same data, sorted by inertia (best first).</div>
 </div>
 
 <script>
@@ -1041,13 +1020,11 @@ The results are sorted by inertia (best first). Use the Prev/Next buttons to cyc
 
 ## K-Means++ Initialization
 
-**K-Means++** is a smarter initialization that produces better starting centroids. The idea is simple: spread the initial centroids out by choosing each new centroid with probability proportional to its squared distance from the nearest existing centroid.
+K-Means++ is a smarter initialization that produces better starting centroids. The idea is simple: spread the initial centroids out by choosing each new centroid with probability proportional to its squared distance from the nearest existing centroid.
 
 $$P(x) = \frac{D(x)^2}{\sum_{x'} D(x')^2}$$
 
-where $$D(x)$$ is the distance from point $$x$$ to the nearest already-chosen centroid.
-
-This ensures centroids start well-separated, avoiding the pathological cases of random initialization.
+where $$D(x)$$ is the distance from point $$x$$ to the nearest already-chosen centroid. This ensures centroids start well-separated, avoiding the pathological cases of random initialization.
 
 <div class="interactive-demo" id="demo-kmpp">
   <div class="demo-split">
@@ -1064,6 +1041,7 @@ This ensures centroids start well-separated, avoiding the pathological cases of 
     <button id="btn-kmpp-run">Run Comparison</button>
   </div>
   <div class="demo-info" id="info-kmpp">Click "Run Comparison" to compare initialization strategies</div>
+  <div class="demo-caption">Settings: K=3, 5 trials each for random vs K-Means++, best run shown per side.</div>
 </div>
 
 <script>
@@ -1121,7 +1099,7 @@ This ensures centroids start well-separated, avoiding the pathological cases of 
 })();
 </script>
 
-The canvases show the **best** result out of 5 runs for each method. The info line shows all 5 inertia values. K-Means++ typically produces more consistent results with lower variance in inertia. In practice, sklearn's KMeans uses K-Means++ by default.
+The canvases show the best result out of 5 runs for each method. The info line shows all 5 inertia values. K-Means++ typically produces more consistent results with lower variance in inertia. In practice, sklearn's KMeans uses K-Means++ by default.
 
 ---
 
@@ -1137,6 +1115,7 @@ Now it is your turn. Click on the canvas to place points, choose K, and run K-Me
     <label>K: <input type="range" id="slider-inter-k" min="2" max="6" value="3"><span class="demo-value" id="val-inter-k">3</span></label>
   </div>
   <div class="demo-info" id="info-interactive">Click on the canvas to add points, then click "Run K-Means"</div>
+  <div class="demo-caption">Settings: empty canvas, click to add points, K=3, K-Means++ initialization on Run.</div>
 </div>
 
 <script>
@@ -1232,20 +1211,18 @@ Now it is your turn. Click on the canvas to place points, choose K, and run K-Me
 })();
 </script>
 
-<div class="demo-hint">Try creating a few tight groups and running K-Means with the correct K. Then try with too few or too many clusters. Notice how the algorithm always finds a solution, even if K is wrong, it just splits or merges your intended groups.</div>
-
 ---
 
 ## Limitations of K-Means
 
 K-Means is powerful but it has fundamental limitations:
 
-1. **Assumes spherical (convex) clusters**, It uses Euclidean distance to assign points, creating convex Voronoi regions. It cannot discover non-convex shapes.
-2. **Sensitive to outliers**, A single far-away point can pull a centroid off course.
-3. **Requires choosing K**, The elbow method helps, but there is no universal automatic solution.
-4. **Local minima**, Different initializations give different results.
+- **Assumes spherical (convex) clusters**: it uses Euclidean distance to assign points, creating convex Voronoi regions, and cannot discover non-convex shapes.
+- **Sensitive to outliers**: a single far-away point can pull a centroid off course.
+- **Requires choosing K**: the elbow method helps, but there is no universal automatic solution.
+- **Local minima**: different initializations give different results.
 
-The demo below shows K-Means trying to cluster two classic non-convex shapes: **crescent moons** and **concentric circles**. The algorithm fails because its decision boundaries are always linear.
+The demo below shows K-Means trying to cluster two classic non-convex shapes: crescent moons and concentric circles. The algorithm fails because its decision boundaries are always linear.
 
 <div class="interactive-demo" id="demo-limits">
   <div class="demo-split">
@@ -1262,6 +1239,7 @@ The demo below shows K-Means trying to cluster two classic non-convex shapes: **
     <button id="btn-limit-rerun">Re-run K-Means</button>
   </div>
   <div class="demo-info" id="info-limits">K-Means splits these shapes incorrectly, it cannot find non-convex clusters</div>
+  <div class="demo-caption">Settings: K=2 with K-Means++ on two moons and concentric circles, dashed line shows the linear boundary.</div>
 </div>
 
 <script>
@@ -1335,7 +1313,7 @@ The demo below shows K-Means trying to cluster two classic non-convex shapes: **
 })();
 </script>
 
-The dashed line shows the linear decision boundary K-Means creates. For moons, it cuts across both crescents instead of separating them. For concentric circles, it bisects both rings. Density-based algorithms like **DBSCAN** handle these shapes correctly, that is a story for the next chapter.
+The dashed line shows the linear decision boundary K-Means creates. For moons, it cuts across both crescents instead of separating them. For concentric circles, it bisects both rings. Density-based algorithms like DBSCAN handle these shapes correctly, that is a story for the next chapter.
 
 ---
 
@@ -1353,12 +1331,8 @@ The dashed line shows the linear decision boundary K-Means creates. For moons, i
 
 ### Key Takeaways
 
-1. K-Means is fast and intuitive, it should be your **first clustering attempt** on any new dataset.
-2. Always use **K-Means++** initialization (it is the default in sklearn).
-3. Run the algorithm **multiple times** and keep the result with lowest inertia.
-4. Use the **elbow method** to guide your choice of K, but also consider domain knowledge.
-5. K-Means creates **linear (Voronoi) boundaries**, if your clusters are non-convex, you need a different algorithm.
+K-Means is fast and intuitive, it should be your first clustering attempt on any new dataset. Always use K-Means++ initialization (it is the default in sklearn), and run the algorithm multiple times to keep the result with lowest inertia. Use the elbow method to guide your choice of K, but also consider domain knowledge. K-Means creates linear Voronoi boundaries, so if your clusters are non-convex, you need a different algorithm.
 
 ### What's Next
 
-In the next chapter, we will explore **DBSCAN and Hierarchical Clustering**, algorithms that can discover clusters of arbitrary shape, handle noise, and even determine the number of clusters automatically.
+In the next chapter, we will explore DBSCAN and Hierarchical Clustering, algorithms that can discover clusters of arbitrary shape, handle noise, and even determine the number of clusters automatically.

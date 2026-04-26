@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Linear Regression II: An Interactive Guide"
+title: "Linear Regression II"
 author: bharathikannan
 categories: [Machine learning]
 series: true
@@ -274,24 +274,7 @@ window.LR2 = (function() {
     return ssTot < 1e-12 ? (ssRes < 1e-12 ? 1 : 0) : 1 - ssRes / ssTot;
   }
 
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      grid: dark ? '#292e42' : '#e5e7eb',
-      point: dark ? '#7aa2f7' : '#2563eb',
-      pointStroke: dark ? '#3d59a1' : '#1d4ed8',
-      line: dark ? '#ff9e64' : '#e63946',
-      error: dark ? 'rgba(247,118,142,0.5)' : 'rgba(230,57,70,0.4)',
-      accent: dark ? '#9ece6a' : '#16a34a',
-      path: dark ? '#9ece6a' : '#16a34a',
-      plane: dark ? 'rgba(122,162,247,0.18)' : 'rgba(37,99,235,0.12)',
-      planeLine: dark ? 'rgba(122,162,247,0.32)' : 'rgba(37,99,235,0.22)',
-      dark: dark
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -329,16 +312,13 @@ window.LR2 = (function() {
 })();
 </script>
 
-This is a follow-up to the first post:
-[Linear Regression from Scratch: An Interactive Guide]({{ site.baseurl }}/linear-regression/). Now we move to the next step: multiple input features. We start with the simplest multivariate case, two features because it can still be visualized. With two inputs, linear regression is no longer just a line, it becomes a plane in 3D space. More generally, with additional features the same idea extends to a hyperplane in higher dimensions.
+This is a follow-up to the first post [Linear Regression from Scratch: An Interactive Guide]({{ site.baseurl }}/linear-regression/). Now we move to the next step of multiple input features. We start with the simplest multivariate case of two features, because it can still be visualized. With two inputs, linear regression is no longer just a line and instead becomes a plane in 3D space. More generally, with additional features the same idea extends to a hyperplane in higher dimensions.
 
 The full model with two features is:
 
 $$\hat{y} = w_1 x_1 + w_2 x_2 + b$$
 
-where $$w_1$$ and $$w_2$$ control the tilt of the prediction plane, and $$b$$ (the bias) shifts the entire plane up or down. In the first interactive demo below, you can adjust all three to build intuition for how the plane moves. For the cost surface and gradient descent sections further down, we fix $$b = 0$$ so we have only two free parameters. This lets us directly visualize:
-1. The cost surface $$J(w_1, w_2)$$ as a 3D bowl
-2. Gradient descent walking down that bowl to find the best weights
+where $$w_1$$ and $$w_2$$ control the tilt of the prediction plane, and $$b$$ (the bias) shifts the entire plane up or down. In the first interactive demo below, you can adjust all three to build intuition for how the plane moves. For the cost surface and gradient descent sections further down, we fix $$b = 0$$ so we have only two free parameters, which lets us directly visualize the cost surface $$J(w_1, w_2)$$ as a 3D bowl and watch gradient descent walking down that bowl to find the best weights.
 
 ---
 
@@ -352,25 +332,13 @@ With two features, the hypothesis becomes a plane in 3D space ($$x_1$$, $$x_2$$,
 
 $$\hat{y} = w_1 x_1 + w_2 x_2 + b$$
 
-What does each parameter do?
-
-- $$w_1$$ controls how steeply the plane tilts along the $$x_1$$ direction. Increase $$w_1$$ and higher $$x_1$$ values predict higher $$y$$. Set $$w_1 = 0$$ and the plane becomes flat along $$x_1$$ - the prediction does not depend on $$x_1$$ at all.
-
-- $$w_2$$ does the same for the $$x_2$$ direction. It independently controls the other tilt axis.
-
-- $$b$$ (the bias) shifts the entire plane up or down without changing its tilt. With $$b = 0$$ the plane is forced through the origin. A nonzero $$b$$ lets the plane float to the right vertical position.
-
-Together, $$w_1$$, $$w_2$$, and $$b$$ fully determine the prediction plane. Training means finding the values that make the plane pass as close as possible to all the data points.
+The weight $$w_1$$ controls how steeply the plane tilts along the $$x_1$$ direction, so increasing $$w_1$$ means higher $$x_1$$ values predict higher $$y$$, and setting $$w_1 = 0$$ makes the plane flat along $$x_1$$ so the prediction no longer depends on $$x_1$$ at all. The weight $$w_2$$ does the same for the $$x_2$$ direction and independently controls the other tilt axis. The bias $$b$$ shifts the entire plane up or down without changing its tilt, with $$b = 0$$ forcing the plane through the origin and a nonzero $$b$$ letting the plane float to the right vertical position. Together, $$w_1$$, $$w_2$$, and $$b$$ fully determine the prediction plane, and training means finding the values that make the plane pass as close as possible to all the data points.
 
 ---
 
 ## 2. Seeing the Data in 3D
 
-Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space. The semi-transparent blue surface is the prediction plane $$\hat{y} = w_1 x_1 + w_2 x_2 + b$$. The red dashed lines are the errors (residuals), the vertical distance from each point to the plane.
-
-<div class="demo-hint">
-Drag w₁ and w₂ to tilt the plane; drag b to shift vertically. Click Fit to run gradient descent.
-</div>
+Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space, the semi-transparent blue surface is the prediction plane $$\hat{y} = w_1 x_1 + w_2 x_2 + b$$, and the red dashed lines are the errors (residuals), the vertical distance from each point to the plane.
 
 <div class="interactive-demo">
   <div class="demo-controls">
@@ -411,6 +379,7 @@ Drag w₁ and w₂ to tilt the plane; drag b to shift vertically. Click Fit to r
     </label>
     <label><input type="checkbox" id="lr2-residuals" checked> Show errors</label>
   </div>
+  <div class="demo-caption">Settings: 80 synthetic samples (true w₁ = 2.8, w₂ = -1.6, b = 3, noise = 0.6). Drag w₁, w₂ and b to tilt and shift the plane; click Fit to run gradient descent automatically.</div>
 </div>
 
 <script>
@@ -759,11 +728,7 @@ Drag w₁ and w₂ to tilt the plane; drag b to shift vertically. Click Fit to r
 })();
 </script>
 
-<!-- <div class="demo-try">
-<strong>Try this:</strong> Set <code>w₁ = 0</code> and <code>w₂ = 0</code>, then drag only <code>b</code>. The plane slides straight up and down. Now set <code>b = 0</code> and drag <code>w₁</code> - the plane tilts along the x₁ axis. Each parameter controls one degree of freedom independently. Then click <strong>Fit</strong> and watch all three converge together.
-</div> -->
-
-Notice how the red error lines shrink when you find good weights and grow when the plane is tilted wrong. The cost $$J$$ is the average of those squared red line lengths exactly the same MSE from the first post, just extended to two features.
+Notice how the red error lines shrink when you find good weights and grow when the plane is tilted wrong. The cost $$J$$ is the average of those squared red line lengths, the same MSE from the first post, just extended to two features.
 
 ---
 
@@ -777,11 +742,7 @@ $$J(w_1,w_2) = \frac{1}{2m}\sum_{i=1}^{m}\left(w_1 x_1^{(i)} + w_2 x_2^{(i)} - y
 
 Every possible combination of $$w_1$$ and $$w_2$$ produces a different cost. Plotting all combinations gives us a cost surface: a 3D landscape where the horizontal axes are $$w_1$$ and $$w_2$$, and the vertical axis is the cost $$J$$.
 
-For linear regression with MSE, the loss surface is convex and has a global minimum.  Because the surface is convex, any local minimum is also a global minimum. The contour plot on the right is a top-down view of the same surface, like a topographic map. This simple convex shape is specific to linear regression with MSE. In more complex models such as neural networks, the loss surface is often non-convex.
-
-<div class="demo-hint">
-Red dot shows current weights. Drag the green dot to explore the cost surface.
-</div>
+For linear regression with MSE, the loss surface is convex and has a global minimum, so any local minimum is also a global minimum. The contour plot on the right is a top-down view of the same surface, like a topographic map. This simple convex shape is specific to linear regression with MSE; in more complex models such as neural networks, the loss surface is often non-convex.
 
 <div class="interactive-demo">
   <div class="lr2-grid">
@@ -805,6 +766,7 @@ Red dot shows current weights. Drag the green dot to explore the cost surface.
     </label>
   </div>
   <div class="demo-info" id="lr2-cost-info">Cost and position update as you adjust w₁, w₂ above.</div>
+  <div class="demo-caption">Settings: bias fixed at b = 0, weights swept over w₁, w₂ in [-6, 6]. The red dot shows current weights; drag the green dot on the contour to explore the cost surface.</div>
 </div>
 
 <script>
@@ -1060,11 +1022,7 @@ where the partial derivatives are:
 
 $$\frac{\partial J}{\partial w_1} = \frac{1}{m}\sum_{i=1}^{m}\left(\hat{y}^{(i)} - y^{(i)}\right) \cdot x_1^{(i)} \qquad \frac{\partial J}{\partial w_2} = \frac{1}{m}\sum_{i=1}^{m}\left(\hat{y}^{(i)} - y^{(i)}\right) \cdot x_2^{(i)}$$
 
-Each derivative tells us: "if I slightly increase this weight, how does the cost change?" We step in the opposite direction (minus sign) to reduce the cost. The learning rate $$\alpha$$ controls how big each step is.
-
-<div class="demo-hint">
-Step runs one iteration. Run animates. Left: contour path. Right: plane converging.
-</div>
+Each derivative tells us how the cost changes if we slightly increase that weight, and we step in the opposite direction (minus sign) to reduce the cost. The learning rate $$\alpha$$ controls how big each step is.
 
 <div class="interactive-demo">
   <div class="lr2-grid">
@@ -1091,6 +1049,7 @@ Step runs one iteration. Run animates. Left: contour path. Right: plane convergi
     <button id="lr2-gd-reset">Reset</button>
   </div>
   <div class="demo-info" id="lr2-gd-info">Iteration: 0 | w₁ = 0.00, w₂ = 0.00, Cost = -</div>
+  <div class="demo-caption">Settings: starts at w₁ = 0, w₂ = 0, default α = 0.04, bias fixed at b = 0. Step runs one iteration; Run animates continuously.</div>
 </div>
 
 <script>
@@ -1425,23 +1384,13 @@ Step runs one iteration. Run animates. Left: contour path. Right: plane convergi
 })();
 </script>
 
-<div class="demo-hint">
-Try stepping slowly, then click Run. Adjust the learning rate to see overshooting vs. slow convergence.
-</div>
-
 After running gradient descent for enough iterations, the green dot settles at the bowl's minimum, and the plane in the right panel fits through the data. The convergence curve shows the cost rapidly decreasing at first and then flattening as it approaches the minimum, the same pattern we saw in the single-feature case.
 
 ---
 
 ## What to Learn From This
 
-- With one feature, the model is a line. With two features, it becomes a plane. With $$n$$ features, it becomes a hyperplane in $$(n+1)$$-dimensional space; the same idea, just harder to visualize.
-
-- Each weight $$w_k$$ independently controls how much feature $$x_k$$ contributes to the prediction. Setting $$w_k = 0$$ means "ignore feature $$k$$."
-
-- Gradient descent generalizes naturally: each weight gets its own partial derivative, and all weights update simultaneously each iteration.
-
-- We kept $$b = 0$$ intentionally for clarity. Adding a bias $$b$$ adds one more dimension to the cost surface but changes nothing about how the algorithm works.
+With one feature, the model is a line; with two features, it becomes a plane; and with $$n$$ features, it becomes a hyperplane in $$(n+1)$$-dimensional space. Each weight $$w_k$$ independently controls how much feature $$x_k$$ contributes to the prediction, so setting $$w_k = 0$$ means we ignore feature $$k$$. Gradient descent generalizes naturally because each weight gets its own partial derivative, and all weights update simultaneously each iteration. We kept $$b = 0$$ intentionally for clarity, but adding a bias $$b$$ only adds one more dimension to the cost surface and changes nothing about how the algorithm works.
 
 #### Continue the ML Series
 

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Heaps (Min-Heap): An Interactive Guide"
+title: "Heaps (Min-Heap)"
 author: bharathikannan
 categories: [Data Structures]
 description: "Visualize min-heap operations interactively. Insert with sift-up, remove-min with sift-down, and build-heap  - all animated step by step with dual tree + array views."
@@ -26,29 +26,7 @@ hidden: true
 
 <script>
 window.DSA_Heap = (function() {
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      node: dark ? '#7aa2f7' : '#2563eb',
-      nodeCurrent: dark ? '#ff9e64' : '#f59e0b',
-      nodeSwap: dark ? '#f7768e' : '#e63946',
-      nodeSettled: dark ? '#9ece6a' : '#16a34a',
-      nodeNew: dark ? '#bb9af7' : '#7c3aed',
-      nodeGhost: dark ? '#565f89' : '#d1d5db',
-      edge: dark ? '#565f89' : '#9ca3af',
-      edgeHighlight: dark ? '#ff9e64' : '#f59e0b',
-      bar: dark ? '#7aa2f7' : '#2563eb',
-      barCurrent: dark ? '#ff9e64' : '#f59e0b',
-      barSwap: dark ? '#f7768e' : '#e63946',
-      barSettled: dark ? '#9ece6a' : '#16a34a',
-      barNew: dark ? '#bb9af7' : '#7c3aed',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textOnNode: '#ffffff',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      border: dark ? '#292e42' : '#e5e7eb'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -273,39 +251,21 @@ window.DSA_Heap = (function() {
 })();
 </script>
 
-A **heap** is a specialized tree-based data structure that satisfies two properties: it is a **complete binary tree** and it maintains the **heap property**. Heaps are the engine behind priority queues, heap sort, and numerous graph algorithms like Dijkstra's shortest path.
-
-This guide focuses on the **min-heap**, where the smallest element is always at the root. By the end you will understand:
-
-- **Complete binary tree** property and why heaps use arrays
-- **Insert** with sift-up
-- **Remove minimum** with sift-down
-- **Build heap** (heapify) from an unsorted array in $$O(n)$$
-
-<div class="demo-hint">
-<strong>How to use the demos:</strong> Each interactive visualization shows both a tree view and an array view side by side. As you step through operations, both views update simultaneously so you can see how tree movements correspond to array swaps.
-</div>
+A heap is a specialized tree-based data structure that satisfies two properties: it is a complete binary tree and it maintains the heap property. Heaps are the engine behind priority queues, heap sort, and numerous graph algorithms like Dijkstra's shortest path. This guide focuses on the min-heap, where the smallest element is always at the root. By the end you will understand the complete binary tree property and why heaps use arrays, how insert works with sift-up, how remove-minimum works with sift-down, and how build-heap (heapify) turns an unsorted array into a valid heap in $$O(n)$$.
 
 ---
 
 ## What is a Heap?
 
-A heap is a **complete binary tree** stored as an array. "Complete" means every level is fully filled except possibly the last, which is filled from left to right. This structure guarantees the tree is always balanced, giving us $$O(\log n)$$ height.
-
-The **min-heap property** states: for every node $$i$$, the value of $$i$$ is less than or equal to the values of its children.
+A heap is a complete binary tree stored as an array. "Complete" means every level is fully filled except possibly the last, which is filled from left to right. This structure guarantees the tree is always balanced, giving us $$O(\log n)$$ height. The min-heap property states: for every node $$i$$, the value of $$i$$ is less than or equal to the values of its children.
 
 $$\text{For all } i: \quad A[i] \leq A[\text{left}(i)] \quad \text{and} \quad A[i] \leq A[\text{right}(i)]$$
 
-This means the **minimum element is always at the root** (index 0).
+This means the minimum element is always at the root (index 0).
 
 ### Why Use an Array?
 
-Because the tree is complete, we can map every node to an array index with a simple formula. No pointers needed.
-
-For a node at index $$i$$:
-- **Parent:** $$\lfloor (i - 1) / 2 \rfloor$$
-- **Left child:** $$2i + 1$$
-- **Right child:** $$2i + 2$$
+Because the tree is complete, we can map every node to an array index with a simple formula. No pointers needed. For a node at index $$i$$, the parent lives at $$\lfloor (i - 1) / 2 \rfloor$$, the left child at $$2i + 1$$, and the right child at $$2i + 2$$.
 
 ```python
 def parent(i):
@@ -318,16 +278,7 @@ def right_child(i):
     return 2 * i + 2
 ```
 
-For example, in the array `[2, 5, 8, 10, 7, 15, 20]`:
-- Index 0 holds value 2 (the root, and the minimum)
-- Index 0's left child is at index 1 (value 5), right child at index 2 (value 8)
-- Index 1's left child is at index 3 (value 10), right child at index 4 (value 7)
-
-### Interactive: Explore the Mapping
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click on any node in the tree or any bar in the array to highlight it and see its parent/children relationships. The corresponding indices light up in both views.
-</div>
+For example, in the array `[2, 5, 8, 10, 7, 15, 20]`, index 0 holds value 2 (the root, and the minimum), its left child sits at index 1 (value 5) and right child at index 2 (value 8), while index 1's left child is at index 3 (value 10) and right child at index 4 (value 7).
 
 <div class="interactive-demo">
   <canvas id="heap-explore-canvas" width="680" height="340"></canvas>
@@ -336,6 +287,7 @@ For example, in the array `[2, 5, 8, 10, 7, 15, 20]`:
     <span class="demo-value" id="heap-explore-selected"></span>
   </div>
   <div class="demo-info" id="heap-explore-info">Click a node to see its parent/children. Array: [2, 5, 8, 10, 7, 15, 20]</div>
+  <div class="demo-caption">Settings: array [2, 5, 8, 10, 7, 15, 20]. Click any node in the tree or bar in the array to highlight it and see its parent/children relationships in both views.</div>
 </div>
 
 <script>
@@ -436,14 +388,7 @@ For example, in the array `[2, 5, 8, 10, 7, 15, 20]`:
 
 ## Min-Heap Insert (Sift Up)
 
-To insert a value into a min-heap:
-
-1. **Append** the new value at the end of the array (the next available position in the complete tree).
-2. **Sift up:** compare the new value with its parent. If it is smaller, swap them. Repeat until the heap property is restored or we reach the root.
-
-This takes $$O(\log n)$$ time since the tree has at most $$\log_2 n$$ levels.
-
-### Python Implementation
+To insert a value into a min-heap, we first append the new value at the end of the array (the next available position in the complete tree), then sift it up by comparing with its parent and swapping when the child is smaller, repeating until the heap property is restored or we reach the root. This takes $$O(\log n)$$ time since the tree has at most $$\log_2 n$$ levels.
 
 ```python
 class MinHeap:
@@ -466,12 +411,6 @@ class MinHeap:
 
 The `_sift_up` method walks from the newly inserted node up toward the root. At each step, if the child is smaller than its parent, we swap and continue. The moment the child is not smaller, the min-heap property holds for the entire tree.
 
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Enter a value and click <strong>Insert</strong>. The new value appears at the end of the array (in purple), then sifts up through the tree. Yellow highlights the node being compared; red highlights a swap. Both the tree and the array update simultaneously.
-</div>
-
 <div class="interactive-demo">
   <canvas id="heap-insert-canvas" width="680" height="340"></canvas>
   <div class="demo-controls">
@@ -483,6 +422,7 @@ The `_sift_up` method walks from the newly inserted node up toward the root. At 
     <label>Speed: <input type="range" id="heap-insert-speed" min="1" max="10" value="4"> <span class="demo-value" id="heap-insert-speed-val">4</span></label>
   </div>
   <div class="demo-info" id="heap-insert-info">Heap: [2, 5, 8, 10, 7, 15, 20] | Ready  - enter a value and click Insert</div>
+  <div class="demo-caption">Settings: starting heap [2, 5, 8, 10, 7, 15, 20], default insert value 3. The new value appears in purple at the end and sifts up; yellow marks comparisons and red marks swaps in both views.</div>
 </div>
 
 <script>
@@ -681,15 +621,7 @@ Each swap moves the node one level up the tree. A complete binary tree with $$n$
 
 ## Min-Heap Remove Min (Sift Down)
 
-The minimum element is always at the root (index 0). To remove it:
-
-1. **Replace** the root with the last element in the array.
-2. **Remove** the last element (shrink the array by one).
-3. **Sift down:** compare the new root with its children. Swap it with the **smaller child** if it is larger. Repeat until the heap property is restored or we reach a leaf.
-
-This also takes $$O(\log n)$$ time.
-
-### Python Implementation
+The minimum element is always at the root (index 0). To remove it, we replace the root with the last element in the array, shrink the array by one, then sift down: compare the new root with its children, swap it with the smaller child if it is larger, and repeat until the heap property is restored or we reach a leaf. This also takes $$O(\log n)$$ time.
 
 ```python
 class MinHeap:
@@ -728,12 +660,6 @@ class MinHeap:
 
 The `_sift_down` method starts at the root and pushes the out-of-place value downward. At each level, it finds the smallest among the current node and its two children. If the current node is not the smallest, it swaps with the smallest child and continues.
 
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Remove Min</strong> to extract the root. The last element moves to the root (shown in purple), then sifts down. Yellow marks the comparison, red marks a swap. Step through or run the full animation.
-</div>
-
 <div class="interactive-demo">
   <canvas id="heap-remove-canvas" width="680" height="340"></canvas>
   <div class="demo-controls">
@@ -744,6 +670,7 @@ The `_sift_down` method starts at the root and pushes the out-of-place value dow
     <label>Speed: <input type="range" id="heap-remove-speed" min="1" max="10" value="4"> <span class="demo-value" id="heap-remove-speed-val">4</span></label>
   </div>
   <div class="demo-info" id="heap-remove-info">Heap: [2, 5, 8, 10, 7, 15, 20] | Ready  - click Remove Min</div>
+  <div class="demo-caption">Settings: starting heap [2, 5, 8, 10, 7, 15, 20]. The last element moves to the root in purple, then sifts down; yellow marks comparisons and red marks swaps.</div>
 </div>
 
 <script>
@@ -976,7 +903,7 @@ Like sift-up, each swap moves the node one level down. The maximum number of lev
 
 ## Build Heap (Heapify)
 
-Given an unsorted array, we can build a valid min-heap **in-place** in $$O(n)$$ time using the **bottom-up heapify** algorithm.
+Given an unsorted array, we can build a valid min-heap in-place in $$O(n)$$ time using the bottom-up heapify algorithm.
 
 ### The Naive Approach
 
@@ -984,11 +911,7 @@ One way to build a heap is to insert elements one by one. Each insert is $$O(\lo
 
 ### Bottom-Up Heapify
 
-The key insight: **leaf nodes are already valid heaps** (a single node trivially satisfies the heap property). So we only need to fix the internal nodes, working from the bottom up.
-
-1. Start from the last internal node (index $$\lfloor n/2 \rfloor - 1$$).
-2. Call sift-down on each internal node, moving backward to the root.
-3. After processing every internal node, the array is a valid heap.
+The key insight: leaf nodes are already valid heaps (a single node trivially satisfies the heap property). So we only need to fix the internal nodes, working from the bottom up. Start from the last internal node (index $$\lfloor n/2 \rfloor - 1$$), call sift-down on each internal node moving backward toward the root, and after processing every internal node the array is a valid heap.
 
 ```python
 class MinHeap:
@@ -1022,24 +945,11 @@ class MinHeap:
 
 ### Why is Heapify O(n)?
 
-This is a subtle but important result. Although we call sift-down $$O(n)$$ times, most nodes are near the bottom of the tree where sift-down does very little work.
-
-- $$n/2$$ nodes are leaves (0 swaps)
-- $$n/4$$ nodes are at height 1 (at most 1 swap)
-- $$n/8$$ nodes are at height 2 (at most 2 swaps)
-- And so on...
-
-The total work is:
+This is a subtle but important result. Although we call sift-down $$O(n)$$ times, most nodes are near the bottom of the tree where sift-down does very little work: $$n/2$$ nodes are leaves and require zero swaps, $$n/4$$ nodes are at height 1 with at most 1 swap, $$n/8$$ nodes are at height 2 with at most 2 swaps, and so on. The total work is:
 
 $$\sum_{h=0}^{\lfloor \log n \rfloor} \frac{n}{2^{h+1}} \cdot h = n \sum_{h=0}^{\infty} \frac{h}{2^{h+1}} = n \cdot 1 = O(n)$$
 
 This is significantly better than the $$O(n \log n)$$ naive approach.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Start with a random unsorted array. Click <strong>Step</strong> to see each sift-down operation, or <strong>Run</strong> to watch the full build-heap process. The current node being sifted is highlighted in yellow, and swaps are shown in red. Click <strong>New Random</strong> to try a different array.
-</div>
 
 <div class="interactive-demo">
   <canvas id="heap-build-canvas" width="680" height="360"></canvas>
@@ -1051,6 +961,7 @@ This is significantly better than the $$O(n \log n)$$ naive approach.
     <label>Speed: <input type="range" id="heap-build-speed" min="1" max="10" value="4"> <span class="demo-value" id="heap-build-speed-val">4</span></label>
   </div>
   <div class="demo-info" id="heap-build-info">Unsorted array. Click Step or Run to build the heap bottom-up.</div>
+  <div class="demo-caption">Settings: random unsorted array of 10 distinct values. The current node being sifted is highlighted in yellow, swaps are shown in red, and New Random gives a fresh array.</div>
 </div>
 
 <script>
@@ -1371,10 +1282,6 @@ print(h)           # MinHeap([1, 10, 5, 20, 15, 8, 7])
 
 ## Combined Playground
 
-<div class="demo-hint">
-<strong>Interactive:</strong> A full min-heap playground. Insert values, remove the minimum, or build from a custom array. All operations are animated in the dual view.
-</div>
-
 <div class="interactive-demo">
   <canvas id="heap-playground-canvas" width="680" height="360"></canvas>
   <div class="demo-controls">
@@ -1389,6 +1296,7 @@ print(h)           # MinHeap([1, 10, 5, 20, 15, 8, 7])
     <label>Speed: <input type="range" id="playground-speed" min="1" max="10" value="5"> <span class="demo-value" id="playground-speed-val">5</span></label>
   </div>
   <div class="demo-info" id="playground-info">Heap: [1, 3, 5, 7, 9, 11, 13] | Ready</div>
+  <div class="demo-caption">Settings: starting heap [1, 3, 5, 7, 9, 11, 13], default insert value 4. Insert values, remove the minimum, or build from a custom array; all operations are animated in the dual view.</div>
 </div>
 
 <script>
@@ -1614,9 +1522,7 @@ print(h)           # MinHeap([1, 10, 5, 20, 15, 8, 7])
 
 ## Min-Heap vs Max-Heap
 
-Everything in this guide applies to **max-heaps** as well, with the comparison reversed. In a max-heap, the largest element is at the root, and every parent is greater than or equal to its children.
-
-To convert our min-heap to a max-heap, simply reverse the comparisons:
+Everything in this guide applies to max-heaps as well, with the comparison reversed. In a max-heap, the largest element is at the root, and every parent is greater than or equal to its children. To convert our min-heap to a max-heap, simply reverse the comparisons:
 
 ```python
 # Min-heap sift-up comparison
@@ -1626,7 +1532,7 @@ if self.heap[i] < self.heap[parent]:   # child smaller -> swap
 if self.heap[i] > self.heap[parent]:   # child larger -> swap
 ```
 
-Python's `heapq` module implements a **min-heap**. For a max-heap, a common trick is to negate the values:
+Python's `heapq` module implements a min-heap. For a max-heap, a common trick is to negate the values:
 
 ```python
 import heapq
@@ -1643,15 +1549,14 @@ largest = -heapq.heappop(max_heap)  # 8
 
 ## Key Takeaways
 
-1. A **heap** is a complete binary tree stored as an array. The parent-child relationship is computed with simple index arithmetic: parent = $$(i-1)/2$$, children = $$2i+1$$ and $$2i+2$$.
-
-2. In a **min-heap**, every parent is smaller than its children. The minimum is always at index 0 (the root).
-
-3. **Insert** appends the value and sifts up  - $$O(\log n)$$. **Remove-min** replaces the root with the last element and sifts down  - $$O(\log n)$$.
-
-4. **Build-heap** (heapify) constructs a heap from an unsorted array in $$O(n)$$ by sifting down from the last internal node to the root. This is faster than $$O(n \log n)$$ because most nodes are near the bottom.
-
-5. Heaps power **priority queues**, which are used in Dijkstra's algorithm, Prim's MST, task scheduling, event-driven simulations, and more.
+| Concept | Key Idea |
+|---|---|
+| Array Layout | A complete binary tree maps to an array via parent $$(i-1)/2$$ and children $$2i+1, 2i+2$$, no pointers needed. |
+| Min-Heap Property | Every parent is smaller than its children, so the minimum always lives at index 0. |
+| Insert | Append the value at the end and sift up in $$O(\log n)$$ to restore the heap property. |
+| Remove Min | Replace the root with the last element and sift down in $$O(\log n)$$. |
+| Build Heap | Bottom-up heapify constructs a heap in $$O(n)$$, faster than the $$O(n \log n)$$ insert loop. |
+| Applications | Heaps power priority queues used in Dijkstra's algorithm, Prim's MST, scheduling, and simulations. |
 
 | Operation | Time Complexity |
 |---|---|
@@ -1665,10 +1570,6 @@ largest = -heapq.heappop(max_heap)  # 8
 
 ## What's Next?
 
-Heaps are a building block for more advanced topics:
-
-- **Heap Sort**  - use a max-heap to sort an array in $$O(n \log n)$$ in place. See the [Sorting Algorithms Interactive Guide]({{ site.baseurl }}/sorting-algorithms/).
-- **Priority Queues**  - the primary application of heaps in practice.
-- **Graph Algorithms**  - Dijkstra's shortest path and Prim's minimum spanning tree both rely on priority queues backed by heaps.
+Heaps are a building block for more advanced topics. Heap sort uses a max-heap to sort an array in $$O(n \log n)$$ in place (see the [Sorting Algorithms Interactive Guide]({{ site.baseurl }}/sorting-algorithms/)), priority queues are the primary application of heaps in practice, and graph algorithms like Dijkstra's shortest path and Prim's minimum spanning tree both rely on priority queues backed by heaps.
 
 Explore the full [DSA in Python series]({{ site.baseurl }}/dsa/).

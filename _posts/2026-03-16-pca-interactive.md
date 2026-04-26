@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Principal Component Analysis (PCA) from Scratch - An Interactive Guide"
+title: "Principal Component Analysis (PCA) from Scratch"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -123,30 +123,7 @@ date: 2026-03-17
 window.PCA = (function() {
   var P = {};
 
-  P.getColors = function() {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (!document.documentElement.getAttribute('data-theme') &&
-       window.matchMedia('(prefers-color-scheme: dark)').matches);
-    return {
-      bg: isDark ? '#1a1b26' : '#ffffff',
-      bgSecondary: isDark ? '#24283b' : '#f1f5f9',
-      text: isDark ? '#c0caf5' : '#1e293b',
-      textMuted: isDark ? '#565f89' : '#94a3b8',
-      grid: isDark ? '#292e42' : '#e2e8f0',
-      border: isDark ? '#3b4261' : '#cbd5e1',
-      accent: isDark ? '#7aa2f7' : '#2563eb',
-      pc1: isDark ? '#f7768e' : '#e63946',
-      pc2: isDark ? '#9ece6a' : '#16a34a',
-      pc3: isDark ? '#e0af68' : '#d97706',
-      point: isDark ? '#7aa2f7' : '#2563eb',
-      pointLight: isDark ? 'rgba(122,162,247,0.3)' : 'rgba(37,99,235,0.25)',
-      projection: isDark ? 'rgba(247,118,142,0.4)' : 'rgba(230,57,70,0.35)',
-      cluster0: isDark ? '#f7768e' : '#e63946',
-      cluster1: isDark ? '#7aa2f7' : '#2563eb',
-      cluster2: isDark ? '#9ece6a' : '#16a34a',
-      isDark: isDark
-    };
-  };
+  P.getColors = function() { return window.Viz.colors(); };
 
   P.setupCanvas = function(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -473,30 +450,20 @@ window.PCA = (function() {
 
 ## Why Dimensionality Reduction?
 
-In the [previous chapter on K-Means]({% post_url 2026-03-16-k-means-clustering-interactive %}), we clustered data by grouping similar points. But what happens when our data has dozens, hundreds, or thousands of features?
+In the [previous chapter on K-Means]({% post_url 2026-03-16-k-means-clustering-interactive %}), we clustered data by grouping similar points. But what happens when our data has dozens, hundreds, or thousands of features? High-dimensional data causes real problems:
 
-High-dimensional data causes real problems:
+- **Visualization becomes impossible**: we can see 2D and 3D, but not 50D.
+- **Distances become meaningless**: in high dimensions, all pairs of points tend to be roughly equidistant, the curse of dimensionality.
+- **Models overfit**: more features mean more parameters, more noise, and less signal.
+- **Computation slows down**: every algorithm pays a cost per feature.
 
-- **Visualization becomes impossible.** We can see 2D and 3D, but not 50D.
-- **Distances become meaningless.** In high dimensions, all pairs of points tend to be roughly equidistant, the **curse of dimensionality**.
-- **Models overfit.** More features mean more parameters, more noise, and less signal.
-- **Computation slows down.** Every algorithm pays a cost per feature.
-
-**Dimensionality reduction** addresses all of these by finding a lower-dimensional representation that preserves the important structure. The most fundamental technique is **Principal Component Analysis (PCA)**.
-
-The core insight of PCA is beautifully simple: **find the directions along which the data varies the most, and project onto those directions.**
+Dimensionality reduction addresses all of these by finding a lower-dimensional representation that preserves the important structure. The most fundamental technique is Principal Component Analysis (PCA). The core insight of PCA is beautifully simple: find the directions along which the data varies the most, and project onto those directions.
 
 ---
 
 ## 1. Variance as Information
 
-Why variance? Because a direction with high variance is a direction where data points are spread apart, they differ from each other. A direction with zero variance means all points are identical along that axis, so it carries no information.
-
-PCA finds the direction of **maximum variance** first. That direction is called the **first principal component (PC1)**. Then it finds the direction of maximum variance perpendicular to PC1, that is **PC2**. And so on.
-
-### Try It: Rotate a Line, Measure Variance
-
-Drag the angle slider to rotate a projection line through the point cloud. Watch how the variance of projections changes. The angle that maximizes variance gives you PC1.
+Why variance? Because a direction with high variance is a direction where data points are spread apart, they differ from each other. A direction with zero variance means all points are identical along that axis, so it carries no information. PCA finds the direction of maximum variance first. That direction is called the first principal component (PC1). Then it finds the direction of maximum variance perpendicular to PC1, that is PC2. And so on. Drag the angle slider in the demo below to rotate a projection line through the point cloud. Watch how the variance of projections changes. The angle that maximizes variance gives you PC1.
 
 <div class="interactive-demo" id="demo-variance">
   <canvas id="canvas-variance"></canvas>
@@ -505,6 +472,7 @@ Drag the angle slider to rotate a projection line through the point cloud. Watch
     <button id="btn-var-reset">New Data</button>
   </div>
   <div class="demo-info" id="info-variance">Drag angle to find the direction of maximum variance</div>
+  <div class="demo-caption">Settings: 80 correlated 2D points, slider rotates a projection line; bar shows projection variance vs PC1 max.</div>
 </div>
 
 <script>
@@ -649,21 +617,13 @@ Drag the angle slider to rotate a projection line through the point cloud. Watch
 })();
 </script>
 
-Notice how the variance peaks when the line aligns with the elongated direction of the point cloud, and drops to its minimum when the line is perpendicular to that. The direction of maximum variance **is** PC1.
+Notice how the variance peaks when the line aligns with the elongated direction of the point cloud, and drops to its minimum when the line is perpendicular to that. The direction of maximum variance is PC1.
 
 ---
 
 ## 2. Eigenvector Visualization
 
-PCA computes eigenvectors of the **covariance matrix**. In 2D, there are exactly two eigenvectors, PC1 and PC2, and they are always perpendicular. The corresponding eigenvalues tell us how much variance each component captures.
-
-### Try It: Click to Add Points
-
-Click anywhere on the canvas to add points. Watch the eigenvectors (arrows) update in real-time. PC1 (red) always points in the direction of maximum spread. PC2 (green) is perpendicular. Arrow lengths are proportional to eigenvalues.
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click to add points. The eigenvectors update instantly. Try creating elongated clusters, circular clouds, or L-shapes to see how the principal components change.
-</div>
+PCA computes eigenvectors of the covariance matrix. In 2D, there are exactly two eigenvectors, PC1 and PC2, and they are always perpendicular. The corresponding eigenvalues tell us how much variance each component captures. Click anywhere on the canvas below to add points. Watch the eigenvectors (arrows) update in real-time. PC1 (red) always points in the direction of maximum spread. PC2 (green) is perpendicular. Arrow lengths are proportional to eigenvalues.
 
 <div class="interactive-demo" id="demo-eigen">
   <canvas id="canvas-eigen"></canvas>
@@ -673,6 +633,7 @@ Click anywhere on the canvas to add points. Watch the eigenvectors (arrows) upda
     <button id="btn-eigen-circle">Generate Circle</button>
   </div>
   <div class="demo-info" id="info-eigen">Click to add points (need at least 3)</div>
+  <div class="demo-caption">Settings: empty canvas, click to add 2D points; eigenvectors recompute live.</div>
 </div>
 
 <script>
@@ -859,21 +820,19 @@ Click anywhere on the canvas to add points. Watch the eigenvectors (arrows) upda
 
 Key observations:
 
-- For an **elongated cloud**, PC1 aligns with the long axis, and the first eigenvalue is much larger than the second. Most information is along PC1.
-- For a **circular cloud**, both eigenvalues are nearly equal. Neither direction is more important, PCA cannot reduce dimensionality effectively when variance is uniform.
-- The eigenvalues always sum to the **total variance** of the data.
+- **Elongated cloud**: PC1 aligns with the long axis, and the first eigenvalue is much larger than the second. Most information is along PC1.
+- **Circular cloud**: both eigenvalues are nearly equal. Neither direction is more important, PCA cannot reduce dimensionality effectively when variance is uniform.
+- **Total variance**: the eigenvalues always sum to the total variance of the data.
 
 ---
 
 ## 3. The Math: Covariance and Eigenvectors
 
-Given data matrix $$\mathbf{X}$$ with $$n$$ samples and $$d$$ features, PCA proceeds in four steps:
-
-**Step 1: Center the data.** Subtract the mean of each feature:
+Given data matrix $$\mathbf{X}$$ with $$n$$ samples and $$d$$ features, PCA proceeds in four steps. Subtract the mean of each feature to center the data:
 
 $$\bar{x}_j = \frac{1}{n}\sum_{i=1}^{n} x_{ij}, \qquad \tilde{x}_{ij} = x_{ij} - \bar{x}_j$$
 
-**Step 2: Compute the covariance matrix.**
+Compute the covariance matrix:
 
 $$\mathbf{C} = \frac{1}{n-1}\tilde{\mathbf{X}}^T\tilde{\mathbf{X}}$$
 
@@ -881,23 +840,15 @@ This $$d \times d$$ matrix captures how each pair of features varies together:
 
 $$C_{jk} = \frac{1}{n-1}\sum_{i=1}^{n}\tilde{x}_{ij}\tilde{x}_{ik}$$
 
-Diagonal entries are variances. Off-diagonal entries are covariances. If $$C_{jk}$$ is large and positive, features $$j$$ and $$k$$ increase together.
-
-**Step 3: Eigendecomposition.**
+Diagonal entries are variances. Off-diagonal entries are covariances. If $$C_{jk}$$ is large and positive, features $$j$$ and $$k$$ increase together. Then take the eigendecomposition:
 
 $$\mathbf{C}\mathbf{v}_k = \lambda_k \mathbf{v}_k$$
 
-Each eigenvector $$\mathbf{v}_k$$ is a principal component direction. Its eigenvalue $$\lambda_k$$ equals the variance of projections onto that direction.
-
-**Step 4: Project.**
+Each eigenvector $$\mathbf{v}_k$$ is a principal component direction. Its eigenvalue $$\lambda_k$$ equals the variance of projections onto that direction. Finally, project each data point onto each principal component:
 
 $$z_{ik} = \tilde{\mathbf{x}}_i \cdot \mathbf{v}_k$$
 
-Each data point gets a new coordinate for each principal component.
-
-### Try It: Adjust Correlation, Watch Eigenvectors
-
-Drag the slider to control the correlation between two features. Watch the covariance matrix change and the eigenvectors rotate.
+Each data point gets a new coordinate for each principal component. Drag the slider in the demo below to control the correlation between two features. Watch the covariance matrix change and the eigenvectors rotate.
 
 <div class="interactive-demo" id="demo-covariance">
   <canvas id="canvas-covariance"></canvas>
@@ -906,6 +857,7 @@ Drag the slider to control the correlation between two features. Watch the covar
     <button id="btn-cov-reset">Regenerate</button>
   </div>
   <div class="demo-info" id="info-covariance">Adjust correlation to see covariance matrix and eigenvectors change</div>
+  <div class="demo-caption">Settings: 80 base normal samples, slider sets rho between -0.95 and 0.95; PC1/PC2 arrows scale by sqrt(eigenvalue).</div>
 </div>
 
 <script>
@@ -1035,7 +987,7 @@ When correlation is near zero, the data cloud is circular and both eigenvalues a
 
 ## 4. Projection Animation
 
-When we project data onto PC1 only, we reduce from 2D to 1D. Each point drops a perpendicular line onto the PC1 axis. The red dots on the line are our 1D representation. The dropped lines represent the **information lost**, the reconstruction error.
+When we project data onto PC1 only, we reduce from 2D to 1D. Each point drops a perpendicular line onto the PC1 axis. The red dots on the line are our 1D representation. The dropped lines represent the information lost, the reconstruction error.
 
 <div class="interactive-demo" id="demo-projection">
   <canvas id="canvas-projection"></canvas>
@@ -1048,6 +1000,7 @@ When we project data onto PC1 only, we reduce from 2D to 1D. Each point drops a 
     <button id="btn-proj-reset">New Data</button>
   </div>
   <div class="demo-info" id="info-projection">Click Animate to watch points project onto principal components</div>
+  <div class="demo-caption">Settings: 2D correlated cloud, default mode projects onto PC1 only with red drop-lines for residual error.</div>
 </div>
 
 <script>
@@ -1242,6 +1195,7 @@ The real power of PCA is reducing high-dimensional data. Here we have a 3D point
     <label>Points: <input type="range" id="slider-3d-n" min="30" max="150" value="80"><span class="demo-value" id="val-3d-n">80</span></label>
   </div>
   <div class="demo-info" id="info-3d">Drag the 3D plot to rotate. PCA finds the best 2D plane.</div>
+  <div class="demo-caption">Settings: 80 3D points sampled near a tilted plane; right canvas shows the PC1 vs PC2 projection.</div>
 </div>
 
 <script>
@@ -1488,9 +1442,7 @@ The 3D data mostly lives on a tilted 2D plane (it has three dimensions, but the 
 
 ## 6. Scree Plot: How Many Components?
 
-In practice, we must choose how many principal components to keep. The **scree plot** shows eigenvalues (or explained variance ratios) in descending order. We look for an "elbow", the point where additional components add little variance.
-
-The **cumulative variance** line shows how much total variance is explained. A common rule of thumb: keep enough components to explain 90--95% of the total variance.
+In practice, we must choose how many principal components to keep. The scree plot shows eigenvalues (or explained variance ratios) in descending order. We look for an "elbow", the point where additional components add little variance. The cumulative variance line shows how much total variance is explained. A common rule of thumb is to keep enough components to explain 90--95% of the total variance.
 
 <div class="interactive-demo" id="demo-scree">
   <div class="demo-split">
@@ -1514,6 +1466,7 @@ The **cumulative variance** line shows how much total variance is explained. A c
     <button id="btn-scree-reset">New Data</button>
   </div>
   <div class="demo-info" id="info-scree">Generate data to see explained variance breakdown</div>
+  <div class="demo-caption">Settings: 6D synthetic data with decaying variances, 90% threshold, bar chart and cumulative curve side-by-side.</div>
 </div>
 
 <script>
@@ -1737,13 +1690,11 @@ The **cumulative variance** line shows how much total variance is explained. A c
 })();
 </script>
 
-<div class="demo-hint">Tip: Try 10D data. You will often find that 2--3 components capture 80%+ of the variance, meaning the "intrinsic dimensionality" of the data is much lower than 10.</div>
-
 ---
 
 ## 7. Reconstruction
 
-If we keep only $$k < d$$ components, we can **reconstruct** an approximation of the original data:
+If we keep only $$k < d$$ components, we can reconstruct an approximation of the original data:
 
 $$\hat{\mathbf{x}}_i = \bar{\mathbf{x}} + \sum_{j=1}^{k} z_{ij}\mathbf{v}_j$$
 
@@ -1751,9 +1702,7 @@ The reconstruction error is the variance captured by the discarded components:
 
 $$\text{Error} = \sum_{j=k+1}^{d}\lambda_j$$
 
-### Try It: Add Components Progressively
-
-Use the slider to increase the number of components. Watch the reconstructed points (red) converge toward the original points (blue) as more components are added.
+Use the slider in the demo below to increase the number of components. Watch the reconstructed points (red) converge toward the original points (blue) as more components are added.
 
 <div class="interactive-demo" id="demo-reconstruct">
   <canvas id="canvas-reconstruct"></canvas>
@@ -1762,6 +1711,7 @@ Use the slider to increase the number of components. Watch the reconstructed poi
     <button id="btn-recon-reset">New Data</button>
   </div>
   <div class="demo-info" id="info-reconstruct">Adjust number of components to see reconstruction improve</div>
+  <div class="demo-caption">Settings: 60 correlated 2D points, k slider 1 to 2; red lines connect original to reconstructed point.</div>
 </div>
 
 <script>
@@ -1927,6 +1877,7 @@ One of PCA's most powerful applications is visualizing high-dimensional data. He
     <button id="btn-hd-reset">New Data</button>
   </div>
   <div class="demo-info" id="info-highdim">Compare original feature pairs with PCA projection</div>
+  <div class="demo-caption">Settings: 90 samples across 3 clusters in 4D (Iris-like); pick any feature pair on the left, PC1 vs PC2 on the right.</div>
 </div>
 
 <script>
@@ -2029,25 +1980,21 @@ One of PCA's most powerful applications is visualizing high-dimensional data. He
 })();
 </script>
 
-<div class="demo-hint">Try switching the original axes using the dropdowns on the left plot. In many feature pair combinations, the clusters overlap heavily. But in the PCA projection (right), the clusters are optimally separated because PCA finds the directions of maximum overall variance, which often aligns with cluster separation.</div>
-
 ---
 
 ## 9. Full PCA Pipeline: step-by-step
 
-Let us trace through the complete PCA algorithm on a concrete example. Consider a 2D dataset with $$n$$ points:
-
-**1. Compute the mean and center the data:**
+Let us trace through the complete PCA algorithm on a concrete example. Consider a 2D dataset with $$n$$ points. First compute the mean and center the data:
 
 $$\bar{\mathbf{x}} = \frac{1}{n}\sum_{i=1}^{n}\mathbf{x}_i$$
 
 $$\tilde{\mathbf{x}}_i = \mathbf{x}_i - \bar{\mathbf{x}}$$
 
-**2. Compute the covariance matrix:**
+Then compute the covariance matrix:
 
 $$\mathbf{C} = \frac{1}{n-1}\sum_{i=1}^{n}\tilde{\mathbf{x}}_i\tilde{\mathbf{x}}_i^T = \begin{bmatrix} \text{Var}(x_1) & \text{Cov}(x_1, x_2) \\ \text{Cov}(x_1, x_2) & \text{Var}(x_2) \end{bmatrix}$$
 
-**3. Find eigenvalues by solving the characteristic equation:**
+Find eigenvalues by solving the characteristic equation:
 
 $$\det(\mathbf{C} - \lambda\mathbf{I}) = 0$$
 
@@ -2057,13 +2004,11 @@ $$\lambda^2 - \text{tr}(\mathbf{C})\lambda + \det(\mathbf{C}) = 0$$
 
 $$\lambda = \frac{\text{tr}(\mathbf{C}) \pm \sqrt{\text{tr}(\mathbf{C})^2 - 4\det(\mathbf{C})}}{2}$$
 
-**4. Find eigenvectors** by solving $$(\mathbf{C} - \lambda_k\mathbf{I})\mathbf{v}_k = 0$$ for each eigenvalue.
-
-**5. Project** onto the top $$k$$ eigenvectors to get the $$k$$-dimensional representation.
+Find eigenvectors by solving $$(\mathbf{C} - \lambda_k\mathbf{I})\mathbf{v}_k = 0$$ for each eigenvalue, then project onto the top $$k$$ eigenvectors to get the $$k$$-dimensional representation.
 
 ### Connection to SVD
 
-PCA is closely related to the **Singular Value Decomposition (SVD)**. If $$\tilde{\mathbf{X}} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T$$, then:
+PCA is closely related to the Singular Value Decomposition (SVD). If $$\tilde{\mathbf{X}} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T$$, then:
 
 - The right singular vectors $$\mathbf{V}$$ are the principal component directions (eigenvectors of $$\mathbf{C}$$)
 - The singular values satisfy $$\sigma_k^2 / (n-1) = \lambda_k$$
@@ -2112,29 +2057,24 @@ In practice, SVD is more numerically stable than forming the covariance matrix e
 
 ### When PCA Works Well
 
-- **Correlated features.** If features are linearly correlated, PCA compresses them efficiently.
-- **Visualization.** Projecting to 2D or 3D for exploratory analysis.
-- **Preprocessing.** Reducing dimensions before running other ML algorithms (speeds them up, reduces overfitting).
-- **Noise reduction.** Discarding low-variance components often removes noise.
+- **Correlated features**: if features are linearly correlated, PCA compresses them efficiently.
+- **Visualization**: projecting to 2D or 3D for exploratory analysis.
+- **Preprocessing**: reducing dimensions before running other ML algorithms (speeds them up, reduces overfitting).
+- **Noise reduction**: discarding low-variance components often removes noise.
 
 ### Limitations
 
-- **Linear only.** PCA finds linear projections. If the structure is curved (a Swiss roll, for example), PCA fails, you need kernel PCA or nonlinear methods like t-SNE / UMAP.
-- **Variance is not always importance.** The direction of maximum variance is not necessarily the most discriminative for classification. That is what **Linear Discriminant Analysis (LDA)** addresses.
-- **Sensitive to scaling.** Features with large ranges dominate the covariance. Always standardize features before applying PCA (unless all features share the same units).
-- **Interpretability.** Principal components are linear combinations of all features, which can be hard to interpret.
+- **Linear only**: PCA finds linear projections. If the structure is curved (a Swiss roll, for example), PCA fails, you need kernel PCA or nonlinear methods like t-SNE / UMAP.
+- **Variance is not always importance**: the direction of maximum variance is not necessarily the most discriminative for classification. That is what Linear Discriminant Analysis (LDA) addresses.
+- **Sensitive to scaling**: features with large ranges dominate the covariance. Always standardize features before applying PCA (unless all features share the same units).
+- **Interpretability**: principal components are linear combinations of all features, which can be hard to interpret.
 
 ### The PCA Algorithm
 
-1. **Standardize** the data (zero mean, optionally unit variance)
-2. **Compute** the covariance matrix $$\mathbf{C}$$
-3. **Eigendecompose** $$\mathbf{C}$$ to get eigenvalues and eigenvectors
-4. **Sort** eigenvectors by descending eigenvalue
-5. **Choose** $$k$$ components (scree plot / threshold)
-6. **Project** data onto top $$k$$ eigenvectors
+The full procedure is to standardize the data (zero mean, optionally unit variance), compute the covariance matrix $$\mathbf{C}$$, eigendecompose $$\mathbf{C}$$ to get eigenvalues and eigenvectors, sort eigenvectors by descending eigenvalue, choose $$k$$ components using the scree plot or a variance threshold, and project the data onto the top $$k$$ eigenvectors.
 
 PCA is one of the most important algorithms in data science. It connects linear algebra, statistics, and geometry in a way that is both theoretically beautiful and practically indispensable. Every data scientist should understand it deeply, and now you have seen it work, from scratch, with your own data.
 
 ---
 
-*In the next chapter, we will explore neural networks, the Perceptron and Multi-Layer Perceptron, where we move from linear to nonlinear models and begin the journey toward deep learning.*
+In the next chapter, we will explore neural networks, the Perceptron and Multi-Layer Perceptron, where we move from linear to nonlinear models and begin the journey toward deep learning.

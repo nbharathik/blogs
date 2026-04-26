@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Support Vector Machines from Scratch: An Interactive Guide"
+title: "Support Vector Machines from Scratch"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -123,27 +123,7 @@ date: 2026-03-17
 window.SVM = (function() {
   var S = {};
 
-  S.getColors = function() {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (!document.documentElement.getAttribute('data-theme') &&
-       window.matchMedia('(prefers-color-scheme: dark)').matches);
-    return {
-      bg: isDark ? '#1a1b26' : '#ffffff',
-      bgSecondary: isDark ? '#24283b' : '#f1f5f9',
-      text: isDark ? '#c0caf5' : '#1e293b',
-      textMuted: isDark ? '#565f89' : '#94a3b8',
-      grid: isDark ? '#292e42' : '#e2e8f0',
-      border: isDark ? '#3b4261' : '#cbd5e1',
-      accent: isDark ? '#7aa2f7' : '#2563eb',
-      class0: isDark ? '#7aa2f7' : '#2563eb',
-      class0Light: isDark ? 'rgba(122,162,247,0.15)' : 'rgba(37,99,235,0.12)',
-      class1: isDark ? '#f7768e' : '#e63946',
-      class1Light: isDark ? 'rgba(247,118,142,0.15)' : 'rgba(230,57,70,0.12)',
-      margin: isDark ? '#9ece6a' : '#16a34a',
-      sv: isDark ? '#e0af68' : '#d97706',
-      isDark: isDark
-    };
-  };
+  S.getColors = function() { return window.Viz.colors(); };
 
   S.setupCanvas = function(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -414,23 +394,17 @@ window.SVM = (function() {
 })();
 </script>
 
-In the [previous chapter on logistic regression]({% post_url 2026-03-16-logistic-regression-from-scratch-interactive %}), we found **a** decision boundary that separates classes. But there are infinitely many lines that can separate two classes. Which one should we pick?
-
-**Support Vector Machines** answer this question with a beautiful geometric principle: pick the boundary that is as far away as possible from the nearest data points on both sides. This boundary has the **maximum margin** and tends to generalize best to unseen data.
-
-SVMs were one of the most powerful classification algorithms before deep learning, and they remain widely used today for small-to-medium datasets, especially in high-dimensional spaces. Let us build them from scratch.
+In the [previous chapter on logistic regression]({% post_url 2026-03-16-logistic-regression-from-scratch-interactive %}), we found a decision boundary that separates classes. But there are infinitely many lines that can separate two classes, so which one should we pick? Support Vector Machines answer this question with a beautiful geometric principle: pick the boundary that is as far away as possible from the nearest data points on both sides. This boundary has the maximum margin and tends to generalize best to unseen data. SVMs were one of the most powerful classification algorithms before deep learning, and they remain widely used today for small-to-medium datasets, especially in high-dimensional spaces. Let us build them from scratch.
 
 ---
 
 ## 1. The Maximum Margin Classifier
 
-Suppose we have two classes of points that are linearly separable. A **decision boundary** is a hyperplane:
+Suppose we have two classes of points that are linearly separable. A decision boundary is a hyperplane:
 
 $$\mathbf{w} \cdot \mathbf{x} + b = 0$$
 
-where $$\mathbf{w}$$ is the weight vector (normal to the hyperplane) and $$b$$ is the bias term.
-
-The **margin** is the distance between the two closest points from opposite classes to the decision boundary. For a hyperplane parameterized by $$\mathbf{w}$$ and $$b$$, the margin is:
+where $$\mathbf{w}$$ is the weight vector (normal to the hyperplane) and $$b$$ is the bias term. The margin is the distance between the two closest points from opposite classes to the decision boundary. For a hyperplane parameterized by $$\mathbf{w}$$ and $$b$$, the margin is:
 
 $$\text{margin} = \frac{2}{\|\mathbf{w}\|}$$
 
@@ -438,13 +412,7 @@ The SVM optimization problem is to maximize this margin:
 
 $$\min_{\mathbf{w}, b} \frac{1}{2}\|\mathbf{w}\|^2 \quad \text{subject to} \quad y^{(i)}(\mathbf{w} \cdot \mathbf{x}^{(i)} + b) \geq 1 \; \forall \, i$$
 
-The constraint says every point must be on the correct side of the margin. The points that sit exactly on the margin boundary (where $$y^{(i)}(\mathbf{w} \cdot \mathbf{x}^{(i)} + b) = 1$$) are called **support vectors**.
-
-### Try It: Find the Maximum Margin
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Left-click to add <span style="color:#2563eb;font-weight:600">Class -1</span> points. Shift+click (or right-click) to add <span style="color:#e63946;font-weight:600">Class +1</span> points. The SVM will find the maximum margin boundary. Support vectors are highlighted with golden rings. Click <strong>Generate</strong> for a random separable dataset.
-</div>
+The constraint says every point must be on the correct side of the margin. The points that sit exactly on the margin boundary (where $$y^{(i)}(\mathbf{w} \cdot \mathbf{x}^{(i)} + b) = 1$$) are called support vectors. Left-click below to add Class -1 points, and shift+click (or right-click) to add Class +1 points. The SVM finds the maximum margin boundary, and support vectors are highlighted with golden rings. Click Generate for a random separable dataset.
 
 <div class="interactive-demo">
   <canvas id="svm-margin-canvas"></canvas>
@@ -454,6 +422,7 @@ The constraint says every point must be on the correct side of the margin. The p
     <span class="demo-value" id="svm-margin-info">Add points to begin</span>
   </div>
   <div class="demo-info" id="svm-margin-details"></div>
+  <div class="demo-caption">Settings: empty canvas, linear hard-margin SVM trained for 1200 SGD steps at lr=0.005; click to paint points.</div>
 </div>
 
 <script>
@@ -604,21 +573,13 @@ The constraint says every point must be on the correct side of the margin. The p
 })();
 </script>
 
-Notice how the dashed green lines (the margin) run parallel to the decision boundary, and the golden-ringed points (the **support vectors**) sit exactly on or near these lines. The SVM has found the widest possible "street" between the two classes.
+Notice how the dashed green lines (the margin) run parallel to the decision boundary, and the golden-ringed points (the support vectors) sit exactly on or near these lines. The SVM has found the widest possible "street" between the two classes.
 
 ---
 
 ## 2. Support Vectors: The Points That Matter
 
-Here is the remarkable property of SVMs: **only the support vectors determine the decision boundary**. If you move a point that is far from the margin, the boundary does not change at all. But move a support vector, and the entire boundary shifts.
-
-This means the SVM is robust to outliers far from the boundary and is determined by a small number of critical points.
-
-### Try It: Drag Points Around
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Drag any point. When you drag a point far from the margin (not a support vector), notice the boundary stays the same. When you drag a support vector (golden ring), the boundary shifts.
-</div>
+Here is the remarkable property of SVMs: only the support vectors determine the decision boundary. If you move a point that is far from the margin, the boundary does not change at all, but moving a support vector shifts the entire boundary. This means the SVM is robust to outliers far from the boundary and is determined by a small number of critical points. Drag any point in the demo below; when you drag a point far from the margin (not a support vector), the boundary stays the same, but when you drag a support vector (golden ring) the boundary shifts.
 
 <div class="interactive-demo">
   <canvas id="svm-drag-canvas"></canvas>
@@ -627,6 +588,7 @@ This means the SVM is robust to outliers far from the boundary and is determined
     <span class="demo-value" id="svm-drag-info"></span>
   </div>
   <div class="demo-info" id="svm-drag-details"></div>
+  <div class="demo-caption">Settings: 40 linearly separable points, hard-margin SVM retrained on every drag; golden rings mark the support vectors.</div>
 </div>
 
 <script>
@@ -800,28 +762,22 @@ This means the SVM is robust to outliers far from the boundary and is determined
 })();
 </script>
 
-This is a powerful insight: the SVM compresses the entire training set down to just a handful of critical **support vectors**. This is why SVMs are memory-efficient once trained and why they work well even in high-dimensional spaces.
+This is a powerful insight: the SVM compresses the entire training set down to just a handful of critical support vectors. This is why SVMs are memory-efficient once trained and why they work well even in high-dimensional spaces.
 
 ---
 
 ## 3. Soft Margin: The C Parameter
 
-Real-world data is noisy. Some points may overlap between classes, making perfect separation impossible (or undesirable - a perfectly separating boundary might be overfitting noise).
-
-The **soft margin** SVM allows some points to be inside the margin or even misclassified, controlled by the parameter $$C$$:
+Real-world data is noisy. Some points may overlap between classes, making perfect separation impossible (or undesirable, since a perfectly separating boundary might be overfitting noise). The soft margin SVM allows some points to be inside the margin or even misclassified, controlled by the parameter $$C$$:
 
 $$J = \frac{1}{2}\|\mathbf{w}\|^2 + C\sum_{i=1}^{m}\max(0, 1 - y^{(i)}(\mathbf{w}\cdot\mathbf{x}^{(i)} + b))$$
 
-This is the **hinge loss** plus L2 regularization:
+This is the hinge loss plus L2 regularization:
 
-- **Large C**: Pay a heavy penalty for misclassifications. Narrow margin, few errors. Risk overfitting.
-- **Small C**: Allow more misclassifications. Wider margin, more errors. Better generalization.
+- **Large C**: pay a heavy penalty for misclassifications. Narrow margin, few errors, risk overfitting.
+- **Small C**: allow more misclassifications. Wider margin, more errors, better generalization.
 
-### Try It: Adjust C
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Drag the <strong>C</strong> slider to see how the margin width and number of misclassifications change. Low C = wide margin (underfitting). High C = narrow margin (overfitting). Points marked with <strong>X</strong> are misclassified.
-</div>
+Drag the C slider to see how the margin width and number of misclassifications change. Low C means a wide margin (underfitting), and high C means a narrow margin (overfitting). Points marked with X are misclassified.
 
 <div class="interactive-demo">
   <canvas id="svm-c-canvas"></canvas>
@@ -831,6 +787,7 @@ This is the **hinge loss** plus L2 regularization:
     <button id="svm-c-gen">New Data</button>
   </div>
   <div class="demo-info" id="svm-c-info"></div>
+  <div class="demo-caption">Settings: 50 noisy 2D points, soft-margin linear SVM at C=1.00; slide C across 0.01 to 100 to compare margins.</div>
 </div>
 
 <script>
@@ -982,13 +939,7 @@ The C parameter is the most important hyperparameter for linear SVMs. In practic
 
 ## 4. The Kernel Trick: Why It Is Genius
 
-So far we have drawn straight lines. But what if the data is not linearly separable? Consider a dataset where one class forms a circle inside the other.
-
-### Try It: Can You Separate These With a Straight Line?
-
-<div class="demo-hint">
-<strong>Interactive:</strong> This circular dataset cannot be separated by any straight line. Click anywhere to try placing a boundary - you will always misclassify some points. This motivates the kernel trick.
-</div>
+So far we have drawn straight lines. But what if the data is not linearly separable? Consider a dataset where one class forms a circle inside the other. This circular dataset cannot be separated by any straight line. Click two points below to draw a candidate line; you will always misclassify some points, which motivates the kernel trick.
 
 <div class="interactive-demo">
   <canvas id="svm-nosep-canvas"></canvas>
@@ -997,6 +948,7 @@ So far we have drawn straight lines. But what if the data is not linearly separa
     <button id="svm-nosep-clear">Clear Line</button>
     <span class="demo-value" id="svm-nosep-info">Click two points to draw a line</span>
   </div>
+  <div class="demo-caption">Settings: 60-point circular dataset (inner ring vs outer ring); click any two points to draw a separating line.</div>
 </div>
 
 <script>
@@ -1094,25 +1046,17 @@ So far we have drawn straight lines. But what if the data is not linearly separa
 })();
 </script>
 
-No matter where you place the line, you cannot get 100% accuracy. The data is **not linearly separable** in 2D.
-
-The kernel trick solves this by implicitly mapping the data into a higher-dimensional space where it **is** linearly separable, without ever computing the coordinates in that space explicitly.
+No matter where you place the line, you cannot get 100% accuracy. The data is not linearly separable in 2D. The kernel trick solves this by implicitly mapping the data into a higher-dimensional space where it is linearly separable, without ever computing the coordinates in that space explicitly.
 
 ---
 
 ## 5. Kernel Trick Visualization: The 3D Lift
 
-The key insight: consider the mapping:
+The key insight is to consider the mapping:
 
 $$\phi(x_1, x_2) = (x_1, \; x_2, \; x_1^2 + x_2^2)$$
 
-This adds a third dimension equal to the distance from the origin squared. Points near the center (inner class) get small values for the third coordinate, while points far from the center (outer class) get large values. In this 3D space, a flat plane can separate the two classes!
-
-### Try It: Rotate the 3D View
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Drag to rotate the 3D view. The same circular data is now plotted in 3D using the mapping $$\phi(x_1,x_2) = (x_1, x_2, x_1^2+x_2^2)$$. The grey plane separates the classes perfectly. The <strong>inner</strong> class (blue) sits below the plane, the <strong>outer</strong> class (pink) sits above it.
-</div>
+This adds a third dimension equal to the distance from the origin squared. Points near the center (inner class) get small values for the third coordinate, while points far from the center (outer class) get large values. In this 3D space, a flat plane can separate the two classes. Drag the canvas below to rotate the 3D view; the same circular data is now plotted in 3D using the mapping $$\phi(x_1,x_2) = (x_1, x_2, x_1^2+x_2^2)$$. The grey plane separates the classes perfectly: the inner class (blue) sits below the plane, and the outer class (pink) sits above it.
 
 <div class="interactive-demo">
   <div class="demo-3d-container">
@@ -1125,6 +1069,7 @@ This adds a third dimension equal to the distance from the origin squared. Point
     <label>Plane height: <input type="range" id="svm-3d-plane" min="0.5" max="5" step="0.1" value="2.5"></label>
     <span class="demo-value" id="svm-3d-plane-val">z = 2.50</span>
   </div>
+  <div class="demo-caption">Settings: 60-point circular data lifted to 3D via phi(x1,x2)=(x1,x2,x1^2+x2^2), plane at z=2.50, view az=35 el=25.</div>
 </div>
 
 <script>
@@ -1315,28 +1260,22 @@ This adds a third dimension equal to the distance from the origin squared. Point
 })();
 </script>
 
-This is the essence of the **kernel trick**: by adding a dimension $$z = x_1^2 + x_2^2$$, the circular data that was inseparable in 2D becomes perfectly separable in 3D with a flat plane. The beautiful part is that we never need to explicitly compute these coordinates - the kernel function implicitly operates in this higher-dimensional space.
+This is the essence of the kernel trick: by adding a dimension $$z = x_1^2 + x_2^2$$, the circular data that was inseparable in 2D becomes perfectly separable in 3D with a flat plane. The beautiful part is that we never need to explicitly compute these coordinates; the kernel function implicitly operates in this higher-dimensional space.
 
 ---
 
 ## 6. The RBF Kernel
 
-The most popular kernel is the **Radial Basis Function** (RBF) kernel, also called the Gaussian kernel:
+The most popular kernel is the Radial Basis Function (RBF) kernel, also called the Gaussian kernel:
 
 $$K(\mathbf{x}, \mathbf{x}') = \exp\left(-\gamma \|\mathbf{x} - \mathbf{x}'\|^2\right)$$
 
 The parameter $$\gamma$$ controls how "local" the influence of each training point is:
 
-- **Small $$\gamma$$**: Each point influences a large area. Smooth, simple boundary.
-- **Large $$\gamma$$**: Each point influences only its immediate neighborhood. Complex, wiggly boundary.
+- **Small $$\gamma$$**: each point influences a large area, giving a smooth, simple boundary.
+- **Large $$\gamma$$**: each point influences only its immediate neighborhood, giving a complex, wiggly boundary.
 
-The RBF kernel implicitly maps data into an **infinite-dimensional** space. It can learn any boundary shape, making it extremely powerful - but also prone to overfitting if $$\gamma$$ is too large.
-
-### Try It: Adjust Gamma
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Drag the <strong>gamma</strong> slider to see how the decision boundary changes. The colored background shows the decision regions. Low gamma = smooth. High gamma = complex (wraps tightly around each point). Switch datasets with the buttons.
-</div>
+The RBF kernel implicitly maps data into an infinite-dimensional space. It can learn any boundary shape, making it extremely powerful but also prone to overfitting if $$\gamma$$ is too large. Drag the gamma slider below to see how the decision boundary changes; the colored background shows the decision regions, and the buttons switch datasets.
 
 <div class="interactive-demo">
   <canvas id="svm-rbf-canvas"></canvas>
@@ -1353,6 +1292,7 @@ The RBF kernel implicitly maps data into an **infinite-dimensional** space. It c
     <button id="svm-rbf-linear">Linear</button>
   </div>
   <div class="demo-info" id="svm-rbf-info"></div>
+  <div class="demo-caption">Settings: 50-point circular dataset, RBF kernel with gamma=1.00 and C=3.16; switch dataset or sweep gamma/C to compare.</div>
 </div>
 
 <script>
@@ -1524,7 +1464,7 @@ The RBF kernel implicitly maps data into an **infinite-dimensional** space. It c
 })();
 </script>
 
-Notice how with very high gamma, the boundary wraps tightly around individual points - this is overfitting. With very low gamma, the boundary becomes too simple. The sweet spot is somewhere in between.
+With very high gamma, the boundary wraps tightly around individual points; this is overfitting. With very low gamma, the boundary becomes too simple. The sweet spot is somewhere in between.
 
 ---
 
@@ -1532,17 +1472,11 @@ Notice how with very high gamma, the boundary wraps tightly around individual po
 
 Different kernels produce different decision boundaries. Let us compare the three main kernels side by side.
 
-**Linear kernel**: $$K(\mathbf{x}, \mathbf{x}') = \mathbf{x} \cdot \mathbf{x}'$$ - produces straight-line boundaries.
+- **Linear kernel** $$K(\mathbf{x}, \mathbf{x}') = \mathbf{x} \cdot \mathbf{x}'$$ — produces straight-line boundaries.
+- **Polynomial kernel** $$K(\mathbf{x}, \mathbf{x}') = (\mathbf{x} \cdot \mathbf{x}' + 1)^d$$ — produces curved boundaries, controlled by degree $$d$$.
+- **RBF kernel** $$K(\mathbf{x}, \mathbf{x}') = \exp(-\gamma\|\mathbf{x} - \mathbf{x}'\|^2)$$ — produces flexible, local boundaries.
 
-**Polynomial kernel**: $$K(\mathbf{x}, \mathbf{x}') = (\mathbf{x} \cdot \mathbf{x}' + 1)^d$$ - produces curved boundaries, controlled by degree $$d$$.
-
-**RBF kernel**: $$K(\mathbf{x}, \mathbf{x}') = \exp(-\gamma\|\mathbf{x} - \mathbf{x}'\|^2)$$ - produces flexible, local boundaries.
-
-### Try It: Compare Kernels
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Three panels show the same dataset with different kernels. Adjust the polynomial degree and RBF gamma. Switch datasets with the buttons below.
-</div>
+The three panels below show the same dataset with different kernels. Adjust the polynomial degree and RBF gamma, and switch datasets with the buttons.
 
 <div class="interactive-demo">
   <div class="demo-split" style="grid-template-columns: 1fr 1fr 1fr;">
@@ -1567,6 +1501,7 @@ Different kernels produce different decision boundaries. Let us compare the thre
     <button id="svm-cmp-xor">XOR</button>
     <button id="svm-cmp-linear-btn">Linear</button>
   </div>
+  <div class="demo-caption">Settings: 40-point circular dataset, C=5.0; left=linear, middle=polynomial deg 3, right=RBF gamma=1.00.</div>
 </div>
 
 <script>
@@ -1728,9 +1663,10 @@ Different kernels produce different decision boundaries. Let us compare the thre
 </script>
 
 Key observations:
-- The **linear kernel** fails on non-linear data but works well on linearly separable data
-- The **polynomial kernel** can capture curves, with higher degrees producing more complex boundaries
-- The **RBF kernel** is the most flexible and handles all dataset types, but requires careful tuning of $$\gamma$$
+
+- **Linear kernel**: fails on non-linear data but works well on linearly separable data.
+- **Polynomial kernel**: captures curves, with higher degrees producing more complex boundaries.
+- **RBF kernel**: the most flexible, handles all dataset types, but requires careful tuning of $$\gamma$$.
 
 ---
 
@@ -1746,11 +1682,7 @@ Both SVMs and logistic regression find a decision boundary. How do they differ?
 | **Decision boundary** | Determined by support vectors only | Influenced by all points |
 | **Works best when** | Clear margin, high dimensions | Need probability estimates |
 
-### Try It: See Both Boundaries
-
-<div class="demo-hint">
-<strong>Interactive:</strong> The <span style="color:#2563eb;font-weight:600">blue solid line</span> is the SVM boundary (maximum margin). The <span style="color:#e0af68;font-weight:600">golden dashed line</span> is the logistic regression boundary. Notice how the SVM boundary sits in the widest gap, while logistic regression is pulled by all points.
-</div>
+The blue solid line in the demo below is the SVM boundary (maximum margin), and the golden dashed line is the logistic regression boundary. The SVM boundary sits in the widest gap, while logistic regression is pulled by all points.
 
 <div class="interactive-demo">
   <canvas id="svm-vs-lr-canvas"></canvas>
@@ -1759,6 +1691,7 @@ Both SVMs and logistic regression find a decision boundary. How do they differ?
     <button id="svm-vs-lr-outlier">Add Outlier</button>
     <span class="demo-value" id="svm-vs-lr-info"></span>
   </div>
+  <div class="demo-caption">Settings: linearly separable 2D data; SVM (linear, C=1.0) vs logistic regression (1000 epochs, lr=0.05).</div>
 </div>
 
 <script>
@@ -1888,11 +1821,7 @@ Both SVMs and logistic regression find a decision boundary. How do they differ?
 })();
 </script>
 
-Try clicking **Add Outlier** a few times. Notice how:
-- The **logistic regression** boundary shifts noticeably toward the outlier (it considers all points)
-- The **SVM** boundary is more stable (it only cares about support vectors)
-
-This robustness to outliers is one of the key practical advantages of SVMs.
+Try clicking Add Outlier a few times. The logistic regression boundary shifts noticeably toward the outlier because it considers all points, while the SVM boundary is more stable because it only cares about support vectors. This robustness to outliers is one of the key practical advantages of SVMs.
 
 ---
 
@@ -1913,13 +1842,13 @@ This robustness to outliers is one of the key practical advantages of SVMs.
 
 ### When to Use SVMs
 
-- **Good for**: High-dimensional data, small-to-medium datasets, when margin matters, text classification, image classification
-- **Less ideal for**: Very large datasets (training is slow), when you need probability outputs, when interpretability is critical
+- **Good for**: high-dimensional data, small-to-medium datasets, when margin matters, text classification, image classification
+- **Less ideal for**: very large datasets (training is slow), when you need probability outputs, when interpretability is critical
 - **Key hyperparameters**: C (regularization), kernel choice, gamma (for RBF), degree (for polynomial)
 
 ### What is Next
 
-In the next chapter, we will explore **Decision Trees** - a fundamentally different approach to classification that recursively splits the feature space into regions. Unlike SVMs, decision trees are highly interpretable: you can trace exactly why the model made each prediction.
+In the next chapter, we will explore Decision Trees, a fundamentally different approach to classification that recursively splits the feature space into regions. Unlike SVMs, decision trees are highly interpretable: you can trace exactly why the model made each prediction.
 
 ---
 

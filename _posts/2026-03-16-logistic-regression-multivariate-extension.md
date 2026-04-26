@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Logistic Regression II: An Interactive Guide"
+title: "Logistic Regression II"
 author: bharathikannan
 categories: [Machine learning]
 series: true
@@ -315,29 +315,7 @@ window.LogR2 = (function() {
     return correct / state.data.length;
   }
 
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      grid: dark ? '#292e42' : '#e5e7eb',
-      point: dark ? '#7aa2f7' : '#2563eb',
-      pointStroke: dark ? '#3d59a1' : '#1d4ed8',
-      class0: dark ? '#f7768e' : '#e63946',
-      class1: dark ? '#7aa2f7' : '#2563eb',
-      class0Stroke: dark ? '#bb3352' : '#b82e3a',
-      class1Stroke: dark ? '#3d59a1' : '#1d4ed8',
-      line: dark ? '#ff9e64' : '#e63946',
-      boundary: dark ? '#ff9e64' : '#d97706',
-      error: dark ? 'rgba(247,118,142,0.5)' : 'rgba(230,57,70,0.4)',
-      accent: dark ? '#9ece6a' : '#16a34a',
-      path: dark ? '#9ece6a' : '#16a34a',
-      region0: dark ? 'rgba(247,118,142,0.08)' : 'rgba(230,57,70,0.06)',
-      region1: dark ? 'rgba(122,162,247,0.08)' : 'rgba(37,99,235,0.06)',
-      dark: dark
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -378,8 +356,7 @@ window.LogR2 = (function() {
 })();
 </script>
 
-This is the follow-up to the first post:
-[Logistic Regression: An Interactive Guide]({{ site.baseurl }}/logistic-regression/). In that post, we built logistic regression for a single feature: one input $$x$$ (hours studied). The decision boundary was a single point on the number line separating pass from fail. Now we take the natural next step: two input features. We predict whether a student passes or fails an exam based on both hours studied and attendance score. The decision boundary goes from a point on a line to an actual line in 2D space.
+This is the follow-up to the first post [Logistic Regression: An Interactive Guide]({{ site.baseurl }}/logistic-regression/). In that post, we built logistic regression for a single feature, one input $$x$$ (hours studied), and the decision boundary was a single point on the number line separating pass from fail. Now we take the natural next step of two input features by predicting whether a student passes or fails an exam based on both hours studied and attendance score, and the decision boundary goes from a point on a line to an actual line in 2D space.
 
 The full model with two features is:
 
@@ -387,15 +364,11 @@ $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$
 
 where $$\sigma(z) = \frac{1}{1 + e^{-z}}$$ is the sigmoid function. The weights $$w_1$$ and $$w_2$$ control the orientation of the decision boundary line, and $$b$$ (the bias) shifts it. The decision boundary itself is the set of points where $$w_1 x_1 + w_2 x_2 + b = 0$$.
 
-<!-- For the cost surface and gradient descent sections further down, we fix $$b = 0$$ so we have only two free parameters. This lets us directly visualize:
-1. The cost surface $$J(w_1, w_2)$$ as a 3D landscape
-2. Gradient descent walking across that surface to find the best weights -->
-
 ---
 
 ## 1. From a Point to a Line
 
-With one feature, the decision boundary was a single threshold on the $$x$$-axis. Everything to the right was classified as 1, everything to the left as 0:
+With one feature, the decision boundary was a single threshold on the $$x$$-axis, with everything to the right classified as 1 and everything to the left as 0:
 
 $$h(x) = \sigma(w \cdot x + b)$$
 
@@ -403,25 +376,13 @@ With two features, the decision boundary becomes a line in 2D space ($$x_1$$ vs 
 
 $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$
 
-What does each parameter do?
-
-- $$w_1$$ controls how much hours studied ($$x_1$$) influences the prediction. A larger $$w_1$$ means more study hours push the prediction toward passing.
-
-- $$w_2$$ controls how much attendance score ($$x_2$$) influences the prediction. It works independently from $$w_1$$.
-
-- $$b$$ (the bias) shifts the decision boundary without changing its orientation. A more negative $$b$$ makes the model harder to satisfy, requiring more study and attendance to predict a pass.
-
-The decision boundary line is where the model predicts exactly 50% probability, that is, where $$w_1 x_1 + w_2 x_2 + b = 0$$. On one side, the model predicts pass; on the other, fail.
+The weight $$w_1$$ controls how much hours studied ($$x_1$$) influences the prediction, and a larger $$w_1$$ means more study hours push the prediction toward passing. The weight $$w_2$$ does the same for attendance score ($$x_2$$) and works independently from $$w_1$$. The bias $$b$$ shifts the decision boundary without changing its orientation, so a more negative $$b$$ makes the model harder to satisfy and requires more study and attendance to predict a pass. The decision boundary line is where the model predicts exactly 50% probability, that is, where $$w_1 x_1 + w_2 x_2 + b = 0$$, and on one side the model predicts pass while on the other it predicts fail.
 
 ---
 
 ## 2. Seeing the Data in 3D
 
-Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space, where $$y$$ is either 0 (fail) or 1 (pass). The curved surface is the sigmoid probability surface $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$, which smoothly transitions from 0 to 1. The decision boundary is where the surface crosses the 0.5 probability level, on one side the model predicts pass, on the other fail.
-
-<div class="demo-hint">
-Drag w₁ and w₂ to tilt the sigmoid surface; drag b to shift. Click Fit to run gradient descent.
-</div>
+Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2, y)$$ in space, where $$y$$ is either 0 (fail) or 1 (pass), and the curved surface is the sigmoid probability surface $$h(x) = \sigma(w_1 x_1 + w_2 x_2 + b)$$ that smoothly transitions from 0 to 1. The decision boundary is where the surface crosses the 0.5 probability level, with the model predicting pass on one side and fail on the other.
 
 <div class="interactive-demo">
   <div class="demo-controls">
@@ -461,6 +422,7 @@ Drag w₁ and w₂ to tilt the sigmoid surface; drag b to shift. Click Fit to ru
       <span class="demo-value" id="logr2-el-val">30°</span>
     </label>
   </div>
+  <div class="demo-caption">Settings: 80 synthetic students (true w₁ = 0.8, w₂ = 0.6, b = -7, noise = 0.8). Drag w₁ and w₂ to tilt the sigmoid surface and b to shift it; click Fit to run gradient descent on all three.</div>
 </div>
 
 <script>
@@ -823,13 +785,7 @@ The cost function for logistic regression is the binary cross-entropy:
 
 $$J(w_1,w_2) = -\frac{1}{m}\sum_{i=1}^{m}\left[y^{(i)}\log h(x^{(i)}) + (1-y^{(i)})\log(1-h(x^{(i)}))\right]$$
 
-where $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$. Every possible combination of $$w_1$$ and $$w_2$$ produces a different cost. Plotting all combinations gives us a cost surface.
-
-Compared with linear regression, the shape is usually less perfectly quadratic, but with binary cross-entropy the objective is still convex in the parameters. In practice this gives one basin for typical non-separable data.
-
-<div class="demo-hint">
-Red dot shows current weights. Drag the green dot to explore. Cost shown for b = 0.
-</div>
+where $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$. Every possible combination of $$w_1$$ and $$w_2$$ produces a different cost, and plotting all combinations gives us a cost surface. Compared with linear regression, the shape is usually less perfectly quadratic, but with binary cross-entropy the objective is still convex in the parameters, which in practice gives one basin for typical non-separable data.
 
 <div class="interactive-demo">
   <div class="lr2-grid">
@@ -853,6 +809,7 @@ Red dot shows current weights. Drag the green dot to explore. Cost shown for b =
     </label>
   </div>
   <div class="demo-info" id="logr2-cost-info">Cost and position update as you adjust w₁, w₂ above.</div>
+  <div class="demo-caption">Settings: bias fixed at b = 0, weights swept over w₁, w₂ in [-3, 3]. The red dot shows current weights; drag the green dot on the contour to explore the cost surface.</div>
 </div>
 
 <script>
@@ -1139,11 +1096,7 @@ where the partial derivatives are:
 
 $$\frac{\partial J}{\partial w_1} = \frac{1}{m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^{(i)}\right) \cdot x_1^{(i)} \qquad \frac{\partial J}{\partial w_2} = \frac{1}{m}\sum_{i=1}^{m}\left(h(x^{(i)}) - y^{(i)}\right) \cdot x_2^{(i)}$$
 
-Notice how similar this looks to the linear regression gradient. The only difference is that $$\hat{y}^{(i)}$$ is replaced by $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$. The sigmoid introduces nonlinearity, but the gradient formula stays elegant.
-
-<div class="demo-hint">
-Step runs one iteration. Run animates. This section keeps b = 0.
-</div>
+Notice how similar this looks to the linear regression gradient. The only difference is that $$\hat{y}^{(i)}$$ is replaced by $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$, so the sigmoid introduces nonlinearity but the gradient formula stays elegant.
 
 <div class="interactive-demo">
   <div class="lr2-grid">
@@ -1170,6 +1123,7 @@ Step runs one iteration. Run animates. This section keeps b = 0.
     <button id="logr2-gd-reset">Reset</button>
   </div>
   <div class="demo-info" id="logr2-gd-info">Iteration: 0 | w₁ = 0.00, w₂ = 0.00, Cost J(b=0) = ―</div>
+  <div class="demo-caption">Settings: starts at w₁ = 0, w₂ = 0, default α = 0.1, bias fixed at b = 0. Step runs one iteration; Run animates continuously.</div>
 </div>
 
 <script>
@@ -1514,15 +1468,7 @@ After running gradient descent for enough iterations, the green dot settles near
 
 ## What to Learn From This
 
-- With one feature, the decision boundary is a point on the number line. With two features, it becomes a line in 2D. With $$n$$ features, it becomes a hyperplane in $$n$$-dimensional space.
-
-- Each weight $$w_k$$ controls how much feature $$x_k$$ contributes to the classification. Setting $$w_k = 0$$ means "ignore feature $$k$$."
-
-- The cost surface for logistic regression (binary cross-entropy) is convex in parameters. This means there are no local minima, and gradient descent will always find the global minimum if run long enough with a suitable learning rate.
-  
-- The gradient formulas look almost identical to linear regression. The only difference is that the prediction $$\hat{y}$$ is replaced by $$h(x) = \sigma(w \cdot x + b)$$. This elegance comes from the choice of cross-entropy as the cost function.
-
-- We kept $$b = 0$$ for the cost surface and gradient descent visualizations. Adding a bias $$b$$ adds one more dimension but changes nothing about how the algorithm works. The first demo above lets you explore the full model with all three parameters.
+With one feature, the decision boundary is a point on the number line, with two features it becomes a line in 2D, and with $$n$$ features it becomes a hyperplane in $$n$$-dimensional space. Each weight $$w_k$$ controls how much feature $$x_k$$ contributes to the classification, so setting $$w_k = 0$$ means we ignore feature $$k$$. The cost surface for logistic regression with binary cross-entropy is convex in parameters, which means there are no local minima and gradient descent will always find the global minimum if run long enough with a suitable learning rate. The gradient formulas look almost identical to linear regression, with the only difference being that the prediction $$\hat{y}$$ is replaced by $$h(x) = \sigma(w \cdot x + b)$$, and this elegance comes from the choice of cross-entropy as the cost function. We kept $$b = 0$$ for the cost surface and gradient descent visualizations because adding a bias $$b$$ only adds one more dimension and changes nothing about how the algorithm works, while the first demo above lets you explore the full model with all three parameters.
 
 #### Continue the ML Series
 

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Backpropagation Visualized - An Interactive Guide"
+title: "Backpropagation Visualized"
 author: bharathikannan
 categories: [Machine learning]
 series: true
@@ -68,6 +68,26 @@ date: 2026-03-17
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.85rem;
   min-width: 4rem;
+}
+.demo-controls select {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.demo-controls select:focus {
+  outline: none;
+  background: var(--accent);
+  color: var(--bg-primary);
+}
+.demo-controls select option {
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 .demo-info {
   margin-top: 0.5rem;
@@ -175,115 +195,92 @@ sup.cite .cite-ref:focus::after {
 }
 </style>
 
-## The Engine Behind Neural Network Learning
-
-In the [Perceptron & MLP]({% post_url 2026-03-16-perceptron-mlp-interactive %}) guide, we built multi-layer perceptrons and watched them learn. We saw decision boundaries form, loss decrease, and weights update. But we treated the weight update as a black box: how does the network know *which* weight to adjust and by *how much*? This chapter answers that question. It is fully self-contained, so you can continue directly from here.
-
-The answer is **backpropagation**, an algorithm that computes the gradient of the loss with respect to every weight in the network using the chain rule from calculus.<sup class="cite"><a class="cite-ref" href="#ref-1" data-cite-preview="Rumelhart, Hinton &amp; Williams (1986), Learning representations by back-propagating errors. Nature, 323, 533-536.">1</a></sup> Introduced by Rumelhart, Hinton and Williams in 1986, it is the engine behind all of modern deep learning.
+In the [Perceptron & MLP]({% post_url 2026-03-16-perceptron-mlp-interactive %}) guide, we built multi-layer perceptrons  and we saw how they learn. But we treated the weight update as a black box: how does the network know which weight to adjust and by how much? This chapter answers that question and is fully self-contained, so you can continue directly from here. The answer is backpropagation: an algorithm that computes the gradient of the loss with respect to every weight in the network using the chain rule from calculus. 
 
 **In this guide, you will:**
 
-- Visualize the chain rule on computational graphs and trace gradients through every node
-- Watch data flow forward and gradients flow backward through a neural network, step by step
-- See how each weight updates from its gradient using the learning rate
-- Understand why sigmoid gradients vanish in deep networks, and how ReLU solves the problem
-- Train a real network on 2D classification tasks and watch the decision boundary evolve in real time
+- Visualize the chain rule on a computational graph and trace gradients through each node
+- See how weights evolve as a network trains, and how the loss function shapes that evolution
+- Train a real network on 2D classification tasks in a configurable playground
 
 ---
 
-## 1. The Chain Rule on a Computational Graph
+## 1. The Chain Rule
 
-Every neural network computation can be expressed as a **computational graph**: a directed graph where each node performs a simple operation (add, multiply, apply activation). The chain rule tells us how to propagate gradients backward through this graph.
+Every neural network computation can be written as a computational graph: a directed graph where each node performs a simple operation, such as addition, multiplication, or an activation function. Backpropagation is just the chain rule applied backward through this graph.
 
-Consider a simple expression: $$f(x, y, z) = (x + y) \cdot z$$
+Consider a simple expression:
 
-Let $$q = x + y$$, so $$f = q \cdot z$$. The chain rule gives us:
+$$
+f(x, y, z) = (x + y) \cdot z
+$$
 
-$$\frac{\partial f}{\partial x} = \frac{\partial f}{\partial q} \cdot \frac{\partial q}{\partial x} = z \cdot 1 = z$$
+Let
 
-$$\frac{\partial f}{\partial y} = \frac{\partial f}{\partial q} \cdot \frac{\partial q}{\partial y} = z \cdot 1 = z$$
+$$
+q = x + y
+$$
 
-$$\frac{\partial f}{\partial z} = q$$
+so that
 
-Click any node in the graph below to see how the chain rule applies at that point.
+$$
+f = q \cdot z
+$$
+
+Now we can compute the gradients step by step:
+
+$$
+\frac{\partial f}{\partial x}
+=
+\frac{\partial f}{\partial q}
+\cdot
+\frac{\partial q}{\partial x}
+=
+z \cdot 1
+=
+z
+$$
+
+$$
+\frac{\partial f}{\partial y}
+=
+\frac{\partial f}{\partial q}
+\cdot
+\frac{\partial q}{\partial y}
+=
+z \cdot 1
+=
+z
+$$
+
+$$
+\frac{\partial f}{\partial z}
+=
+q
+=
+x + y
+$$
+
+The important idea is that each node only needs to know its local derivative. By multiplying these local derivatives together, we get the gradient of the final output with respect to every input. The demo below shows this visually. Click any node to see its local derivative and how it contributes to the final gradient.
 
 <div class="interactive-demo" id="demo-chain">
-  <canvas id="canvas-chain" width="680" height="360"></canvas>
+  <canvas id="canvas-chain" width="680" height="400"></canvas>
   <div class="demo-controls">
     <label>x <input type="range" id="chain-x" min="-5" max="5" step="0.5" value="2"><span class="demo-value" id="val-chain-x">2.0</span></label>
     <label>y <input type="range" id="chain-y" min="-5" max="5" step="0.5" value="1"><span class="demo-value" id="val-chain-y">1.0</span></label>
     <label>z <input type="range" id="chain-z" min="-5" max="5" step="0.5" value="-3"><span class="demo-value" id="val-chain-z">-3.0</span></label>
   </div>
   <div class="demo-info" id="info-chain">Click a node to see the chain rule derivation at that point.</div>
+  <div class="demo-caption">Setup: f(x,y,z) = (x+y)·z. Drag the sliders, click any node to see its local gradient.</div>
 </div>
-<div class="demo-caption">Computational graph: f(x,y,z) = (x+y)*z</div>
-
-<div class="demo-hint">Try setting z to 0 and observe that all gradients with respect to x and y vanish, the output is zero regardless of the sum. Then set x = -y to make q = 0, and notice df/dz becomes zero too.</div>
 
 ---
 
-## 2. Forward Pass
+## 2. Backpropagation
 
-Before we can compute gradients, we need values. The **forward pass** sends input data through the network layer by layer, computing weighted sums and activations at each neuron, until we reach the output and compute the loss.
+One full training step has four phases: a forward pass that produces a prediction, a loss computation that compares the prediction to the target, a backward pass that propagates gradients to every weight using the chain rule, and a weight update that adjusts each weight according to $$w \leftarrow w - \eta \cdot \frac{\partial L}{\partial w}$$. 
 
-Watch data flow left to right through a 2-layer network. Each neuron "lights up" as it computes its activation.
-
-<div class="interactive-demo" id="demo-forward">
-  <canvas id="canvas-forward" width="680" height="400"></canvas>
-  <div class="demo-controls">
-    <label>x₁ <input type="range" id="fwd-x1" min="-2" max="2" step="0.1" value="0.5"><span class="demo-value" id="val-fwd-x1">0.5</span></label>
-    <label>x₂ <input type="range" id="fwd-x2" min="-2" max="2" step="0.1" value="-0.3"><span class="demo-value" id="val-fwd-x2">-0.3</span></label>
-    <button id="btn-fwd-play">Play Forward</button>
-    <button id="btn-fwd-reset">Reset</button>
-    <label>Speed <input type="range" id="fwd-speed" min="1" max="5" step="1" value="2"><span class="demo-value" id="val-fwd-speed">2</span></label>
-  </div>
-  <div class="demo-info" id="info-forward">Click "Play Forward" to animate data flowing through the network.</div>
-  <div class="bp-legend">
-    <span><span class="bp-legend-dot" style="background:#7aa2f7"></span> Input</span>
-    <span><span class="bp-legend-dot" style="background:#73daca"></span> Activation computed</span>
-    <span><span class="bp-legend-dot" style="background:#565f89"></span> Waiting</span>
-  </div>
-</div>
-<div class="demo-caption">Forward pass: 2-3-2-1 network</div>
-
-<div class="demo-hint">Try extreme input values (both at +2 or both at -2). Notice how sigmoid saturates the activations near 0 or 1 when the pre-activation values are large.</div>
-
----
-
-## 3. Backward Pass
-
-Now for the heart of backpropagation. After the forward pass, we compute the loss, then send **gradients** flowing right to left. At each connection, the chain rule multiplies the incoming gradient by the local derivative. Watch the red/orange gradient signals propagate backward, with the chain rule computation shown at each node.
-
-<div class="interactive-demo" id="demo-backward">
-  <canvas id="canvas-backward" width="680" height="420"></canvas>
-  <div class="demo-controls">
-    <button id="btn-bk-forward">1. Forward</button>
-    <button id="btn-bk-backward">2. Backward</button>
-    <button id="btn-bk-reset">Reset</button>
-    <label>Speed <input type="range" id="bk-speed" min="1" max="5" step="1" value="2"><span class="demo-value" id="val-bk-speed">2</span></label>
-  </div>
-  <div class="demo-info" id="info-backward">Run forward first, then backward. Watch gradients flow and chain rule multiply at each node.</div>
-  <div class="bp-legend">
-    <span><span class="bp-legend-dot" style="background:#7aa2f7"></span> Forward flow</span>
-    <span><span class="bp-legend-dot" style="background:#f7768e"></span> Backward gradient</span>
-    <span><span class="bp-legend-dot" style="background:#ff9e64"></span> Chain rule multiplication</span>
-  </div>
-</div>
-<div class="demo-caption">Backward pass: gradient flow</div>
-
-<div class="demo-hint">The key insight: each node only needs to know its local derivative and the gradient coming from above (upstream). It multiplies them together and passes the result backward. No node needs to know the full network structure.</div>
-
----
-
-## 4. Weight Update Visualization
-
-Now we combine the forward and backward ideas from the previous two sections and apply the actual parameter update rule.
-
-After backpropagation computes gradients, we update each weight: $$w \leftarrow w - \eta \cdot \frac{\partial L}{\partial w}$$
-
-Below is a **2-4-1** network learning XOR (four inputs: [0,0], [0,1], [1,0], [1,1] with targets 0, 1, 1, 0). The loss function is **binary cross-entropy**: $$L = -\bigl[y \log \hat{y} + (1-y)\log(1-\hat{y})\bigr]$$. Weights are initialized using **He initialization**, where each weight is drawn from a distribution scaled by $$\sqrt{2/n_{\text{in}}}$$, which helps maintain signal variance across layers.<sup class="cite"><a class="cite-ref" href="#ref-5" data-cite-preview="He, Zhang, Ren &amp; Sun (2015), Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification. ICCV.">5</a></sup>
-
-Watch the edges change thickness and color as weights evolve. Thick edges carry large weights; blue means positive, red means negative.
+In practice, this cycle is repeated many times until the weights converge to values that solve the task. The demo below trains a 2-4-1 network on the XOR problem with inputs [0,0], [0,1], [1,0], [1,1] and targets 0, 1, 1, 0, using binary cross-entropy loss $$L = -\bigl[y \log \hat{y} + (1-y)\log(1-\hat{y})\bigr]$$ and He initialization, where each weight is drawn from a distribution scaled by $$\sqrt{2/n_{\text{in}}}$$ to keep signal variance stable across layers.
 
 <div class="interactive-demo" id="demo-weights">
   <canvas id="canvas-weights" width="680" height="400"></canvas>
@@ -295,124 +292,49 @@ Watch the edges change thickness and color as weights evolve. Thick edges carry 
     <label>Learning Rate <input type="range" id="wt-lr" min="0.1" max="3" step="0.1" value="1.0"><span class="demo-value" id="val-wt-lr">1.0</span></label>
     <span class="demo-value" id="wt-epoch">Step: 0</span>
   </div>
-  <div class="demo-info" id="info-weights">Edge thickness = weight magnitude. Blue = positive, red = negative. Watch weights evolve.</div>
-  <div class="bp-legend">
-    <span><span class="bp-legend-dot" style="background:#7aa2f7"></span> Positive weight</span>
-    <span><span class="bp-legend-dot" style="background:#f7768e"></span> Negative weight</span>
-    <span>Thickness = magnitude</span>
-  </div>
+  <div class="demo-info" id="info-weights">Click Train to step, Continuous to run.</div>
+  <div class="demo-caption">Settings: 2-4-1 network on XOR, sigmoid, BCE loss, full-batch SGD.</div>
 </div>
-<div class="demo-caption">XOR training: weight evolution</div>
 
-<div class="demo-hint">High learning rate (>2.5): weights oscillate. Low (0.1): slow convergence. Around 1.0 works well. Click Reset if stuck in a local minimum.</div>
+The choice of activation matters here too. See the [Activation Functions]({{ site.baseurl }}/activation-functions/) guide for an in-depth look at how different activations affect gradient flow and learning dynamics. 
 
 ---
 
-## 5. Gradient Magnitude Heatmap
+## 3. Playground
 
-Not all neurons receive equal gradients. In deep networks, gradients can vary enormously across layers.<sup class="cite"><a class="cite-ref" href="#ref-2" data-cite-preview="Hochreiter (1991), Untersuchungen zu dynamischen neuronalen Netzen. Diploma thesis, TU Munich. First formal analysis of the vanishing gradient problem.">2</a></sup> This heatmap colors each neuron by the magnitude of its gradient: bright means a large gradient (fast learning), dark means a small gradient (slow or stalled learning). The bar chart below shows the average gradient magnitude per layer.
-
-<div class="interactive-demo" id="demo-heatmap">
-  <canvas id="canvas-heatmap" width="680" height="380"></canvas>
-  <div class="demo-controls">
-    <label>Layers <input type="range" id="hm-layers" min="2" max="6" step="1" value="3"><span class="demo-value" id="val-hm-layers">3</span></label>
-    <label>Activation:
-      <button id="hm-sigmoid" class="active">Sigmoid</button>
-      <button id="hm-relu">ReLU</button>
-    </label>
-    <button id="btn-hm-compute">Compute Gradients</button>
-    <button id="btn-hm-reset">Reset</button>
-  </div>
-  <div class="demo-info" id="info-heatmap">Bright = large gradient, dark = small gradient. Increase layers with Sigmoid to see gradients vanish.</div>
-</div>
-<div class="demo-caption">Gradient magnitude heatmap</div>
-
-<div class="demo-hint">Compare 3 vs 6 sigmoid layers: early-layer gradients shrink by orders of magnitude. Switch to ReLU to see gradients stay comparable.</div>
-
----
-
-## 6. The Vanishing Gradient Problem
-
-The **vanishing gradient problem** is one of the most important challenges in deep learning.<sup class="cite"><a class="cite-ref" href="#ref-3" data-cite-preview="Glorot &amp; Bengio (2010), Understanding the difficulty of training deep feedforward neural networks. AISTATS.">3</a></sup> With sigmoid or tanh activations, each layer multiplies the gradient by a value between 0 and 0.25 (the maximum of sigmoid's derivative). Stack 5+ layers, and the gradients at early layers become astronomically small: the network effectively stops learning there.
-
-$$\frac{\partial L}{\partial w_1} = \underbrace{\sigma'(z_5) \cdot \sigma'(z_4) \cdot \sigma'(z_3) \cdot \sigma'(z_2) \cdot \sigma'(z_1)}_{\text{each} \leq 0.25 \implies \text{product} \leq 0.001} \cdot \ldots$$
-
-**ReLU** solves this: its derivative is either 0 or 1, so gradients pass through unchanged (as long as the neuron is active).<sup class="cite"><a class="cite-ref" href="#ref-4" data-cite-preview="Nair &amp; Hinton (2010), Rectified Linear Units Improve Restricted Boltzmann Machines. ICML.">4</a></sup>
-
-<div class="interactive-demo" id="demo-vanishing">
-  <div class="demo-split">
-    <div>
-      <canvas id="canvas-vanish-sig" width="320" height="340"></canvas>
-      <div class="demo-caption">Sigmoid (5 layers), gradients vanish</div>
-    </div>
-    <div>
-      <canvas id="canvas-vanish-relu" width="320" height="340"></canvas>
-      <div class="demo-caption">ReLU (5 layers), gradients stay strong</div>
-    </div>
-  </div>
-  <div class="demo-controls">
-    <button id="btn-van-run">Run Comparison</button>
-    <button id="btn-van-reset">Reset</button>
-    <label>Layers <input type="range" id="van-layers" min="3" max="8" step="1" value="5"><span class="demo-value" id="val-van-layers">5</span></label>
-  </div>
-  <div class="demo-info" id="info-vanishing">Compare gradient magnitudes: Sigmoid vs ReLU. The bar chart shows average gradient per layer.</div>
-</div>
-
-<div class="demo-hint">This is why modern deep networks almost universally use ReLU or its variants (Leaky ReLU, GELU, Swish). The sigmoid is mostly confined to the output layer for binary classification.</div>
-
-<div class="demo-hint">Increase to 8 layers with Sigmoid. The first-layer gradient may be 1000× smaller than the last layer. This is why networks deeper than 2-3 layers were considered untrainable before ReLU became standard.</div>
-
----
-
-## 7. Computational Graph Builder
-
-Explore different computational graphs and watch backpropagation compute gradients automatically. Select a preset expression to see its graph structure, then click Compute to run both the forward and backward passes.
-
-<div class="interactive-demo" id="demo-builder">
-  <canvas id="canvas-builder" width="680" height="400"></canvas>
-  <div class="demo-controls">
-    <button id="btn-bl-run">Compute</button>
-    <button id="btn-bl-reset">Reset</button>
-    <label>Expression:
-      <button id="bl-expr1" class="active">(a+b)*c</button>
-      <button id="bl-expr2">a*b + c*d</button>
-      <button id="bl-expr3">sigmoid(a*b+c)</button>
-    </label>
-  </div>
-  <div class="demo-info" id="info-builder">Select an expression and click Compute. Forward values shown in blue, gradients in red.</div>
-</div>
-<div class="demo-caption">Expression computational graphs</div>
-
-<div class="demo-hint">Compare the three expressions. In the sigmoid expression, notice how the sigmoid node compresses the gradient: its local derivative is at most 0.25, so every gradient upstream of the sigmoid is attenuated. This is the same mechanism that causes vanishing gradients in deep networks.</div>
-
----
-
-## 8. Backprop on a Real Task
-
-Finally, let us put it all together. A **2-4-4-1** MLP is trained on a 2D classification task using **binary cross-entropy** loss and full-batch gradient descent. The complete backpropagation cycle repeats each epoch: forward pass, loss computation, backward pass, weight update. You can switch between Sigmoid and ReLU activations for the hidden layers to see how they affect convergence.
+Time to see the whole training loop in action. Choose a dataset, select an activation function, configure the network architecture, and press Train. The decision boundary on the left updates as the network learns, while the loss curve on the right shows how the loss changes over epochs. Try more difficult datasets such as Spiral with deeper or wider networks, or add noise to test how robust your model is.
 
 <div class="interactive-demo" id="demo-real">
   <div class="demo-split">
     <div>
       <canvas id="canvas-real-boundary" width="320" height="320"></canvas>
-      <div class="demo-caption">Decision boundary</div>
     </div>
     <div>
       <canvas id="canvas-real-loss" width="320" height="320"></canvas>
-      <div class="demo-caption">Training loss</div>
     </div>
   </div>
   <div class="demo-controls">
-    <label>Dataset:
-      <button id="rl-ds-circle" class="active">Circle</button>
-      <button id="rl-ds-spiral">Spiral</button>
-      <button id="rl-ds-xor">XOR</button>
+    <label>Dataset
+      <select id="rl-dataset">
+        <option value="circle" selected>Circle</option>
+        <option value="xor">XOR</option>
+        <option value="spiral">Spiral</option>
+        <option value="gauss">Gauss</option>
+      </select>
     </label>
-    <label>LR <input type="range" id="rl-lr" min="0.1" max="3" step="0.1" value="1.0"><span class="demo-value" id="val-rl-lr">1.0</span></label>
-    <label>Activation:
-      <button id="rl-act-sigmoid" class="active">Sigmoid</button>
-      <button id="rl-act-relu">ReLU</button>
+    <label>Activation
+      <select id="rl-activation">
+        <option value="sigmoid" selected>Sigmoid</option>
+        <option value="tanh">Tanh</option>
+        <option value="relu">ReLU</option>
+      </select>
     </label>
+    <label>Hidden layers <input type="range" id="rl-layers" min="1" max="3" step="1" value="2"><span class="demo-value" id="val-rl-layers">2</span></label>
+    <label>Neurons/layer <input type="range" id="rl-neurons" min="2" max="8" step="1" value="4"><span class="demo-value" id="val-rl-neurons">4</span></label>
+  </div>
+  <div class="demo-controls">
+    <label>Learning rate <input type="range" id="rl-lr" min="0.1" max="3" step="0.1" value="1.0"><span class="demo-value" id="val-rl-lr">1.0</span></label>
+    <label>Noise <input type="range" id="rl-noise" min="0" max="0.3" step="0.05" value="0"><span class="demo-value" id="val-rl-noise">0.00</span></label>
   </div>
   <div class="demo-controls">
     <button id="btn-rl-train">Train</button>
@@ -421,69 +343,32 @@ Finally, let us put it all together. A **2-4-4-1** MLP is trained on a 2D classi
     <span class="demo-value" id="rl-epoch">Epoch: 0</span>
     <span class="demo-value" id="rl-loss">Loss: --</span>
   </div>
-  <div class="demo-info" id="info-real">Watch backpropagation train a network in real time. The decision boundary updates every 5 epochs.</div>
+  <div class="demo-info" id="info-real">Left: decision boundary. Right: training loss curve. Updates every 5 epochs.</div>
+  <div class="demo-caption">Settings: configurable MLP, He init, BCE loss, full-batch SGD. Try Circle at LR 0.5 to 1.5, XOR at 1.0 to 2.0, Spiral at 1.5 to 2.5 with ReLU and 3 hidden layers.</div>
 </div>
-<div class="demo-caption">Full network training</div>
-
-<div class="demo-hint">Suggested rates: Circle 0.5-1.5, XOR 1.0-2.0, Spiral 1.5-2.5. ReLU often helps on Spiral.</div>
 
 ---
 
-## 9. Summary
+## 4. Summary
 
 | Concept | Key Idea |
 |---|---|
-| **Chain Rule** | Gradients propagate backward by multiplying local derivatives at each node. |
-| **Forward Pass** | Data flows input to output, computing weighted sums and activations. |
-| **Backward Pass** | Gradients flow output to input, applying the chain rule at every connection. |
-| **Weight Update** | Each weight is nudged opposite to its gradient: $$w \leftarrow w - \eta \nabla_w L$$. |
-| **Binary Cross-Entropy** | The loss $$L = -[y\log\hat{y} + (1-y)\log(1-\hat{y})]$$ used for binary classification throughout this guide. |
-| **He Initialization** | Weights drawn from $$\mathcal{N}(0, \sqrt{2/n_{\text{in}}})$$ to maintain variance across layers. |
-| **Vanishing Gradients** | Sigmoid/tanh squash gradients exponentially with depth. ReLU preserves them. |
-| **Computational Graph** | Any expression can be decomposed into a graph for automatic differentiation. |
+| Chain Rule | Gradients propagate backward by multiplying local derivatives at each node. |
+| Forward Pass | Data flows input to output, computing weighted sums and activations. |
+| Backward Pass | Gradients flow output to input, applying the chain rule at every connection. |
+| Weight Update | Each weight is nudged opposite to its gradient: $$w \leftarrow w - \eta \nabla_w L$$. |
+| Computational Graph | Any expression can be decomposed into a graph for automatic differentiation. |
 
-Backpropagation is not just an algorithm, it is a way of thinking about computation. Every modern deep learning framework (PyTorch, TensorFlow, JAX) is built around the idea of recording a computational graph during the forward pass and then traversing it backward to compute gradients automatically. This is called **automatic differentiation**, and backpropagation is its most important special case.
+Backpropagation is not just an algorithm, it is a way of thinking about computation. Every modern deep learning framework (PyTorch, TensorFlow, JAX) is built around the idea of recording a computational graph during the forward pass and then traversing it backward to compute gradients automatically. This process is called automatic differentiation, and backpropagation is its most important application in neural networks. The time complexity of backpropagation is linear in the number of operations in the forward pass, O(n), since each operation is visited once during the forward pass and once during the backward pass. This efficiency is what makes training networks with millions of parameters practical.
 
-The time complexity of backpropagation is **O(n)** where n is the number of operations in the forward pass: we traverse each edge exactly once going forward and once going backward. This efficiency is what makes training networks with millions of parameters practical.
+#### Continue the ML Series
 
-What's next: In the [Activation Functions]({{ site.baseurl }}/activation-functions/) guide, we will explore different activation functions and understand how they affect gradient flow and network expressivity.
-
----
-
-## References
-
-<ol class="references">
-  <li id="ref-1">Rumelhart, D. E., Hinton, G. E., &amp; Williams, R. J. (1986). <em>Learning representations by back-propagating errors</em>. Nature, 323, 533-536. <a href="https://doi.org/10.1038/323533a0" target="_blank" rel="noopener">https://doi.org/10.1038/323533a0</a></li>
-  <li id="ref-2">Hochreiter, S. (1991). <em>Untersuchungen zu dynamischen neuronalen Netzen</em>. Diploma thesis, Technische Universität München. First formal analysis of the vanishing gradient problem.</li>
-  <li id="ref-3">Glorot, X., &amp; Bengio, Y. (2010). <em>Understanding the difficulty of training deep feedforward neural networks</em>. AISTATS. <a href="http://proceedings.mlr.press/v9/glorot10a.html" target="_blank" rel="noopener">http://proceedings.mlr.press/v9/glorot10a.html</a></li>
-  <li id="ref-4">Nair, V., &amp; Hinton, G. E. (2010). <em>Rectified Linear Units Improve Restricted Boltzmann Machines</em>. ICML. <a href="https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf" target="_blank" rel="noopener">https://www.cs.toronto.edu/~hinton/absps/reluICML.pdf</a></li>
-  <li id="ref-5">He, K., Zhang, X., Ren, S., &amp; Sun, J. (2015). <em>Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification</em>. ICCV. <a href="https://doi.org/10.1109/ICCV.2015.123" target="_blank" rel="noopener">https://doi.org/10.1109/ICCV.2015.123</a></li>
-</ol>
-
+This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. Next up is [Activation Functions]({{ site.baseurl }}/activation-functions/), where we will explore different activation functions and understand how they affect gradient flow and network expressivity.
+ 
 <script>
 // ==================== SHARED BACKPROP UTILITIES ====================
 window.BP = (function() {
-  function getColors() {
-    var s = getComputedStyle(document.documentElement);
-    return {
-      bg: s.getPropertyValue('--bg-primary').trim() || '#1a1b26',
-      bgSec: s.getPropertyValue('--bg-secondary').trim() || '#24283b',
-      border: s.getPropertyValue('--border').trim() || '#414868',
-      accent: s.getPropertyValue('--accent').trim() || '#7aa2f7',
-      text: s.getPropertyValue('--text-primary').trim() || '#c0caf5',
-      textSec: s.getPropertyValue('--text-secondary').trim() || '#565f89',
-      forward: '#7aa2f7',
-      forwardGlow: '#73daca',
-      backward: '#f7768e',
-      backwardGlow: '#ff9e64',
-      positive: '#7aa2f7',
-      negative: '#f7768e',
-      green: '#73daca',
-      purple: '#bb9af7',
-      yellow: '#e0af68',
-      waiting: '#565f89'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas) {
     var dpr = window.devicePixelRatio || 1;
@@ -655,6 +540,23 @@ window.BP = (function() {
           var r = (i / half) * 0.4 + 0.05;
           var px = r * Math.cos(t) + 0.5 + (Math.random() - 0.5) * 0.05;
           var py = r * Math.sin(t) + 0.5 + (Math.random() - 0.5) * 0.05;
+          px = Math.max(0, Math.min(1, px)); py = Math.max(0, Math.min(1, py));
+          X.push([px, py]); y.push(c);
+        }
+      }
+      return { X: X, y: y };
+    },
+    gauss: function(n) {
+      n = n || 100; var X = [], y = [], half = Math.floor(n / 2);
+      function gaussian() {
+        var u = 1 - Math.random(), v = Math.random();
+        return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+      }
+      var centers = [[0.3, 0.3], [0.7, 0.7]];
+      for (var c = 0; c < 2; c++) {
+        for (var i = 0; i < half; i++) {
+          var px = centers[c][0] + gaussian() * 0.08;
+          var py = centers[c][1] + gaussian() * 0.08;
           px = Math.max(0, Math.min(1, px)); py = Math.max(0, Math.min(1, py));
           X.push([px, py]); y.push(c);
         }
@@ -840,7 +742,7 @@ window.BP = (function() {
 (function() {
   var canvas = document.getElementById('canvas-chain');
   var ctx = BP.setupCanvas(canvas);
-  var W = 680, H = 360;
+  var W = 680, H = 400;
   var slX = document.getElementById('chain-x');
   var slY = document.getElementById('chain-y');
   var slZ = document.getElementById('chain-z');
@@ -850,18 +752,20 @@ window.BP = (function() {
   var infoEl = document.getElementById('info-chain');
   var selectedNode = -1;
 
-  // Node positions
+  // Node positions. varName is the variable each node carries (used in labels).
   var nodes = [
-    { x: 80, y: 100, label: 'x', type: 'input' },
-    { x: 80, y: 260, label: 'y', type: 'input' },
-    { x: 250, y: 180, label: '+', type: 'op' },
-    { x: 80, y: 180, label: 'z', type: 'input' },
-    { x: 440, y: 180, label: '*', type: 'op' },
-    { x: 600, y: 180, label: 'f', type: 'output' }
+    { x: 80,  y: 80,  label: 'x', varName: 'x', type: 'input' },
+    { x: 80,  y: 280, label: 'y', varName: 'y', type: 'input' },
+    { x: 280, y: 180, label: '+', varName: 'q', type: 'op' },
+    { x: 280, y: 340, label: 'z', varName: 'z', type: 'input' },
+    { x: 540, y: 250, label: '\u00d7', varName: 'f', type: 'output' }
   ];
-  // Edges: from -> to
+  // Each edge carries one local derivative (the multiplier the chain rule uses).
   var edges = [
-    [0, 2], [1, 2], [2, 4], [3, 4], [4, 5]
+    { from: 0, to: 2, getLocal: function(d) { return 1; } },     // dq/dx
+    { from: 1, to: 2, getLocal: function(d) { return 1; } },     // dq/dy
+    { from: 2, to: 4, getLocal: function(d) { return d.z; } },   // df/dq
+    { from: 3, to: 4, getLocal: function(d) { return d.q; } }    // df/dz
   ];
 
   function compute() {
@@ -870,10 +774,10 @@ window.BP = (function() {
     var z = parseFloat(slZ.value);
     var q = x + y;
     var f = q * z;
-    // Forward values
-    var vals = [x, y, q, z, f, f];
-    // Backward gradients: df/d(node)
-    var grads = [z, z, z, q, 1, 1];
+    // Forward value at each node (same order as nodes array)
+    var vals = [x, y, q, z, f];
+    // Gradient df/d(node) at each node
+    var grads = [z, z, z, q, 1];
     return { vals: vals, grads: grads, x: x, y: y, z: z, q: q, f: f };
   }
 
@@ -887,25 +791,25 @@ window.BP = (function() {
     ctx.fillStyle = c.bg;
     ctx.fillRect(0, 0, W, H);
 
-    // Draw edges
+    // Draw edges with local derivatives
     for (var i = 0; i < edges.length; i++) {
-      var from = nodes[edges[i][0]], to = nodes[edges[i][1]];
+      var edge = edges[i];
+      var from = nodes[edge.from], to = nodes[edge.to];
       ctx.strokeStyle = c.border;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(from.x + 25, from.y);
       ctx.lineTo(to.x - 25, to.y);
       ctx.stroke();
-      // Forward value on edge
+      // Local derivative label at midpoint (the chain-rule multiplier on this edge)
       var mx = (from.x + to.x) / 2;
-      var my = (from.y + to.y) / 2 - 12;
-      ctx.fillStyle = c.forward;
+      var my = (from.y + to.y) / 2;
+      var localVal = edge.getLocal(data);
+      ctx.fillStyle = c.textSec;
       ctx.font = '11px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(data.vals[edges[i][0]].toFixed(1), mx, my);
-      // Gradient on edge
-      ctx.fillStyle = c.backward;
-      ctx.fillText('\u2207=' + data.grads[edges[i][0]].toFixed(1), mx, my + 24);
+      ctx.textBaseline = 'middle';
+      ctx.fillText('\u00d7 ' + localVal.toFixed(1), mx, my - 10);
       // Arrow
       var angle = Math.atan2(to.y - from.y, to.x - from.x);
       var ax = to.x - 25, ay = to.y;
@@ -917,37 +821,36 @@ window.BP = (function() {
       ctx.fill();
     }
 
-    // Draw nodes
+    // Draw nodes with label inside, value below (forward color), gradient above (backward color)
     for (var i = 0; i < nodes.length; i++) {
       var n = nodes[i];
       var color = n.type === 'input' ? c.forward : n.type === 'output' ? c.green : c.purple;
       if (i === selectedNode) color = c.yellow;
-      var r = 24;
-      BP.drawNode(ctx, n.x, n.y, r, color, n.label);
-      // Value below node
+      BP.drawNode(ctx, n.x, n.y, 24, color, n.label);
+      // Forward: varName = value
       ctx.fillStyle = c.forward;
       ctx.font = 'bold 12px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('=' + data.vals[i].toFixed(1), n.x, n.y + 38);
-      // Gradient above node
+      ctx.textBaseline = 'top';
+      ctx.fillText(n.varName + ' = ' + data.vals[i].toFixed(1), n.x, n.y + 32);
+      // Backward: df/d(varName) = gradient
       ctx.fillStyle = c.backward;
       ctx.font = '11px JetBrains Mono, monospace';
-      ctx.fillText('\u2202f/\u2202' + n.label + '=' + data.grads[i].toFixed(1), n.x, n.y - 34);
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('\u2202f/\u2202' + n.varName + ' = ' + data.grads[i].toFixed(1), n.x, n.y - 32);
     }
 
-    // Info text for selected node
+    // Info text
     if (selectedNode >= 0) {
-      var sn = nodes[selectedNode];
       var txt = '';
-      if (selectedNode === 0) txt = 'df/dx = df/dq * dq/dx = ' + data.z.toFixed(1) + ' * 1 = ' + data.grads[0].toFixed(1);
-      else if (selectedNode === 1) txt = 'df/dy = df/dq * dq/dy = ' + data.z.toFixed(1) + ' * 1 = ' + data.grads[1].toFixed(1);
-      else if (selectedNode === 2) txt = 'q = x + y = ' + data.x.toFixed(1) + ' + ' + data.y.toFixed(1) + ' = ' + data.q.toFixed(1) + ' | df/dq = z = ' + data.z.toFixed(1);
-      else if (selectedNode === 3) txt = 'df/dz = q = ' + data.q.toFixed(1);
-      else if (selectedNode === 4) txt = 'f = q * z = ' + data.q.toFixed(1) + ' * ' + data.z.toFixed(1) + ' = ' + data.f.toFixed(1);
-      else if (selectedNode === 5) txt = 'f = ' + data.f.toFixed(1) + ' | df/df = 1 (output node)';
+      if (selectedNode === 0) txt = '\u2202f/\u2202x = \u2202f/\u2202q \u00b7 \u2202q/\u2202x = (' + data.z.toFixed(1) + ') \u00b7 1 = ' + data.grads[0].toFixed(1);
+      else if (selectedNode === 1) txt = '\u2202f/\u2202y = \u2202f/\u2202q \u00b7 \u2202q/\u2202y = (' + data.z.toFixed(1) + ') \u00b7 1 = ' + data.grads[1].toFixed(1);
+      else if (selectedNode === 2) txt = 'q = x + y = ' + data.q.toFixed(1) + ',  \u2202f/\u2202q = z = ' + data.z.toFixed(1);
+      else if (selectedNode === 3) txt = '\u2202f/\u2202z = q = (x + y) = ' + data.q.toFixed(1);
+      else if (selectedNode === 4) txt = 'f = q \u00b7 z = ' + data.f.toFixed(1) + ',  \u2202f/\u2202f = 1 (output)';
       infoEl.textContent = txt;
     } else {
-      infoEl.textContent = 'f(' + data.x.toFixed(1) + ',' + data.y.toFixed(1) + ',' + data.z.toFixed(1) + ') = (' + data.x.toFixed(1) + '+' + data.y.toFixed(1) + ')*' + data.z.toFixed(1) + ' = ' + data.f.toFixed(1) + '. Click a node to see the chain rule.';
+      infoEl.textContent = 'Forward values in blue, gradients \u2202f/\u2202node in red, edges show the local derivative (\u00d7). Click a node for its chain rule.';
     }
   }
 
@@ -983,605 +886,6 @@ window.BP = (function() {
   slZ.addEventListener('input', draw);
   draw();
   BP.onThemeChange(draw);
-})();
-</script>
-
-<!-- ==================== DEMO 2: Forward Pass Animation ==================== -->
-<script>
-(function() {
-  var canvas = document.getElementById('canvas-forward');
-  var ctx = BP.setupCanvas(canvas);
-  var W = 680, H = 400;
-  var slX1 = document.getElementById('fwd-x1');
-  var slX2 = document.getElementById('fwd-x2');
-  var slSpeed = document.getElementById('fwd-speed');
-  var valX1 = document.getElementById('val-fwd-x1');
-  var valX2 = document.getElementById('val-fwd-x2');
-  var valSpeed = document.getElementById('val-fwd-speed');
-  var btnPlay = document.getElementById('btn-fwd-play');
-  var btnReset = document.getElementById('btn-fwd-reset');
-  var infoEl = document.getElementById('info-forward');
-
-  var sizes = [2, 3, 2, 1];
-  var net = new BP.MLP(sizes, 'sigmoid');
-  // Set fixed weights for reproducibility
-  net.W[0] = [[0.6, -0.4], [0.3, 0.8], [-0.5, 0.7]];
-  net.b[0] = [0.1, -0.2, 0.3];
-  net.W[1] = [[0.5, -0.3, 0.7], [-0.6, 0.4, 0.2]];
-  net.b[1] = [0.1, -0.1];
-  net.W[2] = [[0.8, -0.5]];
-  net.b[2] = [0.2];
-
-  var layout = BP.getNetworkLayout(sizes, W, H, 90, 60);
-  var animState = 'idle'; // idle, animating, done
-  var animLayer = 0;
-  var animNeuron = 0;
-  var animT = 0;
-  var litNodes = []; // [layer][neuron] = true
-  var animId = null;
-
-  function resetLit() {
-    litNodes = [];
-    for (var l = 0; l < sizes.length; l++) {
-      litNodes.push([]);
-      for (var n = 0; n < sizes[l]; n++) litNodes[l].push(false);
-    }
-  }
-  resetLit();
-
-  function drawNetwork(showValues) {
-    var c = BP.getColors();
-    ctx.fillStyle = c.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    // Layer labels
-    var labels = ['Input', 'Hidden 1', 'Hidden 2', 'Output'];
-    ctx.font = '12px sans-serif';
-    ctx.textAlign = 'center';
-    for (var l = 0; l < layout.length; l++) {
-      ctx.fillStyle = c.textSec;
-      ctx.fillText(labels[l], layout[l][0].x, 25);
-    }
-
-    // Edges
-    for (var l = 0; l < sizes.length - 1; l++) {
-      for (var i = 0; i < sizes[l + 1]; i++) {
-        for (var j = 0; j < sizes[l]; j++) {
-          var from = layout[l][j], to = layout[l + 1][i];
-          BP.drawEdge(ctx, from.x + 20, from.y, to.x - 20, to.y, net.W[l][i][j], 1);
-        }
-      }
-    }
-
-    // Nodes
-    for (var l = 0; l < sizes.length; l++) {
-      for (var n = 0; n < sizes[l]; n++) {
-        var pos = layout[l][n];
-        var lit = litNodes[l][n];
-        var color = lit ? c.forwardGlow : c.waiting;
-        if (l === 0) color = c.forward;
-        var r = 20;
-        var label = '';
-        var sublabel = '';
-        if (showValues && net.as && net.as[l]) {
-          label = net.as[l][n] !== undefined ? net.as[l][n].toFixed(2) : '';
-        }
-        if (l === 0) {
-          label = l === 0 && n === 0 ? 'x\u2081' : 'x\u2082';
-          sublabel = net.as ? net.as[0][n].toFixed(2) : '';
-        }
-        BP.drawNode(ctx, pos.x, pos.y, r, color, label, sublabel);
-        if (showValues && l > 0 && net.as && net.as[l]) {
-          ctx.fillStyle = c.text;
-          ctx.font = '10px JetBrains Mono, monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText('a=' + net.as[l][n].toFixed(3), pos.x, pos.y + 32);
-        }
-      }
-    }
-
-    // Particle animation
-    if (animState === 'animating' && animLayer < sizes.length - 1) {
-      var fromNodes = layout[animLayer];
-      var toNode = layout[animLayer + 1][animNeuron];
-      for (var j = 0; j < fromNodes.length; j++) {
-        var fx = fromNodes[j].x + 20, fy = fromNodes[j].y;
-        var tx = toNode.x - 20, ty = toNode.y;
-        var px = BP.lerp(fx, tx, animT);
-        var py = BP.lerp(fy, ty, animT);
-        BP.drawParticle(ctx, px, py, c.forwardGlow, 5);
-      }
-    }
-  }
-
-  function startAnim() {
-    if (animState === 'animating') return;
-    var x1 = parseFloat(slX1.value);
-    var x2 = parseFloat(slX2.value);
-    net.forward([x1, x2]);
-    resetLit();
-    litNodes[0][0] = true;
-    litNodes[0][1] = true;
-    animState = 'animating';
-    animLayer = 0;
-    animNeuron = 0;
-    animT = 0;
-    animate();
-  }
-
-  function animate() {
-    if (animState !== 'animating') return;
-    var speed = parseInt(slSpeed.value) * 0.02;
-    animT += speed;
-    if (animT >= 1) {
-      litNodes[animLayer + 1][animNeuron] = true;
-      animNeuron++;
-      if (animNeuron >= sizes[animLayer + 1]) {
-        animNeuron = 0;
-        animLayer++;
-        if (animLayer >= sizes.length - 1) {
-          animState = 'done';
-          infoEl.textContent = 'Forward pass complete. Output = ' + net.as[net.as.length - 1][0].toFixed(4);
-          drawNetwork(true);
-          return;
-        }
-      }
-      animT = 0;
-    }
-    var layerName = animLayer === 0 ? 'Hidden 1' : animLayer === 1 ? 'Hidden 2' : 'Output';
-    infoEl.textContent = 'Computing ' + layerName + ' neuron ' + (animNeuron + 1) + '...';
-    drawNetwork(true);
-    animId = requestAnimationFrame(animate);
-  }
-
-  function reset() {
-    if (animId) cancelAnimationFrame(animId);
-    animState = 'idle';
-    resetLit();
-    litNodes[0][0] = true;
-    litNodes[0][1] = true;
-    var x1 = parseFloat(slX1.value);
-    var x2 = parseFloat(slX2.value);
-    net.forward([x1, x2]);
-    infoEl.textContent = 'Click "Play Forward" to animate data flowing through the network.';
-    drawNetwork(false);
-  }
-
-  btnPlay.addEventListener('click', startAnim);
-  btnReset.addEventListener('click', reset);
-  slX1.addEventListener('input', function() { valX1.textContent = parseFloat(slX1.value).toFixed(1); reset(); });
-  slX2.addEventListener('input', function() { valX2.textContent = parseFloat(slX2.value).toFixed(1); reset(); });
-  slSpeed.addEventListener('input', function() { valSpeed.textContent = slSpeed.value; });
-
-  reset();
-  BP.onThemeChange(function() { drawNetwork(animState === 'done'); });
-})();
-</script>
-
-<!-- ==================== DEMO 3: Backward Pass Animation ==================== -->
-<script>
-(function() {
-  var canvas = document.getElementById('canvas-backward');
-  var ctx = BP.setupCanvas(canvas);
-  var W = 680, H = 420;
-  var btnFwd = document.getElementById('btn-bk-forward');
-  var btnBk = document.getElementById('btn-bk-backward');
-  var btnReset = document.getElementById('btn-bk-reset');
-  var slSpeed = document.getElementById('bk-speed');
-  var valSpeed = document.getElementById('val-bk-speed');
-  var infoEl = document.getElementById('info-backward');
-
-  var sizes = [2, 3, 2, 1];
-  var net = new BP.MLP(sizes, 'sigmoid');
-  net.W[0] = [[0.6, -0.4], [0.3, 0.8], [-0.5, 0.7]];
-  net.b[0] = [0.1, -0.2, 0.3];
-  net.W[1] = [[0.5, -0.3, 0.7], [-0.6, 0.4, 0.2]];
-  net.b[1] = [0.1, -0.1];
-  net.W[2] = [[0.8, -0.5]];
-  net.b[2] = [0.2];
-
-  var layout = BP.getNetworkLayout(sizes, W, H - 40, 90, 70);
-  var phase = 'idle'; // idle, forward-done, animating-back, done
-  var animLayer = 0, animNeuron = 0, animT = 0;
-  var litFwd = [], litBk = [];
-  var animId = null;
-  var target = 1;
-
-  function resetLit() {
-    litFwd = []; litBk = [];
-    for (var l = 0; l < sizes.length; l++) {
-      litFwd.push([]); litBk.push([]);
-      for (var n = 0; n < sizes[l]; n++) { litFwd[l].push(false); litBk[l].push(false); }
-    }
-  }
-  resetLit();
-
-  function getEdgeLabelPos(from, to, fromIdx, toIdx, fromCount, toCount) {
-    var mx = (from.x + to.x) / 2;
-    var my = (from.y + to.y) / 2;
-    var dx = to.x - from.x;
-    var dy = to.y - from.y;
-    var len = Math.sqrt(dx * dx + dy * dy) || 1;
-    var nx = -dy / len;
-    var ny = dx / len;
-    var tx = dx / len;
-    var ty = dy / len;
-    var fromOffset = fromIdx - (fromCount - 1) / 2;
-    var toOffset = toIdx - (toCount - 1) / 2;
-    var normalOffset = fromOffset * 14 + toOffset * 10;
-    var tangentOffset = (toIdx % 2 === 0 ? -1 : 1) * 6;
-    return {
-      x: mx + nx * normalOffset + tx * tangentOffset,
-      y: my + ny * normalOffset + ty * tangentOffset
-    };
-  }
-
-  function drawNet() {
-    var c = BP.getColors();
-    ctx.fillStyle = c.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    var labels = ['Input', 'Hidden 1', 'Hidden 2', 'Output'];
-    ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-    for (var l = 0; l < layout.length; l++) {
-      ctx.fillStyle = c.textSec;
-      ctx.fillText(labels[l], layout[l][0].x, 20);
-    }
-
-    // Edges
-    for (var l = 0; l < sizes.length - 1; l++) {
-      for (var i = 0; i < sizes[l + 1]; i++) {
-        for (var j = 0; j < sizes[l]; j++) {
-          var from = layout[l][j], to = layout[l + 1][i];
-          BP.drawEdge(ctx, from.x + 20, from.y, to.x - 20, to.y, net.W[l][i][j], 1);
-          // Show gradient on edge if backward done for this layer
-          if (phase === 'done' || (phase === 'animating-back' && l >= animLayer + 1) ||
-              (phase === 'animating-back' && l === animLayer && litBk[l + 1][i])) {
-            if (net.dW && net.dW[l]) {
-              var pos = getEdgeLabelPos(from, to, j, i, sizes[l], sizes[l + 1]);
-              ctx.fillStyle = c.backward;
-              ctx.font = '9px JetBrains Mono, monospace';
-              ctx.textAlign = 'center';
-              ctx.fillText('\u2207w=' + net.dW[l][i][j].toFixed(2), pos.x, pos.y - 5);
-            }
-          }
-        }
-      }
-    }
-
-    // Nodes
-    for (var l = 0; l < sizes.length; l++) {
-      for (var n = 0; n < sizes[l]; n++) {
-        var pos = layout[l][n];
-        var color = c.waiting;
-        if (litFwd[l][n]) color = c.forwardGlow;
-        if (litBk[l][n]) color = c.backward;
-        if (l === 0 && litFwd[l][n]) color = c.forward;
-        var label = '';
-        if (l === 0) label = n === 0 ? 'x\u2081' : 'x\u2082';
-        if (l === sizes.length - 1) label = 'out';
-        BP.drawNode(ctx, pos.x, pos.y, 20, color, label);
-
-        // Forward value
-        if (litFwd[l][n] && net.as && net.as[l]) {
-          ctx.fillStyle = c.forward;
-          ctx.font = '10px JetBrains Mono, monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText('a=' + net.as[l][n].toFixed(3), pos.x, pos.y + 32);
-        }
-        // Backward gradient
-        if (litBk[l][n] && net.deltas) {
-          var grad = 0;
-          if (l === sizes.length - 1) grad = net.as[l][0] - target;
-          else if (l > 0 && net.deltas[l - 1]) grad = net.deltas[l - 1][n];
-          ctx.fillStyle = c.backward;
-          ctx.font = '10px JetBrains Mono, monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText('\u03B4=' + grad.toFixed(3), pos.x, pos.y - 28);
-        }
-      }
-    }
-
-    // Backward particles
-    if (phase === 'animating-back' && animLayer >= 0) {
-      var toNodes = layout[animLayer];
-      var fromNode = layout[animLayer + 1][animNeuron];
-      for (var j = 0; j < toNodes.length; j++) {
-        var fx = fromNode.x - 20, fy = fromNode.y;
-        var tx = toNodes[j].x + 20, ty = toNodes[j].y;
-        var px = BP.lerp(fx, tx, animT);
-        var py = BP.lerp(fy, ty, animT);
-        BP.drawParticle(ctx, px, py, c.backwardGlow, 5);
-      }
-    }
-
-    // Loss display
-    if (phase !== 'idle' && net.as) {
-      var out = net.as[net.as.length - 1][0];
-      var loss = -(target * Math.log(out + 1e-15) + (1 - target) * Math.log(1 - out + 1e-15));
-      ctx.fillStyle = c.yellow;
-      ctx.font = 'bold 12px JetBrains Mono, monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText('Loss = ' + loss.toFixed(4), W - 20, H - 10);
-      ctx.fillText('Target = ' + target, W - 20, H - 28);
-    }
-  }
-
-  function doForward() {
-    if (animId) cancelAnimationFrame(animId);
-    net.forward([0.5, -0.3]);
-    resetLit();
-    for (var l = 0; l < sizes.length; l++)
-      for (var n = 0; n < sizes[l]; n++) litFwd[l][n] = true;
-    phase = 'forward-done';
-    infoEl.textContent = 'Forward pass done. Output = ' + net.as[net.as.length - 1][0].toFixed(4) + '. Now click "2. Backward".';
-    drawNet();
-  }
-
-  function startBackward() {
-    if (phase !== 'forward-done') { infoEl.textContent = 'Run forward first!'; return; }
-    net.backward(target);
-    litBk[sizes.length - 1][0] = true;
-    phase = 'animating-back';
-    animLayer = sizes.length - 2;
-    animNeuron = 0;
-    animT = 0;
-    animateBack();
-  }
-
-  function animateBack() {
-    if (phase !== 'animating-back') return;
-    var speed = parseInt(slSpeed.value) * 0.02;
-    animT += speed;
-    if (animT >= 1) {
-      // Light up target nodes
-      for (var j = 0; j < sizes[animLayer]; j++) litBk[animLayer][j] = true;
-      animNeuron++;
-      if (animNeuron >= sizes[animLayer + 1]) {
-        animNeuron = 0;
-        animLayer--;
-        if (animLayer < 0) {
-          phase = 'done';
-          infoEl.textContent = 'Backward pass complete! All gradients computed. Each \u03B4 shows the error signal at that neuron.';
-          drawNet();
-          return;
-        }
-      }
-      animT = 0;
-    }
-    infoEl.textContent = 'Backpropagating through layer ' + (animLayer + 1) + '...';
-    drawNet();
-    animId = requestAnimationFrame(animateBack);
-  }
-
-  function reset() {
-    if (animId) cancelAnimationFrame(animId);
-    phase = 'idle';
-    resetLit();
-    infoEl.textContent = 'Click "1. Forward" to start.';
-    drawNet();
-  }
-
-  btnFwd.addEventListener('click', doForward);
-  btnBk.addEventListener('click', startBackward);
-  btnReset.addEventListener('click', reset);
-  slSpeed.addEventListener('input', function() { valSpeed.textContent = slSpeed.value; });
-  reset();
-  BP.onThemeChange(function() { drawNet(); });
-})();
-</script>
-
-<!-- ==================== DEMO 4: Full Forward + Backward Cycle ==================== -->
-<script>
-(function() {
-  var canvas = document.getElementById('canvas-cycle');
-  if (!canvas) return;
-  var ctx = BP.setupCanvas(canvas);
-  var W = 680, H = 420;
-  var btnForward = document.getElementById('btn-cy-forward');
-  var btnBackward = document.getElementById('btn-cy-backward');
-  var btnReset = document.getElementById('btn-cy-reset');
-  var slSpeed = document.getElementById('cy-speed');
-  var valSpeed = document.getElementById('val-cy-speed');
-  var phaseEl = document.getElementById('cy-phase');
-  var infoEl = document.getElementById('info-cycle');
-
-  var sizes = [2, 3, 1];
-  var net = new BP.MLP(sizes, 'sigmoid');
-  net.W[0] = [[0.5, -0.3], [0.8, 0.2], [-0.4, 0.6]];
-  net.b[0] = [0.1, -0.1, 0.2];
-  net.W[1] = [[0.7, -0.5, 0.3]];
-  net.b[1] = [0.1];
-
-  var layout = BP.getNetworkLayout(sizes, W, H - 40, 120, 80);
-  var phase = 'ready'; // ready, forward, loss, backward, update, done
-  var animT = 0;
-  var animLayer = 0, animNeuron = 0;
-  var litFwd = [], litBk = [];
-  var animId = null;
-  var target = 1;
-  var input = [0.8, 0.4];
-
-  function resetLit() {
-    litFwd = []; litBk = [];
-    for (var l = 0; l < sizes.length; l++) {
-      litFwd.push([]); litBk.push([]);
-      for (var n = 0; n < sizes[l]; n++) { litFwd[l].push(l === 0); litBk[l].push(false); }
-    }
-  }
-  resetLit();
-
-  function drawNet() {
-    var c = BP.getColors();
-    ctx.fillStyle = c.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    var labels = ['Input', 'Hidden', 'Output'];
-    ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-    for (var l = 0; l < layout.length; l++) {
-      ctx.fillStyle = c.textSec;
-      ctx.fillText(labels[l], layout[l][0].x, 25);
-    }
-
-    // Edges with thickness
-    for (var l = 0; l < sizes.length - 1; l++) {
-      for (var i = 0; i < sizes[l + 1]; i++) {
-        for (var j = 0; j < sizes[l]; j++) {
-          var from = layout[l][j], to = layout[l + 1][i];
-          BP.drawEdge(ctx, from.x + 22, from.y, to.x - 22, to.y, net.W[l][i][j], 1);
-        }
-      }
-    }
-
-    // Nodes
-    for (var l = 0; l < sizes.length; l++) {
-      for (var n = 0; n < sizes[l]; n++) {
-        var pos = layout[l][n];
-        var color = c.waiting;
-        if (litFwd[l][n] && !litBk[l][n]) color = c.forwardGlow;
-        if (litBk[l][n]) color = c.backward;
-        if (l === 0) color = c.forward;
-        if (phase === 'update') color = c.green;
-        BP.drawNode(ctx, pos.x, pos.y, 22, color, '');
-        if (net.as && net.as[l]) {
-          ctx.fillStyle = c.text; ctx.font = '10px JetBrains Mono, monospace'; ctx.textAlign = 'center';
-          ctx.fillText(net.as[l][n].toFixed(3), pos.x, pos.y + 4);
-        }
-      }
-    }
-
-    // Phase indicator
-    var phaseColors = { ready: c.textSec, forward: c.forward, loss: c.yellow, backward: c.backward, update: c.green, done: c.green };
-    ctx.fillStyle = phaseColors[phase] || c.textSec;
-    ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('Phase: ' + phase.toUpperCase(), W / 2, H - 10);
-
-    // Forward particles
-    if (phase === 'forward' && animLayer < sizes.length - 1) {
-      var fromNodes = layout[animLayer];
-      var toNode = layout[animLayer + 1][animNeuron];
-      for (var j = 0; j < fromNodes.length; j++) {
-        var px = BP.lerp(fromNodes[j].x + 22, toNode.x - 22, animT);
-        var py = BP.lerp(fromNodes[j].y, toNode.y, animT);
-        BP.drawParticle(ctx, px, py, c.forwardGlow, 5);
-      }
-    }
-
-    // Backward particles
-    if (phase === 'backward' && animLayer >= 0 && animLayer < sizes.length - 1) {
-      var fromNode = layout[animLayer + 1][animNeuron];
-      var toNodes = layout[animLayer];
-      for (var j = 0; j < toNodes.length; j++) {
-        var px = BP.lerp(fromNode.x - 22, toNodes[j].x + 22, animT);
-        var py = BP.lerp(fromNode.y, toNodes[j].y, animT);
-        BP.drawParticle(ctx, px, py, c.backwardGlow, 5);
-      }
-    }
-  }
-
-  function stepForward() {
-    phase = 'forward';
-    phaseEl.textContent = 'Phase: Forward';
-    net.forward(input);
-    animLayer = 0; animNeuron = 0; animT = 0;
-    animateFwd();
-  }
-
-  function animateFwd() {
-    if (phase !== 'forward') return;
-    var speed = parseInt(slSpeed.value) * 0.025;
-    animT += speed;
-    if (animT >= 1) {
-      litFwd[animLayer + 1][animNeuron] = true;
-      animNeuron++;
-      if (animNeuron >= sizes[animLayer + 1]) {
-        animNeuron = 0; animLayer++;
-        if (animLayer >= sizes.length - 1) {
-          phase = 'loss';
-          phaseEl.textContent = 'Phase: Loss';
-          var out = net.as[net.as.length - 1][0];
-          var loss = -(target * Math.log(out + 1e-15) + (1 - target) * Math.log(1 - out + 1e-15));
-          infoEl.textContent = 'Loss = ' + loss.toFixed(4);
-          drawNet();
-          return;
-        }
-      }
-      animT = 0;
-    }
-    drawNet();
-    animId = requestAnimationFrame(animateFwd);
-  }
-
-  function stepBackward() {
-    phase = 'backward';
-    phaseEl.textContent = 'Phase: Backward';
-    net.backward(target);
-    litBk[sizes.length - 1][0] = true;
-    animLayer = sizes.length - 2; animNeuron = 0; animT = 0;
-    animateBack();
-  }
-
-  function animateBack() {
-    if (phase !== 'backward') return;
-    var speed = parseInt(slSpeed.value) * 0.025;
-    animT += speed;
-    if (animT >= 1) {
-      for (var j = 0; j < sizes[animLayer]; j++) litBk[animLayer][j] = true;
-      animNeuron++;
-      if (animNeuron >= sizes[animLayer + 1]) {
-        animNeuron = 0; animLayer--;
-        if (animLayer < 0) {
-          phase = 'update';
-          phaseEl.textContent = 'Phase: Update';
-          net.update(0.5);
-          infoEl.textContent = 'Weights updated! Backward pass complete.';
-          drawNet();
-          setTimeout(function() {
-            phase = 'done';
-            phaseEl.textContent = 'Phase: Done';
-            drawNet();
-          }, 450);
-          return;
-        }
-      }
-      animT = 0;
-    }
-    drawNet();
-    animId = requestAnimationFrame(animateBack);
-  }
-
-  function runForward() {
-    if (animId) cancelAnimationFrame(animId);
-    resetLit();
-    phase = 'ready';
-    stepForward();
-  }
-
-  function runBackward() {
-    if (animId) cancelAnimationFrame(animId);
-    if (phase !== 'loss') {
-      infoEl.textContent = 'Run Forward first, then click Backward.';
-      return;
-    }
-    stepBackward();
-  }
-
-  function resetState() {
-    if (animId) cancelAnimationFrame(animId);
-    animId = null;
-    phase = 'ready';
-    resetLit();
-    phaseEl.textContent = 'Phase: Ready';
-    infoEl.textContent = 'Click Forward, then Backward to run one cycle.';
-    drawNet();
-  }
-
-  btnForward.addEventListener('click', runForward);
-  btnBackward.addEventListener('click', runBackward);
-  btnReset.addEventListener('click', resetState);
-  slSpeed.addEventListener('input', function() { valSpeed.textContent = slSpeed.value; });
-  resetState();
-  BP.onThemeChange(function() { drawNet(); });
 })();
 </script>
 
@@ -1754,7 +1058,7 @@ window.BP = (function() {
     stopContinuous();
     restoreInitialNet();
     epochEl.textContent = 'Step: 0';
-    infoEl.textContent = 'Reset complete. Edge thickness = weight magnitude. Blue = positive, red = negative.';
+    infoEl.textContent = 'Reset complete.';
     drawNet();
   }
 
@@ -1768,464 +1072,7 @@ window.BP = (function() {
 })();
 </script>
 
-<!-- ==================== DEMO 6: Gradient Magnitude Heatmap ==================== -->
-<script>
-(function() {
-  var canvas = document.getElementById('canvas-heatmap');
-  var ctx = BP.setupCanvas(canvas);
-  var W = 680, H = 380;
-  var slLayers = document.getElementById('hm-layers');
-  var valLayers = document.getElementById('val-hm-layers');
-  var btnSig = document.getElementById('hm-sigmoid');
-  var btnRelu = document.getElementById('hm-relu');
-  var btnCompute = document.getElementById('btn-hm-compute');
-  var btnReset = document.getElementById('btn-hm-reset');
-  var infoEl = document.getElementById('info-heatmap');
-
-  var actName = 'sigmoid';
-  var computed = false;
-  var netData = null;
-
-  btnSig.addEventListener('click', function() { actName = 'sigmoid'; btnSig.classList.add('active'); btnRelu.classList.remove('active'); computed = false; draw(); });
-  btnRelu.addEventListener('click', function() { actName = 'relu'; btnRelu.classList.add('active'); btnSig.classList.remove('active'); computed = false; draw(); });
-  slLayers.addEventListener('input', function() { valLayers.textContent = slLayers.value; computed = false; draw(); });
-
-  function buildAndCompute() {
-    var nLayers = parseInt(slLayers.value);
-    var sizes = [2];
-    for (var i = 0; i < nLayers; i++) sizes.push(4);
-    sizes.push(1);
-    var net = new BP.MLP(sizes, actName);
-    net.forward([0.5, 0.8]);
-    net.backward(1);
-    // Collect gradient magnitudes per layer
-    var gradMags = [];
-    for (var l = 0; l < net.deltas.length; l++) {
-      var sum = 0;
-      for (var i = 0; i < net.deltas[l].length; i++) sum += Math.abs(net.deltas[l][i]);
-      gradMags.push(sum / net.deltas[l].length);
-    }
-    netData = { net: net, sizes: sizes, gradMags: gradMags };
-    computed = true;
-  }
-
-  function draw() {
-    var c = BP.getColors();
-    ctx.fillStyle = c.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    if (!computed) {
-      ctx.fillStyle = c.textSec; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('Click "Compute Gradients" to visualize gradient magnitudes (' + actName + ', ' + slLayers.value + ' layers)', W / 2, H / 2);
-      return;
-    }
-
-    var sizes = netData.sizes;
-    var net = netData.net;
-    var gradMags = netData.gradMags;
-    var layout = BP.getNetworkLayout(sizes, W, H - 60, 60, 50);
-    var maxGrad = Math.max.apply(null, gradMags) || 1;
-
-    // Edges
-    for (var l = 0; l < sizes.length - 1; l++) {
-      for (var i = 0; i < sizes[l + 1]; i++) {
-        for (var j = 0; j < sizes[l]; j++) {
-          var from = layout[l][j], to = layout[l + 1][i];
-          ctx.strokeStyle = c.border;
-          ctx.lineWidth = 1;
-          ctx.globalAlpha = 0.3;
-          ctx.beginPath(); ctx.moveTo(from.x + 18, from.y); ctx.lineTo(to.x - 18, to.y); ctx.stroke();
-          ctx.globalAlpha = 1;
-        }
-      }
-    }
-
-    // Nodes colored by gradient magnitude
-    for (var l = 0; l < sizes.length; l++) {
-      for (var n = 0; n < sizes[l]; n++) {
-        var pos = layout[l][n];
-        var intensity = 0;
-        if (l === 0) intensity = 1;
-        else if (l < sizes.length - 1) {
-          intensity = gradMags[l - 1] / maxGrad;
-        } else {
-          intensity = 1;
-        }
-        intensity = Math.max(0.05, Math.min(1, intensity));
-        // Color from dark (low gradient) to bright (high gradient)
-        var r = Math.floor(BP.lerp(40, 247, intensity));
-        var g = Math.floor(BP.lerp(40, 118, intensity));
-        var b = Math.floor(BP.lerp(60, 142, intensity));
-        if (l === 0) { r = 122; g = 162; b = 247; }
-        var color = 'rgb(' + r + ',' + g + ',' + b + ')';
-        ctx.beginPath(); ctx.arc(pos.x, pos.y, 16, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.strokeStyle = c.border; ctx.lineWidth = 1.5; ctx.stroke();
-      }
-    }
-
-    // Bar chart at bottom
-    var barY = H - 50, barH = 35;
-    var barW = (W - 120) / gradMags.length;
-    ctx.fillStyle = c.textSec; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('Average gradient magnitude per layer', W / 2, barY - 8);
-    for (var i = 0; i < gradMags.length; i++) {
-      var bx = 60 + i * barW;
-      var bh = (gradMags[i] / maxGrad) * barH;
-      var intensity = gradMags[i] / maxGrad;
-      var r = Math.floor(BP.lerp(80, 247, intensity));
-      var g = Math.floor(BP.lerp(80, 118, intensity));
-      var b2 = Math.floor(BP.lerp(100, 142, intensity));
-      ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b2 + ')';
-      ctx.fillRect(bx + 2, barY + barH - bh, barW - 4, bh);
-      ctx.fillStyle = c.textSec; ctx.font = '9px JetBrains Mono, monospace';
-      ctx.fillText('L' + (i + 1), bx + barW / 2, barY + barH + 12);
-      ctx.fillText(gradMags[i].toExponential(1), bx + barW / 2, barY + barH - bh - 4);
-    }
-
-    infoEl.textContent = actName.toUpperCase() + ': Layer 1 grad = ' + gradMags[0].toExponential(2) + ', Layer ' + gradMags.length + ' grad = ' + gradMags[gradMags.length - 1].toExponential(2);
-  }
-
-  btnCompute.addEventListener('click', function() { buildAndCompute(); draw(); });
-  btnReset.addEventListener('click', function() { computed = false; draw(); });
-  buildAndCompute();
-  draw();
-  BP.onThemeChange(function() { if (computed) { buildAndCompute(); } draw(); });
-})();
-</script>
-
-<!-- ==================== DEMO 7: Vanishing Gradient Problem ==================== -->
-<script>
-(function() {
-  var canvasSig = document.getElementById('canvas-vanish-sig');
-  var canvasRelu = document.getElementById('canvas-vanish-relu');
-  var ctxSig = BP.setupCanvas(canvasSig);
-  var ctxRelu = BP.setupCanvas(canvasRelu);
-  var CW = 320, CH = 340;
-  var btnRun = document.getElementById('btn-van-run');
-  var btnReset = document.getElementById('btn-van-reset');
-  var slLayers = document.getElementById('van-layers');
-  var valLayers = document.getElementById('val-van-layers');
-  var infoEl = document.getElementById('info-vanishing');
-  var computed = false;
-  var sigGrads = [], reluGrads = [];
-
-  function buildNet(actName, nLayers) {
-    var sizes = [2];
-    for (var i = 0; i < nLayers; i++) sizes.push(4);
-    sizes.push(1);
-    var net = new BP.MLP(sizes, actName);
-    net.forward([0.5, 0.8]);
-    net.backward(1);
-    var grads = [];
-    for (var l = 0; l < net.deltas.length; l++) {
-      var sum = 0;
-      for (var i = 0; i < net.deltas[l].length; i++) sum += Math.abs(net.deltas[l][i]);
-      grads.push(sum / net.deltas[l].length);
-    }
-    return grads;
-  }
-
-  function drawBars(ctx_, grads, title, maxGrad) {
-    var c = BP.getColors();
-    ctx_.fillStyle = c.bg;
-    ctx_.fillRect(0, 0, CW, CH);
-
-    ctx_.fillStyle = c.text; ctx_.font = 'bold 13px sans-serif'; ctx_.textAlign = 'center';
-    ctx_.fillText(title, CW / 2, 25);
-
-    var pad = 40, barArea = CH - 80;
-    var barW = (CW - 2 * pad) / grads.length;
-
-    // Y axis
-    ctx_.strokeStyle = c.border; ctx_.lineWidth = 1;
-    ctx_.beginPath(); ctx_.moveTo(pad, 40); ctx_.lineTo(pad, 40 + barArea); ctx_.lineTo(CW - 10, 40 + barArea); ctx_.stroke();
-
-    for (var i = 0; i < grads.length; i++) {
-      var bx = pad + i * barW;
-      var normalized = maxGrad > 0 ? grads[i] / maxGrad : 0;
-      var bh = normalized * (barArea - 10);
-      // Color: bright for large, dark for small
-      var intensity = Math.max(0.1, normalized);
-      var isSig = title.indexOf('Sigmoid') >= 0;
-      var r, g, b;
-      if (isSig) {
-        r = Math.floor(BP.lerp(60, 247, intensity));
-        g = Math.floor(BP.lerp(60, 118, intensity));
-        b = Math.floor(BP.lerp(80, 142, intensity));
-      } else {
-        r = Math.floor(BP.lerp(60, 115, intensity));
-        g = Math.floor(BP.lerp(80, 218, intensity));
-        b = Math.floor(BP.lerp(60, 202, intensity));
-      }
-      ctx_.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-      ctx_.fillRect(bx + 4, 40 + barArea - bh, barW - 8, bh);
-
-      // Label
-      ctx_.fillStyle = c.textSec; ctx_.font = '10px JetBrains Mono, monospace'; ctx_.textAlign = 'center';
-      ctx_.fillText('L' + (i + 1), bx + barW / 2, 40 + barArea + 16);
-      ctx_.fillText(grads[i].toExponential(1), bx + barW / 2, 40 + barArea - bh - 6);
-    }
-  }
-
-  function runComparison() {
-    var nLayers = parseInt(slLayers.value);
-    sigGrads = buildNet('sigmoid', nLayers);
-    reluGrads = buildNet('relu', nLayers);
-    computed = true;
-    draw();
-  }
-
-  function draw() {
-    var c = BP.getColors();
-    if (!computed) {
-      ctxSig.fillStyle = c.bg; ctxSig.fillRect(0, 0, CW, CH);
-      ctxRelu.fillStyle = c.bg; ctxRelu.fillRect(0, 0, CW, CH);
-      ctxSig.fillStyle = c.textSec; ctxSig.font = '13px sans-serif'; ctxSig.textAlign = 'center';
-      ctxSig.fillText('Click "Run Comparison"', CW / 2, CH / 2);
-      ctxRelu.fillStyle = c.textSec; ctxRelu.font = '13px sans-serif'; ctxRelu.textAlign = 'center';
-      ctxRelu.fillText('Click "Run Comparison"', CW / 2, CH / 2);
-      return;
-    }
-    var maxGrad = 0;
-    for (var i = 0; i < sigGrads.length; i++) maxGrad = Math.max(maxGrad, sigGrads[i]);
-    for (var i = 0; i < reluGrads.length; i++) maxGrad = Math.max(maxGrad, reluGrads[i]);
-    drawBars(ctxSig, sigGrads, 'Sigmoid (' + sigGrads.length + ' layers)', maxGrad);
-    drawBars(ctxRelu, reluGrads, 'ReLU (' + reluGrads.length + ' layers)', maxGrad);
-    var ratio = sigGrads.length > 0 ? (sigGrads[0] / (sigGrads[sigGrads.length - 1] + 1e-20)).toFixed(1) : '?';
-    infoEl.textContent = 'Sigmoid: first layer gradient is ' + ratio + 'x smaller than last layer. ReLU maintains gradient flow.';
-  }
-
-  btnRun.addEventListener('click', runComparison);
-  btnReset.addEventListener('click', function() { computed = false; draw(); });
-  slLayers.addEventListener('input', function() { valLayers.textContent = slLayers.value; computed = false; draw(); });
-  runComparison();
-  BP.onThemeChange(function() { if (computed) { runComparison(); } draw(); });
-})();
-</script>
-
-<!-- ==================== DEMO 8: Computational Graph Builder ==================== -->
-<script>
-(function() {
-  var canvas = document.getElementById('canvas-builder');
-  var ctx = BP.setupCanvas(canvas);
-  var W = 680, H = 400;
-  var btnExpr1 = document.getElementById('bl-expr1');
-  var btnExpr2 = document.getElementById('bl-expr2');
-  var btnExpr3 = document.getElementById('bl-expr3');
-  var btnRun = document.getElementById('btn-bl-run');
-  var btnReset = document.getElementById('btn-bl-reset');
-  var infoEl = document.getElementById('info-builder');
-
-  var currentExpr = 1;
-  var computed = false;
-
-  // Expression definitions
-  function getExpr(id) {
-    if (id === 1) {
-      // (a+b)*c
-      return {
-        inputs: { a: 2, b: 3, c: -4 },
-        nodes: [
-          { id: 'a', type: 'input', x: 80, y: 100, val: 2 },
-          { id: 'b', type: 'input', x: 80, y: 220, val: 3 },
-          { id: 'c', type: 'input', x: 80, y: 340, val: -4 },
-          { id: 'q', type: 'add', x: 280, y: 160, val: 0, grad: 0 },
-          { id: 'f', type: 'mul', x: 480, y: 250, val: 0, grad: 0 },
-          { id: 'out', type: 'output', x: 620, y: 250, val: 0, grad: 1 }
-        ],
-        edges: [
-          { from: 0, to: 3 }, { from: 1, to: 3 },
-          { from: 3, to: 4 }, { from: 2, to: 4 },
-          { from: 4, to: 5 }
-        ],
-        forward: function(n) {
-          n[3].val = n[0].val + n[1].val;
-          n[4].val = n[3].val * n[2].val;
-          n[5].val = n[4].val;
-        },
-        backward: function(n) {
-          n[5].grad = 1;
-          n[4].grad = 1;
-          n[3].grad = n[2].val; // df/dq = c
-          n[2].grad = n[3].val; // df/dc = q
-          n[0].grad = n[3].grad * 1; // df/da = df/dq * dq/da
-          n[1].grad = n[3].grad * 1; // df/db = df/dq * dq/db
-        },
-        title: 'f = (a + b) * c'
-      };
-    } else if (id === 2) {
-      // a*b + c*d
-      return {
-        nodes: [
-          { id: 'a', type: 'input', x: 60, y: 80, val: 3 },
-          { id: 'b', type: 'input', x: 60, y: 180, val: -2 },
-          { id: 'c', type: 'input', x: 60, y: 280, val: 4 },
-          { id: 'd', type: 'input', x: 60, y: 370, val: 1 },
-          { id: 'p', type: 'mul', x: 240, y: 130, val: 0, grad: 0 },
-          { id: 'q', type: 'mul', x: 240, y: 320, val: 0, grad: 0 },
-          { id: 'f', type: 'add', x: 440, y: 225, val: 0, grad: 0 },
-          { id: 'out', type: 'output', x: 600, y: 225, val: 0, grad: 1 }
-        ],
-        edges: [
-          { from: 0, to: 4 }, { from: 1, to: 4 },
-          { from: 2, to: 5 }, { from: 3, to: 5 },
-          { from: 4, to: 6 }, { from: 5, to: 6 },
-          { from: 6, to: 7 }
-        ],
-        forward: function(n) {
-          n[4].val = n[0].val * n[1].val;
-          n[5].val = n[2].val * n[3].val;
-          n[6].val = n[4].val + n[5].val;
-          n[7].val = n[6].val;
-        },
-        backward: function(n) {
-          n[7].grad = 1;
-          n[6].grad = 1;
-          n[4].grad = 1; // df/dp = 1 (addition)
-          n[5].grad = 1; // df/dq = 1
-          n[0].grad = n[1].val; // dp/da = b
-          n[1].grad = n[0].val; // dp/db = a
-          n[2].grad = n[3].val; // dq/dc = d
-          n[3].grad = n[2].val; // dq/dd = c
-        },
-        title: 'f = a*b + c*d'
-      };
-    } else {
-      // sigmoid(a*b + c)
-      return {
-        nodes: [
-          { id: 'a', type: 'input', x: 60, y: 100, val: 1.5 },
-          { id: 'b', type: 'input', x: 60, y: 240, val: -1 },
-          { id: 'c', type: 'input', x: 60, y: 340, val: 0.5 },
-          { id: 'p', type: 'mul', x: 200, y: 170, val: 0, grad: 0 },
-          { id: 'q', type: 'add', x: 360, y: 250, val: 0, grad: 0 },
-          { id: 's', type: 'sig', x: 500, y: 250, val: 0, grad: 0 },
-          { id: 'out', type: 'output', x: 620, y: 250, val: 0, grad: 1 }
-        ],
-        edges: [
-          { from: 0, to: 3 }, { from: 1, to: 3 },
-          { from: 3, to: 4 }, { from: 2, to: 4 },
-          { from: 4, to: 5 }, { from: 5, to: 6 }
-        ],
-        forward: function(n) {
-          n[3].val = n[0].val * n[1].val;
-          n[4].val = n[3].val + n[2].val;
-          n[5].val = BP.sigmoid(n[4].val);
-          n[6].val = n[5].val;
-        },
-        backward: function(n) {
-          n[6].grad = 1;
-          n[5].grad = 1;
-          var sd = n[5].val * (1 - n[5].val);
-          n[4].grad = sd;
-          n[3].grad = sd * 1;
-          n[2].grad = sd * 1;
-          n[0].grad = sd * n[1].val;
-          n[1].grad = sd * n[0].val;
-        },
-        title: 'f = sigmoid(a*b + c)'
-      };
-    }
-  }
-
-  var expr = getExpr(1);
-
-  function draw() {
-    var c = BP.getColors();
-    ctx.fillStyle = c.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    // Title
-    ctx.fillStyle = c.text; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(expr.title, W / 2, 22);
-
-    var nodes = expr.nodes;
-
-    // Edges
-    for (var i = 0; i < expr.edges.length; i++) {
-      var e = expr.edges[i];
-      var from = nodes[e.from], to = nodes[e.to];
-      ctx.strokeStyle = c.border; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(from.x + 24, from.y); ctx.lineTo(to.x - 24, to.y); ctx.stroke();
-      // Arrow
-      var angle = Math.atan2(to.y - from.y, to.x - from.x);
-      var ax = to.x - 24, ay = to.y;
-      ctx.fillStyle = c.border;
-      ctx.beginPath();
-      ctx.moveTo(ax, ay);
-      ctx.lineTo(ax - 7 * Math.cos(angle - 0.3), ay - 7 * Math.sin(angle - 0.3));
-      ctx.lineTo(ax - 7 * Math.cos(angle + 0.3), ay - 7 * Math.sin(angle + 0.3));
-      ctx.fill();
-    }
-
-    // Nodes
-    for (var i = 0; i < nodes.length; i++) {
-      var n = nodes[i];
-      var color = c.waiting;
-      if (n.type === 'input') color = c.forward;
-      else if (n.type === 'output') color = c.green;
-      else if (n.type === 'add') color = c.purple;
-      else if (n.type === 'mul') color = c.yellow;
-      else if (n.type === 'sig') color = '#bb9af7';
-
-      var label = n.id;
-      if (n.type === 'add') label = '+';
-      else if (n.type === 'mul') label = '\u00D7';
-      else if (n.type === 'sig') label = '\u03C3';
-
-      BP.drawNode(ctx, n.x, n.y, 22, color, label);
-
-      if (computed) {
-        // Forward value
-        ctx.fillStyle = c.forward;
-        ctx.font = 'bold 11px JetBrains Mono, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(n.val.toFixed(3), n.x, n.y + 36);
-        // Gradient
-        ctx.fillStyle = c.backward;
-        ctx.font = '10px JetBrains Mono, monospace';
-        ctx.fillText('\u2207=' + n.grad.toFixed(3), n.x, n.y - 30);
-      } else if (n.type === 'input') {
-        ctx.fillStyle = c.forward;
-        ctx.font = '11px JetBrains Mono, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('=' + n.val.toFixed(1), n.x, n.y + 36);
-      }
-    }
-  }
-
-  function runCompute() {
-    expr.forward(expr.nodes);
-    expr.backward(expr.nodes);
-    computed = true;
-    infoEl.textContent = 'Output = ' + expr.nodes[expr.nodes.length - 1].val.toFixed(4) + '. Gradients shown in red above each node.';
-    draw();
-  }
-
-  function setExpr(id) {
-    currentExpr = id;
-    expr = getExpr(id);
-    computed = false;
-    btnExpr1.classList.toggle('active', id === 1);
-    btnExpr2.classList.toggle('active', id === 2);
-    btnExpr3.classList.toggle('active', id === 3);
-    infoEl.textContent = 'Expression: ' + expr.title + '. Click "Compute" to run forward + backward.';
-    draw();
-  }
-
-  btnExpr1.addEventListener('click', function() { setExpr(1); });
-  btnExpr2.addEventListener('click', function() { setExpr(2); });
-  btnExpr3.addEventListener('click', function() { setExpr(3); });
-  btnRun.addEventListener('click', runCompute);
-  btnReset.addEventListener('click', function() { setExpr(currentExpr); });
-  draw();
-  BP.onThemeChange(draw);
-})();
-</script>
-
-<!-- ==================== DEMO 9: Backprop on a Real Task ==================== -->
+<!-- ==================== DEMO Playground ==================== -->
 <script>
 (function() {
   var canvasBound = document.getElementById('canvas-real-boundary');
@@ -2234,43 +1081,80 @@ window.BP = (function() {
   var ctxL = BP.setupCanvas(canvasLoss);
   var BW = 320, BH = 320;
 
-  var btnCircle = document.getElementById('rl-ds-circle');
-  var btnSpiral = document.getElementById('rl-ds-spiral');
-  var btnXor = document.getElementById('rl-ds-xor');
+  var selDataset = document.getElementById('rl-dataset');
+  var selActivation = document.getElementById('rl-activation');
+  var slLayers = document.getElementById('rl-layers');
+  var valLayers = document.getElementById('val-rl-layers');
+  var slNeurons = document.getElementById('rl-neurons');
+  var valNeurons = document.getElementById('val-rl-neurons');
+  var slLR = document.getElementById('rl-lr');
+  var valLR = document.getElementById('val-rl-lr');
+  var slNoise = document.getElementById('rl-noise');
+  var valNoise = document.getElementById('val-rl-noise');
   var btnTrain = document.getElementById('btn-rl-train');
   var btnStop = document.getElementById('btn-rl-stop');
   var btnReset = document.getElementById('btn-rl-reset');
-  var slLR = document.getElementById('rl-lr');
-  var valLR = document.getElementById('val-rl-lr');
   var epochEl = document.getElementById('rl-epoch');
   var lossEl = document.getElementById('rl-loss');
   var infoEl = document.getElementById('info-real');
 
-  var btnActSigmoid = document.getElementById('rl-act-sigmoid');
-  var btnActRelu = document.getElementById('rl-act-relu');
-
-  var dsName = 'circle';
-  var actName = 'sigmoid';
   var net, data, epoch, losses, training, animId;
 
-  function initAll() {
-    if (animId) cancelAnimationFrame(animId);
+  function buildData() {
+    var name = selDataset.value;
+    var ds;
+    if (name === 'xor') ds = BP.datasets.xor();
+    else if (name === 'spiral') ds = BP.datasets.spiral(120);
+    else if (name === 'gauss') ds = BP.datasets.gauss(120);
+    else ds = BP.datasets.circle(120);
+    var noise = parseFloat(slNoise.value);
+    if (noise > 0) {
+      for (var i = 0; i < ds.X.length; i++) {
+        ds.X[i][0] = Math.max(0, Math.min(1, ds.X[i][0] + (Math.random() - 0.5) * 2 * noise));
+        ds.X[i][1] = Math.max(0, Math.min(1, ds.X[i][1] + (Math.random() - 0.5) * 2 * noise));
+      }
+    }
+    return ds;
+  }
+
+  function buildNet() {
+    var L = parseInt(slLayers.value);
+    var N = parseInt(slNeurons.value);
+    var sizes = [2];
+    for (var i = 0; i < L; i++) sizes.push(N);
+    sizes.push(1);
+    return new BP.MLP(sizes, selActivation.value);
+  }
+
+  function stopTraining() {
     training = false;
+    if (animId) cancelAnimationFrame(animId);
+  }
+
+  function resetTrainingState() {
+    stopTraining();
     epoch = 0;
     losses = [];
-    if (dsName === 'xor') {
-      data = BP.datasets.xor();
-    } else if (dsName === 'spiral') {
-      data = BP.datasets.spiral(120);
-    } else {
-      data = BP.datasets.circle(100);
-    }
-    net = new BP.MLP([2, 4, 4, 1], actName);
     epochEl.textContent = 'Epoch: 0';
     lossEl.textContent = 'Loss: --';
+  }
+
+  function rebuildNet() {
+    resetTrainingState();
+    net = buildNet();
     drawBoundary();
     drawLoss();
   }
+
+  function rebuildData() {
+    resetTrainingState();
+    data = buildData();
+    net = buildNet();
+    drawBoundary();
+    drawLoss();
+  }
+
+  function initAll() { rebuildData(); }
 
   function drawBoundary() {
     var c = BP.getColors();
@@ -2297,30 +1181,31 @@ window.BP = (function() {
     animId = requestAnimationFrame(trainLoop);
   }
 
-  function setDS(name) {
-    dsName = name;
-    btnCircle.classList.toggle('active', name === 'circle');
-    btnSpiral.classList.toggle('active', name === 'spiral');
-    btnXor.classList.toggle('active', name === 'xor');
-    initAll();
-  }
+  selDataset.addEventListener('change', rebuildData);
+  selActivation.addEventListener('change', rebuildNet);
+  slLayers.addEventListener('input', function() {
+    valLayers.textContent = slLayers.value;
+    rebuildNet();
+  });
+  slNeurons.addEventListener('input', function() {
+    valNeurons.textContent = slNeurons.value;
+    rebuildNet();
+  });
+  slNoise.addEventListener('input', function() {
+    valNoise.textContent = parseFloat(slNoise.value).toFixed(2);
+    rebuildData();
+  });
+  slLR.addEventListener('input', function() {
+    valLR.textContent = parseFloat(slLR.value).toFixed(1);
+  });
 
-  function setAct(name) {
-    actName = name;
-    btnActSigmoid.classList.toggle('active', name === 'sigmoid');
-    btnActRelu.classList.toggle('active', name === 'relu');
-    initAll();
-  }
-
-  btnCircle.addEventListener('click', function() { setDS('circle'); });
-  btnSpiral.addEventListener('click', function() { setDS('spiral'); });
-  btnXor.addEventListener('click', function() { setDS('xor'); });
-  btnActSigmoid.addEventListener('click', function() { setAct('sigmoid'); });
-  btnActRelu.addEventListener('click', function() { setAct('relu'); });
-  btnTrain.addEventListener('click', function() { training = true; trainLoop(); });
-  btnStop.addEventListener('click', function() { training = false; if (animId) cancelAnimationFrame(animId); });
-  btnReset.addEventListener('click', function() { initAll(); });
-  slLR.addEventListener('input', function() { valLR.textContent = parseFloat(slLR.value).toFixed(1); });
+  btnTrain.addEventListener('click', function() {
+    if (training) return;
+    training = true;
+    trainLoop();
+  });
+  btnStop.addEventListener('click', stopTraining);
+  btnReset.addEventListener('click', rebuildData);
 
   initAll();
   BP.onThemeChange(function() { drawBoundary(); drawLoss(); });

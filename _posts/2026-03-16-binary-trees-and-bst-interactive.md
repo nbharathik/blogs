@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Binary Trees and BST: An Interactive Guide"
+title: "Binary Trees and BST"
 author: bharathikannan
 categories: [Data Structures]
 description: "Build and explore binary search trees interactively. Traversals, insertion, deletion, search  - all visualized step by step."
@@ -26,24 +26,7 @@ hidden: true
 
 <script>
 window.DSA_Tree = (function() {
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      node: dark ? '#7aa2f7' : '#2563eb',
-      nodeVisited: dark ? '#565f89' : '#d1d5db',
-      nodeCurrent: dark ? '#ff9e64' : '#f59e0b',
-      nodeFound: dark ? '#9ece6a' : '#16a34a',
-      nodeNew: dark ? '#bb9af7' : '#7c3aed',
-      nodeDelete: dark ? '#f7768e' : '#e63946',
-      nodePath: dark ? '#ff9e64' : '#f59e0b',
-      edge: dark ? '#565f89' : '#9ca3af',
-      edgeHighlight: dark ? '#ff9e64' : '#f59e0b',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textOnNode: '#ffffff',
-      textMuted: dark ? '#565f89' : '#6b7280'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -283,31 +266,15 @@ window.DSA_Tree = (function() {
 })();
 </script>
 
-A **tree** is a hierarchical data structure consisting of nodes connected by edges. Unlike linear structures (arrays, linked lists), trees model hierarchical relationships: file systems, HTML DOM, organization charts.
+A tree is a hierarchical data structure consisting of nodes connected by edges. Unlike linear structures (arrays, linked lists), trees model hierarchical relationships: file systems, HTML DOM, organization charts. A binary tree is a tree where each node has at most two children (left and right). A binary search tree (BST) adds a critical ordering property: for every node, all values in its left subtree are smaller, and all values in its right subtree are larger. This property enables O(log n) search, insert, and delete.
 
-A **binary tree** is a tree where each node has at most **two children** (left and right). A **binary search tree (BST)** adds a critical ordering property: for every node, all values in its left subtree are smaller, and all values in its right subtree are larger. This property enables O(log n) search, insert, and delete.
-
-By the end of this guide you will understand:
-- **Tree traversals**  - inorder, preorder, postorder
-- **BST insertion**  - maintaining the ordering property
-- **BST search**  - binary search on a tree structure
-- **BST deletion**  - the three cases
-
-<div class="demo-hint">
-<strong>How to use the demos:</strong> Step through each algorithm and watch nodes highlight as they are visited. Insert and delete values to see the tree restructure.
-</div>
+This guide covers the three classic tree traversals (inorder, preorder, postorder), BST insertion that maintains the ordering property, BST search as binary search applied to a tree, and BST deletion with its three distinct cases.
 
 ---
 
 ## Tree Traversals
 
-There are three classic ways to visit every node in a binary tree. Each visits the left subtree, the right subtree, and the root  - but in a different order.
-
-- **Inorder** (Left, Root, Right)  - visits BST nodes in **sorted order**
-- **Preorder** (Root, Left, Right)  - useful for copying/serializing a tree
-- **Postorder** (Left, Right, Root)  - useful for deleting a tree
-
-### Python Implementation
+There are three classic ways to visit every node in a binary tree. Each visits the left subtree, the right subtree, and the root, but in a different order. Inorder (Left, Root, Right) visits BST nodes in sorted order, preorder (Root, Left, Right) is useful for copying or serializing a tree, and postorder (Left, Right, Root) is the natural choice when deleting a tree because children are freed before their parent.
 
 ```python
 def inorder(node):
@@ -329,12 +296,6 @@ def postorder(node):
         print(node.data)
 ```
 
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Choose a traversal order and step through. The yellow node is currently being visited. Gray nodes have been visited. The output array builds as nodes are visited.
-</div>
-
 <div class="interactive-demo">
   <canvas id="traversal-canvas" width="680" height="300"></canvas>
   <div class="demo-controls">
@@ -348,6 +309,7 @@ def postorder(node):
     <label>Speed: <input type="range" id="trav-speed" min="1" max="10" value="4"> <span class="demo-value" id="trav-speed-val">4</span></label>
   </div>
   <div class="demo-info" id="trav-info">Output: [] | Ready</div>
+  <div class="demo-caption">Settings: BST built from [50, 30, 70, 20, 40, 60, 80]. Yellow is the current node, gray nodes have been visited, and the output array builds as nodes are visited.</div>
 </div>
 
 <script>
@@ -422,11 +384,7 @@ def postorder(node):
 
 ## BST Insertion
 
-To insert a value into a BST, we compare it with the current node and go left (if smaller) or right (if larger) until we find an empty spot.
-
-This preserves the BST invariant at every node: all left subtree values are smaller, and all right subtree values are larger. Insertion is therefore a guided search followed by one pointer update, which is why balanced trees stay efficient.
-
-### Python Implementation
+To insert a value into a BST, we compare it with the current node and go left (if smaller) or right (if larger) until we find an empty spot. This preserves the BST invariant at every node: all left subtree values are smaller, and all right subtree values are larger. Insertion is therefore a guided search followed by one pointer update, which is why balanced trees stay efficient.
 
 ```python
 class BST:
@@ -454,13 +412,7 @@ class BST:
                 return  # duplicate, ignore
 ```
 
-**Time complexity:** O(h) where h is the height. In a balanced BST, h = O(log n). In the worst case (skewed tree), h = O(n).
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Enter a value and click <strong>Insert</strong>. Watch the algorithm traverse the tree comparing at each node, then place the new node (shown in purple).
-</div>
+Time complexity: O(h) where h is the height. In a balanced BST, h = O(log n). In the worst case (skewed tree), h = O(n).
 
 <div class="interactive-demo">
   <canvas id="bst-insert-canvas" width="680" height="320"></canvas>
@@ -470,6 +422,7 @@ class BST:
     <button id="bst-insert-reset">Reset</button>
   </div>
   <div class="demo-info" id="bst-insert-info">BST: [50, 30, 70, 20, 40, 60, 80]</div>
+  <div class="demo-caption">Settings: starting BST [50, 30, 70, 20, 40, 60, 80]. The algorithm traverses the tree comparing at each node, then places the new node in purple.</div>
 </div>
 
 <script>
@@ -535,15 +488,7 @@ class BST:
 
 ## BST Search
 
-Searching a BST follows the same path as insertion: compare the target with the current node and go left or right.
-
-You never need to explore both branches. Each comparison discards half of the remaining possibilities in a balanced tree. That is why BST search can be logarithmic when height stays small.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Enter a value and click <strong>Search</strong>. Watch the algorithm follow the comparison path. Green means found, and the path shows exactly how it got there.
-</div>
+Searching a BST follows the same path as insertion: compare the target with the current node and go left or right. You never need to explore both branches. Each comparison discards half of the remaining possibilities in a balanced tree. That is why BST search can be logarithmic when height stays small.
 
 <div class="interactive-demo">
   <canvas id="bst-search-canvas" width="680" height="300"></canvas>
@@ -554,6 +499,7 @@ You never need to explore both branches. Each comparison discards half of the re
     <button id="bst-search-reset">Reset</button>
   </div>
   <div class="demo-info" id="bst-search-info">Ready</div>
+  <div class="demo-caption">Settings: BST [50, 30, 70, 20, 40, 60, 80], default target 40. Green means found, and the highlighted path shows exactly how it got there.</div>
 </div>
 
 <script>
@@ -610,12 +556,7 @@ You never need to explore both branches. Each comparison discards half of the re
 
 ## BST Deletion
 
-Deleting a node from a BST has three cases:
-1. **Leaf node** (no children)  - simply remove it
-2. **One child**  - replace the node with its child
-3. **Two children**  - find the **inorder successor** (smallest value in the right subtree), replace the node's value with it, then delete the successor
-
-### Python Implementation
+Deleting a node from a BST has three cases. If the node is a leaf with no children, you simply remove it. If it has one child, you replace the node with that child. If it has two children, you find the inorder successor (the smallest value in the right subtree), replace the node's value with it, and then delete the successor from its original position.
 
 ```python
 def delete(self, root, data):
@@ -643,12 +584,6 @@ def delete(self, root, data):
     return root
 ```
 
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Enter a value to delete. The algorithm highlights the node in red, then restructures the tree. Try deleting a leaf (20), a node with one child (30), and a node with two children (50).
-</div>
-
 <div class="interactive-demo">
   <canvas id="bst-delete-canvas" width="680" height="320"></canvas>
   <div class="demo-controls">
@@ -657,6 +592,7 @@ def delete(self, root, data):
     <button id="bst-delete-reset">Reset</button>
   </div>
   <div class="demo-info" id="bst-delete-info">BST: [50, 30, 70, 20, 40, 60, 80]</div>
+  <div class="demo-caption">Settings: BST [50, 30, 70, 20, 40, 60, 80]. Try deleting a leaf (20), a node with one child (30), and a node with two children (50).</div>
 </div>
 
 <script>
@@ -715,15 +651,16 @@ def delete(self, root, data):
 
 ## Key Takeaways
 
-1. **Binary trees** are hierarchical structures with at most two children per node. **BSTs** add the ordering property (left < root < right).
+| Concept | Key Idea |
+|---|---|
+| Binary Tree | Hierarchical structure with at most two children per node. |
+| BST Property | Left subtree values are smaller, right subtree values are larger than the root. |
+| Traversals | Inorder gives sorted order, preorder serializes, postorder deletes safely. |
+| Time Complexity | Search, insert, and delete are O(h); balanced trees give O(log n). |
+| Deletion Cases | Leaf, one child, or two children (which requires the inorder successor). |
+| Balancing | Use AVL or Red-Black trees to guarantee O(log n) regardless of insertion order. |
 
-2. **Traversals** visit every node: inorder gives sorted order, preorder is useful for serialization, postorder for deletion.
-
-3. **BST operations** (search, insert, delete) are all O(h), where h is the height. A balanced BST has h = O(log n), but a skewed BST has h = O(n).
-
-4. **Deletion** is the most complex operation with three cases. The two-children case requires finding the inorder successor.
-
-5. To guarantee O(log n) performance, use **self-balancing trees** like AVL or Red-Black trees  - covered in the [Balanced Trees Interactive Guide]({{ site.baseurl }}/balanced-trees/).
+To guarantee O(log n) performance regardless of insertion order, use a self-balancing tree like AVL or Red-Black, covered in the [Balanced Trees Interactive Guide]({{ site.baseurl }}/balanced-trees/).
 
 ---
 

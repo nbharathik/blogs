@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Model Evaluation: Metrics, Curves & Cross-Validation - An Interactive Guide"
+title: "Model Evaluation: Metrics, Curves & Cross-Validation"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -186,41 +186,7 @@ date: 2026-03-17
 window.EV = (function() {
   var E = {};
 
-  E.getColors = function() {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (!document.documentElement.getAttribute('data-theme') &&
-       window.matchMedia('(prefers-color-scheme: dark)').matches);
-    return {
-      bg: isDark ? '#1a1b26' : '#ffffff',
-      bgSecondary: isDark ? '#24283b' : '#f1f5f9',
-      text: isDark ? '#c0caf5' : '#1e293b',
-      textMuted: isDark ? '#565f89' : '#94a3b8',
-      grid: isDark ? '#292e42' : '#e2e8f0',
-      border: isDark ? '#3b4261' : '#cbd5e1',
-      accent: isDark ? '#7aa2f7' : '#2563eb',
-      class0: isDark ? '#7aa2f7' : '#2563eb',
-      class0Light: isDark ? 'rgba(122,162,247,0.15)' : 'rgba(37,99,235,0.12)',
-      class1: isDark ? '#f7768e' : '#e63946',
-      class1Light: isDark ? 'rgba(247,118,142,0.15)' : 'rgba(230,57,70,0.12)',
-      tp: isDark ? '#9ece6a' : '#16a34a',
-      tpBg: isDark ? 'rgba(158,206,106,0.25)' : 'rgba(22,163,74,0.15)',
-      tn: isDark ? '#7aa2f7' : '#2563eb',
-      tnBg: isDark ? 'rgba(122,162,247,0.25)' : 'rgba(37,99,235,0.15)',
-      fp: isDark ? '#ff9e64' : '#d97706',
-      fpBg: isDark ? 'rgba(255,158,100,0.25)' : 'rgba(217,119,6,0.15)',
-      fn: isDark ? '#f7768e' : '#e63946',
-      fnBg: isDark ? 'rgba(247,118,142,0.25)' : 'rgba(230,57,70,0.15)',
-      green: isDark ? '#9ece6a' : '#16a34a',
-      orange: isDark ? '#ff9e64' : '#d97706',
-      purple: isDark ? '#bb9af7' : '#7c3aed',
-      auc: isDark ? 'rgba(122,162,247,0.2)' : 'rgba(37,99,235,0.12)',
-      fold: isDark ? '#7aa2f7' : '#2563eb',
-      foldVal: isDark ? '#ff9e64' : '#d97706',
-      foldBg: isDark ? 'rgba(122,162,247,0.3)' : 'rgba(37,99,235,0.2)',
-      foldValBg: isDark ? 'rgba(255,158,100,0.3)' : 'rgba(217,119,6,0.2)',
-      isDark: isDark
-    };
-  };
+  E.getColors = function() { return window.Viz.colors(); };
 
   E.setupCanvas = function(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -451,17 +417,13 @@ window.EV = (function() {
 })();
 </script>
 
-You just built an amazing classifier. It predicts with **95% accuracy** on your test set. Time to ship it to production, right?
-
-Not so fast. What if your dataset has 95% negative samples and 5% positive? A model that **always predicts negative** would also score 95% accuracy, while being completely useless at finding the positive cases you actually care about.
-
-This chapter builds the toolkit you need to properly evaluate classification models. We will construct confusion matrices, trace ROC and Precision-Recall curves, animate cross-validation, and diagnose whether your model suffers from bias or variance, all interactively.
+You just built an amazing classifier. It predicts with 95% accuracy on your test set. Time to ship it to production, right? Not so fast. What if your dataset has 95% negative samples and 5% positive? A model that always predicts negative would also score 95% accuracy, while being completely useless at finding the positive cases you actually care about. This chapter builds the toolkit you need to properly evaluate classification models. We will construct confusion matrices, trace ROC and Precision-Recall curves, animate cross-validation, and diagnose whether your model suffers from bias or variance, all interactively.
 
 ---
 
 ## 1. Why Accuracy Isn't Enough
 
-Consider a medical screening test for a rare disease that affects 5% of patients. A "model" that always says "no disease" achieves 95% accuracy. But it misses **every** sick patient.
+Consider a medical screening test for a rare disease that affects 5% of patients. A "model" that always says "no disease" achieves 95% accuracy. But it misses every sick patient.
 
 <div class="interactive-demo" id="demo-imbalance">
   <h4 style="margin-top:0">The Accuracy Trap: Imbalanced Data</h4>
@@ -471,6 +433,7 @@ Consider a medical screening test for a rare disease that affects 5% of patients
     <button id="imb-reset">Regenerate</button>
   </div>
   <div class="demo-info" id="imb-info">Always-negative accuracy: 95.0% | Actual positives missed: 100%</div>
+  <div class="demo-caption">Settings: 200 points, 5% positive class by default. Drag the slider to change the positive ratio.</div>
 </div>
 
 <script>
@@ -551,11 +514,7 @@ Consider a medical screening test for a rare disease that affects 5% of patients
 })();
 </script>
 
-<div class="demo-hint">
-Drag the <strong>positive class ratio</strong> slider. At 5%, a naive "always negative" model gets 95% accuracy. We need metrics that measure how well the model finds the rare positive class.
-</div>
-
-The core problem: **accuracy treats all errors equally**. In practice, the cost of a false negative (missing a disease) and a false positive (unnecessary treatment) are rarely the same. We need a richer vocabulary for describing model performance.
+The core problem is that accuracy treats all errors equally. In practice, the cost of a false negative (missing a disease) and a false positive (unnecessary treatment) are rarely the same, so we need a richer vocabulary for describing model performance.
 
 ---
 
@@ -568,7 +527,7 @@ Every binary classification prediction falls into one of four buckets:
 | **Actually Positive** | True Positive (TP) | False Negative (FN) |
 | **Actually Negative** | False Positive (FP) | True Negative (TN) |
 
-The **decision threshold** determines where we draw the line. For a model that outputs probabilities, we predict positive when \\( P(y=1 \mid x) \geq t \\).
+The decision threshold determines where we draw the line. For a model that outputs probabilities, we predict positive when \\( P(y=1 \mid x) \geq t \\). Drag the threshold slider in the demo below and watch the confusion matrix update in real time. Lowering the threshold catches more true positives but also increases false positives, and the points are color-coded by their TP, FP, TN, or FN status.
 
 <div class="interactive-demo" id="demo-confusion">
   <h4 style="margin-top:0">Confusion Matrix Builder</h4>
@@ -601,6 +560,7 @@ The **decision threshold** determines where we draw the line. For a model that o
     <button id="cm-reset">New Data</button>
   </div>
   <div class="demo-info" id="cm-info">TP=0  FP=0  TN=0  FN=0</div>
+  <div class="demo-caption">Settings: 50 positive and 50 negative points, logistic-regression model, threshold starts at 0.50.</div>
 </div>
 
 <script>
@@ -724,10 +684,6 @@ The **decision threshold** determines where we draw the line. For a model that o
 })();
 </script>
 
-<div class="demo-hint">
-Drag the <strong>threshold slider</strong> and watch the confusion matrix update in real-time. Notice how lowering the threshold catches more true positives but also increases false positives. Points are color-coded: <span style="color:#16a34a;font-weight:600;">TP</span>, <span style="color:#d97706;font-weight:600;">FP</span>, <span style="color:#2563eb;font-weight:600;">TN</span>, <span style="color:#e63946;font-weight:600;">FN</span>.
-</div>
-
 ---
 
 ## 3. Precision, Recall, and F1 Score
@@ -736,15 +692,15 @@ From the confusion matrix, we derive the metrics that actually matter:
 
 $$\text{Precision} = \frac{TP}{TP + FP}$$
 
-Of all the items we **predicted positive**, how many were actually positive? High precision means few false alarms.
+Precision asks: of all the items we predicted positive, how many were actually positive? High precision means few false alarms.
 
 $$\text{Recall (Sensitivity)} = \frac{TP}{TP + FN}$$
 
-Of all the items that **are actually positive**, how many did we catch? High recall means few missed positives.
+Recall asks: of all the items that are actually positive, how many did we catch? High recall means few missed positives.
 
 $$F_1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$$
 
-The harmonic mean of precision and recall. It penalizes models that sacrifice one for the other.
+The F1 score is the harmonic mean of precision and recall, so it penalizes models that sacrifice one for the other. As you raise the threshold in the demo below, precision tends to increase while recall drops, and the F1 curve peaks where the two balance.
 
 <div class="interactive-demo" id="demo-prf">
   <h4 style="margin-top:0">Precision-Recall Tradeoff</h4>
@@ -753,6 +709,7 @@ The harmonic mean of precision and recall. It penalizes models that sacrifice on
     <label>Threshold: <input type="range" id="prf-threshold" min="0" max="100" value="50" step="1"><span class="demo-value" id="prf-thresh-val">0.50</span></label>
   </div>
   <div class="demo-info" id="prf-info">Precision: 0.00 | Recall: 0.00 | F1: 0.00</div>
+  <div class="demo-caption">Settings: 60 positive and 60 negative points, logistic-regression scores, threshold sweep from 0 to 1.</div>
 </div>
 
 <script>
@@ -906,19 +863,15 @@ The harmonic mean of precision and recall. It penalizes models that sacrifice on
 })();
 </script>
 
-<div class="demo-hint">
-As you raise the threshold, <strong style="color:#2563eb;">precision</strong> tends to increase (fewer false positives) while <strong style="color:#e63946;">recall</strong> drops (more false negatives). The <strong style="color:#16a34a;">F1 score</strong> peaks where they balance.
-</div>
-
 ---
 
 ## 4. ROC Curve and AUC
 
-The **Receiver Operating Characteristic (ROC)** curve plots True Positive Rate (recall) against False Positive Rate across all thresholds. It answers: "How well does the model separate the two classes?"
+The Receiver Operating Characteristic (ROC) curve plots True Positive Rate (recall) against False Positive Rate across all thresholds. It answers the question: how well does the model separate the two classes?
 
 $$\text{TPR} = \frac{TP}{TP + FN} \quad\quad \text{FPR} = \frac{FP}{FP + TN}$$
 
-The **Area Under the Curve (AUC)** summarizes this into a single number. AUC = 1.0 is a perfect classifier; AUC = 0.5 is random guessing.
+The Area Under the Curve (AUC) summarizes this into a single number, where AUC = 1.0 is a perfect classifier and AUC = 0.5 is random guessing. Drag the threshold to trace along the ROC curve, and adjust model quality to see how better separation between class score distributions creates a more bowed-out ROC and a higher AUC. The right panel shows where the threshold cuts through the score distributions.
 
 <div class="interactive-demo" id="demo-roc">
   <h4 style="margin-top:0">ROC Curve Explorer</h4>
@@ -937,6 +890,7 @@ The **Area Under the Curve (AUC)** summarizes this into a single number. AUC = 1
     <label>Model quality: <input type="range" id="roc-quality" min="1" max="10" value="5" step="1"><span class="demo-value" id="roc-quality-val">5</span></label>
   </div>
   <div class="demo-info" id="roc-info">AUC: 0.000 | TPR: 0.000 | FPR: 0.000</div>
+  <div class="demo-caption">Settings: synthetic class scores, model quality 5 of 10 by default, threshold starts at 0.50.</div>
 </div>
 
 <script>
@@ -1141,15 +1095,11 @@ The **Area Under the Curve (AUC)** summarizes this into a single number. AUC = 1
 })();
 </script>
 
-<div class="demo-hint">
-Drag <strong>threshold</strong> to trace along the ROC curve. Adjust <strong>model quality</strong> to see how better separation between class score distributions creates a more bowed-out ROC (higher AUC). The right panel shows where the threshold cuts through the score distributions.
-</div>
-
 ---
 
 ## 5. Precision-Recall Curve
 
-On imbalanced datasets, the ROC curve can be **overly optimistic**. Because there are many true negatives, the FPR stays low even with many false positives. The **Precision-Recall curve** focuses only on the positive class, making it more informative when positives are rare.
+On imbalanced datasets, the ROC curve can be overly optimistic. Because there are many true negatives, the FPR stays low even with many false positives. The Precision-Recall curve focuses only on the positive class, making it more informative when positives are rare. Set imbalance to around 5% in the demo below and notice that the ROC still looks great with a high AUC, but the PR curve reveals the model struggles, with precision dropping sharply as recall increases. The PR curve is more honest about performance on the minority class.
 
 <div class="interactive-demo" id="demo-pr">
   <h4 style="margin-top:0">PR Curve vs ROC: Imbalanced Data</h4>
@@ -1168,6 +1118,7 @@ On imbalanced datasets, the ROC curve can be **overly optimistic**. Because ther
     <label>Imbalance (% positive): <input type="range" id="pr-imbalance" min="2" max="50" value="5" step="1"><span class="demo-value" id="pr-imb-val">5%</span></label>
   </div>
   <div class="demo-info" id="pr-info">ROC AUC: 0.000 | Precision: 0.000 | Recall: 0.000</div>
+  <div class="demo-caption">Settings: 400 samples, 5% positive class by default, threshold starts at 0.50.</div>
 </div>
 
 <script>
@@ -1318,15 +1269,11 @@ On imbalanced datasets, the ROC curve can be **overly optimistic**. Because ther
 })();
 </script>
 
-<div class="demo-hint">
-Set imbalance to <strong>5%</strong> and notice the ROC still looks great (high AUC), but the PR curve reveals the model struggles, precision drops sharply as recall increases. The PR curve is more honest about performance on the minority class.
-</div>
-
 ---
 
 ## 6. Threshold Selection by Use Case
 
-The "best" threshold depends on the **cost of errors**. A medical test should minimize false negatives (catch all sick patients), while a spam filter should minimize false positives (never block real email).
+The "best" threshold depends on the cost of errors. A medical test should minimize false negatives (catch all sick patients), while a spam filter should minimize false positives (never block real email). Select a use case preset or manually adjust the FN/FP cost sliders in the demo below. For medical screening, the high FN cost pushes the optimal threshold lower so the model predicts positive more often, while for spam filtering the high FP cost pushes the threshold higher so it only flags clear spam.
 
 <div class="interactive-demo" id="demo-usecase">
   <h4 style="margin-top:0">Threshold Selection: What's the Cost?</h4>
@@ -1344,6 +1291,7 @@ The "best" threshold depends on the **cost of errors**. A medical test should mi
     <label>FP cost: <input type="range" id="uc-fp-cost" min="1" max="20" value="1" step="1"><span class="demo-value" id="uc-fp-val">1</span></label>
   </div>
   <div class="demo-info" id="uc-info">Optimal threshold: 0.50 | Total cost: 0</div>
+  <div class="demo-caption">Settings: balanced preset by default, FN cost = FP cost = 1. Pick a preset or change the cost sliders.</div>
 </div>
 
 <script>
@@ -1522,20 +1470,11 @@ The "best" threshold depends on the **cost of errors**. A medical test should mi
 })();
 </script>
 
-<div class="demo-hint">
-Select a <strong>use case</strong> preset or manually adjust the FN/FP cost sliders. For medical screening, the high FN cost pushes the optimal threshold lower (predict positive more often). For spam filtering, the high FP cost pushes the threshold higher (only flag clear spam).
-</div>
-
 ---
 
 ## 7. K-Fold Cross-Validation
 
-Evaluating on a single train/test split is risky, you might get lucky (or unlucky) with the split. **K-Fold Cross-Validation** provides a more robust estimate by using every data point for both training and validation.
-
-The algorithm:
-1. Split data into \\(K\\) equal folds
-2. For each fold \\(i\\): train on all folds except \\(i\\), validate on fold \\(i\\)
-3. Average the \\(K\\) validation scores
+Evaluating on a single train/test split is risky, since you might get lucky (or unlucky) with the split. K-Fold Cross-Validation provides a more robust estimate by using every data point for both training and validation. The algorithm splits data into \\(K\\) equal folds, then for each fold \\(i\\) it trains on all folds except \\(i\\) and validates on fold \\(i\\), and finally averages the \\(K\\) validation scores. Adjust K and click Animate in the demo below to see each fold take its turn as the validation set, and watch the bar chart accumulate accuracy scores along with their mean. Higher K means more computation but lower variance in the estimate.
 
 <div class="interactive-demo" id="demo-kfold">
   <h4 style="margin-top:0">K-Fold Cross-Validation Animation</h4>
@@ -1546,6 +1485,7 @@ The algorithm:
     <button id="kf-reset">Reset</button>
   </div>
   <div class="demo-info" id="kf-info">Click "Animate" to see K-Fold in action</div>
+  <div class="demo-caption">Settings: K = 5 folds by default, synthetic per-fold accuracy scores around 0.78.</div>
 </div>
 
 <script>
@@ -1796,15 +1736,11 @@ The algorithm:
 })();
 </script>
 
-<div class="demo-hint">
-Adjust <strong>K</strong> and click <strong>Animate</strong>. Each fold takes turns as the validation set (orange). The bar chart accumulates accuracy scores and shows their mean. Higher K means more computation but lower variance in the estimate.
-</div>
-
 ---
 
 ## 8. Stratified K-Fold
 
-Regular K-Fold can produce folds with different class proportions, especially on imbalanced data. **Stratified K-Fold** ensures each fold has approximately the same class distribution as the full dataset.
+Regular K-Fold can produce folds with different class proportions, especially on imbalanced data. Stratified K-Fold ensures each fold has approximately the same class distribution as the full dataset. With a low positive ratio (e.g. 5 to 15 percent), regular K-Fold can create folds where some have no positive samples at all, while stratified K-Fold maintains the original class balance in every fold and gives more reliable evaluation.
 
 <div class="interactive-demo" id="demo-stratified">
   <h4 style="margin-top:0">Stratified vs Regular K-Fold</h4>
@@ -1824,6 +1760,7 @@ Regular K-Fold can produce folds with different class proportions, especially on
     <button id="strat-reshuffle">Reshuffle</button>
   </div>
   <div class="demo-info" id="strat-info">Compare class proportions in each fold</div>
+  <div class="demo-caption">Settings: K = 5 folds, 15% positive class, 100 samples by default.</div>
 </div>
 
 <script>
@@ -2006,18 +1943,16 @@ Regular K-Fold can produce folds with different class proportions, especially on
 })();
 </script>
 
-<div class="demo-hint">
-With <strong>low positive ratio</strong> (e.g. 5-15%), regular K-Fold can create folds where some have no positive samples at all. Stratified K-Fold maintains the original class balance in every fold, giving more reliable evaluation.
-</div>
-
 ---
 
 ## 9. Learning Curves: Bias vs Variance
 
-Learning curves plot model performance against training set size. They reveal whether your model suffers from **high bias** (underfitting) or **high variance** (overfitting).
+Learning curves plot model performance against training set size. They reveal whether your model suffers from high bias (underfitting) or high variance (overfitting).
 
 - **High bias**: Both training and validation errors are high and converge. More data will not help much. You need a more complex model.
 - **High variance**: Training error is low but validation error is high. The gap between them is large. More data can help, or you need regularization.
+
+Use the preset selector or drag model complexity in the demo below. At low complexity, both curves plateau high (underfitting), while at high complexity the gap widens (overfitting). The shaded gap between the curves is the variance component of the error.
 
 <div class="interactive-demo" id="demo-learning">
   <h4 style="margin-top:0">Learning Curves: Diagnosing Your Model</h4>
@@ -2034,6 +1969,7 @@ Learning curves plot model performance against training set size. They reveal wh
     </label>
   </div>
   <div class="demo-info" id="lc-info">Adjust model complexity to see how learning curves change</div>
+  <div class="demo-caption">Settings: complexity = 5 (good fit) by default. Switch to a preset or drag the slider to explore bias and variance.</div>
 </div>
 
 <script>
@@ -2220,10 +2156,6 @@ Learning curves plot model performance against training set size. They reveal wh
 })();
 </script>
 
-<div class="demo-hint">
-Use the <strong>preset selector</strong> or drag <strong>model complexity</strong>. At low complexity, both curves plateau high (underfitting). At high complexity, the gap widens (overfitting). The shaded gap between curves is the variance component of the error.
-</div>
-
 ---
 
 ## 10. Putting It All Together
@@ -2266,4 +2198,4 @@ $$\text{Specificity} = \frac{TN}{TN + FP} \qquad \text{FPR} = 1 - \text{Specific
 
 ---
 
-In the next chapter, we will explore **Feature Engineering and Selection**, how to create, transform, and choose the right features to feed your models.
+In the next chapter, we will explore Feature Engineering and Selection, how to create, transform, and choose the right features to feed your models.

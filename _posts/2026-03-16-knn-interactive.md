@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "K-Nearest Neighbors from Scratch - An Interactive Guide"
+title: "K-Nearest Neighbors from Scratch"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -152,32 +152,7 @@ date: 2026-03-17
 window.KNN = (function() {
   var K = {};
 
-  K.getColors = function() {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (!document.documentElement.getAttribute('data-theme') &&
-       window.matchMedia('(prefers-color-scheme: dark)').matches);
-    return {
-      bg: isDark ? '#1a1b26' : '#ffffff',
-      bgSecondary: isDark ? '#24283b' : '#f1f5f9',
-      text: isDark ? '#c0caf5' : '#1e293b',
-      textMuted: isDark ? '#565f89' : '#94a3b8',
-      grid: isDark ? '#292e42' : '#e2e8f0',
-      border: isDark ? '#3b4261' : '#cbd5e1',
-      accent: isDark ? '#7aa2f7' : '#2563eb',
-      class0: isDark ? '#7aa2f7' : '#2563eb',
-      class0Light: isDark ? 'rgba(122,162,247,0.15)' : 'rgba(37,99,235,0.12)',
-      class0RGB: isDark ? [122,162,247] : [37,99,235],
-      class1: isDark ? '#f7768e' : '#e63946',
-      class1Light: isDark ? 'rgba(247,118,142,0.15)' : 'rgba(230,57,70,0.12)',
-      class1RGB: isDark ? [247,118,142] : [230,57,70],
-      class2: isDark ? '#9ece6a' : '#16a34a',
-      class2RGB: isDark ? [158,206,106] : [22,163,74],
-      highlight: isDark ? '#e0af68' : '#d97706',
-      neighbor: isDark ? '#9ece6a' : '#16a34a',
-      query: isDark ? '#bb9af7' : '#7c3aed',
-      isDark: isDark
-    };
-  };
+  K.getColors = function() { return window.Viz.colors(); };
 
   K.setupCanvas = function(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -468,11 +443,7 @@ window.KNN = (function() {
 })();
 </script>
 
-Most machine learning algorithms learn a model during training and then discard the training data. **K-Nearest Neighbors (KNN)** does something radically different: it keeps *all* the training data and makes predictions by looking at the K closest examples to a new query point.
-
-This "lazy learning" approach is beautifully simple. There are no weights to optimize, no gradients to compute, no loss functions to minimize. The training data *is* the model. Yet despite this simplicity, KNN can produce remarkably complex decision boundaries that adapt to any shape in the data.
-
-Let us build KNN from scratch and develop deep intuition for how it works.
+Most machine learning algorithms learn a model during training and then discard the training data. K-Nearest Neighbors (KNN) does something radically different: it keeps all the training data and makes predictions by looking at the K closest examples to a new query point. This "lazy learning" approach is beautifully simple. There are no weights to optimize, no gradients to compute, no loss functions to minimize. The training data is the model. Yet despite this simplicity, KNN can produce remarkably complex decision boundaries that adapt to any shape in the data. Let us build KNN from scratch and develop deep intuition for how it works.
 
 ---
 
@@ -480,8 +451,8 @@ Let us build KNN from scratch and develop deep intuition for how it works.
 
 The KNN algorithm has exactly three steps:
 
-1. **Store** all training data (that is the entire "training" phase)
-2. **Find** the K nearest neighbors to the query point
+1. **Store**: keep all training data (that is the entire "training" phase)
+2. **Find**: locate the K nearest neighbors to the query point
 3. **Vote**: for classification, the majority class among K neighbors wins. For regression, take the average of their values
 
 The distance between two points $$\mathbf{x}^{(a)}$$ and $$\mathbf{x}^{(b)}$$ in $$d$$ dimensions is typically the Euclidean distance:
@@ -492,13 +463,7 @@ For $$K$$ neighbors, the predicted class is:
 
 $$\hat{y} = \text{mode}(y^{(1)}, y^{(2)}, \ldots, y^{(K)})$$
 
-where $$y^{(1)}, \ldots, y^{(K)}$$ are the labels of the K nearest neighbors.
-
-### Try It: Watch KNN in Action
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click anywhere on the canvas to place a <span style="color:#7c3aed;font-weight:600">query point</span>. Watch the K nearest neighbors get highlighted with connecting lines, and see the majority vote decide the class. Use the K slider to change how many neighbors are considered.
-</div>
+where $$y^{(1)}, \ldots, y^{(K)}$$ are the labels of the K nearest neighbors. Click anywhere on the canvas below to place a query point. The K nearest neighbors are highlighted with connecting lines, and the majority vote decides the class. Use the K slider to change how many neighbors are considered.
 
 <div class="interactive-demo">
   <canvas id="knn-how-canvas"></canvas>
@@ -508,6 +473,7 @@ where $$y^{(1)}, \ldots, y^{(K)}$$ are the labels of the K nearest neighbors.
     <button id="knn-how-clear">Clear Query</button>
   </div>
   <div class="demo-info" id="knn-how-info">Click on the canvas to place a query point</div>
+  <div class="demo-caption">Settings: 40-point Gaussian blobs, Euclidean distance, K=3, uniform voting.</div>
 </div>
 
 <script>
@@ -621,13 +587,7 @@ Notice how the prediction can change as you move K. With K=1, the prediction alw
 
 ## 2. Decision Boundary Canvas
 
-The **decision boundary** is the line (or curve) where the predicted class changes. For KNN, this boundary is determined entirely by the data points and the value of K. Let us paint it.
-
-### Try It: Paint Your Own Decision Boundary
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Left-click to add <span style="color:#2563eb;font-weight:600">Class A</span> points. Shift+click (or right-click) to add <span style="color:#e63946;font-weight:600">Class B</span> points. The decision boundary updates in real-time with pixel-level coloring.
-</div>
+The decision boundary is the line (or curve) where the predicted class changes. For KNN, this boundary is determined entirely by the data points and the value of K. Left-click to add Class A points and shift+click (or right-click) to add Class B points; the boundary updates in real time with pixel-level coloring.
 
 <div class="interactive-demo">
   <canvas id="knn-boundary-canvas"></canvas>
@@ -637,6 +597,7 @@ The **decision boundary** is the line (or curve) where the predicted class chang
     <button id="knn-boundary-clear">Clear</button>
   </div>
   <div class="demo-info" id="knn-boundary-info">Add points to see the boundary</div>
+  <div class="demo-caption">Settings: empty canvas, Euclidean distance, K=5, uniform voting; click to paint points.</div>
 </div>
 
 <script>
@@ -710,22 +671,18 @@ The **decision boundary** is the line (or curve) where the predicted class chang
 })();
 </script>
 
-Try placing a few Class A points on the left and Class B points on the right, then add a single Class A point deep inside Class B territory. Watch how it creates an island of Class A in the boundary - this is KNN "memorizing" that individual point.
+Try placing a few Class A points on the left and Class B points on the right, then add a single Class A point deep inside Class B territory. Watch how it creates an island of Class A in the boundary; this is KNN memorizing that individual point.
 
 ---
 
 ## 3. The K Slider: Overfitting vs. Underfitting
 
-The choice of K is the single most important decision in KNN. It controls the **bias-variance tradeoff**:
+The choice of K is the single most important decision in KNN. It controls the bias-variance tradeoff:
 
-- **Small K** (e.g., K=1): The boundary is jagged and follows every point, including noise. This is **overfitting** (low bias, high variance).
-- **Large K** (e.g., K=30): The boundary is very smooth, potentially ignoring meaningful patterns. This is **underfitting** (high bias, low variance).
+- **Small K** (e.g. K=1): the boundary is jagged and follows every point, including noise. This is overfitting (low bias, high variance).
+- **Large K** (e.g. K=30): the boundary is very smooth, potentially ignoring meaningful patterns. This is underfitting (high bias, low variance).
 
-### Try It: Slide K from 1 to 30
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Drag the K slider and watch the decision boundary transform from jagged (overfitting) to smooth (underfitting). The training accuracy drops as K increases because the model becomes less sensitive to individual points.
-</div>
+Drag the K slider and watch the decision boundary transform from jagged to smooth. The training accuracy drops as K increases because the model becomes less sensitive to individual points.
 
 <div class="interactive-demo">
   <canvas id="knn-kslider-canvas"></canvas>
@@ -734,6 +691,7 @@ The choice of K is the single most important decision in KNN. It controls the **
     <button id="knn-kslider-gen">New Data</button>
   </div>
   <div class="demo-info" id="knn-kslider-info"></div>
+  <div class="demo-caption">Settings: 80-point moons dataset, Euclidean distance, K=1; slide K from 1 to 30.</div>
 </div>
 
 <script>
@@ -784,7 +742,7 @@ The choice of K is the single most important decision in KNN. It controls the **
 })();
 </script>
 
-Notice the accuracy paradox: with K=1, the leave-one-out accuracy is often *lower* than with moderate K values. The model fits the training data perfectly (every point is classified by its nearest non-self neighbor) but is fragile to noise. The sweet spot is usually somewhere in the middle.
+Notice the accuracy paradox: with K=1, the leave-one-out accuracy is often lower than with moderate K values. The model fits the training data perfectly (every point is classified by its nearest non-self neighbor) but is fragile to noise. The sweet spot is usually somewhere in the middle.
 
 ---
 
@@ -792,17 +750,11 @@ Notice the accuracy paradox: with K=1, the leave-one-out accuracy is often *lowe
 
 The choice of distance metric fundamentally changes what "close" means, and therefore changes the shape of neighborhoods and decision boundaries.
 
-**Euclidean distance** (L2): $$d = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2}$$ - Circular neighborhoods.
+- **Euclidean distance** (L2): $$d = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2}$$ — circular neighborhoods.
+- **Manhattan distance** (L1): $$d = |x_1-x_2| + |y_1-y_2|$$ — diamond-shaped neighborhoods.
+- **Chebyshev distance** (L-infinity): $$d = \max(|x_1-x_2|, |y_1-y_2|)$$ — square neighborhoods.
 
-**Manhattan distance** (L1): $$d = |x_1-x_2| + |y_1-y_2|$$ - Diamond-shaped neighborhoods.
-
-**Chebyshev distance** (L-infinity): $$d = \max(|x_1-x_2|, |y_1-y_2|)$$ - Square neighborhoods.
-
-### Try It: Toggle Distance Metrics
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Switch between distance metrics and watch the decision boundary change shape. With Euclidean, boundaries curve smoothly. With Manhattan, they follow axis-aligned diamond patterns. With Chebyshev, they form boxy squares.
-</div>
+Switch between metrics below and watch the decision boundary change shape. With Euclidean, boundaries curve smoothly. With Manhattan, they follow axis-aligned diamond patterns. With Chebyshev, they form boxy squares.
 
 <div class="interactive-demo">
   <canvas id="knn-dist-canvas"></canvas>
@@ -818,6 +770,7 @@ The choice of distance metric fundamentally changes what "close" means, and ther
     <button id="knn-dist-gen">New Data</button>
   </div>
   <div class="demo-info" id="knn-dist-info"></div>
+  <div class="demo-caption">Settings: 50-point blobs, K=5, Euclidean distance; click to place a query point and see the equidistant contour.</div>
 </div>
 
 <script>
@@ -945,27 +898,17 @@ The choice of distance metric fundamentally changes what "close" means, and ther
 })();
 </script>
 
-Click on the canvas to see the neighborhood shape for each metric. The dashed outline shows the region that encloses the K nearest neighbors. Notice how:
-
-- **Euclidean** treats all directions equally (isotropic)
-- **Manhattan** favors axis-aligned directions (useful when features are on different scales)
-- **Chebyshev** only cares about the maximum difference in any single dimension
+Click on the canvas to see the neighborhood shape for each metric. The dashed outline shows the region that encloses the K nearest neighbors. Euclidean treats all directions equally (isotropic), Manhattan favors axis-aligned directions (useful when features are on different scales), and Chebyshev only cares about the maximum difference in any single dimension.
 
 ---
 
 ## 5. Weighted KNN: Closer Neighbors Matter More
 
-Standard KNN gives every neighbor an equal vote, regardless of how close or far it is within the K neighbors. **Distance-weighted KNN** gives each neighbor a vote proportional to the inverse of its distance:
+Standard KNN gives every neighbor an equal vote, regardless of how close or far it is within the K neighbors. Distance-weighted KNN gives each neighbor a vote proportional to the inverse of its distance:
 
 $$w_i = \frac{1}{d(\mathbf{x}_{query}, \mathbf{x}_i)}$$
 
-This means very close neighbors have a much stronger influence than distant ones, which often improves accuracy near decision boundaries.
-
-### Try It: Uniform vs Weighted Voting
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Toggle between uniform and distance-weighted voting. Watch how the boundary becomes smoother and more accurate near class transitions.
-</div>
+This means very close neighbors have a much stronger influence than distant ones, which often improves accuracy near decision boundaries. Toggle between uniform and distance-weighted voting in the side-by-side demo and watch how the boundary becomes smoother and more accurate near class transitions.
 
 <div class="interactive-demo">
   <div class="demo-split">
@@ -983,6 +926,7 @@ This means very close neighbors have a much stronger influence than distant ones
     <button id="knn-weight-gen">New Data</button>
   </div>
   <div class="demo-info" id="knn-weight-info"></div>
+  <div class="demo-caption">Settings: 60-point moons, Euclidean distance, K=7; left = uniform votes, right = inverse-distance weights.</div>
 </div>
 
 <script>
@@ -1078,17 +1022,13 @@ The difference is most visible at larger K values. With uniform voting and K=15,
 
 ## 6. KNN for Regression
 
-KNN is not limited to classification. For **regression**, instead of taking a majority vote, we average the target values of the K nearest neighbors:
+KNN is not limited to classification. For regression, instead of taking a majority vote, we average the target values of the K nearest neighbors:
 
 $$\hat{y} = \frac{1}{K}\sum_{i=1}^{K} y^{(i)} \quad \text{(uniform)}$$
 
 $$\hat{y} = \frac{\sum_{i=1}^{K} w_i \, y^{(i)}}{\sum_{i=1}^{K} w_i} \quad \text{(weighted, } w_i = 1/d_i\text{)}$$
 
-### Try It: KNN Regression Curve
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Adjust K to see how the regression curve changes from stepped (K=1) to smooth (large K). Toggle weighting for smoother interpolation.
-</div>
+Adjust K below to see how the regression curve changes from stepped (K=1) to smooth (large K). Toggle weighting for smoother interpolation.
 
 <div class="interactive-demo">
   <canvas id="knn-reg-canvas"></canvas>
@@ -1098,6 +1038,7 @@ $$\hat{y} = \frac{\sum_{i=1}^{K} w_i \, y^{(i)}}{\sum_{i=1}^{K} w_i} \quad \text
     <button id="knn-reg-gen">New Data</button>
   </div>
   <div class="demo-info" id="knn-reg-info"></div>
+  <div class="demo-caption">Settings: 40 noisy samples of sin(x), K=1, uniform weights; dashed line shows the true function.</div>
 </div>
 
 <script>
@@ -1205,23 +1146,11 @@ With K=1, the regression curve passes through (or very near) every training poin
 
 ## 7. The Curse of Dimensionality
 
-KNN seems perfect in 2D, but it has a fundamental problem in high dimensions called the **curse of dimensionality**. As the number of dimensions grows:
-
-1. **Data becomes sparse**: To maintain the same density, the number of points needed grows exponentially with dimension
-2. **Distances become similar**: All points end up roughly the same distance from each other, making "nearest" meaningless
-3. **Volume grows explosively**: The fraction of the space you need to cover to capture K neighbors grows exponentially
-
-To capture a fixed fraction $$f$$ of data in $$d$$ dimensions with a hypercube, the side length must be:
+KNN seems perfect in 2D, but it has a fundamental problem in high dimensions called the curse of dimensionality. As the number of dimensions grows, data becomes sparse (to maintain the same density, the number of points needed grows exponentially with dimension), distances become similar (all points end up roughly the same distance from each other, making "nearest" meaningless), and volume grows explosively (the fraction of the space you need to cover to capture K neighbors grows exponentially). To capture a fixed fraction $$f$$ of data in $$d$$ dimensions with a hypercube, the side length must be:
 
 $$\ell = f^{1/d}$$
 
-For example, to capture 10% of data: in 1D you need $$\ell = 0.1$$, in 2D $$\ell = 0.32$$, in 10D $$\ell = 0.79$$, in 100D $$\ell = 0.977$$. You need nearly the entire space.
-
-### Try It: Watch Dimensions Grow
-
-<div class="demo-hint">
-<strong>Interactive:</strong> This visualization shows how the ratio of the nearest neighbor distance to the farthest neighbor distance approaches 1 as dimensions increase. When all distances are similar, KNN cannot distinguish neighbors from non-neighbors.
-</div>
+For example, to capture 10% of data: in 1D you need $$\ell = 0.1$$, in 2D $$\ell = 0.32$$, in 10D $$\ell = 0.79$$, in 100D $$\ell = 0.977$$. You need nearly the entire space. The visualization below shows how the ratio of the nearest neighbor distance to the farthest neighbor distance approaches 1 as dimensions increase. When all distances are similar, KNN cannot distinguish neighbors from non-neighbors.
 
 <div class="interactive-demo">
   <canvas id="knn-curse-canvas"></canvas>
@@ -1230,6 +1159,7 @@ For example, to capture 10% of data: in 1D you need $$\ell = 0.1$$, in 2D $$\ell
     <button id="knn-curse-run">Regenerate</button>
   </div>
   <div class="demo-info" id="knn-curse-info">Distance ratio = nearest / farthest distance to a query point</div>
+  <div class="demo-caption">Settings: 100 random points in unit hypercubes from 1D to 1000D, averaged over 10 trials per dimension.</div>
 </div>
 
 <script>
@@ -1381,19 +1311,13 @@ For example, to capture 10% of data: in 1D you need $$\ell = 0.1$$, in 2D $$\ell
 })();
 </script>
 
-As dimensions increase, the ratio of nearest-to-farthest distance climbs toward 1.0, meaning all points are essentially equidistant from the query. In the red "danger zone" (ratio > 0.9), KNN is effectively choosing neighbors at random. This is why **feature selection** and **dimensionality reduction** (like PCA) are critical preprocessing steps for KNN.
+As dimensions increase, the ratio of nearest-to-farthest distance climbs toward 1.0, meaning all points are essentially equidistant from the query. In the red "danger zone" (ratio > 0.9), KNN is effectively choosing neighbors at random. This is why feature selection and dimensionality reduction (like PCA) are critical preprocessing steps for KNN.
 
 ---
 
 ## 8. Interactive Classification Playground
 
-Now let us put it all together. Choose a dataset, configure K, the distance metric, and weighting, and watch the full decision boundary with accuracy statistics.
-
-### Try It: Full KNN Playground
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Select a preset dataset, tune all hyperparameters, and observe how the decision boundary changes. Try to find the best K for each dataset.
-</div>
+Now let us put it all together. Choose a dataset, configure K, the distance metric, and weighting, and watch the full decision boundary with accuracy statistics. Select a preset dataset, tune all hyperparameters, and observe how the decision boundary changes. Try to find the best K for each dataset.
 
 <div class="interactive-demo">
   <canvas id="knn-play-canvas"></canvas>
@@ -1419,6 +1343,7 @@ Now let us put it all together. Choose a dataset, configure K, the distance metr
     <button id="knn-play-gen">Regenerate</button>
   </div>
   <div class="demo-info" id="knn-play-info"></div>
+  <div class="demo-caption">Settings: moons dataset, Euclidean distance, K=5, uniform voting; switch dataset, K, metric, or weighting to explore.</div>
 </div>
 
 <script>
@@ -1483,11 +1408,11 @@ Now let us put it all together. Choose a dataset, configure K, the distance metr
 
 Some observations to explore:
 
-- **Blobs** are linearly separable - even K=1 works well, but K=5-10 gives the cleanest boundary
-- **Moons** need moderate K to capture the curved boundary without overfitting
-- **Circles** are challenging - KNN handles them naturally since the boundary is based on local neighborhoods
-- **XOR** requires a non-linear boundary that KNN provides effortlessly
-- **Spiral** is the hardest - only small K values can trace the spiral arms, but they also overfit to noise
+- **Blobs**: linearly separable; even K=1 works well, but K=5-10 gives the cleanest boundary
+- **Moons**: need moderate K to capture the curved boundary without overfitting
+- **Circles**: KNN handles them naturally since the boundary is based on local neighborhoods
+- **XOR**: requires a non-linear boundary that KNN provides effortlessly
+- **Spiral**: the hardest; only small K values can trace the spiral arms, but they also overfit to noise
 
 ---
 
@@ -1508,8 +1433,8 @@ Some observations to explore:
 
 ### When to Use KNN
 
-- **Good for**: Small-to-medium datasets, non-linear boundaries, multi-class problems, when you want a simple baseline, recommendation systems
-- **Less ideal for**: Large datasets (prediction is slow - must compute distance to every training point), high-dimensional data, features on very different scales (must normalize first)
+- **Good for**: small-to-medium datasets, non-linear boundaries, multi-class problems, when you want a simple baseline, recommendation systems
+- **Less ideal for**: large datasets (prediction is slow because it must compute distance to every training point), high-dimensional data, features on very different scales (must normalize first)
 - **Key hyperparameters**: K (number of neighbors), distance metric, weighting scheme, feature scaling
 
 ### Computational Complexity
@@ -1519,10 +1444,10 @@ Some observations to explore:
 | Training | $$O(1)$$ - just store data | $$O(nd)$$ |
 | Prediction | $$O(nd)$$ per query | $$O(1)$$ |
 
-where $$n$$ is the number of training points and $$d$$ is the number of dimensions. KNN's prediction cost is its main drawback. For large datasets, **KD-trees** or **ball trees** reduce this to $$O(d \log n)$$ on average.
+where $$n$$ is the number of training points and $$d$$ is the number of dimensions. KNN's prediction cost is its main drawback. For large datasets, KD-trees or ball trees reduce this to $$O(d \log n)$$ on average.
 
 ### What is Next
 
-In the next chapter, we will explore **Decision Trees** - an algorithm that recursively partitions the feature space into axis-aligned rectangles. Unlike KNN, decision trees learn an explicit model during training, making predictions extremely fast. They are also the building blocks for ensemble methods like Random Forests and Gradient Boosting.
+In the next chapter, we will explore Decision Trees, an algorithm that recursively partitions the feature space into axis-aligned rectangles. Unlike KNN, decision trees learn an explicit model during training, making predictions extremely fast. They are also the building blocks for ensemble methods like Random Forests and Gradient Boosting.
 
 ---

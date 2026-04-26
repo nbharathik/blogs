@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Sorting Algorithms from Scratch: An Interactive Guide"
+title: "Sorting Algorithms from Scratch"
 author: bharathikannan
 categories: [Data Structures]
 description: "Visualize bubble sort, selection sort, insertion sort, merge sort, and quick sort step by step. Race them against each other  - all in your browser."
@@ -150,23 +150,7 @@ window.DSA_Sort = (function() {
     notifyDataChange();
   }
 
-  function getColors() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      bg: dark ? '#1a1b26' : '#ffffff',
-      bar: dark ? '#7aa2f7' : '#2563eb',
-      barCompare: dark ? '#ff9e64' : '#f59e0b',
-      barSwap: dark ? '#f7768e' : '#e63946',
-      barSorted: dark ? '#9ece6a' : '#16a34a',
-      barPivot: dark ? '#bb9af7' : '#7c3aed',
-      barMin: dark ? '#f7768e' : '#e63946',
-      barCurrent: dark ? '#ff9e64' : '#f59e0b',
-      barSortedRegion: dark ? 'rgba(158,206,106,0.3)' : 'rgba(22,163,74,0.15)',
-      text: dark ? '#c0caf5' : '#1a1b26',
-      textMuted: dark ? '#565f89' : '#6b7280',
-      grid: dark ? '#292e42' : '#e5e7eb'
-    };
-  }
+  function getColors() { return window.Viz.colors(); }
 
   function setupCanvas(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -500,34 +484,15 @@ window.DSA_Sort = (function() {
 })();
 </script>
 
-Sorting is one of the most fundamental operations in computer science. Every time you use a search engine, browse a sorted list, or see "sort by price" on a shopping site, a sorting algorithm is at work behind the scenes.
+Sorting is one of the most fundamental operations in computer science. Every time you use a search engine, browse a sorted list, or see "sort by price" on a shopping site, a sorting algorithm is at work behind the scenes. In this interactive guide, we will build five classic sorting algorithms completely from scratch in Python. You will watch each algorithm work step by step, understand why it makes each decision, and see how they compare in performance.
 
-In this interactive guide, we will build **five classic sorting algorithms completely from scratch** in Python. You will watch each algorithm work step by step, understand *why* it makes each decision, and see how they compare in performance.
-
-By the end of this post you will understand:
-- **Bubble Sort** - the simplest comparison-based sort
-- **Selection Sort** - find the minimum, place it, repeat
-- **Insertion Sort** - build a sorted region one element at a time
-- **Merge Sort** - divide, conquer, and merge (O(n log n))
-- **Quick Sort** - partition around a pivot (O(n log n) average)
-
-<div class="demo-hint">
-<strong>How to use the interactive demos:</strong> Each section has a hands-on visualization. You can step through one operation at a time, or auto-play to watch the full algorithm. The dataset you configure in the first section is shared across all sorting demos.
-</div>
+This post walks through the simplest comparison-based sort (Bubble Sort), then Selection Sort which finds the minimum and places it in turn, then Insertion Sort which builds a sorted region one element at a time, before moving to the O(n log n) algorithms Merge Sort (divide, conquer, merge) and Quick Sort (partition around a pivot).
 
 ---
 
 ## Why Does Sorting Matter?
 
-Sorting is not just about putting numbers in order. It is a building block for:
-- **Binary search** - only works on sorted data (O(log n) instead of O(n))
-- **Finding duplicates** - trivial once data is sorted
-- **Database operations** - ORDER BY, GROUP BY, and indexing all rely on sorting
-- **Scheduling** - priority queues and task ordering
-
-Understanding sorting algorithms also teaches fundamental CS concepts: **divide and conquer**, **recursion**, **time complexity analysis**, and **space-time tradeoffs**.
-
-Here is a summary of what we will build:
+Sorting is not just about putting numbers in order. It is a building block for binary search (which only works on sorted data, giving O(log n) instead of O(n)), for finding duplicates (trivial once data is sorted), for database operations like ORDER BY, GROUP BY, and indexing, and for scheduling tasks via priority queues. Understanding sorting algorithms also teaches fundamental CS concepts like divide and conquer, recursion, time complexity analysis, and space-time tradeoffs. Here is a summary of what we will build:
 
 <table class="complexity-table">
 <thead>
@@ -546,11 +511,7 @@ Here is a summary of what we will build:
 
 ## The Dataset
 
-Every sorting algorithm starts with unsorted data. Below is a set of numbers displayed as vertical bars - taller bars represent larger values. This dataset is shared across all the demos in this post.
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Randomize</strong> to generate a new random array. Use the slider to change the number of elements. Click <strong>Reset</strong> to return to the original dataset.
-</div>
+Every sorting algorithm starts with unsorted data. Below is a set of numbers displayed as vertical bars where taller bars represent larger values. This dataset is shared across all the demos in this post, so any change you make here propagates to every algorithm visualization that follows. Use Randomize for a new array, the size slider to change the number of elements, and Reset to return to the original dataset.
 
 <div class="interactive-demo">
   <canvas id="dataset-canvas" width="680" height="220"></canvas>
@@ -562,6 +523,7 @@ Every sorting algorithm starts with unsorted data. Below is a set of numbers dis
     <label>Size: <input type="range" id="dataset-size" min="5" max="30" value="10"> <span class="demo-value" id="dataset-size-val">10</span></label>
   </div>
   <div class="demo-info" id="dataset-info">Array: [38, 27, 43, 3, 9, 82, 10, 64, 52, 17]</div>
+  <div class="demo-caption">Settings: 10-element default array [38, 27, 43, 3, 9, 82, 10, 64, 52, 17], shared across all sorting demos below.</div>
 </div>
 
 <script>
@@ -612,18 +574,9 @@ Every sorting algorithm starts with unsorted data. Below is a set of numbers dis
 
 ## Bubble Sort
 
-Bubble sort is the simplest sorting algorithm. It works by repeatedly stepping through the list, comparing adjacent elements, and **swapping** them if they are in the wrong order. After each pass, the largest unsorted element "bubbles up" to its correct position at the end.
+Bubble sort is the simplest sorting algorithm. It works by repeatedly stepping through the list, comparing adjacent elements, and swapping them if they are in the wrong order. After each pass, the largest unsorted element "bubbles up" to its correct position at the end.
 
-### How It Works
-
-1. Start at the beginning of the array
-2. Compare each pair of adjacent elements
-3. If the left element is greater than the right, swap them
-4. After one pass, the largest element is at the end (it is now "sorted")
-5. Repeat for the remaining unsorted portion
-6. Stop when no swaps occur in a pass (the array is sorted)
-
-### Python Implementation
+Start at the beginning of the array and compare each pair of adjacent elements; if the left element is greater than the right, swap them. After one pass, the largest element has settled at the end and is considered sorted. Repeat the same scan over the remaining unsorted portion, and stop as soon as a pass completes without any swaps because the array is fully sorted at that point.
 
 ```python
 def bubble_sort(arr):
@@ -639,13 +592,7 @@ def bubble_sort(arr):
     return arr
 ```
 
-The outer loop runs $$n$$ times, and the inner loop runs up to $$n - 1 - i$$ times. In the worst case, this gives us $$O(n^2)$$ comparisons. The `swapped` flag is an optimization: if no swaps happen in a pass, the array is already sorted and we can stop early. This makes the best case $$O(n)$$ for an already-sorted array.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Step</strong> to advance one operation at a time, or <strong>Run</strong> to auto-play. Watch how the largest element bubbles to the end on each pass. Green bars are in their final sorted position.
-</div>
+The outer loop runs $$n$$ times, and the inner loop runs up to $$n - 1 - i$$ times. In the worst case, this gives us $$O(n^2)$$ comparisons. The `swapped` flag is an optimization: if no swaps happen in a pass, the array is already sorted and we can stop early. This makes the best case $$O(n)$$ for an already-sorted array. The demo below visualizes each comparison and swap, with green bars marking elements already in their final sorted position.
 
 <div class="interactive-demo">
   <canvas id="bubble-canvas" width="680" height="250"></canvas>
@@ -656,6 +603,7 @@ The outer loop runs $$n$$ times, and the inner loop runs up to $$n - 1 - i$$ tim
     <label>Speed: <input type="range" id="bubble-speed" min="1" max="20" value="8"> <span class="demo-value" id="bubble-speed-val">8</span></label>
   </div>
   <div class="demo-info" id="bubble-info">Pass: 0 | Comparisons: 0 | Swaps: 0 | Ready</div>
+  <div class="demo-caption">Settings: shared dataset, default speed 8. Step advances one operation, Run auto-plays.</div>
 </div>
 
 <script>
@@ -733,16 +681,9 @@ The outer loop runs $$n$$ times, and the inner loop runs up to $$n - 1 - i$$ tim
 
 ## Selection Sort
 
-Selection sort improves on bubble sort's approach by making fewer swaps. Instead of bubbling elements up, it **finds the minimum** element in the unsorted portion and places it at the front. This means it always makes exactly $$n - 1$$ swaps, regardless of the input.
+Selection sort improves on bubble sort's approach by making fewer swaps. Instead of bubbling elements up, it finds the minimum element in the unsorted portion and places it at the front. This means it always makes exactly $$n - 1$$ swaps, regardless of the input.
 
-### How It Works
-
-1. Find the minimum element in the unsorted portion
-2. Swap it with the first unsorted element
-3. That element is now in its final position
-4. Repeat for the remaining unsorted portion
-
-### Python Implementation
+Find the minimum element in the unsorted portion, swap it with the first unsorted element so that it lands in its final position, then repeat the same process on the remaining unsorted portion until everything is in place.
 
 ```python
 def selection_sort(arr):
@@ -756,13 +697,7 @@ def selection_sort(arr):
     return arr
 ```
 
-Selection sort always runs in $$O(n^2)$$ time, even on already-sorted arrays, because it always scans the entire unsorted portion. However, it only makes $$O(n)$$ swaps, which can be beneficial when swap operations are expensive.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Watch the red bar track the current minimum as the algorithm scans. The yellow bar shows the element being compared. Green bars are in their final position.
-</div>
+Selection sort always runs in $$O(n^2)$$ time, even on already-sorted arrays, because it always scans the entire unsorted portion. However, it only makes $$O(n)$$ swaps, which can be beneficial when swap operations are expensive. In the demo below, the red bar tracks the current minimum as the algorithm scans, the yellow bar shows the element being compared, and green bars are in their final position.
 
 <div class="interactive-demo">
   <canvas id="selection-canvas" width="680" height="250"></canvas>
@@ -773,6 +708,7 @@ Selection sort always runs in $$O(n^2)$$ time, even on already-sorted arrays, be
     <label>Speed: <input type="range" id="selection-speed" min="1" max="20" value="8"> <span class="demo-value" id="selection-speed-val">8</span></label>
   </div>
   <div class="demo-info" id="selection-info">Pass: 0 | Comparisons: 0 | Swaps: 0 | Ready</div>
+  <div class="demo-caption">Settings: shared dataset, default speed 8. Red bar = current minimum, yellow = comparison, green = sorted.</div>
 </div>
 
 <script>
@@ -852,16 +788,7 @@ Selection sort always runs in $$O(n^2)$$ time, even on already-sorted arrays, be
 
 Insertion sort works the way you might sort a hand of playing cards. You pick up cards one at a time and insert each card into its correct position among the cards you have already sorted.
 
-### How It Works
-
-1. Start with the first element - it is trivially sorted
-2. Pick the next element (the "key")
-3. Compare it with elements in the sorted region, moving from right to left
-4. Shift larger elements one position to the right
-5. Insert the key at the correct position
-6. Repeat until all elements are sorted
-
-### Python Implementation
+Start with the first element, which is trivially sorted, then pick the next element (the "key") and compare it with elements in the sorted region, moving from right to left. Shift larger elements one position to the right to make room, insert the key at the correct position, and repeat until every element has been placed.
 
 ```python
 def insertion_sort(arr):
@@ -875,13 +802,7 @@ def insertion_sort(arr):
     return arr
 ```
 
-Insertion sort is $$O(n^2)$$ in the worst case, but it has a major advantage: it runs in $$O(n)$$ time on nearly-sorted data. This makes it the best choice when you know the input is almost sorted, or when the array is very small. Many real-world sorting implementations (like Python's Timsort) use insertion sort for small sub-arrays.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> The yellow bar is the current element being inserted. The green region on the left is already sorted. Watch elements shift right to make room for the insertion.
-</div>
+Insertion sort is $$O(n^2)$$ in the worst case, but it has a major advantage: it runs in $$O(n)$$ time on nearly-sorted data. This makes it the best choice when you know the input is almost sorted, or when the array is very small. Many real-world sorting implementations (like Python's Timsort) use insertion sort for small sub-arrays. In the demo below, the yellow bar is the current element being inserted, and the green region on the left is already sorted, with elements shifting right to make room for each insertion.
 
 <div class="interactive-demo">
   <canvas id="insertion-canvas" width="680" height="250"></canvas>
@@ -892,6 +813,7 @@ Insertion sort is $$O(n^2)$$ in the worst case, but it has a major advantage: it
     <label>Speed: <input type="range" id="insertion-speed" min="1" max="20" value="8"> <span class="demo-value" id="insertion-speed-val">8</span></label>
   </div>
   <div class="demo-info" id="insertion-info">Pass: 0 | Comparisons: 0 | Swaps: 0 | Ready</div>
+  <div class="demo-caption">Settings: shared dataset, default speed 8. Yellow = key being inserted, green region = already sorted.</div>
 </div>
 
 <script>
@@ -969,17 +891,9 @@ Insertion sort is $$O(n^2)$$ in the worst case, but it has a major advantage: it
 
 ## Merge Sort
 
-Merge sort is a **divide and conquer** algorithm - one of the most important algorithmic paradigms. It splits the array in half, recursively sorts each half, then merges the two sorted halves back together. This guarantees $$O(n \log n)$$ time in all cases.
+Merge sort is a divide and conquer algorithm and one of the most important algorithmic paradigms. It splits the array in half, recursively sorts each half, then merges the two sorted halves back together. This guarantees $$O(n \log n)$$ time in all cases.
 
-### How It Works
-
-1. **Divide:** Split the array in half
-2. **Conquer:** Recursively sort each half
-3. **Merge:** Combine the two sorted halves into one sorted array
-
-The key insight is that merging two sorted arrays is easy and efficient (O(n)): just compare the front elements of each array and take the smaller one.
-
-### Python Implementation
+The algorithm divides the array in half, recursively sorts each half (the conquer step), and then merges the two sorted halves into a single sorted array. The key insight is that merging two sorted arrays is easy and efficient ($$O(n)$$): just compare the front elements of each array and take the smaller one.
 
 ```python
 def merge_sort(arr):
@@ -1010,13 +924,7 @@ def merge(left, right):
     return result
 ```
 
-Merge sort always runs in $$O(n \log n)$$ time. The divide step is $$O(1)$$ (just compute the midpoint), and the merge step is $$O(n)$$. Since we divide $$\log n$$ times, the total is $$O(n \log n)$$. The tradeoff is $$O(n)$$ extra space for the temporary arrays during merging.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Watch the divide-and-merge process. Yellow/purple bars show the two halves being merged. Green bars show elements placed in their merged position.
-</div>
+Merge sort always runs in $$O(n \log n)$$ time. The divide step is $$O(1)$$ (just compute the midpoint), and the merge step is $$O(n)$$. Since we divide $$\log n$$ times, the total is $$O(n \log n)$$. The tradeoff is $$O(n)$$ extra space for the temporary arrays during merging. The demo below shows the divide-and-merge process: yellow and purple bars show the two halves being merged, and green bars show elements placed in their merged position.
 
 <div class="interactive-demo">
   <canvas id="merge-canvas" width="680" height="250"></canvas>
@@ -1027,6 +935,7 @@ Merge sort always runs in $$O(n \log n)$$ time. The divide step is $$O(1)$$ (jus
     <label>Speed: <input type="range" id="merge-speed" min="1" max="20" value="8"> <span class="demo-value" id="merge-speed-val">8</span></label>
   </div>
   <div class="demo-info" id="merge-info">Comparisons: 0 | Moves: 0 | Ready</div>
+  <div class="demo-caption">Settings: shared dataset, default speed 8. Yellow/purple = halves being merged, green = placed in final position.</div>
 </div>
 
 <script>
@@ -1104,16 +1013,9 @@ Merge sort always runs in $$O(n \log n)$$ time. The divide step is $$O(1)$$ (jus
 
 ## Quick Sort
 
-Quick sort is another divide-and-conquer algorithm, but with a different strategy: instead of splitting at the midpoint, it picks a **pivot** element and **partitions** the array around it. All elements smaller than the pivot go to the left, and all elements larger go to the right. The pivot is then in its final sorted position.
+Quick sort is another divide-and-conquer algorithm, but with a different strategy: instead of splitting at the midpoint, it picks a pivot element and partitions the array around it. All elements smaller than the pivot go to the left, and all elements larger go to the right. The pivot is then in its final sorted position.
 
-### How It Works
-
-1. **Choose a pivot** (we use the last element)
-2. **Partition:** Rearrange elements so that everything less than the pivot is on the left, everything greater is on the right
-3. The pivot is now in its correct final position
-4. **Recursively** sort the left and right sub-arrays
-
-### Python Implementation
+Choose a pivot (we use the last element), then partition the array so that everything less than the pivot ends up on the left and everything greater on the right. The pivot is now in its correct final position, and we recursively apply the same procedure to the left and right sub-arrays.
 
 ```python
 def quick_sort(arr, low=0, high=None):
@@ -1139,13 +1041,7 @@ def partition(arr, low, high):
     return i + 1
 ```
 
-Quick sort has $$O(n \log n)$$ average time complexity. However, if the pivot is always the smallest or largest element (e.g., on an already-sorted array), it degrades to $$O(n^2)$$. In practice, randomized pivot selection avoids this. Quick sort is often faster than merge sort because it sorts **in-place** (no extra arrays), giving it better cache performance.
-
-### Interactive Visualization
-
-<div class="demo-hint">
-<strong>Interactive:</strong> The purple bar is the pivot. Yellow bars show elements being compared to the pivot. Red shows swaps during partitioning. When the pivot is placed, it turns green.
-</div>
+Quick sort has $$O(n \log n)$$ average time complexity. However, if the pivot is always the smallest or largest element (e.g., on an already-sorted array), it degrades to $$O(n^2)$$. In practice, randomized pivot selection avoids this. Quick sort is often faster than merge sort because it sorts in-place (no extra arrays), giving it better cache performance. In the demo below, the purple bar is the pivot, yellow bars show elements being compared to it, red shows swaps during partitioning, and when the pivot is placed it turns green.
 
 <div class="interactive-demo">
   <canvas id="quick-canvas" width="680" height="250"></canvas>
@@ -1156,6 +1052,7 @@ Quick sort has $$O(n \log n)$$ average time complexity. However, if the pivot is
     <label>Speed: <input type="range" id="quick-speed" min="1" max="20" value="8"> <span class="demo-value" id="quick-speed-val">8</span></label>
   </div>
   <div class="demo-info" id="quick-info">Comparisons: 0 | Swaps: 0 | Ready</div>
+  <div class="demo-caption">Settings: shared dataset, default speed 8, pivot = last element of each partition.</div>
 </div>
 
 <script>
@@ -1233,11 +1130,7 @@ Quick sort has $$O(n \log n)$$ average time complexity. However, if the pivot is
 
 ## Algorithm Race
 
-Now for the fun part - let us race all five algorithms against each other on the same input. This is the best way to see how $$O(n^2)$$ compares to $$O(n \log n)$$ in practice.
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click <strong>Race!</strong> to start all five algorithms simultaneously on the same array. Watch which ones finish first. Try it with sorted, reversed, and random arrays to see how input order affects performance.
-</div>
+Now for the fun part: let us race all five algorithms against each other on the same input. This is the best way to see how $$O(n^2)$$ compares to $$O(n \log n)$$ in practice. Click Race! to start all five algorithms simultaneously on the same array, and try sorted, reversed, and random arrays to see how input order affects performance.
 
 <div class="interactive-demo">
   <div class="sort-race-grid">
@@ -1255,6 +1148,7 @@ Now for the fun part - let us race all five algorithms against each other on the
     <button id="race-reset">Reset</button>
     <label>Speed: <input type="range" id="race-speed" min="1" max="20" value="12"> <span class="demo-value" id="race-speed-val">12</span></label>
   </div>
+  <div class="demo-caption">Settings: same shared dataset run through all five algorithms in parallel, default speed 12.</div>
 </div>
 
 <script>
@@ -1355,20 +1249,19 @@ Now for the fun part - let us race all five algorithms against each other on the
 
 ## Key Takeaways
 
-1. **Bubble, Selection, and Insertion sort** are $$O(n^2)$$ algorithms. They are simple to implement but slow on large datasets. Insertion sort stands out for being efficient on nearly-sorted data.
-
-2. **Merge Sort** guarantees $$O(n \log n)$$ in all cases but uses $$O(n)$$ extra space. It is stable (preserves the relative order of equal elements).
-
-3. **Quick Sort** is $$O(n \log n)$$ on average and sorts in-place. It is the fastest in practice for most inputs, which is why it is the default in many standard libraries.
-
-4. **No single algorithm is best for all cases.** The choice depends on: input size, whether data is nearly sorted, memory constraints, and whether stability matters.
-
-5. **Try experimenting above:** Use the "Sorted" button to see how insertion sort shines on sorted data. Use "Reversed" to see quick sort's worst case. Increase the size to 30 elements to see the $$O(n^2)$$ vs $$O(n \log n)$$ gap widen.
+| Concept | Key Idea |
+|---|---|
+| Quadratic Sorts | Bubble, selection, and insertion sort are $$O(n^2)$$ and simple but slow on large datasets. |
+| Insertion's Edge | Insertion sort runs in $$O(n)$$ on nearly-sorted data, which is why hybrid sorts use it for small chunks. |
+| Merge Sort | Guarantees $$O(n \log n)$$ in all cases and is stable, but needs $$O(n)$$ extra space. |
+| Quick Sort | Average $$O(n \log n)$$ and in-place, usually fastest in practice and the default in many libraries. |
+| No Universal Best | The right choice depends on input size, sortedness, memory, and whether stability matters. |
+| Experiment | Try Sorted, Reversed, and size 30 in the dataset above to see how each algorithm reacts. |
 
 ---
 
 ## What's Next?
 
-Now that you understand sorting, the natural next step is **searching** - because sorted data unlocks the power of binary search. Continue to the [Searching Algorithms Interactive Guide]({{ site.baseurl }}/searching-algorithms/) to see why $$O(\log n)$$ is so much better than $$O(n)$$.
+Now that you understand sorting, the natural next step is searching, because sorted data unlocks the power of binary search. Continue to the [Searching Algorithms Interactive Guide]({{ site.baseurl }}/searching-algorithms/) to see why $$O(\log n)$$ is so much better than $$O(n)$$.
 
 You can also explore the full [DSA in Python series]({{ site.baseurl }}/dsa/) for linked lists, trees, heaps, hash tables, and more.

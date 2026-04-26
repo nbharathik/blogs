@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Naive Bayes Classifier from Scratch - An Interactive Guide"
+title: "Naive Bayes Classifier from Scratch"
 author: bharathikannan
 categories: [Machine learning]
 tags: [ml-part-2]
@@ -170,30 +170,7 @@ date: 2026-03-17
 window.NB = (function() {
   var N = {};
 
-  N.getColors = function() {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (!document.documentElement.getAttribute('data-theme') &&
-       window.matchMedia('(prefers-color-scheme: dark)').matches);
-    return {
-      bg: isDark ? '#1a1b26' : '#ffffff',
-      bgSecondary: isDark ? '#24283b' : '#f1f5f9',
-      text: isDark ? '#c0caf5' : '#1e293b',
-      textMuted: isDark ? '#565f89' : '#94a3b8',
-      grid: isDark ? '#292e42' : '#e2e8f0',
-      border: isDark ? '#3b4261' : '#cbd5e1',
-      accent: isDark ? '#7aa2f7' : '#2563eb',
-      class0: isDark ? '#7aa2f7' : '#2563eb',
-      class0Light: isDark ? 'rgba(122,162,247,0.15)' : 'rgba(37,99,235,0.12)',
-      class0RGB: isDark ? [122,162,247] : [37,99,235],
-      class1: isDark ? '#f7768e' : '#e63946',
-      class1Light: isDark ? 'rgba(247,118,142,0.15)' : 'rgba(230,57,70,0.12)',
-      class1RGB: isDark ? [247,118,142] : [230,57,70],
-      green: isDark ? '#9ece6a' : '#16a34a',
-      orange: isDark ? '#ff9e64' : '#d97706',
-      purple: isDark ? '#bb9af7' : '#7c3aed',
-      isDark: isDark
-    };
-  };
+  N.getColors = function() { return window.Viz.colors(); };
 
   N.setupCanvas = function(canvas, w, h) {
     var dpr = window.devicePixelRatio || 1;
@@ -278,33 +255,27 @@ window.NB = (function() {
 })();
 </script>
 
-Naive Bayes is one of the simplest yet most effective classification algorithms in machine learning. Despite its "naive" assumption that features are independent, it performs remarkably well for text classification, spam filtering, and medical diagnosis. Its secret weapon is **Bayes' theorem**, which gives us a principled way to update beliefs in the face of new evidence.
-
-In this chapter, we will build Naive Bayes from scratch with interactive visualizations that let you manipulate every parameter and see the results in real-time.
+Naive Bayes is one of the simplest yet most effective classification algorithms in machine learning. Despite its "naive" assumption that features are independent, it performs remarkably well for text classification, spam filtering, and medical diagnosis. Its secret weapon is Bayes' theorem, which gives us a principled way to update beliefs in the face of new evidence. In this chapter, we will build Naive Bayes from scratch with interactive visualizations that let you manipulate every parameter and see the results in real time.
 
 ---
 
 ## 1. Bayes' Theorem Intuition
 
-At the heart of Naive Bayes lies **Bayes' theorem**. It tells us how to reverse conditional probabilities:
+At the heart of Naive Bayes lies Bayes' theorem. It tells us how to reverse conditional probabilities:
 
 $$P(A \mid B) = \frac{P(B \mid A) \, P(A)}{P(B)}$$
 
 where:
-- $$P(A \mid B)$$ is the **posterior**, the probability of $$A$$ given we observed $$B$$
-- $$P(B \mid A)$$ is the **likelihood**, how likely is $$B$$ if $$A$$ is true
-- $$P(A)$$ is the **prior**, our initial belief about $$A$$
-- $$P(B)$$ is the **evidence**, total probability of observing $$B$$
+- **Posterior** $$P(A \mid B)$$: the probability of $$A$$ given we observed $$B$$
+- **Likelihood** $$P(B \mid A)$$: how likely is $$B$$ if $$A$$ is true
+- **Prior** $$P(A)$$: our initial belief about $$A$$
+- **Evidence** $$P(B)$$: total probability of observing $$B$$
 
 The evidence is computed using the law of total probability:
 
 $$P(B) = P(B \mid A) \, P(A) + P(B \mid \neg A) \, P(\neg A)$$
 
-### Try It: Bayes' Theorem Calculator
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Adjust the three sliders to see how P(A|B) changes. The area diagram on the right shows the proportional areas, the highlighted region is the posterior probability.
-</div>
+Adjust the three sliders below to see how P(A|B) changes. The area diagram on the right shows the proportional areas, and the highlighted region is the posterior probability.
 
 <div class="interactive-demo">
   <canvas id="bayes-canvas"></canvas>
@@ -314,6 +285,7 @@ $$P(B) = P(B \mid A) \, P(A) + P(B \mid \neg A) \, P(\neg A)$$
     <label>P(B|~A): <input type="range" id="bayes-pbna" min="1" max="99" value="20"> <span class="demo-value" id="bayes-pbna-val">0.20</span></label>
   </div>
   <div class="demo-info" id="bayes-info"></div>
+  <div class="demo-caption">Settings: P(A)=0.30, P(B|A)=0.80, P(B|~A)=0.20; the highlighted area is the posterior P(A|B).</div>
 </div>
 
 <script>
@@ -465,37 +437,32 @@ $$P(B) = P(B \mid A) \, P(A) + P(B \mid \neg A) \, P(\neg A)$$
 })();
 </script>
 
-**Key insight:** Even if $$P(A)$$ is small (a rare disease, for example), a high likelihood $$P(B \mid A)$$ can produce a significant posterior $$P(A \mid B)$$. Conversely, if $$P(B \mid \neg A)$$ is also high (the test gives many false positives), the posterior drops dramatically. This is the **base rate fallacy** that Bayes' theorem helps us avoid.
+Even if $$P(A)$$ is small (a rare disease, for example), a high likelihood $$P(B \mid A)$$ can produce a significant posterior $$P(A \mid B)$$. Conversely, if $$P(B \mid \neg A)$$ is also high (the test gives many false positives), the posterior drops dramatically. This is the base rate fallacy that Bayes' theorem helps us avoid.
 
 ---
 
 ## 2. Class-Conditional Distributions
 
-In Gaussian Naive Bayes, we model each feature's distribution within each class as a Gaussian (normal distribution). The **class-conditional density** for feature $$x$$ given class $$C_k$$ is:
+In Gaussian Naive Bayes, we model each feature's distribution within each class as a Gaussian (normal distribution). The class-conditional density for feature $$x$$ given class $$C_k$$ is:
 
 $$P(x \mid C_k) = \frac{1}{\sqrt{2\pi\sigma_k^2}} \exp\left(-\frac{(x - \mu_k)^2}{2\sigma_k^2}\right)$$
 
-When we observe a new data point $$x$$, we compare the height of each class's Gaussian at that point. The class whose bell curve is taller at $$x$$ gives a higher likelihood.
-
-The **decision boundary** occurs where the two class-conditional densities are equal (assuming equal priors):
+When we observe a new data point $$x$$, we compare the height of each class's Gaussian at that point. The class whose bell curve is taller at $$x$$ gives a higher likelihood. The decision boundary occurs where the two class-conditional densities are equal (assuming equal priors):
 
 $$P(x \mid C_0) = P(x \mid C_1)$$
 
-### Try It: Adjust the Gaussians
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Drag the sliders to change the mean and variance of each class's Gaussian. Watch the decision boundary (green dashed line) shift as the distributions change. The shaded regions show the classification regions for each class.
-</div>
+Drag the sliders below to change the mean and variance of each class's Gaussian. Watch the decision boundary (green dashed line) shift as the distributions change, and notice the shaded regions that show the classification region for each class.
 
 <div class="interactive-demo">
   <canvas id="gauss1d-canvas"></canvas>
   <div class="demo-controls">
-    <label style="color:var(--class0, #2563eb)">~0: <input type="range" id="g1d-mu0" min="-40" max="40" value="-15"> <span class="demo-value" id="g1d-mu0-val">-1.5</span></label>
-    <label style="color:var(--class0, #2563eb)">~0: <input type="range" id="g1d-s0" min="3" max="30" value="10"> <span class="demo-value" id="g1d-s0-val">1.0</span></label>
-    <label style="color:var(--class1, #e63946)">~1: <input type="range" id="g1d-mu1" min="-40" max="40" value="15"> <span class="demo-value" id="g1d-mu1-val">1.5</span></label>
-    <label style="color:var(--class1, #e63946)">~1: <input type="range" id="g1d-s1" min="3" max="30" value="10"> <span class="demo-value" id="g1d-s1-val">1.0</span></label>
+    <label style="color:var(--class0, var(--accent))">~0: <input type="range" id="g1d-mu0" min="-40" max="40" value="-15"> <span class="demo-value" id="g1d-mu0-val">-1.5</span></label>
+    <label style="color:var(--class0, var(--accent))">~0: <input type="range" id="g1d-s0" min="3" max="30" value="10"> <span class="demo-value" id="g1d-s0-val">1.0</span></label>
+    <label style="color:var(--class1, var(--viz-red))">~1: <input type="range" id="g1d-mu1" min="-40" max="40" value="15"> <span class="demo-value" id="g1d-mu1-val">1.5</span></label>
+    <label style="color:var(--class1, var(--viz-red))">~1: <input type="range" id="g1d-s1" min="3" max="30" value="10"> <span class="demo-value" id="g1d-s1-val">1.0</span></label>
   </div>
   <div class="demo-info" id="g1d-info"></div>
+  <div class="demo-caption">Settings: Class 0 N(-1.5, 1.0), Class 1 N(1.5, 1.0), equal priors; the green dashed line marks the decision boundary.</div>
 </div>
 
 <script>
@@ -651,7 +618,7 @@ $$P(x \mid C_0) = P(x \mid C_1)$$
 })();
 </script>
 
-**Notice:** When the variances are equal, there is exactly one decision boundary midway between the two means. When they differ, you can get **two** boundaries, creating a region where the class with the wider spread "wraps around" the narrower one.
+When the variances are equal, there is exactly one decision boundary midway between the two means. When they differ, you can get two boundaries, creating a region where the class with the wider spread "wraps around" the narrower one.
 
 ---
 
@@ -661,13 +628,7 @@ So far we have assumed equal priors: $$P(C_0) = P(C_1) = 0.5$$. But in many real
 
 $$P(C_k \mid x) \propto P(x \mid C_k) \, P(C_k)$$
 
-When we increase $$P(C_k)$$, the decision boundary shifts **away** from class $$k$$, because we now believe class $$k$$ is more likely a priori. This means class $$k$$ claims more territory even though its distribution has not changed.
-
-### Try It: Shift the Decision Boundary with Priors
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Adjust the prior probability for Class 0. The class-conditional distributions stay fixed, but watch how the decision boundary shifts as you change the prior.
-</div>
+When we increase $$P(C_k)$$, the decision boundary shifts away from class $$k$$, because we now believe class $$k$$ is more likely a priori. This means class $$k$$ claims more territory even though its distribution has not changed. Adjust the prior probability for Class 0 below; the class-conditional distributions stay fixed, but watch how the decision boundary shifts as you change the prior.
 
 <div class="interactive-demo">
   <canvas id="prior-canvas"></canvas>
@@ -676,6 +637,7 @@ When we increase $$P(C_k)$$, the decision boundary shifts **away** from class $$
     <button id="prior-reset">Reset to 0.50</button>
   </div>
   <div class="demo-info" id="prior-info"></div>
+  <div class="demo-caption">Settings: fixed N(-1.5, 1.0) and N(1.5, 1.0) class-conditionals, P(Class 0)=0.50; slide to imbalance the prior.</div>
 </div>
 
 <script>
@@ -815,13 +777,13 @@ When we increase $$P(C_k)$$, the decision boundary shifts **away** from class $$
 })();
 </script>
 
-**Key insight:** Notice that at $$P(C_0) = 0.50$$ the boundary sits at $$x = 0$$, exactly between the two means. As you increase $$P(C_0)$$, the boundary shifts right, Class 0 needs less likelihood evidence because its prior is already high. This is precisely why accounting for class imbalance matters.
+At $$P(C_0) = 0.50$$ the boundary sits at $$x = 0$$, exactly between the two means. As you increase $$P(C_0)$$, the boundary shifts right; Class 0 needs less likelihood evidence because its prior is already high. This is precisely why accounting for class imbalance matters.
 
 ---
 
 ## 4. 2D Gaussian Naive Bayes
 
-In practice, we have multiple features. The **naive** assumption says that features are conditionally independent given the class:
+In practice, we have multiple features. The naive assumption says that features are conditionally independent given the class:
 
 $$P(\mathbf{x} \mid C_k) = P(x_1 \mid C_k) \cdot P(x_2 \mid C_k) \cdots P(x_d \mid C_k)$$
 
@@ -829,13 +791,7 @@ For two features and Gaussian distributions, each class $$k$$ has parameters $$(
 
 $$P(x_1, x_2 \mid C_k) = \frac{1}{2\pi \sigma_{k,1} \sigma_{k,2}} \exp\left(-\frac{(x_1 - \mu_{k,1})^2}{2\sigma_{k,1}^2} - \frac{(x_2 - \mu_{k,2})^2}{2\sigma_{k,2}^2}\right)$$
 
-This creates **axis-aligned** elliptical contours because the independence assumption eliminates any correlation between features.
-
-### Try It: 2D Classification
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Click anywhere on the canvas to add a test point and see its posterior probability. The contour lines show class-conditional density levels. Click <strong>Generate</strong> for sample data, or use <strong>Clear Points</strong> to start fresh.
-</div>
+This creates axis-aligned elliptical contours because the independence assumption eliminates any correlation between features. Click anywhere on the canvas below to add a test point and see its posterior probability. The contour lines show class-conditional density levels; use Generate for sample data or Clear Points to start fresh.
 
 <div class="interactive-demo">
   <canvas id="nb2d-canvas"></canvas>
@@ -845,6 +801,7 @@ This creates **axis-aligned** elliptical contours because the independence assum
     <label>P(C0): <input type="range" id="nb2d-prior" min="10" max="90" value="50"> <span class="demo-value" id="nb2d-prior-val">0.50</span></label>
   </div>
   <div class="demo-info" id="nb2d-info">Click to classify a point</div>
+  <div class="demo-caption">Settings: 60 sampled points from two axis-aligned 2D Gaussians, P(C0)=0.50; click anywhere to add a test point.</div>
 </div>
 
 <script>
@@ -1109,13 +1066,7 @@ This creates **axis-aligned** elliptical contours because the independence assum
 
 ## 5. Posterior Probability Heatmap
 
-To get a complete picture of how Naive Bayes classifies the entire feature space, we can render a **posterior probability heatmap**. Each pixel is colored by $$P(C_0 \mid \mathbf{x})$$, from deep blue (high confidence for Class 0) through white (uncertain) to deep red (high confidence for Class 1).
-
-### Try It: Full Posterior Landscape
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Adjust the prior and watch the entire heatmap shift. The contour line at P(C0|x) = 0.5 is the decision boundary. Move the mouse over the canvas to see exact posterior values.
-</div>
+To get a complete picture of how Naive Bayes classifies the entire feature space, we can render a posterior probability heatmap. Each pixel is colored by $$P(C_0 \mid \mathbf{x})$$, from deep blue (high confidence for Class 0) through white (uncertain) to deep red (high confidence for Class 1). Adjust the prior below and watch the entire heatmap shift; the contour line at P(C0|x) = 0.5 is the decision boundary. Move the mouse over the canvas to see exact posterior values.
 
 <div class="interactive-demo">
   <canvas id="heatmap-canvas"></canvas>
@@ -1124,6 +1075,7 @@ To get a complete picture of how Naive Bayes classifies the entire feature space
     <button id="hm-reset">Reset</button>
   </div>
   <div class="demo-info" id="hm-info">Hover over the canvas to see posterior values</div>
+  <div class="demo-caption">Settings: fixed two-Gaussian model, P(Class 0)=0.50; hover for posteriors, slide to shift the heatmap.</div>
 </div>
 
 <script>
@@ -1303,25 +1255,17 @@ To get a complete picture of how Naive Bayes classifies the entire feature space
 })();
 </script>
 
-The smooth gradient in the heatmap tells us not just the predicted class but also the **confidence** of each prediction. Points near the decision boundary (green line) have near-50/50 posteriors, while points deep in each class's territory have posteriors close to 1.0.
+The smooth gradient in the heatmap tells us not just the predicted class but also the confidence of each prediction. Points near the decision boundary (green line) have near-50/50 posteriors, while points deep in each class's territory have posteriors close to 1.0.
 
 ---
 
 ## 6. The "Naive" Assumption
 
-The word "naive" comes from the assumption that features are **conditionally independent** given the class. In reality, features are almost always correlated. So why does Naive Bayes still work?
-
-Consider the true joint distribution $$P(x_1, x_2 \mid C_k)$$ for correlated features. The Naive Bayes model approximates it as the product of marginals:
+The word "naive" comes from the assumption that features are conditionally independent given the class. In reality, features are almost always correlated, so why does Naive Bayes still work? Consider the true joint distribution $$P(x_1, x_2 \mid C_k)$$ for correlated features. The Naive Bayes model approximates it as the product of marginals:
 
 $$P_{NB}(x_1, x_2 \mid C_k) = P(x_1 \mid C_k) \cdot P(x_2 \mid C_k)$$
 
-The **key insight** is that for classification, we do not need the densities to be correct, we only need the **argmax** to be correct. Even if the estimated probabilities are poorly calibrated, the ranking of classes may still be right.
-
-### Try It: Correlated vs. Independent Features
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Adjust the correlation slider to see how the true distribution (left) changes. The right panel always shows the Naive Bayes approximation (independent features). Notice that the decision boundary is often similar even when the contour shapes differ significantly.
-</div>
+For classification, we do not need the densities to be correct; we only need the argmax to be correct. Even if the estimated probabilities are poorly calibrated, the ranking of classes may still be right. Adjust the correlation slider below to see how the true distribution (left) changes. The right panel always shows the Naive Bayes approximation (independent features); the decision boundary is often similar even when the contour shapes differ significantly.
 
 <div class="interactive-demo">
   <div class="demo-split">
@@ -1339,6 +1283,7 @@ The **key insight** is that for classification, we do not need the densities to 
     <button id="naive-reset">Reset</button>
   </div>
   <div class="demo-info" id="naive-info"></div>
+  <div class="demo-caption">Settings: two-class bivariate Gaussians, true rho=0.60 (left) vs naive rho=0 (right); slide rho to vary correlation.</div>
 </div>
 
 <script>
@@ -1496,15 +1441,13 @@ The **key insight** is that for classification, we do not need the densities to 
 })();
 </script>
 
-**Observation:** Even at $$\rho = 0.9$$ (extreme correlation), the decision boundary from the true distribution and the Naive Bayes approximation are often quite close. The contour shapes differ dramatically, tilted ellipses vs axis-aligned ones, but the dividing line between classes is similar. This explains Naive Bayes' surprising effectiveness in practice.
+Even at $$\rho = 0.9$$ (extreme correlation), the decision boundary from the true distribution and the Naive Bayes approximation are often quite close. The contour shapes differ dramatically, tilted ellipses vs axis-aligned ones, but the dividing line between classes is similar. This explains Naive Bayes' surprising effectiveness in practice.
 
 ---
 
 ## 7. Text Classification: Spam Detection Demo
 
-Perhaps the most famous application of Naive Bayes is **text classification**. For text, we use **Multinomial Naive Bayes**, where features are word counts (or presence/absence).
-
-For a document $$d$$ with words $$w_1, w_2, \ldots, w_n$$:
+Perhaps the most famous application of Naive Bayes is text classification. For text, we use Multinomial Naive Bayes, where features are word counts (or presence/absence). For a document $$d$$ with words $$w_1, w_2, \ldots, w_n$$:
 
 $$P(\text{spam} \mid d) \propto P(\text{spam}) \prod_{i=1}^{n} P(w_i \mid \text{spam})$$
 
@@ -1512,18 +1455,14 @@ We compare this to $$P(\text{ham} \mid d)$$ and classify by whichever is larger.
 
 $$\log P(\text{spam} \mid d) \propto \log P(\text{spam}) + \sum_{i=1}^{n} \log P(w_i \mid \text{spam})$$
 
-### Try It: Spam Classifier
-
-<div class="demo-hint">
-<strong>Interactive:</strong> Type a message in the text box below. The classifier will break it into words, compute log-probabilities for each word, and give you a spam/ham verdict with confidence. Words are color-coded: <span style="color:#e63946;font-weight:600">red = spammy</span>, <span style="color:#2563eb;font-weight:600">blue = ham-like</span>, <span style="color:#94a3b8">gray = neutral</span>.
-</div>
+Type a message in the text box below. The classifier breaks it into words, computes log-probabilities for each word, and gives you a spam/ham verdict with confidence. Words are color-coded: red = spammy, blue = ham-like, gray = neutral.
 
 <div class="interactive-demo">
   <input type="text" class="nb-text-input" id="spam-input" placeholder="Type a message... e.g. 'Congratulations! You won a free prize click here now'" value="Congratulations! You won a free prize click here now">
   <div id="spam-word-tags" class="nb-word-breakdown" style="margin-top:0.75rem"></div>
   <div class="nb-result-bar" id="spam-bar">
-    <div id="spam-bar-ham" style="background:#2563eb">Ham</div>
-    <div id="spam-bar-spam" style="background:#e63946">Spam</div>
+    <div id="spam-bar-ham" style="background:var(--accent)">Ham</div>
+    <div id="spam-bar-spam" style="background:var(--viz-red)">Spam</div>
   </div>
   <div class="demo-info" id="spam-info"></div>
   <div class="demo-controls">
@@ -1531,6 +1470,7 @@ $$\log P(\text{spam} \mid d) \propto \log P(\text{spam}) + \sum_{i=1}^{n} \log P
     <button id="spam-ex2">Try: "FREE money click now!!!"</button>
     <button id="spam-ex3">Try: "Hi, can you review the report?"</button>
   </div>
+  <div class="demo-caption">Settings: pre-trained Multinomial NB with hand-tuned word log-probabilities; click an example or type your own.</div>
 </div>
 
 <script>
@@ -1663,19 +1603,11 @@ $$\log P(\text{spam} \mid d) \propto \log P(\text{spam}) + \sum_{i=1}^{n} \log P
 
 ## 8. Laplace Smoothing
 
-There is a critical problem with Naive Bayes: if a word has **never** appeared in spam training data, then $$P(w \mid \text{spam}) = 0$$, and the entire product becomes zero, no matter how many other spammy words are present. A single unseen word kills the entire prediction.
-
-**Laplace smoothing** (also called additive smoothing) fixes this by adding a pseudo-count $$\alpha$$ to every word's count:
+There is a critical problem with Naive Bayes: if a word has never appeared in spam training data, then $$P(w \mid \text{spam}) = 0$$, and the entire product becomes zero, no matter how many other spammy words are present. A single unseen word kills the entire prediction. Laplace smoothing (also called additive smoothing) fixes this by adding a pseudo-count $$\alpha$$ to every word's count:
 
 $$P(w \mid C_k) = \frac{\text{count}(w, C_k) + \alpha}{\sum_w \text{count}(w, C_k) + \alpha \cdot |V|}$$
 
-where $$|V|$$ is the vocabulary size. When $$\alpha = 1$$, this is classic **add-one smoothing**. When $$\alpha < 1$$, it is **Lidstone smoothing**.
-
-### Try It: The Effect of Smoothing
-
-<div class="demo-hint">
-<strong>Interactive:</strong> The bars show estimated word probabilities from a small training set. Toggle smoothing on/off and adjust alpha to see how zero-count words get assigned nonzero probabilities and how other probabilities shrink slightly to compensate.
-</div>
+where $$|V|$$ is the vocabulary size. When $$\alpha = 1$$, this is classic add-one smoothing. When $$\alpha < 1$$, it is Lidstone smoothing. The bars below show estimated word probabilities from a small training set. Toggle smoothing on or off and adjust alpha to see how zero-count words get assigned nonzero probabilities and how other probabilities shrink slightly to compensate.
 
 <div class="interactive-demo">
   <canvas id="smooth-canvas"></canvas>
@@ -1685,6 +1617,7 @@ where $$|V|$$ is the vocabulary size. When $$\alpha = 1$$, this is classic **add
     <button id="smooth-reset">Reset</button>
   </div>
   <div class="demo-info" id="smooth-info"></div>
+  <div class="demo-caption">Settings: 10 demo words, vocabulary size 5000, smoothing ON with alpha=1.00; toggle and slide alpha to compare.</div>
 </div>
 
 <script>
@@ -1838,7 +1771,7 @@ where $$|V|$$ is the vocabulary size. When $$\alpha = 1$$, this is classic **add
 })();
 </script>
 
-**The takeaway:** Without smoothing, the three zero-count words ("report", "pizza", "quantum") have $$P = 0$$, which means any document containing them will never be classified as spam, even if it also contains "free", "win", and "money". Smoothing eliminates this catastrophic failure by assigning small but nonzero probabilities to unseen words.
+Without smoothing, the three zero-count words ("report", "pizza", "quantum") have $$P = 0$$, which means any document containing them will never be classified as spam, even if it also contains "free", "win", and "money". Smoothing eliminates this catastrophic failure by assigning small but nonzero probabilities to unseen words.
 
 ---
 
@@ -1918,11 +1851,4 @@ Naive Bayes classifiers are a family of algorithms that apply Bayes' theorem wit
 
 ### The Big Picture
 
-Naive Bayes teaches us a profound lesson: **simplicity can be powerful**. By making a "wrong" assumption (feature independence), we get an algorithm that is:
-1. Trivially easy to train (just count and divide)
-2. Extremely fast at prediction
-3. Often competitive with far more complex models
-
-The classifier's success illustrates a recurring theme in machine learning: the **bias-variance tradeoff**. Naive Bayes has high bias (the independence assumption) but very low variance (few parameters to estimate). When data is scarce or dimensions are high, this tradeoff works in its favor.
-
-In the next chapter, we will explore **decision trees**, which take the opposite approach, making no assumptions about feature distributions but building complex, hierarchical decision rules from the data itself.
+Naive Bayes teaches us a profound lesson: simplicity can be powerful. By making a "wrong" assumption (feature independence), we get an algorithm that is trivially easy to train (just count and divide), extremely fast at prediction, and often competitive with far more complex models. The classifier's success illustrates a recurring theme in machine learning: the bias-variance tradeoff. Naive Bayes has high bias (the independence assumption) but very low variance (few parameters to estimate). When data is scarce or dimensions are high, this tradeoff works in its favor. In the next chapter, we will explore decision trees, which take the opposite approach, making no assumptions about feature distributions but building complex, hierarchical decision rules from the data itself.
