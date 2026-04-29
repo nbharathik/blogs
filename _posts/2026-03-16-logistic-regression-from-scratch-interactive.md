@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: "Logistic Regression"
 author: bharathikannan
@@ -8,7 +8,7 @@ hidden: true
 description: "Build logistic regression from the ground up with interactive visualizations. Adjust parameters, watch gradient descent optimize the sigmoid curve, and explore the decision boundary - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /logistic-regression/
-date: 2026-03-17
+date: 2026-04-29
 ---
 
 <style>
@@ -440,7 +440,7 @@ window.LogR = (function() {
 
 Logistic regression is one of the most fundamental classification algorithms in machine learning. Despite the word "regression" in its name, logistic regression is used for classification, not regression. It is the natural next step after linear regression and shares many of the same ideas: a hypothesis function, a cost function, and gradient descent for optimization. In this interactive guide, we will build logistic regression completely from scratch using a concrete, intuitive example of predicting whether a student passes an exam based on the number of hours they studied. Given a set of students where we know both how many hours they studied and whether they passed, can we learn a model that predicts whether a new student will pass?
 
-**In this guide, you will:**
+In this guide, you will:
 
 - Understand the sigmoid function that maps any real number to a probability between 0 and 1
 - Build the hypothesis function and the binary cross-entropy cost (log loss)
@@ -639,7 +639,7 @@ So, written in one line:
 
 $$h(x) = \sigma(w \cdot x + b) = \frac{1}{1 + e^{-(w \cdot x + b)}}$$
 
-This means the linear part $$w \cdot x + b$$ gives a raw score, the sigmoid turns that score into a value between 0 and 1, and that value is the predicted probability of class 1 (for example, the probability of passing). The two parameters $$w$$ and $$b$$ control the shape and position of the sigmoid curve when plotted against the input $$x$$. The weight $$w$$ controls how steep the curve is, so larger $$|w|$$ means a sharper transition from 0 to 1, and if $$w > 0$$ the probability increases as $$x$$ increases. The bias $$b$$ moves the curve left or right and sets where the model reaches 0.5 probability, with the decision boundary at $$x = -b/w$$. Together, $$w$$ and $$b$$ define the full probability curve, and training logistic regression means finding the values that make this curve fit the data best.
+This means the linear part $$w \cdot x + b$$ gives a raw score, the sigmoid turns that score into a value between 0 and 1, and that value is the predicted probability of class 1 (for example, the probability of passing). The two parameters $$w$$ and $$b$$ control the shape and position of the sigmoid curve when plotted against the input $$x$$. The weight $$w$$ controls how steep the curve is, so larger $$\vert w \vert$$ means a sharper transition from 0 to 1, and if $$w > 0$$ the probability increases as $$x$$ increases. The bias $$b$$ moves the curve left or right and sets where the model reaches 0.5 probability, with the decision boundary at $$x = -b/w$$. Together, $$w$$ and $$b$$ define the full probability curve, and training logistic regression means finding the values that make this curve fit the data best.
 
 <div class="interactive-demo">
 <canvas id="logr-hyp-canvas"></canvas>
@@ -648,7 +648,7 @@ This means the linear part $$w \cdot x + b$$ gives a raw score, the sigmoid turn
   <label>Bias (b): <input type="range" id="logr-hyp-b" min="-25" max="10" step="0.2" value="-7"> <span class="demo-value" id="logr-hyp-b-val">-7.0</span></label>
 </div>
 <div class="demo-info" id="logr-hyp-eq">h(x) = sigmoid(1.50 * x + (-7.0))</div>
-<div class="demo-caption">Settings: w in [-5, 5], b in [-25, 10], starting at w = 1.50, b = -7.0. The purple dashed line marks the decision boundary at x = -b/w.</div>
+<div class="demo-caption">The dashed line marks the decision boundary at x = -b/w.</div>
 </div>
 
 <script>
@@ -738,7 +738,7 @@ $$J(w,b) = -\frac{1}{m}\sum_{i=1}^{m}\left[y^{(i)} \cdot \log(h(x^{(i)})) + (1-y
   </label>
 </div>
 <div class="demo-info" id="logr-logloss-info">L = 0.6931</div>
-<div class="demo-caption">Settings: single-point log loss curves over predicted probability p in (0, 1) for y = 0 and y = 1.</div>
+<!-- <div class="demo-caption">Settings: single-point log loss curves over predicted probability p in (0, 1) for y = 0 and y = 1.</div> -->
 </div>
 
 <script>
@@ -848,7 +848,7 @@ For a single data point, the cost behaves intuitively. When $$y = 1$$ (actual = 
   <label>b: <input type="range" id="logr-cost-b" min="-30" max="10" step="0.2" value="-4"> <span class="demo-value" id="logr-cost-b-val">-4.0</span></label>
 </div>
 <div class="demo-info" id="logr-cost-info">Log Loss J(w,b) = 0.00</div>
-<div class="demo-caption">Settings: starting at w = 1.00, b = -4.0, log loss across the full dataset. Dashed lines connect each point to its predicted probability on the sigmoid.</div>
+<!-- <div class="demo-caption">Settings: starting at w = 1.00, b = -4.0, log loss across the full dataset. Dashed lines connect each point to its predicted probability on the sigmoid.</div> -->
 </div>
 
 <script>
@@ -935,7 +935,7 @@ Every possible combination of $$w$$ and $$b$$ produces a different log loss valu
   </div>
 </div>
 <div class="demo-info" id="logr-contour-info">w = 1.50, b = -7.0, Cost = 0.00</div>
-<div class="demo-caption">Settings: log loss surface across w in [-1, 5] and b in [-25, 5], starting at w = 1.50, b = -7.0. Drag the green dot toward the lightest region to find the minimum cost.</div>
+<div class="demo-caption">Drag the dot toward the lightest region to find the minimum cost.</div>
 </div>
 
 <script>
@@ -1083,7 +1083,7 @@ Just like in linear regression, the learning rate $$\alpha$$ controls the step s
   <button id="logr-gd-reset">Reset</button>
 </div>
 <div class="demo-info" id="logr-gd-info">Iteration: 0 | w = 0.0000, b = 0.0, Cost = -</div>
-<div class="demo-caption">Settings: starts at w = 0, b = 0, default learning rate = 1.0. Step runs one iteration; Run animates continuously. Features are normalized internally for stability.</div>
+<div class="demo-caption">Settings: Step runs one iteration; Run animates continuously. Features are normalized internally for stability.</div>
 </div>
 
 <script>
@@ -1292,7 +1292,7 @@ Everything to the left of this boundary is classified as fail, and everything to
   <label>Threshold: <input type="range" id="logr-boundary-thresh" min="0.05" max="0.95" step="0.01" value="0.50"> <span class="demo-value" id="logr-boundary-thresh-val">0.50</span></label>
 </div>
 <div class="demo-info" id="logr-boundary-info">Click Auto-Train to fit the model</div>
-<div class="demo-caption">Settings: Auto-Train fits the model on the dataset above; threshold default = 0.50. Shaded regions show the predicted class on either side of the boundary.</div>
+<div class="demo-caption">Settings: Auto-Train fits the model on the dataset above. Shaded regions show the predicted class on either side of the boundary.</div>
 </div>
 
 <script>

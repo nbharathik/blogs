@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: "Logistic Regression II"
 author: bharathikannan
@@ -8,7 +8,7 @@ hidden: true
 description: "Extend logistic regression to two features with interactive 3D visualizations. Watch a sigmoid probability surface shape itself to fit data, explore the cost surface, and see gradient descent converge."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /logistic-regression-multivariate/
-date: 2026-03-17
+date: 2026-04-29
 ---
 
 <style>
@@ -422,7 +422,7 @@ Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2
       <span class="demo-value" id="logr2-el-val">30°</span>
     </label>
   </div>
-  <div class="demo-caption">Settings: 80 synthetic students (true w₁ = 0.8, w₂ = 0.6, b = -7, noise = 0.8). Drag w₁ and w₂ to tilt the sigmoid surface and b to shift it; click Fit to run gradient descent on all three.</div>
+  <div class="demo-caption">Settings: Drag w₁ and w₂ to tilt the sigmoid surface and b to shift it; click Fit to run gradient descent on all three.</div>
 </div>
 
 <script>
@@ -809,7 +809,7 @@ where $$h(x^{(i)}) = \sigma(w_1 x_1^{(i)} + w_2 x_2^{(i)})$$. Every possible com
     </label>
   </div>
   <div class="demo-info" id="logr2-cost-info">Cost and position update as you adjust w₁, w₂ above.</div>
-  <div class="demo-caption">Settings: bias fixed at b = 0, weights swept over w₁, w₂ in [-3, 3]. The red dot shows current weights; drag the green dot on the contour to explore the cost surface.</div>
+  <!-- <div class="demo-caption">Settings: bias fixed at b = 0, weights swept over w₁, w₂ in [-3, 3]. The red dot shows current weights; drag the green dot on the contour to explore the cost surface.</div> -->
 </div>
 
 <script>
@@ -1123,7 +1123,7 @@ Notice how similar this looks to the linear regression gradient. The only differ
     <button id="logr2-gd-reset">Reset</button>
   </div>
   <div class="demo-info" id="logr2-gd-info">Iteration: 0 | w₁ = 0.00, w₂ = 0.00, Cost J(b=0) = ―</div>
-  <div class="demo-caption">Settings: starts at w₁ = 0, w₂ = 0, default α = 0.1, bias fixed at b = 0. Step runs one iteration; Run animates continuously.</div>
+  <!-- <div class="demo-caption">Settings: starts at w₁ = 0, w₂ = 0, default α = 0.1, bias fixed at b = 0. Step runs one iteration; Run animates continuously.</div> -->
 </div>
 
 <script>

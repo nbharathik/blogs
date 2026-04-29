@@ -3,8 +3,9 @@ layout: post
 title: "Machine Learning from Scratch"
 author: bharathikannan
 categories: [Machine learning]
-description: "Learn machine learning from scratch with interactive visualizations. Drag data points, tune hyperparameters, watch algorithms train in real-time - all in your browser with math and code."
+description: "Learn machine learning from scratch with interactive visualizations all in your browser with math and code."
 permalink: /ml/
+date: 2026-04-29
 ---
 
 <style>
@@ -31,21 +32,8 @@ permalink: /ml/
   text-decoration: none;
   color: inherit;
 }
-.ml-card-vis {
-  width: 100%;
-  height: 160px;
-  display: block;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border);
-  border-radius: 11px 11px 0 0;
-}
-.ml-card-vis svg {
-  width: 100%;
-  height: 100%;
-  border-radius: 11px 11px 0 0;
-}
 .ml-card-body {
-  padding: 0.35rem 0.8rem 0.65rem;
+  padding: 0.85rem 1rem 0.9rem;
 }
 .ml-card h3 {
   font-size: 0.9rem;
@@ -224,110 +212,27 @@ Each post starts with the intuition, walks through the math step by step, and th
   <h2>Foundations of Supervised Learning</h2>
   <div class="ml-grid">
     <a class="ml-card" href="{{ site.baseurl }}/linear-regression/">
-      <div class="ml-card-vis" aria-hidden="true"><svg viewBox="0 0 300 140" fill="none">
-        <!-- axis lines -->
-        <line x1="28" y1="125" x2="275" y2="125" stroke="#d5dbe3" stroke-width="0.8"/><line x1="28" y1="125" x2="28" y2="12" stroke="#d5dbe3" stroke-width="0.8"/>
-        <!-- data points -->
-        <circle cx="45" cy="105" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="70" cy="92" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="95" cy="82" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="115" cy="74" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="138" cy="68" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="162" cy="55" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="185" cy="50" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="205" cy="42" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="230" cy="35" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="255" cy="25" r="4" fill="#2e86c1" opacity="0.75"/>
-        <!-- best fit line -->
-        <line x1="32" y1="114" x2="272" y2="18" stroke="#e67e22" stroke-width="2.5" stroke-linecap="round"/>
-        <!-- residual lines -->
-        <line x1="70" y1="92" x2="70" y2="100" stroke="#e67e22" stroke-width="0.8" stroke-dasharray="2.5 1.5" opacity="0.45"/><line x1="115" y1="74" x2="115" y2="81" stroke="#e67e22" stroke-width="0.8" stroke-dasharray="2.5 1.5" opacity="0.45"/><line x1="162" y1="55" x2="162" y2="60" stroke="#e67e22" stroke-width="0.8" stroke-dasharray="2.5 1.5" opacity="0.45"/><line x1="205" y1="42" x2="205" y2="39" stroke="#e67e22" stroke-width="0.8" stroke-dasharray="2.5 1.5" opacity="0.45"/><line x1="230" y1="35" x2="230" y2="28" stroke="#e67e22" stroke-width="0.8" stroke-dasharray="2.5 1.5" opacity="0.45"/>
-      </svg></div>
       <div class="ml-card-body">
         <h3>Linear Regression</h3>
-        <p>Fit a line through data with gradient descent. Drag points and watch parameters converge.</p>
+        <p>The starting point. Learn how a line fits data and how gradient descent finds the best weights.</p>
       </div>
     </a>
     <a class="ml-card" href="{{ site.baseurl }}/linear-regression-multivariate/">
-      <div class="ml-card-vis" aria-hidden="true"><svg viewBox="0 0 300 140" fill="none">
-        <!-- 3D axes -->
-        <line x1="50" y1="115" x2="260" y2="115" stroke="#c8cfd8" stroke-width="1"/><line x1="50" y1="115" x2="50" y2="20" stroke="#c8cfd8" stroke-width="1"/><line x1="50" y1="115" x2="15" y2="90" stroke="#c8cfd8" stroke-width="1"/>
-        <text x="262" y="128" font-size="9" fill="#8c99a7">x&#x2081;</text><text x="42" y="16" font-size="9" fill="#8c99a7">y</text><text x="6" y="86" font-size="9" fill="#8c99a7">x&#x2082;</text>
-        <!-- tilted prediction plane -->
-        <polygon points="65,100 235,75 250,35 80,58" fill="#2e86c1" opacity="0.08"/>
-        <line x1="65" y1="100" x2="235" y2="75" stroke="#2e86c1" stroke-width="1" opacity="0.25"/><line x1="235" y1="75" x2="250" y2="35" stroke="#2e86c1" stroke-width="1" opacity="0.25"/><line x1="250" y1="35" x2="80" y2="58" stroke="#2e86c1" stroke-width="1" opacity="0.25"/><line x1="80" y1="58" x2="65" y2="100" stroke="#2e86c1" stroke-width="1" opacity="0.25"/>
-        <!-- grid lines on plane -->
-        <line x1="80" y1="90" x2="240" y2="65" stroke="#2e86c1" stroke-width="0.5" opacity="0.15"/><line x1="95" y1="79" x2="245" y2="55" stroke="#2e86c1" stroke-width="0.5" opacity="0.15"/>
-        <line x1="110" y1="96" x2="122" y2="42" stroke="#2e86c1" stroke-width="0.5" opacity="0.15"/><line x1="165" y1="88" x2="178" y2="38" stroke="#2e86c1" stroke-width="0.5" opacity="0.15"/>
-        <!-- data points with red residual lines to plane -->
-        <line x1="95" y1="82" x2="95" y2="90" stroke="#e74c3c" stroke-width="0.8" stroke-dasharray="2 1.5" opacity="0.55"/><circle cx="95" cy="82" r="3.5" fill="#2e86c1" opacity="0.75"/>
-        <line x1="130" y1="68" x2="130" y2="78" stroke="#e74c3c" stroke-width="0.8" stroke-dasharray="2 1.5" opacity="0.55"/><circle cx="130" cy="68" r="3.5" fill="#2e86c1" opacity="0.75"/>
-        <line x1="160" y1="55" x2="160" y2="65" stroke="#e74c3c" stroke-width="0.8" stroke-dasharray="2 1.5" opacity="0.55"/><circle cx="160" cy="55" r="3.5" fill="#2e86c1" opacity="0.75"/>
-        <line x1="185" y1="48" x2="185" y2="58" stroke="#e74c3c" stroke-width="0.8" stroke-dasharray="2 1.5" opacity="0.55"/><circle cx="185" cy="48" r="3.5" fill="#2e86c1" opacity="0.75"/>
-        <line x1="210" y1="60" x2="210" y2="68" stroke="#e74c3c" stroke-width="0.8" stroke-dasharray="2 1.5" opacity="0.55"/><circle cx="210" cy="60" r="3.5" fill="#2e86c1" opacity="0.75"/>
-        <line x1="120" y1="92" x2="120" y2="86" stroke="#e74c3c" stroke-width="0.8" stroke-dasharray="2 1.5" opacity="0.55"/><circle cx="120" cy="92" r="3.5" fill="#2e86c1" opacity="0.75"/>
-        <line x1="230" y1="42" x2="230" y2="50" stroke="#e74c3c" stroke-width="0.8" stroke-dasharray="2 1.5" opacity="0.55"/><circle cx="230" cy="42" r="3.5" fill="#2e86c1" opacity="0.75"/>
-        <line x1="150" y1="78" x2="150" y2="72" stroke="#e74c3c" stroke-width="0.8" stroke-dasharray="2 1.5" opacity="0.55"/><circle cx="150" cy="78" r="3.5" fill="#2e86c1" opacity="0.75"/>
-      </svg></div>
       <div class="ml-card-body">
         <h3>Linear Regression - Multivariate</h3>
-        <p>Multiple features in 3D. Watch a prediction plane tilt through your data.</p>
+        <p>More features, a plane instead of a line. See how each input contributes to the prediction.</p>
       </div>
     </a>
     <a class="ml-card" href="{{ site.baseurl }}/logistic-regression/">
-      <div class="ml-card-vis" aria-hidden="true"><svg viewBox="0 0 300 140" fill="none">
-        <!-- y=0 line at y=125, y=1 line at y=18, y=0.5 at y=72 -->
-        <line x1="25" y1="125" x2="280" y2="125" stroke="#d5dbe3" stroke-width="0.6"/><line x1="25" y1="18" x2="280" y2="18" stroke="#d5dbe3" stroke-width="0.6"/>
-        <text x="12" y="128" font-size="7" fill="#8c99a7">0</text><text x="12" y="22" font-size="7" fill="#8c99a7">1</text>
-        <!-- sigmoid curve (0 to 1 range) -->
-        <path d="M30 122 Q75 121 110 118 Q140 108 155 72 Q170 36 195 22 Q230 19 275 18" stroke="#e67e22" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <!-- 0.5 threshold line -->
-        <line x1="155" y1="10" x2="155" y2="135" stroke="#8c99a7" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
-        <text x="282" y="75" font-size="8" fill="#8c99a7">0.5</text>
-        <!-- class 0 data points at y=0 (bottom) -->
-        <circle cx="50" cy="125" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="75" cy="125" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="100" cy="125" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="125" cy="125" r="4" fill="#2e86c1" opacity="0.75"/><circle cx="140" cy="125" r="4" fill="#2e86c1" opacity="0.75"/>
-        <!-- class 1 data points at y=1 (top) -->
-        <circle cx="175" cy="18" r="4" fill="#e67e22" opacity="0.75"/><circle cx="200" cy="18" r="4" fill="#e67e22" opacity="0.75"/><circle cx="225" cy="18" r="4" fill="#e67e22" opacity="0.75"/><circle cx="250" cy="18" r="4" fill="#e67e22" opacity="0.75"/><circle cx="265" cy="18" r="4" fill="#e67e22" opacity="0.75"/>
-      </svg></div>
       <div class="ml-card-body">
         <h3>Logistic Regression</h3>
-        <p>The sigmoid curve turns regression into classification. Train a binary classifier live.</p>
+        <p>Use the sigmoid to turn a score into a probability. Train a binary classifier and find your first decision boundary.</p>
       </div>
     </a>
     <a class="ml-card" href="{{ site.baseurl }}/logistic-regression-multivariate/">
-      <div class="ml-card-vis" aria-hidden="true"><svg viewBox="0 0 300 140" fill="none">
-        <defs>
-          <linearGradient id="lrm-bg" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0%" stop-color="#e67e22" stop-opacity="0.18"/>
-            <stop offset="42%" stop-color="#e67e22" stop-opacity="0.06"/>
-            <stop offset="50%" stop-color="#ffffff" stop-opacity="0"/>
-            <stop offset="58%" stop-color="#2e86c1" stop-opacity="0.06"/>
-            <stop offset="100%" stop-color="#2e86c1" stop-opacity="0.18"/>
-          </linearGradient>
-        </defs>
-        <!-- probability background -->
-        <rect x="20" y="8" width="260" height="124" rx="3" fill="url(#lrm-bg)"/>
-        <!-- axes -->
-        <line x1="20" y1="132" x2="280" y2="132" stroke="#c8cfd8" stroke-width="0.8"/>
-        <line x1="20" y1="8" x2="20" y2="132" stroke="#c8cfd8" stroke-width="0.8"/>
-        <text x="150" y="140" text-anchor="middle" font-size="8" fill="#8c99a7">x&#x2081;</text>
-        <text x="10" y="72" font-size="8" fill="#8c99a7">x&#x2082;</text>
-        <!-- decision boundary (diagonal) -->
-        <line x1="230" y1="8" x2="50" y2="132" stroke="#555" stroke-width="2" stroke-linecap="round"/>
-        <!-- probability bands near boundary -->
-        <line x1="218" y1="8" x2="38" y2="132" stroke="#8c99a7" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.25"/>
-        <line x1="242" y1="8" x2="62" y2="132" stroke="#8c99a7" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.25"/>
-        <!-- class 0 (orange) bottom-left -->
-        <circle cx="48" cy="110" r="4.5" fill="#e67e22" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="75" cy="95" r="4.5" fill="#e67e22" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="55" cy="80" r="4.5" fill="#e67e22" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="95" cy="115" r="4.5" fill="#e67e22" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="110" cy="90" r="4.5" fill="#e67e22" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="85" cy="70" r="4.5" fill="#e67e22" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="130" cy="105" r="4.5" fill="#e67e22" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <!-- class 1 (blue) top-right -->
-        <circle cx="195" cy="25" r="4.5" fill="#2e86c1" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="220" cy="45" r="4.5" fill="#2e86c1" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="250" cy="30" r="4.5" fill="#2e86c1" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="175" cy="50" r="4.5" fill="#2e86c1" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="210" cy="70" r="4.5" fill="#2e86c1" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="240" cy="60" r="4.5" fill="#2e86c1" opacity="0.8" stroke="#fff" stroke-width="1"/>
-        <circle cx="260" cy="20" r="4.5" fill="#2e86c1" opacity="0.8" stroke="#fff" stroke-width="1"/>
-      </svg></div>
       <div class="ml-card-body">
         <h3>Logistic Regression - Multivariate</h3>
-        <p>Two features, one decision boundary. Explore 3D sigmoid surfaces and cost landscapes.</p>
+        <p>Two features, one boundary. See why cross-entropy works better than MSE for classification.</p>
       </div>
     </a>
   </div>
@@ -337,44 +242,21 @@ Each post starts with the intuition, walks through the math step by step, and th
   <h2>Optimization & Regularization</h2>
   <div class="ml-grid">
     <a class="ml-card" href="{{ site.baseurl }}/gradient-descent/">
-      <div class="ml-card-vis" aria-hidden="true"><svg viewBox="0 0 300 140" fill="none">
-        <ellipse cx="150" cy="70" rx="110" ry="50" fill="none" stroke="#d5dbe3" stroke-width="1"/>
-        <ellipse cx="150" cy="70" rx="75" ry="34" fill="none" stroke="#d5dbe3" stroke-width="1"/>
-        <ellipse cx="150" cy="70" rx="40" ry="18" fill="none" stroke="#d5dbe3" stroke-width="1"/>
-        <ellipse cx="150" cy="70" rx="12" ry="5.5" fill="#2e86c1" opacity="0.15" stroke="#d5dbe3" stroke-width="1"/>
-        <circle cx="62" cy="48" r="4" fill="#e67e22"/><circle cx="90" cy="42" r="3.5" fill="#e67e22" opacity="0.8"/><circle cx="112" cy="50" r="3" fill="#e67e22" opacity="0.6"/><circle cx="132" cy="62" r="2.5" fill="#e67e22" opacity="0.5"/><circle cx="148" cy="69" r="3.5" fill="#2e86c1"/>
-        <polyline points="62,48 90,42 112,50 132,62 148,69" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4 2" fill="none" stroke-linecap="round"/>
-        <text x="150" y="132" text-anchor="middle" font-size="9" fill="#8c99a7">SGD &middot; Momentum &middot; Adam</text>
-      </svg></div>
       <div class="ml-card-body">
         <h3>Gradient Descent Deep Dive</h3>
-        <p>Race SGD, Momentum, and Adam side-by-side on contour surfaces.</p>
+        <p>The engine behind every ML model. Race SGD, Momentum, and Adam on loss surfaces and see which one wins.</p>
       </div>
     </a>
     <a class="ml-card" href="{{ site.baseurl }}/polynomial-regression/">
-      <div class="ml-card-vis" aria-hidden="true"><svg viewBox="0 0 300 140" fill="none">
-        <circle cx="40" cy="100" r="3.5" fill="#2e86c1" opacity="0.7"/><circle cx="70" cy="85" r="3.5" fill="#2e86c1" opacity="0.7"/><circle cx="100" cy="92" r="3.5" fill="#2e86c1" opacity="0.7"/><circle cx="130" cy="50" r="3.5" fill="#2e86c1" opacity="0.7"/><circle cx="160" cy="40" r="3.5" fill="#2e86c1" opacity="0.7"/><circle cx="190" cy="55" r="3.5" fill="#2e86c1" opacity="0.7"/><circle cx="220" cy="75" r="3.5" fill="#2e86c1" opacity="0.7"/><circle cx="250" cy="35" r="3.5" fill="#2e86c1" opacity="0.7"/>
-        <path d="M30 108 Q60 78 100 88 Q140 42 170 38 Q200 48 230 70 Q255 28 275 25" stroke="#e67e22" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <path d="M30 105 L275 35" stroke="#8c99a7" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
-        <text x="60" y="22" font-size="9" fill="#8c99a7">degree=1</text><text x="200" y="22" font-size="9" fill="#e67e22">degree=7</text>
-      </svg></div>
       <div class="ml-card-body">
         <h3>Polynomial Regression & Bias-Variance</h3>
-        <p>Slide polynomial degree and watch underfitting become overfitting.</p>
+        <p>Fit curves, not just lines. See what happens when a model is too simple or too complex.</p>
       </div>
     </a>
     <a class="ml-card" href="{{ site.baseurl }}/regularization-ridge-lasso/">
-      <div class="ml-card-vis" aria-hidden="true"><svg viewBox="0 0 300 140" fill="none">
-        <line x1="150" y1="10" x2="150" y2="130" stroke="#d5dbe3" stroke-width="0.8"/><line x1="40" y1="70" x2="260" y2="70" stroke="#d5dbe3" stroke-width="0.8"/>
-        <circle cx="150" cy="70" r="42" fill="none" stroke="#2e86c1" stroke-width="2" opacity="0.6"/>
-        <rect x="120" y="40" width="60" height="60" fill="none" stroke="#e67e22" stroke-width="2" opacity="0.6" transform="rotate(45 150 70)"/>
-        <ellipse cx="200" cy="38" rx="60" ry="30" fill="none" stroke="#8c99a7" stroke-width="1.2" stroke-dasharray="4 2" transform="rotate(-25 200 38)"/>
-        <circle cx="192" cy="70" r="4.5" fill="#2e86c1" opacity="0.8"/><circle cx="150" cy="28" r="4.5" fill="#e67e22" opacity="0.8"/>
-        <text x="50" y="132" font-size="9" fill="#2e86c1">Ridge (L2)</text><text x="210" y="132" font-size="9" fill="#e67e22">Lasso (L1)</text>
-      </svg></div>
       <div class="ml-card-body">
         <h3>Regularization: Ridge, Lasso & Elastic Net</h3>
-        <p>Diamond vs circle geometry. Watch coefficients shrink to zero.</p>
+        <p>Penalize large weights to stop overfitting. See why Lasso pushes coefficients to zero but Ridge only shrinks them.</p>
       </div>
     </a>
   </div>
@@ -384,64 +266,21 @@ Each post starts with the intuition, walks through the math step by step, and th
   <h2>Neural Networks from Scratch</h2>
   <div class="ml-grid">
     <a class="ml-card" href="{{ site.baseurl }}/perceptron-mlp/">
-      <div class="ml-card-vis" aria-hidden="true"><svg viewBox="0 0 300 140" fill="none">
-        <circle cx="50" cy="40" r="10" fill="#2e86c1" opacity="0.15" stroke="#2e86c1" stroke-width="1.5"/><circle cx="50" cy="100" r="10" fill="#2e86c1" opacity="0.15" stroke="#2e86c1" stroke-width="1.5"/>
-        <circle cx="150" cy="30" r="10" fill="#e67e22" opacity="0.15" stroke="#e67e22" stroke-width="1.5"/><circle cx="150" cy="70" r="10" fill="#e67e22" opacity="0.15" stroke="#e67e22" stroke-width="1.5"/><circle cx="150" cy="110" r="10" fill="#e67e22" opacity="0.15" stroke="#e67e22" stroke-width="1.5"/>
-        <circle cx="250" cy="70" r="10" fill="#16a085" opacity="0.15" stroke="#16a085" stroke-width="1.5"/>
-        <line x1="60" y1="40" x2="140" y2="30" stroke="#8c99a7" stroke-width="1" opacity="0.5"/><line x1="60" y1="40" x2="140" y2="70" stroke="#8c99a7" stroke-width="1" opacity="0.5"/><line x1="60" y1="40" x2="140" y2="110" stroke="#8c99a7" stroke-width="1" opacity="0.5"/>
-        <line x1="60" y1="100" x2="140" y2="30" stroke="#8c99a7" stroke-width="1" opacity="0.5"/><line x1="60" y1="100" x2="140" y2="70" stroke="#8c99a7" stroke-width="1" opacity="0.5"/><line x1="60" y1="100" x2="140" y2="110" stroke="#8c99a7" stroke-width="1" opacity="0.5"/>
-        <line x1="160" y1="30" x2="240" y2="70" stroke="#8c99a7" stroke-width="1" opacity="0.5"/><line x1="160" y1="70" x2="240" y2="70" stroke="#8c99a7" stroke-width="1" opacity="0.5"/><line x1="160" y1="110" x2="240" y2="70" stroke="#8c99a7" stroke-width="1" opacity="0.5"/>
-        <text x="50" y="44" text-anchor="middle" font-size="8" fill="#2e86c1">x</text><text x="250" y="74" text-anchor="middle" font-size="8" fill="#16a085">y</text>
-      </svg></div>
       <div class="ml-card-body">
         <h3>The Perceptron & MLP</h3>
-        <p>A single neuron fails on XOR. Add a hidden layer for the "aha!" moment.</p>
+        <p>One neuron cannot solve XOR. Add a hidden layer and unlock nonlinear decision boundaries.</p>
       </div>
     </a>
     <a class="ml-card" href="{{ site.baseurl }}/backpropagation/">
-      <div class="ml-card-vis" aria-hidden="true"><svg viewBox="0 0 300 140" fill="none">
-        <circle cx="45" cy="45" r="9" fill="#2e86c1" opacity="0.15" stroke="#2e86c1" stroke-width="1.3"/><circle cx="45" cy="95" r="9" fill="#2e86c1" opacity="0.15" stroke="#2e86c1" stroke-width="1.3"/>
-        <circle cx="130" cy="35" r="9" fill="#e67e22" opacity="0.15" stroke="#e67e22" stroke-width="1.3"/><circle cx="130" cy="70" r="9" fill="#e67e22" opacity="0.15" stroke="#e67e22" stroke-width="1.3"/><circle cx="130" cy="105" r="9" fill="#e67e22" opacity="0.15" stroke="#e67e22" stroke-width="1.3"/>
-        <circle cx="215" cy="50" r="9" fill="#e67e22" opacity="0.15" stroke="#e67e22" stroke-width="1.3"/><circle cx="215" cy="90" r="9" fill="#e67e22" opacity="0.15" stroke="#e67e22" stroke-width="1.3"/>
-        <circle cx="270" cy="70" r="9" fill="#16a085" opacity="0.15" stroke="#16a085" stroke-width="1.3"/>
-        <line x1="54" y1="45" x2="121" y2="35" stroke="#2e86c1" stroke-width="1" opacity="0.4"/><line x1="54" y1="45" x2="121" y2="70" stroke="#2e86c1" stroke-width="1" opacity="0.4"/><line x1="54" y1="95" x2="121" y2="70" stroke="#2e86c1" stroke-width="1" opacity="0.4"/><line x1="54" y1="95" x2="121" y2="105" stroke="#2e86c1" stroke-width="1" opacity="0.4"/>
-        <line x1="139" y1="35" x2="206" y2="50" stroke="#e67e22" stroke-width="1" opacity="0.4"/><line x1="139" y1="70" x2="206" y2="50" stroke="#e67e22" stroke-width="1" opacity="0.4"/><line x1="139" y1="70" x2="206" y2="90" stroke="#e67e22" stroke-width="1" opacity="0.4"/><line x1="139" y1="105" x2="206" y2="90" stroke="#e67e22" stroke-width="1" opacity="0.4"/>
-        <line x1="224" y1="50" x2="261" y2="70" stroke="#16a085" stroke-width="1" opacity="0.4"/><line x1="224" y1="90" x2="261" y2="70" stroke="#16a085" stroke-width="1" opacity="0.4"/>
-        <path d="M270 58 L285 50 L280 56" stroke="#2e86c1" stroke-width="1.5" fill="none" opacity="0.7"/>
-        <text x="285" y="48" font-size="8" fill="#2e86c1">fwd</text>
-        <path d="M45 110 L30 118 L35 112" stroke="#e67e22" stroke-width="1.5" fill="none" opacity="0.7"/>
-        <text x="10" y="130" font-size="8" fill="#e67e22">grad</text>
-      </svg></div>
       <div class="ml-card-body">
         <h3>Backpropagation Visualized</h3>
-        <p>Data flows forward, gradients flow backward. See vanishing gradients in action.</p>
+        <p>The chain rule applied layer by layer. Watch gradients weaken as they travel back through the network.</p>
       </div>
     </a>
     <a class="ml-card" href="{{ site.baseurl }}/activation-functions/">
-      <div class="ml-card-vis" aria-hidden="true"><svg viewBox="0 0 300 140" fill="none">
-        <!-- axes: x-axis at y=95 (represents 0), y-axis at x=150 -->
-        <line x1="20" y1="95" x2="280" y2="95" stroke="#d5dbe3" stroke-width="0.8"/>
-        <line x1="150" y1="10" x2="150" y2="130" stroke="#d5dbe3" stroke-width="0.8"/>
-        <!-- tick marks and labels -->
-        <text x="144" y="106" font-size="8" fill="#8c99a7">0</text>
-        <text x="280" y="92" font-size="8" fill="#8c99a7">1</text>
-        <text x="280" y="48" font-size="8" fill="#8c99a7" opacity="0.6">-1</text>
-        <!-- ReLU: flat at 0 for x<0, linear up for x>0 -->
-        <path d="M20 95 L150 95 L260 25" stroke="#e67e22" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <!-- Sigmoid: 0 to 1 range only (y=95 is 0, y=35 is 1) -->
-        <path d="M20 93 Q70 92 110 88 Q135 80 150 65 Q165 50 175 42 Q210 37 280 35" stroke="#2e86c1" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="6 3"/>
-        <!-- Tanh: -1 to 1 range (y=95 is 0, y=35 is +1, y=130 would be beyond but we cap display) -->
-        <path d="M20 125 Q60 124 100 120 Q130 110 150 95 Q170 80 180 60 Q200 42 240 36 Q260 35 280 35" stroke="#16a085" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="2 3"/>
-        <!-- reference lines for ranges -->
-        <line x1="20" y1="35" x2="280" y2="35" stroke="#d5dbe3" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.5"/>
-        <!-- labels -->
-        <text x="250" y="20" font-size="9" fill="#e67e22">ReLU</text>
-        <text x="195" y="30" font-size="9" fill="#2e86c1">Sigmoid</text>
-        <text x="40" y="132" font-size="9" fill="#16a085">Tanh</text>
-      </svg></div>
       <div class="ml-card-body">
         <h3>Activation Functions</h3>
-        <p>Sigmoid, ReLU, Tanh, GELU side-by-side with derivative overlays.</p>
+        <p>What sits between layers shapes what a network can learn. Compare sigmoid, ReLU, tanh, and GELU side by side.</p>
       </div>
     </a>
   </div>

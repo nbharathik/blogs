@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: "Linear Regression"
 author: bharathikannan
@@ -8,7 +8,7 @@ hidden: true
 description: "Build linear regression from the ground up with interactive visualizations. Drag points, adjust parameters, watch gradient descent converge - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /linear-regression/
-date: 2026-03-16
+date: 2026-04-29
 ---
 
 <style>
@@ -419,7 +419,7 @@ window.LR = (function() {
 
 Linear regression is one of the most important starting points in machine learning. It is simple enough to understand deeply, but powerful enough to teach ideas used in larger models: defining a model, measuring error, and improving parameters with optimization. In this interactive guide, we will build linear regression from scratch using one concrete problem of predicting house prices from area, asking whether we can learn a formula that predicts price for a new house given area and price data for past houses.
 
-**In this guide, you will:**
+In this guide, you will:
 
 - Understand the hypothesis function as the prediction formula
 - See how the cost function measures prediction error

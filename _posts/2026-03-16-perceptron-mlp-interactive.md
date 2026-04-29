@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: "The Perceptron & Multi-Layer Perceptron"
 author: bharathikannan
@@ -8,7 +8,7 @@ hidden: true
 description: "Build neural networks from scratch with interactive visualizations. Train a single neuron, watch it fail on XOR, then add a hidden layer to solve it. Adjust network architecture and watch decision boundaries evolve in real-time - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /perceptron-mlp/
-date: 2026-03-17
+date: 2026-04-29
 ---
 
 <style>

@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: "Linear Regression II"
 author: bharathikannan
@@ -8,7 +8,7 @@ hidden: true
 description: "Extend linear regression to two features with interactive 3D visualizations. Watch a prediction plane tilt through data, explore the cost surface, and see gradient descent converge."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /linear-regression-multivariate/
-date: 2026-03-16
+date: 2026-04-29
 ---
 
 <style>
@@ -379,7 +379,7 @@ Below is a 3D scatter plot of the training data. Each point lives at $$(x_1, x_2
     </label>
     <label><input type="checkbox" id="lr2-residuals" checked> Show errors</label>
   </div>
-  <div class="demo-caption">Settings: 80 synthetic samples (true w₁ = 2.8, w₂ = -1.6, b = 3, noise = 0.6). Drag w₁, w₂ and b to tilt and shift the plane; click Fit to run gradient descent automatically.</div>
+  <div class="demo-caption">Drag w₁, w₂ and b to tilt and shift the plane; click Fit to run gradient descent automatically.</div>
 </div>
 
 <script>

@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: "Polynomial Regression & the Bias-Variance Tradeoff"
 author: bharathikannan
@@ -8,7 +8,7 @@ hidden: true
 description: "Explore polynomial regression and the bias-variance tradeoff with interactive visualizations. Drag a degree slider from underfitting to overfitting, watch training vs validation curves, and build intuition for model complexity - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /polynomial-regression/
-date: 2026-03-17
+date: 2026-04-29
 ---
 
 <style>

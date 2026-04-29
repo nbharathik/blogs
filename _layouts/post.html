@@ -63,7 +63,11 @@ layout: default
       {% assign found_current = true %}
     {% elsif found_current and prev_post == nil %}
       {% unless post.archived %}
-        {% assign prev_post = post %}
+        {% if post.series and post.hidden %}
+          {% assign prev_post = post %}
+        {% elsif post.series != true and post.hidden != true %}
+          {% assign prev_post = post %}
+        {% endif %}
       {% endunless %}
     {% endif %}
   {% endfor %}
@@ -74,7 +78,11 @@ layout: default
       {% assign found_current = true %}
     {% elsif found_current and next_post == nil %}
       {% unless post.archived %}
-        {% assign next_post = post %}
+        {% if post.series and post.hidden %}
+          {% assign next_post = post %}
+        {% elsif post.series != true and post.hidden != true %}
+          {% assign next_post = post %}
+        {% endif %}
       {% endunless %}
     {% endif %}
   {% endfor %}

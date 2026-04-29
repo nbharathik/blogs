@@ -5,6 +5,7 @@ author: bharathikannan
 categories: [Data Structures]
 description: "Learn data structures and algorithms from scratch with interactive visualizations. Step through every operation, watch algorithms race, and build deep intuition  - all in your browser with Python examples."
 permalink: /dsa/
+hidden: true
 ---
 
 <style>

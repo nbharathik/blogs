@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: "Regularization: Ridge, Lasso & Elastic Net"
 author: bharathikannan
@@ -8,7 +8,7 @@ hidden: true
 description: "Visualize how L1 and L2 regularization shrink coefficients, why Lasso produces sparsity, and how Elastic Net combines both - all interactively in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /regularization-ridge-lasso/
-date: 2026-03-17
+date: 2026-04-29
 ---
 
 <style>
@@ -605,6 +605,7 @@ In this guide, you will:
 - Watch Ridge (L2) smoothly shrink coefficients toward zero as the penalty grows
 - Understand the geometry that explains why Lasso (L1) produces exact zeros and performs feature selection
 - Explore Elastic Net, which combines both L1 and L2 penalties, and see how it can balance coefficient shrinkage with sparsity
+  
 ---
 
 ## 1. The Overfitting Problem

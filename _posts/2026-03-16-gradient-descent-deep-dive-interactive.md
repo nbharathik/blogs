@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: "Gradient Descent Deep Dive: From SGD to Adam"
 author: bharathikannan
@@ -8,7 +8,7 @@ hidden: true
 description: "Explore gradient descent optimizers interactively. Race SGD, Momentum, RMSProp, and Adam side-by-side, tune learning rates, escape saddle points, and compare mini-batch vs batch - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /gradient-descent/
-date: 2026-03-17
+date: 2026-04-29
 ---
 
 <style>
@@ -1497,7 +1497,7 @@ The hyperparameter $$\beta$$ (typically 0.9) controls how much of the previous v
     <button id="btn-mom-reset">Reset</button>
   </div>
   <div class="demo-info" id="info-mom">Press "Run" to compare vanilla GD vs Momentum.</div>
-  <div class="demo-caption">Settings: elongated bowl f(x,y) = x² + 50y², shared α and start, β controls velocity retention.</div>
+  <div class="demo-caption">Settings: elongated bowl f(x,y) = x² + 50y², shared α and start, β is the momentum term.</div>
 </div>
 
 <script>
@@ -1611,74 +1611,74 @@ Notice that the velocity update has the same shape as the EMA recurrence from th
 
 ## 6. RMSProp
 
-Momentum helps with acceleration, but it treats all parameters equally, which is a problem when some parameters need larger updates and others need smaller ones. RMSProp (Root Mean Square Propagation) adapts the learning rate per parameter by tracking the running average of squared gradients, so parameters with large gradients get smaller effective learning rates and vice versa.
+Momentum helps gradient descent move faster, but it still uses the same learning rate for every parameter. This can be a problem when different parameters behave very differently. Some directions may have large gradients and need smaller steps, while other directions may have small gradients and need larger steps. RMSProp solves this by adapting the learning rate separately for each parameter. It keeps a running average of the squared gradients:
 
-$$s_t = \beta \, s_{t-1} + (1 - \beta)(\nabla_\theta J)^2$$
+$$
+s_t = \beta s_{t-1} + (1 - \beta)(\nabla_\theta J)^2
+$$
 
-$$\theta := \theta - \frac{\alpha}{\sqrt{s_t + \epsilon}} \nabla_\theta J$$
+Then it uses this value to scale the update:
 
-The trick to reading this update is to look at one parameter at a time. The running average $$s_t$$ is the same EMA we used in the momentum section, except squared, so it acts like a per-dimension volume meter that tracks how loud each parameter's gradients have been recently. The update then divides the step by $$\sqrt{s_t}$$, so a "loud" dimension whose gradients keep being large gets its effective learning rate automatically shrunk, while a "quiet" dimension whose gradients stay small keeps a normal-sized step. On the elongated bowl below this is exactly what we want: the y-direction is loud because the steep walls produce huge gradients, so its step gets damped; the x-direction is quiet because the valley floor is shallow, so its step stays full size. The y-zigzag flattens out, both dimensions move at comparable rates, and the path heads straight for the minimum. Watch the two bars under the RMSProp panel below: they show the live effective learning rate per dimension, and you will see the y-bar collapse within a few steps while the x-bar stays close to the base $$\alpha$$.
+$$
+\theta := \theta - \frac{\alpha}{\sqrt{s_t + \epsilon}} \nabla_\theta J
+$$
+
+The key idea is simple: read the update one parameter at a time. The value $s_t$ is an exponential moving average, like in momentum, but it tracks squared gradients instead of gradients. So $s_t$ acts like a per-parameter “gradient strength meter”. If a parameter has had large gradients recently, its $s_t$ becomes large. RMSProp then divides the update by $\sqrt{s_t + \epsilon}$, which makes the effective step size smaller for that parameter. This means that parameters with consistently large gradients get smaller effective learning rates, while parameters with smaller gradients are not reduced as much. On an elongated loss surface, this is exactly what we want. The steep direction often causes large gradients and zigzagging, so RMSProp damps that direction. The shallow direction has smaller gradients, so it can keep moving forward. As a result, the optimization path becomes smoother and moves more directly toward the minimum. 
+
+Below, the left panel shows Momentum and the right shows RMSProp on the same elongated bowl. Momentum accelerates along the valley but applies the same $$\alpha$$ to both dimensions, so it can still overshoot in y before settling. RMSProp has no velocity, but it immediately shrinks y's effective $$\alpha$$ because y's gradients are large, while x's effective $$\alpha$$ stays near the base value.
 
 <div class="interactive-demo" id="demo-rmsprop">
   <div class="demo-split">
     <div>
-      <div class="demo-caption" style="margin-bottom:0.3rem; font-weight:600;">Vanilla GD</div>
-      <canvas id="canvas-rms-vanilla" width="330" height="330"></canvas>
+      <div class="demo-caption" style="margin-bottom:0.3rem; font-weight:600;">Momentum</div>
+      <canvas id="canvas-rms-momentum" width="330" height="330"></canvas>
     </div>
     <div>
       <div class="demo-caption" style="margin-bottom:0.3rem; font-weight:600;">RMSProp</div>
       <canvas id="canvas-rms-rms" width="330" height="330"></canvas>
     </div>
   </div>
-  <div class="rms-bars">
-    <div class="rms-bar-row">
-      <span class="rms-bar-label">eff α<sub>x</sub></span>
-      <div class="rms-bar-track"><div class="rms-bar-fill" id="rms-fill-x"></div></div>
-      <span class="rms-bar-val" id="rms-val-x">α (base)</span>
-    </div>
-    <div class="rms-bar-row">
-      <span class="rms-bar-label">eff α<sub>y</sub></span>
-      <div class="rms-bar-track"><div class="rms-bar-fill" id="rms-fill-y"></div></div>
-      <span class="rms-bar-val" id="rms-val-y">α (base)</span>
-    </div>
-  </div>
   <div class="demo-controls">
     <label>α: <input type="range" id="lr-rms" min="0.001" max="0.05" step="0.001" value="0.01"></label>
     <span class="demo-value" id="lr-rms-val">0.010</span>
-    <label>β: <input type="range" id="beta-rms" min="0.5" max="0.999" step="0.001" value="0.9"></label>
+    <label>β₁ (mom): <input type="range" id="beta-rms-mom" min="0" max="0.99" step="0.01" value="0.9"></label>
+    <span class="demo-value" id="beta-rms-mom-val">0.90</span>
+    <label>β₂ (rms): <input type="range" id="beta-rms" min="0.5" max="0.999" step="0.001" value="0.9"></label>
     <span class="demo-value" id="beta-rms-val">0.900</span>
     <button id="btn-rms-run">Run</button>
     <button id="btn-rms-reset">Reset</button>
   </div>
-  <div class="demo-info" id="info-rms">Press "Run" to compare Vanilla GD vs RMSProp.</div>
-  <div class="demo-caption">Settings: elongated bowl f(x,y) = x² + 50y², shared α and start. Bars show RMSProp's effective learning rate per dimension, with full bar = base α.</div>
+  <div class="demo-info" id="info-rms">Press "Run" to compare Momentum vs RMSProp.</div>
+  <div class="demo-caption">Settings: elongated bowl f(x,y) = x² + 50y², shared α and start.</div>
 </div>
 
 <script>
 (function() {
-  var canvasV = document.getElementById('canvas-rms-vanilla');
+  var canvasM = document.getElementById('canvas-rms-momentum');
   var canvasR = document.getElementById('canvas-rms-rms');
   var CW = 330, CH = 330;
-  var ctxV = GD.setupCanvas(canvasV, CW, CH);
+  var ctxM = GD.setupCanvas(canvasM, CW, CH);
   var ctxR = GD.setupCanvas(canvasR, CW, CH);
 
   var xMin = -3, xMax = 3, yMin = -1, yMax = 1;
   var sx = -2.5, sy = 0.7;
-  var pathV = [], pathR = [];
+  var pathM = [], pathR = [];
   var running = false, animId = null, step = 0, maxSteps = 1500;
-  var sx_rms = 0, sy_rms = 0; // running avg of squared gradients
+  var vx_mom = 0, vy_mom = 0;
+  var sx_rms = 0, sy_rms = 0;
   var eps = 1e-8;
 
   function getLr() { return parseFloat(document.getElementById('lr-rms').value); }
-  function getBeta() { return parseFloat(document.getElementById('beta-rms').value); }
+  function getBetaMom() { return parseFloat(document.getElementById('beta-rms-mom').value); }
+  function getBetaRms() { return parseFloat(document.getElementById('beta-rms').value); }
 
   function drawAll() {
     var colors = GD.getColors();
-    ctxV.clearRect(0, 0, CW, CH);
-    var layV = GD.drawContours(ctxV, CW, CH, GD.elongated, xMin, xMax, yMin, yMax, colors, 20);
-    GD.drawMinimum(ctxV, 0, 0, xMin, xMax, yMin, yMax, layV.pad, layV.pw, layV.ph, colors);
-    if (pathV.length > 0) GD.drawPath(ctxV, pathV, colors.sgd, xMin, xMax, yMin, yMax, layV.pad, layV.pw, layV.ph, 2);
-    GD.drawStart(ctxV, sx, sy, xMin, xMax, yMin, yMax, layV.pad, layV.pw, layV.ph);
+    ctxM.clearRect(0, 0, CW, CH);
+    var layM = GD.drawContours(ctxM, CW, CH, GD.elongated, xMin, xMax, yMin, yMax, colors, 20);
+    GD.drawMinimum(ctxM, 0, 0, xMin, xMax, yMin, yMax, layM.pad, layM.pw, layM.ph, colors);
+    if (pathM.length > 0) GD.drawPath(ctxM, pathM, colors.momentum, xMin, xMax, yMin, yMax, layM.pad, layM.pw, layM.ph, 2);
+    GD.drawStart(ctxM, sx, sy, xMin, xMax, yMin, yMax, layM.pad, layM.pw, layM.ph);
 
     ctxR.clearRect(0, 0, CW, CH);
     var layR = GD.drawContours(ctxR, CW, CH, GD.elongated, xMin, xMax, yMin, yMax, colors, 20);
@@ -1687,42 +1687,29 @@ The trick to reading this update is to look at one parameter at a time. The runn
     GD.drawStart(ctxR, sx, sy, xMin, xMax, yMin, yMax, layR.pad, layR.pw, layR.ph);
   }
 
-  var vanillaDiverged = false;
+  var momDiverged = false;
   var rmsDiverged = false;
-  // Treat anything outside the visible window as divergence so the displayed loss stays meaningful
   function outOfBounds(p) {
     return Math.abs(p.x) > xMax + 0.5 || Math.abs(p.y) > yMax + 0.5 || !isFinite(p.x) || !isFinite(p.y);
-  }
-
-  // Update the per-dimension effective-learning-rate bars.
-  // Bar width is min(eff α / base α, 1), so a full bar = "no scaling yet"
-  // and the bar shrinks as that dimension accumulates squared gradients.
-  function updateBars() {
-    var lr = getLr();
-    var effX = lr / Math.sqrt(sx_rms + eps);
-    var effY = lr / Math.sqrt(sy_rms + eps);
-    var fillX = Math.min(effX / lr, 1) * 100;
-    var fillY = Math.min(effY / lr, 1) * 100;
-    document.getElementById('rms-fill-x').style.width = fillX.toFixed(1) + '%';
-    document.getElementById('rms-fill-y').style.width = fillY.toFixed(1) + '%';
-    document.getElementById('rms-val-x').textContent = effX.toFixed(4) + ' (' + (effX / lr).toFixed(2) + '× α)';
-    document.getElementById('rms-val-y').textContent = effY.toFixed(4) + ' (' + (effY / lr).toFixed(2) + '× α)';
   }
 
   function animate() {
     if (!running || step >= maxSteps) { running = false; return; }
     var lr = getLr();
-    var beta = getBeta();
+    var betaMom = getBetaMom();
+    var betaRms = getBetaRms();
 
-    // Vanilla GD: only step if it has not already diverged
-    if (!vanillaDiverged) {
-      var curV = pathV[pathV.length - 1];
-      var gV = GD.elongatedGrad(curV.x, curV.y);
-      var nextV = { x: curV.x - lr * gV.dx, y: curV.y - lr * gV.dy };
-      if (outOfBounds(nextV)) {
-        vanillaDiverged = true;
+    // Momentum
+    if (!momDiverged) {
+      var curM = pathM[pathM.length - 1];
+      var gM = GD.elongatedGrad(curM.x, curM.y);
+      vx_mom = betaMom * vx_mom + lr * gM.dx;
+      vy_mom = betaMom * vy_mom + lr * gM.dy;
+      var nextM = { x: curM.x - vx_mom, y: curM.y - vy_mom };
+      if (outOfBounds(nextM)) {
+        momDiverged = true;
       } else {
-        pathV.push(nextV);
+        pathM.push(nextM);
       }
     }
 
@@ -1730,8 +1717,8 @@ The trick to reading this update is to look at one parameter at a time. The runn
     if (!rmsDiverged) {
       var curR = pathR[pathR.length - 1];
       var gR = GD.elongatedGrad(curR.x, curR.y);
-      sx_rms = beta * sx_rms + (1 - beta) * gR.dx * gR.dx;
-      sy_rms = beta * sy_rms + (1 - beta) * gR.dy * gR.dy;
+      sx_rms = betaRms * sx_rms + (1 - betaRms) * gR.dx * gR.dx;
+      sy_rms = betaRms * sy_rms + (1 - betaRms) * gR.dy * gR.dy;
       var nextR = {
         x: curR.x - lr / Math.sqrt(sx_rms + eps) * gR.dx,
         y: curR.y - lr / Math.sqrt(sy_rms + eps) * gR.dy
@@ -1744,26 +1731,21 @@ The trick to reading this update is to look at one parameter at a time. The runn
     }
 
     step++;
-    var lV = vanillaDiverged ? Infinity : GD.elongated(pathV[pathV.length - 1].x, pathV[pathV.length - 1].y);
+    var lM = momDiverged ? Infinity : GD.elongated(pathM[pathM.length - 1].x, pathM[pathM.length - 1].y);
     var lR = rmsDiverged ? Infinity : GD.elongated(pathR[pathR.length - 1].x, pathR[pathR.length - 1].y);
-    var vTxt = vanillaDiverged ? 'diverged' : lV.toFixed(4);
+    var mTxt = momDiverged ? 'diverged' : lM.toFixed(4);
     var rTxt = rmsDiverged ? 'diverged' : lR.toFixed(4);
-    document.getElementById('info-rms').textContent = 'Step ' + step + ' | Vanilla: ' + vTxt + ' | RMSProp: ' + rTxt;
-    updateBars();
+    document.getElementById('info-rms').textContent = 'Step ' + step + ' | Momentum: ' + mTxt + ' | RMSProp: ' + rTxt;
     drawAll();
-    if ((vanillaDiverged || lV < 0.0001) && (rmsDiverged || lR < 0.0001)) { running = false; return; }
+    if ((momDiverged || lM < 0.0001) && (rmsDiverged || lR < 0.0001)) { running = false; return; }
     animId = requestAnimationFrame(animate);
-  }
-
-  function resetBars() {
-    document.getElementById('rms-fill-x').style.width = '100%';
-    document.getElementById('rms-fill-y').style.width = '100%';
-    document.getElementById('rms-val-x').textContent = 'α (base)';
-    document.getElementById('rms-val-y').textContent = 'α (base)';
   }
 
   document.getElementById('lr-rms').addEventListener('input', function() {
     document.getElementById('lr-rms-val').textContent = parseFloat(this.value).toFixed(3);
+  });
+  document.getElementById('beta-rms-mom').addEventListener('input', function() {
+    document.getElementById('beta-rms-mom-val').textContent = parseFloat(this.value).toFixed(2);
   });
   document.getElementById('beta-rms').addEventListener('input', function() {
     document.getElementById('beta-rms-val').textContent = parseFloat(this.value).toFixed(3);
@@ -1771,23 +1753,21 @@ The trick to reading this update is to look at one parameter at a time. The runn
 
   document.getElementById('btn-rms-run').addEventListener('click', function() {
     if (running) return;
-    pathV = [{x: sx, y: sy}]; pathR = [{x: sx, y: sy}];
-    sx_rms = 0; sy_rms = 0;
-    vanillaDiverged = false; rmsDiverged = false;
+    pathM = [{x: sx, y: sy}]; pathR = [{x: sx, y: sy}];
+    vx_mom = 0; vy_mom = 0; sx_rms = 0; sy_rms = 0;
+    momDiverged = false; rmsDiverged = false;
     step = 0; running = true;
     animate();
   });
 
   document.getElementById('btn-rms-reset').addEventListener('click', function() {
     running = false; if (animId) cancelAnimationFrame(animId);
-    pathV = []; pathR = []; sx_rms = 0; sy_rms = 0; step = 0;
-    vanillaDiverged = false; rmsDiverged = false;
-    document.getElementById('info-rms').textContent = 'Press "Run" to compare Vanilla GD vs RMSProp.';
-    resetBars();
+    pathM = []; pathR = []; vx_mom = 0; vy_mom = 0; sx_rms = 0; sy_rms = 0; step = 0;
+    momDiverged = false; rmsDiverged = false;
+    document.getElementById('info-rms').textContent = 'Press "Run" to compare Momentum vs RMSProp.';
     drawAll();
   });
 
-  resetBars();
   drawAll();
   GD.onThemeChange(drawAll);
 })();

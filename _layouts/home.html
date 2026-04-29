@@ -31,8 +31,12 @@ layout: default
     <div class="section-label">Articles</div>
     <ul class="post-list">
       {% for post in paginator.posts %}
-        {% unless post.archived or post.hidden %}
-          {% include post-card.html show_series_preview=true %}
+        {% unless post.archived %}
+          {% if post.series and post.hidden %}
+            {% include post-card.html show_series_preview=true %}
+          {% elsif post.series != true and post.hidden != true %}
+            {% include post-card.html show_series_preview=true %}
+          {% endif %}
         {% endunless %}
       {% endfor %}
     </ul>
