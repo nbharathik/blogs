@@ -616,7 +616,7 @@ Both functions behave similarly to ReLU for large positive inputs but transition
 
 #### Continue the ML Series
 
-This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. 
+This post is part of a bigger [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. 
 
 ---
 

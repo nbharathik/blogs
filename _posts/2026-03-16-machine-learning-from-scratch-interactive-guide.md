@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Machine Learning from Scratch"
+title: "Interactive Machine Learning"
 author: bharathikannan
 categories: [Machine learning]
-description: "Learn machine learning from scratch with interactive visualizations all in your browser with math and code."
+description: "Learn machine learning with interactive visualizations in your browser with math and code."
 permalink: /ml/
 date: 2026-04-29
 ---

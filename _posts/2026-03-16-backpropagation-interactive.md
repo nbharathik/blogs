@@ -363,7 +363,7 @@ Backpropagation is not just an algorithm, it is a way of thinking about computat
 
 #### Continue the ML Series
 
-This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. Next up is [Activation Functions]({{ site.baseurl }}/activation-functions/), where we will explore different activation functions and understand how they affect gradient flow and network expressivity.
+This post is part of a bigger [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. Next up is [Activation Functions]({{ site.baseurl }}/activation-functions/), where we will explore different activation functions and understand how they affect gradient flow and network expressivity.
  
 <script>
 // ==================== SHARED BACKPROP UTILITIES ====================

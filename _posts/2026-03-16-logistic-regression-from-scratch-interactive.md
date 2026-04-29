@@ -1721,7 +1721,7 @@ The logistic regression model shares the same fundamental framework as linear re
 
 #### Continue the ML Series
 
-This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
+This post is part of a bigger [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
 
 #### References
 

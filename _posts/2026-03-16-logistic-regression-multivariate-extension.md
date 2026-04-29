@@ -356,7 +356,7 @@ window.LogR2 = (function() {
 })();
 </script>
 
-This is the follow-up to the first post [Logistic Regression: An Interactive Guide]({{ site.baseurl }}/logistic-regression/). In that post, we built logistic regression for a single feature, one input $$x$$ (hours studied), and the decision boundary was a single point on the number line separating pass from fail. Now we take the natural next step of two input features by predicting whether a student passes or fails an exam based on both hours studied and attendance score, and the decision boundary goes from a point on a line to an actual line in 2D space.
+This is the follow-up to the first post [Logistic Regression]({{ site.baseurl }}/logistic-regression/). In that post, we built logistic regression for a single feature, one input $$x$$ (hours studied), and the decision boundary was a single point on the number line separating pass from fail. Now we take the natural next step of two input features by predicting whether a student passes or fails an exam based on both hours studied and attendance score, and the decision boundary goes from a point on a line to an actual line in 2D space.
 
 The full model with two features is:
 
@@ -1472,7 +1472,7 @@ With one feature, the decision boundary is a point on the number line, with two 
 
 #### Continue the ML Series
 
-This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
+This post is part of a bigger [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
 
 #### References
 

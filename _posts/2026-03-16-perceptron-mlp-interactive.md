@@ -5,7 +5,7 @@ author: bharathikannan
 categories: [Machine learning]
 series: true
 hidden: true
-description: "Build neural networks from scratch with interactive visualizations. Train a single neuron, watch it fail on XOR, then add a hidden layer to solve it. Adjust network architecture and watch decision boundaries evolve in real-time - all in your browser."
+description: "Build neural networks with interactive visualizations. Train a single neuron, watch it fail on XOR, then add a hidden layer to solve it. Adjust network architecture and watch decision boundaries evolve in real-time - all in your browser."
 image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /perceptron-mlp/
 date: 2026-04-29
@@ -127,7 +127,7 @@ date: 2026-04-29
 
 ## Perceptrons and Neural Networks
 
-A perceptron is one of the simplest models for binary classification: it computes a weighted sum of inputs, adds a bias, and applies an activation function. If you want background on the closely related linear classifier, see [Logistic Regression from Scratch]({% post_url 2026-03-16-logistic-regression-from-scratch-interactive %}). This chapter is fully self-contained, so you can continue directly from here.
+A perceptron is one of the simplest models for binary classification: it computes a weighted sum of inputs, adds a bias, and applies an activation function. If you want background on the closely related linear classifier, see [Logistic Regression]({% post_url 2026-03-16-logistic-regression-from-scratch-interactive %}). This chapter is fully self-contained, so you can continue directly from here.
 
 The perceptron at its core is the same computation as logistic regression: a weighted sum of inputs passed through an activation function. The key difference is how this output is interpreted and how multiple neurons can be combined. When we stack neurons into layers, this simple computation becomes the foundation of neural networks.
 
@@ -430,7 +430,7 @@ One of the most important theoretical results in neural network research is the 
 
 #### Continue the ML Series
 
-This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
+This post is part of a bigger [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
 
 
 <script>

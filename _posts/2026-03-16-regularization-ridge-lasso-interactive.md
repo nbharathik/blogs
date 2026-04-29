@@ -2232,7 +2232,7 @@ Regularization penalises complexity by adding a term to the loss function that d
 
 #### Continue the ML Series
 
-This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
+This post is part of a bigger [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
 
 <script>
 // Force redraw on page load (handles late theme detection)

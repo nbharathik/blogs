@@ -1918,4 +1918,4 @@ In the next chapter, we will explore Principal Component Analysis (PCA), a power
 
 ---
 
-This is part of the [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. You can explore topics in any order, though they build naturally on each other.
+This is part of the [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. You can explore topics in any order, though they build naturally on each other.

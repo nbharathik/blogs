@@ -992,4 +992,4 @@ Polynomial regression is a clean demonstration of a universal principle in machi
 
 #### Continue the ML Series
 
-This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. Next up is [Regularization, Ridge, Lasso & Elastic Net]({{ site.baseurl }}/regularization-ridge-lasso/), where we will add a penalty term to prevent overfitting, explore the L1 and L2 landscapes interactively, and see how regularisation connects directly to the bias-variance tradeoff we built up here.
+This post is part of a bigger [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. Next up is [Regularization, Ridge, Lasso & Elastic Net]({{ site.baseurl }}/regularization-ridge-lasso/), where we will add a penalty term to prevent overfitting, explore the L1 and L2 landscapes interactively, and see how regularisation connects directly to the bias-variance tradeoff we built up here.

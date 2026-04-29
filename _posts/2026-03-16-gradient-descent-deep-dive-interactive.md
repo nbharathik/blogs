@@ -2122,4 +2122,4 @@ The optimizer is not just a knob to turn; it fundamentally shapes how your model
 
 #### Continue the ML Series
 
-This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. Next up is [Perceptron & MLP]({{ site.baseurl }}/perceptron-mlp/), where we put these optimizers to work training a multi-layer perceptron from scratch.
+This post is part of a bigger [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series. Next up is [Perceptron & MLP]({{ site.baseurl }}/perceptron-mlp/), where we put these optimizers to work training a multi-layer perceptron from scratch.

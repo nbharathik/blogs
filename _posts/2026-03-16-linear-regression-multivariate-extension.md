@@ -312,7 +312,7 @@ window.LR2 = (function() {
 })();
 </script>
 
-This is a follow-up to the first post [Linear Regression from Scratch: An Interactive Guide]({{ site.baseurl }}/linear-regression/). Now we move to the next step of multiple input features. We start with the simplest multivariate case of two features, because it can still be visualized. With two inputs, linear regression is no longer just a line and instead becomes a plane in 3D space. More generally, with additional features the same idea extends to a hyperplane in higher dimensions.
+This is a follow-up to the first post [Linear Regression]({{ site.baseurl }}/linear-regression/). Now we move to the next step of multiple input features. We start with the simplest multivariate case of two features, because it can still be visualized. With two inputs, linear regression is no longer just a line and instead becomes a plane in 3D space. More generally, with additional features the same idea extends to a hyperplane in higher dimensions.
 
 The full model with two features is:
 
@@ -1394,7 +1394,7 @@ With one feature, the model is a line; with two features, it becomes a plane; an
 
 #### Continue the ML Series
 
-This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
+This post is part of a bigger [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series.
 
 #### References
 

@@ -1842,9 +1842,9 @@ These same ideas appear again in larger models: define a differentiable objectiv
 
 #### Continue the ML Series
 
-This post is part of a bigger [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series:
+This post is part of a bigger [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. If you would like to learn more, check out the other posts in this series:
 
-- Linear Regression Part 2 (multiple features): [Linear Regression from Scratch II: Multivariate Extension]({{ site.baseurl }}/linear-regression-multivariate/)
+- Linear Regression Part 2 (multiple features): [Linear Regression II: Multivariate Extension]({{ site.baseurl }}/linear-regression-multivariate/)
 
 #### References
 

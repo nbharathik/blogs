@@ -1812,4 +1812,4 @@ Random Forests reduce variance by averaging many independent models. But what if
 
 ---
 
-*This is part of the [Machine Learning from Scratch]({{ site.baseurl }}/ml/) series. You might also enjoy [Decision Trees]({{ site.baseurl }}/decision-trees/) (which Random Forests build on) or continue to [Boosting]({{ site.baseurl }}/boosting/).*
+*This is part of the [Interactive Machine Learning]({{ site.baseurl }}/ml/) series. You might also enjoy [Decision Trees]({{ site.baseurl }}/decision-trees/) (which Random Forests build on) or continue to [Boosting]({{ site.baseurl }}/boosting/).*
