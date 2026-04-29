@@ -3,7 +3,9 @@ layout: default
 ---
 
 {% assign non_archived_posts = site.posts | where_exp: "post", "post.archived != true" %}
-{% assign listed_posts = non_archived_posts | where_exp: "post", "post.hidden != true or post.series == true" | sort: "date" | reverse %}
+{% assign visible_posts = non_archived_posts | where_exp: "post", "post.hidden != true" %}
+{% assign series_posts = non_archived_posts | where_exp: "post", "post.series == true" %}
+{% assign listed_posts = visible_posts | concat: series_posts | uniq | sort: "date" | reverse %}
 {% assign sorted_categories = site.categories | sort %}
 
 <div class="container">
