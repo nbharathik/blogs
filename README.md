@@ -1,27 +1,97 @@
-<!-- # Mediumish - Jekyll Theme
+# Bharathi Kannan Blogs
 
-[Live Demo](https://wowthemesnet.github.io/mediumish-theme-jekyll/) &nbsp; | &nbsp; [Download](https://github.com/wowthemesnet/mediumish-theme-jekyll/archive/master.zip) &nbsp; | &nbsp; [Documentation](https://bootstrapstarter.com/bootstrap-templates/template-mediumish-bootstrap-jekyll/) &nbsp; | &nbsp; [Buy me a coffee](https://www.wowthemes.net/donate/)
+Personal blog site built with Jekyll (Mediumish theme-based setup).
 
-![mediumish](assets/images/mediumish-jekyll-template.png)
+## Prerequisites
 
+Install the following first:
 
-### Copyright
+1. Ruby (recommended: latest stable 3.4.x)
+2. Bundler (`gem install bundler`)
 
-Copyright (C) 2019 Sal, https://www.wowthemes.net
+Optional on Windows:
 
-**Mediumish for Jekyll** is designed and developed by [Sal](https://www.wowthemes.net) and it is *free* under MIT license. 
+1. Ruby+DevKit (recommended installer from RubyInstaller)
 
-<a href="https://www.wowthemes.net/donate/" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+## Setup (One-Time)
 
-### Contribute
+From the project root (`blogs`):
 
-1. [Fork the repo](https://github.com/wowthemesnet/mediumish-theme-jekyll).
-2. Clone a copy of your fork on your local
-3. Create a branch off of master and give it a meaningful name (e.g. my-new-mediumish-feature).
-4. Make necessary changes, commit, push and open a pull request on GitHub.
+```powershell
+bundle install
+```
 
-Thank you! -->
-## Bharathi kannan blogs.
+## Run Locally
 
-### Template
-**Mediumish for Jekyll** is designed and developed by [Sal](https://www.wowthemes.net) and it is *free* under MIT license.
+Start the local server:
+
+```powershell
+bundle exec jekyll serve --livereload
+```
+
+Open:
+
+`http://127.0.0.1:4000/blogs/`
+
+Notes:
+
+1. Keep this command running while editing.
+2. You do not need to run `serve` again for every content/style change.
+3. Just refresh the browser (or use `--livereload` for auto refresh).
+
+## Build Only (No Server)
+
+```powershell
+bundle exec jekyll build
+```
+
+Generated static files are written to `_site/`.
+
+## When You Must Restart `jekyll serve`
+
+Restart the server only when:
+
+1. `Gemfile` or gem versions change
+2. You run `bundle install` or `bundle update`
+3. `_config.yml` changes
+4. The server crashes/stops
+
+## Common Commands
+
+Install or update gems:
+
+```powershell
+bundle install
+bundle update
+```
+
+Clean generated output:
+
+```powershell
+bundle exec jekyll clean
+```
+
+## Troubleshooting
+
+### `undefined method 'tainted?' for Hash` (Liquid error)
+
+This is a Ruby/Liquid compatibility issue. The project pins Liquid to a safe version in `Gemfile`.
+
+If you still hit it:
+
+```powershell
+bundle update liquid
+bundle exec jekyll build
+```
+
+### Port already in use
+
+Run on another port:
+
+```powershell
+bundle exec jekyll serve --port 4001 --livereload
+```
+
+## Credits
+
+Theme base: Mediumish for Jekyll by Sal (WowThemes), MIT license.

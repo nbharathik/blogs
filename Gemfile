@@ -8,7 +8,7 @@ source "https://rubygems.org"
 #
 
 # If you have any plugins, put them here!
-gem 'wdm', '>= 0.1.0' if Gem.win_platform?
+gem 'wdm', '>= 0.1.0' if Gem.win_platform? && Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.4.0')
 group :jekyll_plugins do
     gem 'jekyll-feed'
     gem 'jekyll-sitemap'
@@ -20,3 +20,7 @@ group :jekyll_plugins do
 end
 
 gem "webrick", "~> 1.7"
+gem "csv"
+gem "base64"
+gem "bigdecimal"
+gem "liquid", "~> 4.0.4"

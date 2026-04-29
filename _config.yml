@@ -1,41 +1,51 @@
-# bundle exec jekyll serve --watch
-
-# Site
-name: "Bharathi kannan"
-title: "Bharathi kannan blogs"
-description: "Hello, Welcome to my blog."
+# Site settings
+name: "B2logs"
+title: "B2logs"
+description: "PhD Student at University of Rostock - writing about AI, Machine Learning, LLMs, and Computer Vision."
 logo: 'assets/images/logo.png'
 favicon: 'assets/images/logo.png'
 baseurl: /blogs
-google_analytics: 'UA-186067054-1'
-disqus: 'bharathikannann'
-#mailchimp-list: 'https://gmail.us7.list-manage.com/subscribe/post?u=3cc170768d91e4ad408c93b89&amp;id=a42a2476d7'
-include: ["_pages"]
+url: "https://nbharathik.github.io"
 permalink: /:title/
-# Lazy Images ("enabled" or "disabled")
-lazyimages: "enabled"
 
+# Author
+author:
+  name: Bharathi Kannan Nithyanantham
+  short_name: Bharathi Kannan
+  role: PhD Student
+  affiliation: University of Rostock
+  location: Rostock, Germany
+  bio: "Researching at the intersection of Large Language Models and Multimodal AI. Focus areas include tool-augmented LLMs, multimodal spatial reasoning, and generative methods for BIM/CAD automation."
+  avatar: 'assets/images/bharathikannan.png'
+  email: bharathikannanhs@gmail.com
+  github: https://github.com/bharathikannann
+  github_username: bharathikannann
+  linkedin: https://www.linkedin.com/in/bharathikannann/
+  twitter: https://twitter.com/bharathik_n
+  scholar: https://scholar.google.com/citations?user=cJnFLboAAAAJ&hl=en
+  website: https://nbharathik.github.io/
+  interests:
+    - Large Language Models
+    - Multimodal AI
+    - Computer Vision
+    - Tool-augmented LLMs
+    - BIM/CAD Automation
 
-# Authors
+# Post authors (for multi-author support in posts)
 authors:
   bharathikannan:
-    name: Bharathi kannan
-    display_name: Bharathi kannan
-    avatar: 'assets/images/bharathikannan.jpg'
-    gravatar: e56154546cf4be74e393c62d1ae9f9d4
-    email: 
-    web: https://bharathikannann.github.io/
+    name: Bharathi Kannan
+    display_name: Bharathi Kannan
+    avatar: 'assets/images/bharathikannan.png'
+    web: https://nbharathik.github.io/
     twitter: https://twitter.com/bharathik_n
-    description: "I publish blogs related to Computer Science, AI and Machine Learning. Stay tuned for more posts. "
+    description: "PhD Student at University of Rostock. Researching LLMs, Multimodal AI, and Computer Vision."
   chatgpt:
     name: ChatGPT
-    display_name: ChatGPT    
+    display_name: ChatGPT
     avatar: 'assets/images/openai-logo.png'
-    gravatar: b1cc14991db7a456fcd761680bbc8f81
-    email: https://openai.com/about
     web: https://chat.openai.com/
-    twitter: https://chat.openai.com/
-    description: "Hello there, I'm ChatGPT and I answer you questions."
+    description: "Written with ChatGPT."
 
 # Plugins
 plugins:
@@ -44,7 +54,7 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-archives
-    
+
 # Archives
 jekyll-archives:
   enabled:
@@ -52,28 +62,21 @@ jekyll-archives:
   layout: archive
   permalinks:
     category: '/category/:name/'
-    
-# Pagination 
-paginate: 6
-paginate_path: /page:num/
-    
-# Other
-markdown: kramdown
 
+# Pagination
+paginate: 10
+paginate_path: /page:num/
+
+# Markdown
+markdown: kramdown
 kramdown:
   math_engine: mathjax
   input: GFM
   syntax_highlighter: rouge
   syntax_highlighter_opts:
     block:
-      line_numbers: true
+      line_numbers: false
 
-# Adsense (change to "enabled" to activate, also your client id and ad slot. Create a new ad unit from your Adsense account to get the slot.)
-adsense: "disabled"
-adsense-data-ad-client: "ca-pub-3412143450191416"
-adsense-data-ad-slot: "1363087678"
-
-# Lazy Images ("enabled" or "disabled")
-lazyimages: "enabled"
-
-exclude: [changelog.md, LICENSE.txt, README.md, Gemfile, Gemfile.lock]
+# Build
+include: ["_pages"]
+exclude: [changelog.md, LICENSE.txt, README.md, Gemfile, Gemfile.lock, docker-compose.yml, .claude]

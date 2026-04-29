@@ -6,6 +6,7 @@ categories: [Machine learning,Reinforcement learning,Webinar,Artificial Intellig
 image: assets/images/ml-dl-webinar-photos/Screenshot (166).png
 description: "A webinar where I explain about the basic math concepts in ML and DL. Attended by more than 200+ students all over India and got a very good feedback."
 featured: true
+archived: true
 ---
 
 
