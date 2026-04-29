@@ -13,7 +13,7 @@
     {% assign parent_category = post.categories | first %}
     {% assign hidden_series_tag = 'ml-part-2' %}
     {% if parent_category %}
-      {% assign series_posts = site.posts | where_exp: "p", "p.series == true and p.archived != true and p.categories contains parent_category" | sort: "date" %}
+      {% assign series_posts = site.posts | where_exp: "p", "p.series == true" | where_exp: "p", "p.archived != true" | where_exp: "p", "p.categories contains parent_category" | sort: "date" %}
     {% else %}
       {% assign series_posts = '' %}
     {% endif %}
