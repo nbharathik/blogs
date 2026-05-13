@@ -28,6 +28,13 @@
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
 <script>
+  // URL-based opt-out: visit ?ga-opt-out=1 to disable, ?ga-opt-out=0 to re-enable.
+  try {
+    var p = new URLSearchParams(window.location.search).get('ga-opt-out');
+    if (p === '1') { localStorage.setItem('ga-opt-out', '1'); }
+    else if (p === '0') { localStorage.removeItem('ga-opt-out'); }
+  } catch (e) {}
+
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
