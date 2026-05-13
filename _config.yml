@@ -80,3 +80,6 @@ kramdown:
 # Build
 include: ["_pages"]
 exclude: [changelog.md, LICENSE.txt, README.md, Gemfile, Gemfile.lock, docker-compose.yml, .claude]
+
+# Analytics
+google_analytics: G-BV2J22YL46
