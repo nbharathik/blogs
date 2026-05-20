@@ -1,12 +1,12 @@
-﻿---
+---
 layout: post
 title: "Backpropagation Visualized"
 author: bharathikannan
 categories: [Machine learning]
 series: true
 hidden: true
+series_order: 9
 description: "Watch data flow forward and gradients flow backward through neural networks, visualize the chain rule at every node, and understand vanishing gradients - all interactively."
-image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /backpropagation/
 date: 2026-04-29
 ---

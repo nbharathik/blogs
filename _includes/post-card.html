@@ -13,7 +13,7 @@
     {% assign parent_category = post.categories | first %}
     {% assign hidden_series_tag = 'ml-part-2' %}
     {% if parent_category %}
-      {% assign series_posts = site.posts | where_exp: "p", "p.series == true" | where_exp: "p", "p.archived != true" | where_exp: "p", "p.categories contains parent_category" | sort: "date" %}
+      {% assign series_posts = site.posts | where_exp: "p", "p.series == true" | where_exp: "p", "p.archived != true" | where_exp: "p", "p.categories contains parent_category" | sort: "series_order" %}
     {% else %}
       {% assign series_posts = '' %}
     {% endif %}
@@ -34,8 +34,10 @@
         {% unless series_post.tags contains hidden_series_tag %}
         <li>
           <a href="{{ series_post.url | prepend: site.baseurl }}">
-            <span>{{ series_post.title }}</span>
-            <time datetime="{{ series_post.date | date: '%Y-%m-%d' }}">{{ series_post.date | date: "%b %-d, %Y" }}</time>
+            <div class="ps-text">
+              <span class="ps-title">{{ series_post.title }}</span>
+              <time class="ps-date" datetime="{{ series_post.date | date: '%Y-%m-%d' }}">{{ series_post.date | date: "%b %-d, %Y" }}</time>
+            </div>
           </a>
         </li>
         {% endunless %}

@@ -6,20 +6,22 @@ logo: 'assets/images/logo.png'
 favicon: 'assets/images/logo.png'
 baseurl: /blogs
 url: "https://nbharathik.github.io"
+repository: nbharathik/blogs
+repository_url: "https://github.com/nbharathik/blogs"
 permalink: /:title/
 
 # Author
 author:
   name: Bharathi Kannan Nithyanantham
-  short_name: Bharathi Kannan
+  short_name: Bharathi Kannan N
   role: PhD Student
   affiliation: University of Rostock
   location: Rostock, Germany
   bio: "Researching at the intersection of Large Language Models and Multimodal AI. Focus areas include tool-augmented LLMs, multimodal spatial reasoning, and generative methods for BIM/CAD automation."
   avatar: 'assets/images/bharathikannan.png'
   email: bharathikannanhs@gmail.com
-  github: https://github.com/bharathikannann
-  github_username: bharathikannann
+  github: https://github.com/nbharathik
+  github_username: nbharathik
   linkedin: https://www.linkedin.com/in/bharathikannann/
   twitter: https://twitter.com/bharathik_n
   scholar: https://scholar.google.com/citations?user=cJnFLboAAAAJ&hl=en
@@ -34,18 +36,12 @@ author:
 # Post authors (for multi-author support in posts)
 authors:
   bharathikannan:
-    name: Bharathi Kannan
-    display_name: Bharathi Kannan
+    name: Bharathi Kannan Nithyanantham
+    display_name: Bharathi Kannan N
     avatar: 'assets/images/bharathikannan.png'
     web: https://nbharathik.github.io/
     twitter: https://twitter.com/bharathik_n
     description: "PhD Student at University of Rostock. Researching LLMs, Multimodal AI, and Computer Vision."
-  chatgpt:
-    name: ChatGPT
-    display_name: ChatGPT
-    avatar: 'assets/images/openai-logo.png'
-    web: https://chat.openai.com/
-    description: "Written with ChatGPT."
 
 # Plugins
 plugins:
@@ -79,7 +75,7 @@ kramdown:
 
 # Build
 include: ["_pages"]
-exclude: [changelog.md, LICENSE.txt, README.md, Gemfile, Gemfile.lock, docker-compose.yml, .claude]
+exclude: [LICENSE.txt, CITATION.cff, README.md, Gemfile, Gemfile.lock, docker-compose.yml]
 
 # Analytics
 google_analytics: G-BV2J22YL46

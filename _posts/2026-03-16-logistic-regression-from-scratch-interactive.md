@@ -1,12 +1,12 @@
-﻿---
+---
 layout: post
 title: "Logistic Regression"
 author: bharathikannan
 categories: [Machine learning]
 series: true
 hidden: true
+series_order: 3
 description: "Build logistic regression from the ground up with interactive visualizations. Adjust parameters, watch gradient descent optimize the sigmoid curve, and explore the decision boundary - all in your browser."
-image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /logistic-regression/
 date: 2026-04-29
 ---

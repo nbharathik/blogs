@@ -1,12 +1,12 @@
-﻿---
+---
 layout: post
 title: "Regularization: Ridge, Lasso & Elastic Net"
 author: bharathikannan
 categories: [Machine learning]
 series: true
 hidden: true
+series_order: 7
 description: "Visualize how L1 and L2 regularization shrink coefficients, why Lasso produces sparsity, and how Elastic Net combines both - all interactively in your browser."
-image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /regularization-ridge-lasso/
 date: 2026-04-29
 ---

@@ -1,12 +1,12 @@
-﻿---
+---
 layout: post
 title: "Gradient Descent Deep Dive: From SGD to Adam"
 author: bharathikannan
 categories: [Machine learning]
 series: true
 hidden: true
+series_order: 5
 description: "Explore gradient descent optimizers interactively. Race SGD, Momentum, RMSProp, and Adam side-by-side, tune learning rates, escape saddle points, and compare mini-batch vs batch - all in your browser."
-image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /gradient-descent/
 date: 2026-04-29
 ---

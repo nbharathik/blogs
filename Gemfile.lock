@@ -82,6 +82,7 @@ DEPENDENCIES
   base64
   bigdecimal
   csv
+  jekyll (~> 4.2.1)
   jekyll-archives
   jekyll-feed
   jekyll-paginate

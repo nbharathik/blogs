@@ -2,6 +2,16 @@
 layout: default
 ---
 
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 {% assign author = site.authors[page.author] %}
 
 <div class="container">
@@ -47,7 +57,7 @@ layout: default
   <!-- Comments -->
   <div class="post-comments">
     <script src="https://utteranc.es/client.js"
-      repo="{{ site.author.github_username }}/blogs"
+      repo="{{ site.repository }}"
       issue-term="pathname"
       theme="preferred-color-scheme"
       crossorigin="anonymous"

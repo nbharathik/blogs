@@ -1,12 +1,12 @@
-﻿---
+---
 layout: post
 title: "Logistic Regression II"
 author: bharathikannan
 categories: [Machine learning]
 series: true
 hidden: true
+series_order: 4
 description: "Extend logistic regression to two features with interactive 3D visualizations. Watch a sigmoid probability surface shape itself to fit data, explore the cost surface, and see gradient descent converge."
-image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /logistic-regression-multivariate/
 date: 2026-04-29
 ---

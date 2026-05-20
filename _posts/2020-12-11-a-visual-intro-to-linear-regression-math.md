@@ -7,6 +7,7 @@ image: assets/images/linear-regression-math/linear-regression-banner.jpg
 description: "An Interactive and Visual guide to mastering linear regression math. It is one of the most popular machine learning algorithm. It's simplicity makes it a great stepping stone to learn more complex algorithms."
 featured: True
 archived: True
+license: cc-by-sa-4.0
 ---
 
 <!-- #### A little intro to types of Machine Learning Algorithms
@@ -106,7 +107,7 @@ A simple interactive visualization to understand what weights and biases are doi
         </div>
     </div>
 </div>
-<label class="light-text">For any issues open it in the new tab and play with it - <a href="../assets/files/linear-regression-geogebra.html" target="_blank">link</a></label><br>
+<label class="light-text">For any issues open it in the new tab and play with it - <a href="../assets/files/linear-regression-geogebra.html" target="_blank" rel="noopener">link</a></label><br>
 You can see that the **weight** changes the *slope* of the line and the **bias** changes the *starting point* of the line.
 
 ### Cost Function
@@ -177,7 +178,7 @@ Our objective is to get the best possible line. The best possible line will be s
     <div class="row">
         <div class="col">
             <center>
-                <span class="featured-article-img-credits">Photo by <a href="[https://unsplash.com/@p_kuzovkova?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText](https://unsplash.com/@p_kuzovkova?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText)">Polina Kuzovkova</a> on <a href="[https://unsplash.com/s/photos/fog-mountains?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText](https://unsplash.com/s/photos/fog-mountains?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText)">Unsplash</a></span>
+                <span class="featured-article-img-credits">Photo by <a href="https://unsplash.com/@p_kuzovkova?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Polina Kuzovkova</a> on <a href="https://unsplash.com/s/photos/fog-mountains?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
             </center>
         </div>
     </div>
@@ -495,9 +496,14 @@ Do you have any questions? Leave the questions in the comments section and I wil
 
 [Linear Regression](https://en.wikipedia.org/wiki/Linear_regression) - Wikipedia.
 
-[Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent) - Wikipedia. 
+[Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent) - Wikipedia.
 
-[Reducing Loss: Optimizing Learning Rate](https://developers.google.com/machine-learning/crash-course/fitter/graph) - Machine Learning crash course from google.&nbsp; Animation code for optimizing learning rate adapted from [source](https://gist.github.com/peterroelants/679410641a15b715a8a36ec39388516f).
+[Understanding the Mathematics behind Gradient Descent](https://parulpandeycom.wordpress.com/2019/03/18/understanding-the-mathematics-behind-gradient-descent/) Used as a learning reference for the cost-function and gradient-descent intuition.
 
-Interactive visualization powered by [geogebra](https://www.geogebra.org/?lang=en). Download the file <a href="../assets/files/geogebra-linear-regression.ggb" target="_blank">here</a>.
+[Reducing Loss: Optimizing Learning Rate](https://developers.google.com/machine-learning/crash-course/fitter/graph) - Machine Learning crash course from Google. Animation code for optimizing learning rate adapted from [source](https://gist.github.com/peterroelants/679410641a15b715a8a36ec39388516f).
 
+Interactive visualization powered by [geogebra](https://www.geogebra.org/?lang=en). Download the file <a href="../assets/files/geogebra-linear-regression.ggb" target="_blank" rel="noopener">here</a>.
+
+#### License Note
+
+This post is licensed under [Creative Commons Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/). 

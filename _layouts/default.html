@@ -3,23 +3,15 @@
 <head>
 {% include head.html %}
 
-<script>
-window.MathJax = {
-  tex: {
-    inlineMath: [['$','$'], ['\\(','\\)']],
-    processEscapes: true
-  }
-};
-</script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
 <title>{% if page.title %}{{ page.title }} | {{ site.author.short_name }}{% else %}{{ site.title }}{% endif %}</title>
 </head>
 <body>
 
+<a href="#main-content" class="skip-link">Skip to content</a>
+
 {% include header.html %}
 
-<main>
+<main id="main-content" tabindex="-1">
   {{ content }}
 </main>
 

@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use or reference these blog posts, please cite as below."
+title: "B2logs: Interactive Machine Learning and AI Visualizations"
+abstract: "A personal blog with interactive, browser-based visualizations and from-scratch derivations for machine learning, deep learning, and large language model topics."
+authors:
+  - family-names: Nithyanantham
+    given-names: Bharathi Kannan Nithyanantham
+    email: bharathikannanhs@gmail.com
+url: "https://nbharathik.github.io/blogs"
+repository-code: "https://github.com/nbharathik/blogs"
+license: CC-BY-4.0
+keywords:
+  - machine learning
+  - deep learning
+  - large language models
+  - interactive visualizations
+  - educational
+  - tutorial

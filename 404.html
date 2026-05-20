@@ -1,12 +1,73 @@
 ---
 layout: default
-title: 404
+title: Page not found
 permalink: /404.html
 ---
 
 <div class="container">
-  <div class="page-404">
-    <h1>404</h1>
-    <p>Page not found. <a href="{{ site.baseurl }}/">Go home</a>.</p>
-  </div>
+  <section class="page-404">
+    <p class="page-404-eyebrow">Error 404</p>
+    <h1 class="page-404-title">Page not found</h1>
+    <p class="page-404-desc">The page you were looking for does not exist or has been moved. Try one of the links below.</p>
+    <div class="page-404-links">
+      <a href="{{ site.baseurl }}/">Home</a>
+      <a href="{{ site.baseurl }}/archive">Archive</a>
+      <a href="{{ site.baseurl }}/categories">Categories</a>
+      <a href="{{ site.baseurl }}/about">About</a>
+    </div>
+  </section>
 </div>
+
+<style>
+  .page-404 {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 7rem 1rem 5rem;
+    text-align: center;
+  }
+  .page-404-eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.85rem;
+  }
+  .page-404-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin: 0 0 1rem;
+    color: var(--text-primary);
+  }
+  .page-404-desc {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.65;
+    margin: 0 auto 2rem;
+  }
+  .page-404-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+  }
+  .page-404-links a {
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    padding: 0.55rem 1.1rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color var(--transition), border-color var(--transition), background var(--transition);
+  }
+  .page-404-links a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--bg-primary);
+  }
+</style>

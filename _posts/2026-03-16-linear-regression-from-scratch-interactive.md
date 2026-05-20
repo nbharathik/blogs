@@ -1,12 +1,12 @@
-﻿---
+---
 layout: post
 title: "Linear Regression"
 author: bharathikannan
 categories: [Machine learning]
 series: true
 hidden: true
+series_order: 1
 description: "Build linear regression from the ground up with interactive visualizations. Drag points, adjust parameters, watch gradient descent converge - all in your browser."
-image: assets/images/linear-regression-math/linear-regression-banner.jpg
 permalink: /linear-regression/
 date: 2026-04-29
 ---
