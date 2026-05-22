@@ -60,7 +60,7 @@ permalink: /about
         </p>
 
         <p>
-        These blog posts are inspired by many interactive websites, including the ones in <a href="{{ site.baseurl }}/interactive-ml-websites/">this curated list of interactive AI and math websites</a>. Creating high-quality interactive posts takes time, but I enjoy building them and plan to keep adding more in my free time. Everything is open sourced in the <a href="{{ site.repository_url }}" target="_blank" rel="noopener">repository</a>. Contributions are welcome, and you are free to use it, fork it, and learn from it. </p>  
+        The idea for these blog posts are inspired by many interactive websites, including the ones in <a href="{{ site.baseurl }}/interactive-ml-websites/">this curated list of interactive AI and math websites</a>. Creating high-quality interactive posts takes time, but I enjoy building them and plan to keep adding more in my free time. Everything is open sourced in the <a href="{{ site.repository_url }}" target="_blank" rel="noopener">repository</a>. Contributions are welcome, and you are free to use it, fork it, and learn from it. </p>  
 
         <div class="about-divider">* * *</div>
 
