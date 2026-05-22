@@ -55,15 +55,23 @@ window.MathJax = {
   </div>
 
   <!-- Comments -->
-  <div class="post-comments">
-    <script src="https://utteranc.es/client.js"
-      repo="{{ site.repository }}"
-      issue-term="pathname"
-      theme="preferred-color-scheme"
-      crossorigin="anonymous"
-      async>
-    </script>
-  </div>
+  <div class="post-comments"></div>
+  <script>
+  (function() {
+    var container = document.querySelector('.post-comments');
+    if (!container) return;
+    var dataTheme = document.documentElement.getAttribute('data-theme');
+    var theme = dataTheme === 'dark' ? 'github-dark' : 'github-light';
+    var script = document.createElement('script');
+    script.src = 'https://utteranc.es/client.js';
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.setAttribute('repo', '{{ site.repository }}');
+    script.setAttribute('issue-term', 'pathname');
+    script.setAttribute('theme', theme);
+    container.appendChild(script);
+  })();
+  </script>
 
   {% assign prev_post = nil %}
   {% assign next_post = nil %}

@@ -1,4 +1,63 @@
-// Theme toggle
+// Theme toggle. The utterances iframe may not exist yet when the user
+// toggles the theme (it loads async, often only when scrolled into view),
+// so we track the desired utterances theme and re-apply it whenever the
+// iframe sends us a message (load/resize). That guarantees the comments
+// match the site theme even if the toggle happens before they mount.
+var utterancesDesiredTheme = null;
+
+function utterancesThemeFor(dataTheme) {
+  return dataTheme === 'dark' ? 'github-dark' : 'github-light';
+}
+
+function applyUtterancesTheme() {
+  if (!utterancesDesiredTheme) return;
+  var frame = document.querySelector('.utterances-frame');
+  if (frame && frame.contentWindow) {
+    frame.contentWindow.postMessage(
+      { type: 'set-theme', theme: utterancesDesiredTheme },
+      'https://utteranc.es'
+    );
+  }
+}
+
+// Initialise the desired theme as soon as this script runs, so the very
+// first message utterances sends (on iframe load) triggers a sync.
+utterancesDesiredTheme = utterancesThemeFor(
+  document.documentElement.getAttribute('data-theme')
+);
+
+window.addEventListener('message', function(event) {
+  if (event && event.origin === 'https://utteranc.es') {
+    applyUtterancesTheme();
+  }
+});
+
+// Belt-and-suspenders: watch for the utterances iframe being inserted into
+// the page and post the theme as soon as it appears, in case the initial
+// theme attribute was already correct and no early postMessage is queued.
+(function watchForUtterancesFrame() {
+  if (typeof MutationObserver === 'undefined') return;
+  var container = document.querySelector('.post-comments');
+  var setupObserver = function() {
+    container = container || document.querySelector('.post-comments');
+    if (!container) return;
+    var observer = new MutationObserver(function() {
+      if (document.querySelector('.utterances-frame')) {
+        // Push again shortly after insertion to give the iframe time to load.
+        applyUtterancesTheme();
+        setTimeout(applyUtterancesTheme, 500);
+        observer.disconnect();
+      }
+    });
+    observer.observe(container, { childList: true, subtree: true });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupObserver);
+  } else {
+    setupObserver();
+  }
+})();
+
 function toggleTheme() {
   var html = document.documentElement;
   var current = html.getAttribute('data-theme');
@@ -6,14 +65,8 @@ function toggleTheme() {
   html.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
 
-  // Update utterances theme if present
-  var utterancesFrame = document.querySelector('.utterances-frame');
-  if (utterancesFrame) {
-    utterancesFrame.contentWindow.postMessage(
-      { type: 'set-theme', theme: next === 'dark' ? 'github-dark' : 'github-light' },
-      'https://utteranc.es'
-    );
-  }
+  utterancesDesiredTheme = utterancesThemeFor(next);
+  applyUtterancesTheme();
 }
 
 function slugifyText(value) {
