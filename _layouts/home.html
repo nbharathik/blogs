@@ -4,16 +4,26 @@ layout: default
 
 <div class="container">
 
+  <!-- Welcome / Hero -->
+  <section class="welcome-intro">
+    <img class="welcome-avatar" src="{{ site.baseurl }}/{{ site.author.avatar }}" alt="{{ site.author.short_name }}">
+    <div class="welcome-text">
+      <p class="welcome-tagline">Hi, I'm Bharathi <span class="welcome-wave" aria-hidden="true">👋</span> Here you'll find interactive posts on AI, and related topics. Feel free to reach out if you have any questions or feedback!</p>
+    </div>
+  </section>
+
   <!-- Posts -->
   <section class="posts-section posts-section-top">
     <div class="section-label">Articles</div>
     <ul class="post-list">
       {% for post in paginator.posts %}
         {% unless post.archived %}
+          {% assign preview = true %}
+          {% if post.show_series_preview == false %}{% assign preview = false %}{% endif %}
           {% if post.series and post.hidden %}
-            {% include post-card.html show_series_preview=true %}
+            {% include post-card.html show_series_preview=preview %}
           {% elsif post.series != true and post.hidden != true %}
-            {% include post-card.html show_series_preview=true %}
+            {% include post-card.html show_series_preview=preview %}
           {% endif %}
         {% endunless %}
       {% endfor %}

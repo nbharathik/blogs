@@ -221,36 +221,71 @@ permalink: /about
   }
 
   @media (max-width: 700px) {
+    .about-page {
+      padding: 5rem 0 3rem;
+    }
+
     .about-body {
       grid-template-columns: 1fr;
-      gap: 2rem;
+      gap: 1.75rem;
     }
 
     .about-sidebar {
       position: static;
-      flex-direction: row;
-      align-items: center;
-      text-align: left;
-      gap: 1.25rem;
+      padding: 1.25rem 1rem 1.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
     }
 
     .about-avatar {
-      width: 72px;
-      height: 72px;
-      margin-bottom: 0;
-      flex-shrink: 0;
+      width: 104px;
+      height: 104px;
+      margin-bottom: 0.85rem;
+    }
+
+    .about-sidebar-name {
+      font-size: 1rem;
+      margin-bottom: 0.85rem;
     }
 
     .about-chips {
-      text-align: left;
+      margin-bottom: 1rem;
     }
 
-    .about-social {
-      justify-content: flex-start;
+    .about-chips li {
+      font-size: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .about-prose h2 {
+      font-size: 1.2rem;
+      margin-top: 1.25rem;
+    }
+
+    .about-prose p {
+      font-size: 0.97rem;
+      line-height: 1.75;
     }
 
     .about-title {
       font-size: 2rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .about-page {
+      padding: 4.5rem 0 2.5rem;
+    }
+
+    .about-avatar {
+      width: 92px;
+      height: 92px;
+    }
+
+    .about-chips li {
+      justify-content: flex-start;
+      text-align: left;
     }
   }
 </style>

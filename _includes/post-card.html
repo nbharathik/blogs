@@ -2,7 +2,11 @@
   <h3 class="post-item-title">
     <a href="{{ post.url | prepend: site.baseurl }}">
       <span class="post-item-title-text">{{ post.title }}</span>
+      {% if include.show_series_preview %}
       <span class="post-item-open">Read series &rarr;</span>
+      {% else %}
+      <span class="post-item-open">Read post &rarr;</span>
+      {% endif %}
     </a>
   </h3>
   {% if post.description %}

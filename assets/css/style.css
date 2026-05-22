@@ -553,8 +553,8 @@ hr {
   margin: 4.5rem auto 1.5rem;
   display: flex;
   align-items: center;
-  gap: 2rem;
-  padding: 1.25rem 2.25rem;
+  gap: 1.5rem;
+  padding: 0.9rem 1.75rem;
   border-radius: var(--radius-lg);
   background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
   border: 1px solid var(--border);
@@ -576,10 +576,10 @@ hr {
 }
 
 .welcome-avatar {
-  width: 100px !important;
-  height: 100px !important;
-  max-width: 100px !important;
-  max-height: 100px !important;
+  width: 72px !important;
+  height: 72px !important;
+  max-width: 72px !important;
+  max-height: 72px !important;
   border-radius: 50%;
   object-fit: cover;
   display: block;
@@ -594,18 +594,19 @@ hr {
 }
 
 .welcome-name {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 0.35rem;
-  line-height: 1.3;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin: 0 0 0.15rem;
+  line-height: 1.5;
 }
 
 .welcome-tagline {
-  margin: 0 0 0.85rem;
+  margin: 0;
   color: var(--text-secondary);
   font-size: 0.95rem;
-  line-height: 1.6;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 .welcome-links {
