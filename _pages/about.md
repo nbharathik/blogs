@@ -60,8 +60,7 @@ permalink: /about
         </p>
 
         <p>
-          The idea for these blog posts is mainly inspired by <a href="https://playground.tensorflow.org/" target="_blank" rel="noopener">TensorFlow Playground</a>, <a href="https://visualgo.net/" target="_blank" rel="noopener">Visualgo</a>, <a href="https://distill.pub/" target="_blank" rel="noopener">Distill</a>, <a href="https://www.deeplearning.ai/ai-notes/initialization/index.html" target="_blank" rel="noopener">DeepLearning.AI's AI Notes</a>, and <a href="https://ncase.me/" target="_blank" rel="noopener">Nicky Case's explorables</a>. Over time, I plan to add more posts on Machine learning and Deep learning, Optimizations, LLMs, and so on. Everything is open sourced in the <a href="{{ site.repository_url }}" target="_blank" rel="noopener">repository</a> so anyone can use, fork, or learn from it.
-        </p>
+        These blog posts are inspired by many interactive websites, including the ones in <a href="{{ site.baseurl }}/interactive-ml-websites/">this curated list of interactive AI and math websites</a>. Creating high-quality interactive posts takes time, but I enjoy building them and plan to keep adding more in my free time. Everything is open sourced in the <a href="{{ site.repository_url }}" target="_blank" rel="noopener">repository</a>. Contributions are welcome, and you are free to use it, fork it, and learn from it. </p>  
 
         <div class="about-divider">* * *</div>
 
