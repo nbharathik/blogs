@@ -11,7 +11,8 @@ show_series_preview: false
 ---
 
 <style>
-/* Let this post use the full container width since it is mostly a table */
+/* Header, intro, and filter chips keep the normal post width; only the table
+   itself breaks out wider to fit all the tags on one line. */
 .post-layout {
   max-width: var(--wide-width) !important;
   grid-template-columns: 1fr !important;
@@ -81,11 +82,12 @@ show_series_preview: false
   display: none;
 }
 
-/* Table: editorial, no big card or shadow */
+/* Table fills the blog post column, left-aligned. */
 .resource-table-wrap {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   margin: 0 0 1.5rem;
+  width: 100%;
 }
 .resource-table {
   width: 100%;
@@ -93,14 +95,13 @@ show_series_preview: false
   font-size: 0.9rem;
   table-layout: fixed;
 }
-.resource-table col.col-name { width: 26%; }
-.resource-table col.col-desc { width: 54%; }
-.resource-table col.col-tags { width: 20%; }
+.resource-table col.col-name { width: 70%; }
+.resource-table col.col-tags { width: 30%; }
 
 .resource-table th,
 .resource-table td {
   border-bottom: 1px solid var(--border-light);
-  padding: 0.55rem 0.9rem;
+  padding: 0.55rem 1rem;
   text-align: left;
   vertical-align: middle;
   word-wrap: break-word;
@@ -113,7 +114,7 @@ show_series_preview: false
   letter-spacing: 0.06em;
   background: transparent;
   border-bottom: 1px solid var(--border);
-  padding: 0.45rem 0.9rem;
+  padding: 0.45rem 1rem;
 }
 .resource-table tbody tr {
   transition: background var(--transition);
@@ -148,12 +149,6 @@ show_series_preview: false
 .resource-name:hover::after {
   color: var(--accent);
   transform: translate(1px, -1px);
-}
-
-.resource-desc {
-  color: var(--text-secondary);
-  font-size: 0.86rem;
-  line-height: 1.5;
 }
 
 /* Tags: neutral, no per-category color */
@@ -214,150 +209,121 @@ A collection of interactive websites for learning AI, math, and related topics. 
   <table class="resource-table">
     <colgroup>
       <col class="col-name">
-      <col class="col-desc">
       <col class="col-tags">
     </colgroup>
     <thead>
       <tr>
         <th>Website</th>
-        <th>Description</th>
         <th>Tags</th>
       </tr>
     </thead>
     <tbody id="resourceRows">
       <tr data-tags="ml dl">
         <td><a class="resource-name" href="https://playground.tensorflow.org/" target="_blank" rel="noopener">TensorFlow Playground</a></td>
-        <td><span class="resource-desc">A small neural network sandbox you can shape live in the browser.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">ML</span><span class="resource-tag">Deep learning</span></span></td>
       </tr>
       <tr data-tags="ml vision">
         <td><a class="resource-name" href="https://teachablemachine.withgoogle.com/" target="_blank" rel="noopener">Teachable Machine</a></td>
-        <td><span class="resource-desc">Train your own image, sound, and pose models without writing any code.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">ML</span><span class="resource-tag">Vision</span></span></td>
       </tr>
       <tr data-tags="llms ml">
         <td><a class="resource-name" href="https://pair.withgoogle.com/explorables/" target="_blank" rel="noopener">Google PAIR AI Explorables</a></td>
-        <td><span class="resource-desc">Interactive essays from Google PAIR on fairness, privacy, and model behavior.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">ML</span><span class="resource-tag">LLMs</span></span></td>
       </tr>
       <tr data-tags="dl ml">
         <td><a class="resource-name" href="https://www.deeplearning.ai/ai-notes/index.html" target="_blank" rel="noopener">DeepLearning.AI AI Notes</a></td>
-        <td><span class="resource-desc">Visual notes that demystify initialization and optimization in deep learning.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Deep learning</span></span></td>
       </tr>
       <tr data-tags="dl ml">
         <td><a class="resource-name" href="https://distill.pub/" target="_blank" rel="noopener">Distill</a></td>
-        <td><span class="resource-desc">A journal of beautifully visual essays on how neural networks really work.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Deep learning</span></span></td>
       </tr>
       <tr data-tags="dl">
         <td><a class="resource-name" href="https://poloclub.github.io/ganlab/" target="_blank" rel="noopener">GAN Lab</a></td>
-        <td><span class="resource-desc">Watch a GAN's generator and discriminator learn from each other live.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Deep learning</span></span></td>
       </tr>
       <tr data-tags="vision dl">
         <td><a class="resource-name" href="https://poloclub.github.io/cnn-explainer/" target="_blank" rel="noopener">CNN Explainer</a></td>
-        <td><span class="resource-desc">See how a CNN turns pixels into predictions, layer by layer.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Vision</span><span class="resource-tag">Deep learning</span></span></td>
       </tr>
       <tr data-tags="llms dl">
         <td><a class="resource-name" href="https://poloclub.github.io/transformer-explainer/" target="_blank" rel="noopener">Transformer Explainer</a></td>
-        <td><span class="resource-desc">A live transformer that lets you inspect tokens, attention, and predictions.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">LLMs</span></span></td>
       </tr>
       <tr data-tags="ml">
         <td><a class="resource-name" href="https://projector.tensorflow.org/" target="_blank" rel="noopener">Embedding Projector</a></td>
-        <td><span class="resource-desc">Explore high-dimensional embeddings using PCA, t-SNE, and UMAP.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">ML</span></span></td>
       </tr>
       <tr data-tags="ml">
         <td><a class="resource-name" href="https://pair-code.github.io/what-if-tool/" target="_blank" rel="noopener">What-If Tool</a></td>
-        <td><span class="resource-desc">Probe a model's behavior and explore fairness scenarios visually.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">ML</span></span></td>
       </tr>
       <tr data-tags="ml">
         <td><a class="resource-name" href="https://mlu-explain.github.io/" target="_blank" rel="noopener">MLU-Explain</a></td>
-        <td><span class="resource-desc">Amazon's visual essays covering the core ideas of machine learning.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">ML</span></span></td>
       </tr>
       <tr data-tags="ml">
         <td><a class="resource-name" href="https://r2d3.us/visual-intro-to-machine-learning-part-1/" target="_blank" rel="noopener">R2D3 Visual Intro to ML</a></td>
-        <td><span class="resource-desc">A scrollytelling intro to decision trees and the bias-variance trade-off.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">ML</span></span></td>
       </tr>
       <tr data-tags="math ml">
         <td><a class="resource-name" href="https://setosa.io/ev/" target="_blank" rel="noopener">Explained Visually</a></td>
-        <td><span class="resource-desc">Setosa's short visual explainers for statistics and ML fundamentals.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Math</span></span></td>
       </tr>
       <tr data-tags="math">
         <td><a class="resource-name" href="https://seeing-theory.brown.edu/" target="_blank" rel="noopener">Seeing Theory</a></td>
-        <td><span class="resource-desc">A beautiful visual introduction to probability and statistics.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Math</span></span></td>
       </tr>
       <tr data-tags="math ml">
         <td><a class="resource-name" href="https://www.infinitecuriosity.org/vizgp/" target="_blank" rel="noopener">Interactive Gaussian Process</a></td>
-        <td><span class="resource-desc">Tweak kernels and watch a Gaussian process update its uncertainty live.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Math</span></span></td>
       </tr>
       <tr data-tags="algo">
         <td><a class="resource-name" href="https://visualgo.net/en" target="_blank" rel="noopener">VisuAlgo</a></td>
-        <td><span class="resource-desc">Animated walkthroughs of classic data structures and algorithms.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Algorithms</span></span></td>
       </tr>
       <tr data-tags="algo math">
         <td><a class="resource-name" href="https://www.redblobgames.com/" target="_blank" rel="noopener">Red Blob Games</a></td>
-        <td><span class="resource-desc">Interactive notes on pathfinding, grids, and procedural noise.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Algorithms</span><span class="resource-tag">Math</span></span></td>
       </tr>
       <tr data-tags="math">
         <td><a class="resource-name" href="https://ncase.me/" target="_blank" rel="noopener">Nicky Case</a></td>
-        <td><span class="resource-desc">Playable essays on game theory, networks, and social dynamics.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Math</span></span></td>
       </tr>
       <tr data-tags="math">
         <td><a class="resource-name" href="https://explorabl.es/" target="_blank" rel="noopener">Explorable Explanations Hub</a></td>
-        <td><span class="resource-desc">A hub of interactive learning experiences spanning many topics.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Math</span></span></td>
       </tr>
       <tr data-tags="ml dl">
         <td><a class="resource-name" href="https://cs.stanford.edu/people/karpathy/convnetjs/demo/classify2d.html" target="_blank" rel="noopener">ConvNetJS Classifier Demo</a></td>
-        <td><span class="resource-desc">Watch a small neural network learn a 2D decision boundary in real time.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">ML</span></span></td>
       </tr>
       <tr data-tags="ml dl llms">
         <td><a class="resource-name" href="https://www.overfitting.io/" target="_blank" rel="noopener">Overfitting.io</a></td>
-        <td><span class="resource-desc">Small visualizers for optimizers, MNIST, and tokenization in the browser.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">ML</span><span class="resource-tag">Deep learning</span></span></td>
       </tr>
       <tr data-tags="llms">
         <td><a class="resource-name" href="https://bbycroft.net/llm" target="_blank" rel="noopener">LLM Visualization</a></td>
-        <td><span class="resource-desc">A 3D walkthrough of a full GPT model as it processes tokens, layer by layer.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">LLMs</span></span></td>
       </tr>
       <tr data-tags="llms vision dl">
         <td><a class="resource-name" href="https://poloclub.github.io/diffusion-explainer/" target="_blank" rel="noopener">Diffusion Explainer</a></td>
-        <td><span class="resource-desc">An interactive explainer for how Stable Diffusion turns text into images.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">LLMs</span><span class="resource-tag">Vision</span></span></td>
       </tr>
       <tr data-tags="llms">
         <td><a class="resource-name" href="https://tiktokenizer.vercel.app/" target="_blank" rel="noopener">Tiktokenizer</a></td>
-        <td><span class="resource-desc">Type any text and see exactly how it tokenizes for GPT-style models.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">LLMs</span></span></td>
       </tr>
       <tr data-tags="ml llms">
         <td><a class="resource-name" href="https://poloclub.github.io/wizmap/" target="_blank" rel="noopener">WizMap</a></td>
-        <td><span class="resource-desc">Pan and zoom around large embedding spaces with millions of points.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">ML</span></span></td>
       </tr>
       <tr data-tags="dl">
         <td><a class="resource-name" href="https://tensorspace.org/" target="_blank" rel="noopener">TensorSpace.js</a></td>
-        <td><span class="resource-desc">View pre-trained neural networks as rotatable 3D layer stacks.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Deep learning</span></span></td>
       </tr>
       <tr data-tags="algo">
         <td><a class="resource-name" href="https://www.cs.usfca.edu/~galles/visualization/Algorithms.html" target="_blank" rel="noopener">USFCA Algorithm Visualizations</a></td>
-        <td><span class="resource-desc">A classic, comprehensive set of DSA visualizations by David Galles.</span></td>
         <td><span class="resource-tags"><span class="resource-tag">Algorithms</span></span></td>
       </tr>
     </tbody>
