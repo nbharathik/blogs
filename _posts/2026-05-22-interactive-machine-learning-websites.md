@@ -123,7 +123,7 @@ show_series_preview: false
   background: var(--bg-secondary);
 }
 .resource-table tr:last-child td {
-  border-bottom: 0;
+  border-bottom: 1px solid var(--border);
 }
 
 /* Clickable website name (replaces the Open button column) */
