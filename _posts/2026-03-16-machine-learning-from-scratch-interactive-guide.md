@@ -180,3 +180,17 @@ An interactive series where machine learning algorithms are built from scratch, 
     </a>
   </div>
 </div>
+
+<p class="ml-part-label">Part 2</p>
+
+<div class="ml-category">
+  <h2>Classification</h2>
+  <div class="ml-grid">
+    <a class="ml-card" href="{{ site.baseurl }}/knn/">
+      <div class="ml-card-body">
+        <h3>K-Nearest Neighbors</h3>
+        <p>Classify by proximity. Paint decision boundaries, tune K from 1 to 30, and watch the curse of dimensionality bite.</p>
+      </div>
+    </a>
+  </div>
+</div>
